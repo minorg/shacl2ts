@@ -1,0 +1,40 @@
+{
+  "author": "Minor Gordon",
+  "dependencies": {
+    "shacl-ast": "1.0.5"
+  },
+  "description": "Generate TypeScript from SHACL shapes",
+  "devDependencies": {
+    "@tsconfig/strictest": "^2.0.5",
+    "@types/n3": "^1.16.4",
+    "n3": "^1.17.4",
+    "prettier": "^3.3.3",
+    "rimraf": "3.0.2",
+    "typescript": "^5.5",
+    "vitest": "^2.0.3"
+  },
+  "files": [
+    "*.d.ts",
+    "*.d.ts.map",
+    "*.js",
+    "*.js.map"
+  ],
+  "license": "GPL-3.0-only",
+  "main": "index.js",
+  "name": "shacl2ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/minorg/shacl2ts"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "tsc -b --clean",
+    "rebuild": "tsc -b --clean && tsc -b",
+    "test": "vitest",
+    "test:watch": "vitest watch",
+    "watch": "tsc -w --preserveWatchOutput"
+  },
+  "type": "module",
+  "types": "index.d.ts",
+  "version": "1.0.5"
+}

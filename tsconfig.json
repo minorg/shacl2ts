@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "exactOptionalPropertyTypes": false,
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "module": "ES2020",
+    "moduleResolution": "Node",
+    "noUncheckedIndexedAccess": false,
+    "target": "ES2020",
+    "sourceMap": true
+  },
+  "exclude": [
+    "node_modules",
+    "**/*.d.ts",
+    "**/*.d.ts.map",
+    "**/*.js",
+    "**/*.js.map"
+  ],
+  "extends": ["@tsconfig/strictest/tsconfig.json"],
+  "include": ["**/*.ts"]
+}
