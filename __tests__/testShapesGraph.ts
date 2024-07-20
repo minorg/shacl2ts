@@ -3,6 +3,7 @@ import { DatasetCore } from "@rdfjs/types";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ShapesGraph } from "shacl-ast";
 
 function parseTurtleFile(fileName: string): DatasetCore {
   const parser = new Parser({ format: "Turtle" });
@@ -19,7 +20,6 @@ function parseTurtleFile(fileName: string): DatasetCore {
   return store;
 }
 
-export const testData = {
-  dataGraph: parseTurtleFile("testDataGraph.ttl"),
-  shapesGraph: parseTurtleFile("testShapesGraph.ttl"),
-};
+export const testShapesGraph = ShapesGraph.fromDataset(
+  parseTurtleFile("testShapesGraph.ttl"),
+);
