@@ -166,6 +166,7 @@ export class ShapesGraphToAstTransformer {
       maxCount: propertyShape.constraints.maxCount,
       minCount: propertyShape.constraints.minCount,
       name: this.shapeName(propertyShape),
+      path: propertyShape.path,
       type: type.extract() as Type,
     };
     this.propertiesByIdentifier.set(propertyShape.node, property);
