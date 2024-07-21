@@ -2,10 +2,14 @@
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
+    "esModuleInterop": true,
     "exactOptionalPropertyTypes": false,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
+    "module": "ES2020",
+    "moduleResolution": "Node",
     "noUncheckedIndexedAccess": false,
+    "target": "ES2020",
     "sourceMap": true
   },
   "exclude": [
@@ -15,9 +19,6 @@
     "**/*.js",
     "**/*.js.map"
   ],
-  "extends": [
-    "@tsconfig/node20/tsconfig.json",
-    "@tsconfig/strictest/tsconfig.json"
-  ],
+  "extends": ["@tsconfig/strictest/tsconfig.json"],
   "include": ["**/*.ts"]
 }
