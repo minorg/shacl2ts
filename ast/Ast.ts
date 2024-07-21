@@ -4,6 +4,7 @@ import { NodeShape, PropertyShape, Shape, ShapesGraph } from "shacl-ast";
 import { BlankNode, NamedNode } from "@rdfjs/types";
 import reservedIdentifiers_ from "reserved-identifiers";
 import base62 from "@sindresorhus/base62";
+import { Either, Left } from "purify-ts";
 
 const reservedIdentifiers = reservedIdentifiers_({
   includeGlobalProperties: true,
@@ -39,89 +40,130 @@ export namespace Ast {
 
     constructor(private readonly shapesGraph: ShapesGraph) {}
 
-    transform(): Ast {
+    transform(): Either<Error, Ast> {
       let objectTypes: ObjectType[] = [];
       for (const nodeShape of this.shapesGraph.nodeShapes) {
         if (nodeShape.node.termType !== "NamedNode") {
           continue;
         }
+        const objectType = this.transformNodeShape(nodeShape);
+        if (objectType.isLeft()) {
+          return objectType;
+        }
+        objectTypes.push(objectType.extract() as ObjectType);
       }
-      return {
+      return Either.of({
         objectTypes,
-      };
+      });
     }
 
     private shapeTypeName(shape: Shape): TypeName {
       const identifier = shape.node;
-      const shName = shape.name?.value ?? null;
-      let tsName: string;
-      if (shName !== null) {
-        tsName = toValidTsIdentifier(shName);
-      } else {
-        let tsNameIdentifier =
-          shape instanceof PropertyShape ? shape.path : identifier;
-        switch (tsNameIdentifier.termType) {
-          case "BlankNode":
-            tsName = toValidTsIdentifier(`_:${tsNameIdentifier.value}`);
-            break;
-          case "NamedNode":
-            tsName = toValidTsIdentifier(`<${tsNameIdentifier.value}>`);
-            break;
-        }
-      }
+      const shName = shape.name.map((name) => name.value);
       return {
         identifier,
         shName,
-        tsName,
+        tsName: shName
+          .map((name) => toValidTsIdentifier(name))
+          .orDefaultLazy(() => {
+            let tsNameIdentifier =
+              shape instanceof PropertyShape ? shape.path : identifier;
+            switch (tsNameIdentifier.termType) {
+              case "BlankNode":
+                return toValidTsIdentifier(`_:${tsNameIdentifier.value}`);
+              case "NamedNode":
+                return toValidTsIdentifier(`<${tsNameIdentifier.value}>`);
+            }
+          }),
       };
     }
 
-    private transformNodeShape(nodeShape: NodeShape): ObjectType {
-      const objectType = this.objectTypesByIdentifier.get(nodeShape.node);
-      if (objectType) {
-        return objectType;
+    private transformNodeShape(
+      nodeShape: NodeShape,
+    ): Either<Error, ObjectType> {
+      {
+        const objectType = this.objectTypesByIdentifier.get(nodeShape.node);
+        if (objectType) {
+          return Either.of(objectType);
+        }
       }
+
+      const properties: Property[] = [];
+      for (const propertyShape of nodeShape.properties) {
+        const property = this.transformPropertyShape(propertyShape);
+        if (property.isLeft()) {
+          return property;
+        }
+        properties.push(property.extract() as Property);
+      }
+
+      const objectType: ObjectType = {
+        name: this.shapeTypeName(nodeShape),
+        kind: "Object",
+        properties,
+      };
+      this.objectTypesByIdentifier.set(nodeShape.node, objectType);
+      return Either.of(objectType);
     }
 
-    private transformPropertyShape(propertyShape: PropertyShape): Property {
-      const property = this.propertiesByIdentifier.get(propertyShape.node);
-      if (property) {
-        return property;
+    private transformPropertyShape(
+      propertyShape: PropertyShape,
+    ): Either<Error, Property> {
+      {
+        const property = this.propertiesByIdentifier.get(propertyShape.node);
+        if (property) {
+          return Either.of(property);
+        }
       }
 
       let name = this.shapeTypeName(propertyShape);
 
       let type: Type;
-      if (propertyShape.datatype !== null) {
+      if (propertyShape.datatype.isJust()) {
         type = {
-          datatype: propertyShape.datatype,
+          datatype: propertyShape.datatype.extract(),
           kind: "Literal",
           name,
         };
       } else if (propertyShape.nodeShapes.length > 0) {
-        const nodeShapes = propertyShape.nodeShapes;
-        if (nodeShapes.length === 0) {
-          type = this.transformNodeShape(nodeShapes[0]);
+        const types: Type[] = [];
+        for (const nodeShape of propertyShape.nodeShapes) {
+          const typeEither = this.transformNodeShape(nodeShape);
+          if (typeEither.isLeft()) {
+            return typeEither;
+          }
+          types.push(typeEither.unsafeCoerce() as Type);
+        }
+        if (types.length === 1) {
+          type = types[0];
         } else {
           type = {
-            types: nodeShapes.map((nodeShape) =>
-              this.transformNodeShape(nodeShape),
-            ),
+            types,
             kind: "Union",
           };
         }
       } else {
+        return Left(
+          new Error(
+            `unable to transform property shape on ${propertyShape.path.value}`,
+          ),
+        );
       }
 
-      return {
+      const property: Property = {
         maxCount: propertyShape.maxCount,
         minCount: propertyShape.minCount,
         name: this.shapeTypeName(propertyShape),
+        type,
       };
+      this.propertiesByIdentifier.set(propertyShape.node, property);
+      return Either.of(property);
     }
   }
 
-  export function fromShapesGraph(shapesGraph: ShapesGraph): Ast {
+  export function fromShapesGraph(
+    shapesGraph: ShapesGraph,
+  ): Either<Error, Ast> {
     return new ShapesGraphToAstTransformer(shapesGraph).transform();
   }
 }
