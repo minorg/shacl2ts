@@ -1,8 +1,8 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { testShapesGraph } from "./testShapesGraph.js";
 import { ShapesGraphToAstTransformer } from "../ShapesGraphToAstTransformer.js";
 import { ObjectType } from "../ast/ObjectType.js";
 import { schema } from "@tpluscode/rdf-ns-builders";
+import { testData } from "./testData.js";
 
 describe("ShapesGraphToAstTransformer", () => {
   // let addressObjectType: ObjectType;
@@ -10,7 +10,7 @@ describe("ShapesGraphToAstTransformer", () => {
 
   beforeAll(() => {
     const ast = new ShapesGraphToAstTransformer()
-      .transform(testShapesGraph)
+      .transform(testData.shapesGraph)
       .extract();
     if (ast instanceof Error) {
       throw ast;

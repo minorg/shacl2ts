@@ -47,10 +47,22 @@ export class ShapesGraphToAstTransformer {
   private shapeType(shape: Shape): Either<Error, Type> {
     const name = this.shapeName(shape);
 
-    if (shape.constraints.datatype.isJust()) {
+    if (
+      [
+        shape.constraints.datatype,
+        shape.constraints.maxExclusive,
+        shape.constraints.maxInclusive,
+        shape.constraints.minExclusive,
+        shape.constraints.minInclusive,
+      ].some((constraint) => constraint.isJust())
+    ) {
       return Either.of({
-        datatype: shape.constraints.datatype.extract(),
+        datatype: shape.constraints.datatype,
         kind: "Literal",
+        maxExclusive: shape.constraints.maxExclusive,
+        maxInclusive: shape.constraints.maxInclusive,
+        minExclusive: shape.constraints.minExclusive,
+        minInclusive: shape.constraints.minInclusive,
         name,
       });
     } else if (shape.constraints.in_.isJust()) {
