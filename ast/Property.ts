@@ -1,11 +1,11 @@
 import { Maybe } from "purify-ts";
 import { Type, Name } from ".";
-import { BlankNode, NamedNode } from "@rdfjs/types";
+import { PredicatePath } from "shacl-ast";
 
 export interface Property {
   readonly name: Name;
   readonly maxCount: Maybe<number>;
   readonly minCount: Maybe<number>;
-  readonly path: BlankNode | NamedNode;
+  readonly path: PredicatePath;
   readonly type: Type;
 }

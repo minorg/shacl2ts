@@ -6,6 +6,7 @@ import reservedIdentifiers_ from "reserved-identifiers";
 import base62 from "@sindresorhus/base62";
 import { Either, Left } from "purify-ts";
 import { Ast } from "./ast/Ast.js";
+import { logger } from "./logger.js";
 
 const reservedIdentifiers = reservedIdentifiers_({
   includeGlobalProperties: true,
@@ -106,9 +107,7 @@ export class ShapesGraphToAstTransformer {
         });
       }
     } else {
-      return Left(
-        new Error(`unable to transform type on shape ${shape.node.value}`),
-      );
+      return Left(new Error(`unable to transform type on ${shape}`));
     }
   }
 
@@ -121,8 +120,13 @@ export class ShapesGraphToAstTransformer {
       tsName: shName
         .map((name) => toValidTsIdentifier(name))
         .orDefaultLazy(() => {
-          let tsNameIdentifier =
-            shape instanceof PropertyShape ? shape.path : identifier;
+          let tsNameIdentifier: BlankNode | NamedNode = identifier;
+          if (
+            shape instanceof PropertyShape &&
+            shape.path.kind === "PredicatePath"
+          ) {
+            tsNameIdentifier = shape.path.iri;
+          }
           switch (tsNameIdentifier.termType) {
             case "BlankNode":
               return toValidTsIdentifier(`_:${tsNameIdentifier.value}`);
@@ -145,7 +149,14 @@ export class ShapesGraphToAstTransformer {
     for (const propertyShape of nodeShape.constraints.properties) {
       const property = this.transformPropertyShape(propertyShape);
       if (property.isLeft()) {
-        return property;
+        logger.warn(
+          "error transforming %s %s: %s",
+          nodeShape,
+          propertyShape,
+          (property.extract() as Error).message,
+        );
+        continue;
+        // return property;
       }
       properties.push(property.extract() as Property);
     }
@@ -174,11 +185,18 @@ export class ShapesGraphToAstTransformer {
       return type;
     }
 
+    const path = propertyShape.path;
+    if (path.kind !== "PredicatePath") {
+      return Left(
+        new Error(`${propertyShape} has non-predicate path, unsupported`),
+      );
+    }
+
     const property: Property = {
       maxCount: propertyShape.constraints.maxCount,
       minCount: propertyShape.constraints.minCount,
       name: this.shapeName(propertyShape),
-      path: propertyShape.path,
+      path,
       type: type.extract() as Type,
     };
     this.propertiesByIdentifier.set(propertyShape.node, property);

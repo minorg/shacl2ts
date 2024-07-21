@@ -15,27 +15,25 @@ describe("ShapesGraphToAstTransformer", () => {
     if (ast instanceof Error) {
       throw ast;
     }
-    expect(ast.objectTypes).toHaveLength(2);
+    expect(ast.objectTypes).toHaveLength(56);
 
     // const addressObjectType = ast.objectTypes.find(
     //   (objectType) => objectType.name.tsName === "Address",
     // );
     // expect(addressObjectType).toBeDefined();
 
-    const personObjectType = ast.objectTypes.find(
-      (objectType) => objectType.name.tsName === "Person",
-    );
+    personObjectType = ast.objectTypes.find((objectType) =>
+      objectType.name.identifier.equals(schema.Person),
+    )!;
     expect(personObjectType).toBeDefined();
-  });
-
-  it("should transform the two object types", () => {
-    expect(personObjectType.properties).toHaveLength(4);
   });
 
   it("should transform the givenName property", () => {
     const property = personObjectType.properties.find((property) =>
-      property.path.equals(schema.givenName),
+      property.path.iri.equals(schema.givenName),
     );
     expect(property).toBeDefined();
+    expect(property?.type.kind).toStrictEqual("Literal");
+    expect(property?.name.tsName).toStrictEqual("given$W$name");
   });
 });
