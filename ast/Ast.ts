@@ -125,6 +125,11 @@ export namespace Ast {
           kind: "Literal",
           name,
         };
+      } else if (propertyShape.in_.isJust()) {
+        type = {
+          kind: "Enum",
+          members: propertyShape.in_.extract(),
+        };
       } else if (propertyShape.nodeShapes.length > 0) {
         const types: Type[] = [];
         for (const nodeShape of propertyShape.nodeShapes) {
