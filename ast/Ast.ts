@@ -41,20 +41,13 @@ export namespace Ast {
     constructor(private readonly shapesGraph: ShapesGraph) {}
 
     transform(): Either<Error, Ast> {
-      let objectTypes: ObjectType[] = [];
-      for (const nodeShape of this.shapesGraph.nodeShapes) {
-        if (nodeShape.node.termType !== "NamedNode") {
-          continue;
-        }
-        const objectType = this.transformNodeShape(nodeShape);
-        if (objectType.isLeft()) {
-          return objectType;
-        }
-        objectTypes.push(objectType.extract() as ObjectType);
-      }
-      return Either.of({
+      return this.transformNodeShapes(
+        this.shapesGraph.nodeShapes.filter(
+          (nodeShape) => nodeShape.node.termType === "NamedNode",
+        ),
+      ).map((objectTypes) => ({
         objectTypes,
-      });
+      }));
     }
 
     private shapeTypeName(shape: Shape): TypeName {
@@ -106,6 +99,20 @@ export namespace Ast {
       return Either.of(objectType);
     }
 
+    private transformNodeShapes(
+      nodeShapes: readonly NodeShape[],
+    ): Either<Error, readonly ObjectType[]> {
+      const objectTypes: ObjectType[] = [];
+      for (const nodeShape of nodeShapes) {
+        const objectTypeEither = this.transformNodeShape(nodeShape);
+        if (objectTypeEither.isLeft()) {
+          return objectTypeEither;
+        }
+        objectTypes.push(objectTypeEither.unsafeCoerce() as ObjectType);
+      }
+      return Either.of(objectTypes);
+    }
+
     private transformPropertyShape(
       propertyShape: PropertyShape,
     ): Either<Error, Property> {
@@ -131,22 +138,31 @@ export namespace Ast {
           members: propertyShape.in_.extract(),
         };
       } else if (propertyShape.nodeShapes.length > 0) {
-        const types: Type[] = [];
-        for (const nodeShape of propertyShape.nodeShapes) {
-          const typeEither = this.transformNodeShape(nodeShape);
-          if (typeEither.isLeft()) {
-            return typeEither;
-          }
-          types.push(typeEither.unsafeCoerce() as Type);
+        const typesEither = this.transformNodeShapes(propertyShape.nodeShapes);
+        if (typesEither.isLeft()) {
+          return typesEither;
         }
+        const types: readonly ObjectType[] =
+          typesEither.extract() as readonly ObjectType[];
         if (types.length === 1) {
           type = types[0];
         } else {
           type = {
-            types,
             kind: "Union",
+            types,
           };
         }
+      } else if (propertyShape.or.length > 0) {
+        const propertiesEither = this.transformPropertyShapes(propertyShape.or);
+        if (propertiesEither.isLeft()) {
+          return propertiesEither;
+        }
+        const properties: readonly Property[] =
+          propertiesEither.extract() as readonly Property[];
+        type = {
+          kind: "Union",
+          types: properties.map((property) => property.type),
+        };
       } else {
         return Left(
           new Error(
@@ -163,6 +179,20 @@ export namespace Ast {
       };
       this.propertiesByIdentifier.set(propertyShape.node, property);
       return Either.of(property);
+    }
+
+    private transformPropertyShapes(
+      nodeShapes: readonly PropertyShape[],
+    ): Either<Error, readonly Property[]> {
+      const properties: Property[] = [];
+      for (const nodeShape of nodeShapes) {
+        const propertyEither = this.transformPropertyShape(nodeShape);
+        if (propertyEither.isLeft()) {
+          return propertyEither;
+        }
+        properties.push(propertyEither.unsafeCoerce() as Property);
+      }
+      return Either.of(properties);
     }
   }
 
