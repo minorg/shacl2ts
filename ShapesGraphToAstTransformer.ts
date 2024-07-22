@@ -4,14 +4,31 @@ import { NodeShape, PropertyShape, Shape, ShapesGraph } from "shacl-ast";
 import { BlankNode, NamedNode } from "@rdfjs/types";
 import reservedIdentifiers_ from "reserved-identifiers";
 import base62 from "@sindresorhus/base62";
-import { Either, Left } from "purify-ts";
+import { Either, Left, Maybe } from "purify-ts";
 import { Ast } from "./ast/Ast.js";
 import { logger } from "./logger.js";
 import { rdfs } from "@tpluscode/rdf-ns-builders";
+import { shacl2ts } from "./vocabularies/";
 
 const reservedIdentifiers = reservedIdentifiers_({
   includeGlobalProperties: true,
 });
+
+class ShapeWrapper extends Shape {
+  constructor(private readonly delegate: Shape) {
+    super({ node: delegate.node, shapesGraph: delegate.shapesGraph });
+  }
+
+  get constraints() {
+    return this.delegate.constraints;
+  }
+
+  get shacl2tsName(): Maybe<string> {
+    return this.findAndMapObject(shacl2ts.name, (term) =>
+      term.termType === "Literal" ? Maybe.of(term.value) : Maybe.empty(),
+    );
+  }
+}
 
 // Adapted from https://github.com/sindresorhus/to-valid-identifier , MIT license
 function toValidTsIdentifier(value: string): string {
@@ -191,10 +208,13 @@ export class ShapesGraphToAstTransformer {
   private shapeName(shape: Shape): Name {
     const identifier = shape.node;
     const shName = shape.name.map((name) => name.value);
+    const shacl2tsName = new ShapeWrapper(shape).shacl2tsName;
     return {
       identifier,
       shName,
-      tsName: shName
+      shacl2tsName,
+      tsName: shacl2tsName
+        .alt(shName)
         .map((name) => toValidTsIdentifier(name))
         .orDefaultLazy(() => {
           let tsNameIdentifier: BlankNode | NamedNode = identifier;
