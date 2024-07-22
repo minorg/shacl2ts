@@ -32,11 +32,6 @@
   "license": "GPL-3.0-only",
   "main": "index.js",
   "name": "shacl2ts",
-  "overrides": {
-    "vite": {
-      "rollup": "npm:@rollup/wasm-node"
-    }
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/minorg/shacl2ts"
