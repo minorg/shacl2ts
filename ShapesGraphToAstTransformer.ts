@@ -54,7 +54,7 @@ export class ShapesGraphToAstTransformer {
       class_,
       rdfs.subClassOf,
       null,
-      this.shapesGraph.graphNode,
+      this.shapesGraph.node,
     )) {
       if (quad.object.termType !== "NamedNode") {
         continue;
