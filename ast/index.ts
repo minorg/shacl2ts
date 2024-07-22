@@ -4,4 +4,4 @@ export * from "./Name.js";
 export * from "./ObjectType.js";
 export * from "./Property.js";
 export * from "./Type.js";
-export * from "./UnionType.js";
+export * from "./OrType.js";

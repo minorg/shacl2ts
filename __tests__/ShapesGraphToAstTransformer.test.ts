@@ -9,8 +9,8 @@ describe("ShapesGraphToAstTransformer", () => {
   let personObjectType: ObjectType;
 
   beforeAll(() => {
-    const ast = new ShapesGraphToAstTransformer()
-      .transform(testData.shapesGraph)
+    const ast = new ShapesGraphToAstTransformer(testData.shapesGraph)
+      .transform()
       .extract();
     if (ast instanceof Error) {
       throw ast;

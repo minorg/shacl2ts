@@ -7,6 +7,7 @@ import base62 from "@sindresorhus/base62";
 import { Either, Left } from "purify-ts";
 import { Ast } from "./ast/Ast.js";
 import { logger } from "./logger.js";
+import { rdfs } from "@tpluscode/rdf-ns-builders";
 
 const reservedIdentifiers = reservedIdentifiers_({
   includeGlobalProperties: true,
@@ -35,9 +36,38 @@ export class ShapesGraphToAstTransformer {
     Property
   > = new TermMap();
 
-  transform(shapesGraph: ShapesGraph): Either<Error, Ast> {
+  constructor(private readonly shapesGraph: ShapesGraph) {}
+
+  private classNodeShapes(class_: NamedNode): readonly NodeShape[] {
+    const classNodeShapes: NodeShape[] = [];
+
+    // Is the class itself a node shape?
+    const classNodeShape = this.shapesGraph
+      .nodeShapeByNode(class_)
+      .extractNullable();
+    if (classNodeShape !== null) {
+      classNodeShapes.push(classNodeShape);
+    }
+
+    // Get the node shapes of any of the class's superclasses
+    for (const quad of this.shapesGraph.dataset.match(
+      class_,
+      rdfs.subClassOf,
+      null,
+      this.shapesGraph.graphNode,
+    )) {
+      if (quad.object.termType !== "NamedNode") {
+        continue;
+      }
+      classNodeShapes.push(...this.classNodeShapes(quad.object));
+    }
+
+    return classNodeShapes;
+  }
+
+  transform(): Either<Error, Ast> {
     return Either.sequence(
-      shapesGraph.nodeShapes
+      this.shapesGraph.nodeShapes
         .filter((nodeShape) => nodeShape.node.termType === "NamedNode")
         .map((nodeShape) => this.transformNodeShape(nodeShape)),
     ).map((objectTypes) => ({
@@ -45,20 +75,44 @@ export class ShapesGraphToAstTransformer {
     }));
   }
 
+  /**
+   * Try to convert a shape to a type using some heuristics.
+   *
+   * We don't try to handle exotic cases allowed by the SHACL spec, such as combinations of sh:in and sh:node. Instead we assume
+   * a shape has one type.
+   */
   private shapeType(shape: Shape): Either<Error, Type> {
     const name = this.shapeName(shape);
 
-    if (
+    const hasValue = shape.constraints.hasValue;
+
+    if (shape.constraints.and.length > 0) {
+      return Either.sequence(
+        shape.constraints.and.map((shape) => this.shapeType(shape)),
+      ).chain((types) =>
+        types.length === 1
+          ? Either.of(types[0])
+          : Either.of({
+              kind: "And",
+              types,
+            }),
+      );
+    } else if (
       [
         shape.constraints.datatype,
         shape.constraints.maxExclusive,
         shape.constraints.maxInclusive,
         shape.constraints.minExclusive,
         shape.constraints.minInclusive,
-      ].some((constraint) => constraint.isJust())
+      ].some((constraint) => constraint.isJust()) ||
+      hasValue.extractNullable()?.termType === "Literal"
     ) {
+      // Treat any shape with the constraints in the list as a literal type
       return Either.of({
         datatype: shape.constraints.datatype,
+        hasValue: hasValue.filter(
+          (hasValue) => hasValue.termType === "Literal",
+        ),
         kind: "Literal",
         maxExclusive: shape.constraints.maxExclusive,
         maxInclusive: shape.constraints.maxInclusive,
@@ -66,46 +120,69 @@ export class ShapesGraphToAstTransformer {
         minInclusive: shape.constraints.minInclusive,
         name,
       });
+    } else if (shape.constraints.classes.length > 0) {
+      const nodeShapes: NodeShape[] = [];
+      for (const class_ of shape.constraints.classes) {
+        const classNodeShapes = this.classNodeShapes(class_);
+        if (classNodeShapes.length === 0) {
+          logger.warn(
+            "%s sh:class %s does not correspond to any node shapes",
+            shape,
+            class_.value,
+          );
+          continue;
+        }
+        nodeShapes.push(...classNodeShapes);
+      }
+      if (nodeShapes.length === 0) {
+        return Left(
+          new Error(
+            `${shape} has sh:class(se) but none of them correspond to a node shape`,
+          ),
+        );
+      }
+      return Either.sequence(
+        nodeShapes.map((nodeShape) => this.transformNodeShape(nodeShape)),
+      ).chain((types) =>
+        types.length === 1
+          ? Either.of(types[0] as Type)
+          : Either.of({
+              kind: "And",
+              types,
+            }),
+      );
     } else if (shape.constraints.in_.isJust()) {
+      // Treat any shape with sh:in as an enum type
       return Either.of({
         kind: "Enum",
         members: shape.constraints.in_.extract(),
       });
     } else if (shape.constraints.nodes.length > 0) {
-      const typesEither = Either.sequence(
+      // Treat any type with sh:node(s) as the conjunction of those nodes.
+      return Either.sequence(
         shape.constraints.nodes.map((nodeShape) =>
           this.transformNodeShape(nodeShape),
         ),
+      ).chain((types) =>
+        types.length === 1
+          ? Either.of(types[0] as Type)
+          : Either.of({
+              kind: "And",
+              types,
+            }),
       );
-      if (typesEither.isLeft()) {
-        return typesEither;
-      }
-      const types: readonly ObjectType[] =
-        typesEither.extract() as readonly ObjectType[];
-      if (types.length === 1) {
-        return Either.of(types[0]);
-      } else {
-        return Either.of({
-          kind: "Union",
-          types,
-        });
-      }
     } else if (shape.constraints.or.length > 0) {
-      const typesEither = Either.sequence(
+      // Treat any shape with sh:or as the disjunction of the member shapes.
+      return Either.sequence(
         shape.constraints.or.map((shape) => this.shapeType(shape)),
+      ).chain((types) =>
+        types.length === 1
+          ? Either.of(types[0])
+          : Either.of({
+              kind: "Or",
+              types,
+            }),
       );
-      if (typesEither.isLeft()) {
-        return typesEither;
-      }
-      const types: readonly Type[] = typesEither.extract() as readonly Type[];
-      if (types.length === 1) {
-        return Either.of(types[0]);
-      } else {
-        return Either.of({
-          kind: "Union",
-          types,
-        });
-      }
     } else {
       return Left(new Error(`unable to transform type on ${shape}`));
     }
@@ -145,28 +222,42 @@ export class ShapesGraphToAstTransformer {
       }
     }
 
-    const properties: Property[] = [];
+    // Put a placeholder in the cache to deal with cyclic references
+    // If this node shape's properties (directly or indirectly) refer to the node shape itself,
+    // we'll return this placeholder.
+    const objectType: ObjectType = {
+      kind: "Object",
+      name: this.shapeName(nodeShape),
+      properties: [], // This is mutable, we'll populate it below.
+    };
+    this.objectTypesByIdentifier.set(nodeShape.node, objectType);
+
+    let propertiesByTsName: Record<string, Property> = {};
     for (const propertyShape of nodeShape.constraints.properties) {
-      const property = this.transformPropertyShape(propertyShape);
-      if (property.isLeft()) {
+      const propertyEither = this.transformPropertyShape(propertyShape);
+      if (propertyEither.isLeft()) {
         logger.warn(
           "error transforming %s %s: %s",
           nodeShape,
           propertyShape,
-          (property.extract() as Error).message,
+          (propertyEither.extract() as Error).message,
         );
         continue;
         // return property;
       }
-      properties.push(property.extract() as Property);
+      const property = propertyEither.extract() as Property;
+      if (propertiesByTsName[property.name.tsName]) {
+        logger.warn(
+          "error transforming %s %s: duplicate property TypeScript name %s",
+          nodeShape,
+          propertyShape,
+          property.name.tsName,
+        );
+      }
+      objectType.properties.push(property);
+      propertiesByTsName[property.name.tsName] = property;
     }
 
-    const objectType: ObjectType = {
-      name: this.shapeName(nodeShape),
-      kind: "Object",
-      properties,
-    };
-    this.objectTypesByIdentifier.set(nodeShape.node, objectType);
     return Either.of(objectType);
   }
 
