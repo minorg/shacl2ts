@@ -11,7 +11,7 @@
     "pino": "^9.3.1",
     "purify-ts": "^2.1.0",
     "reserved-identifiers": "^1.0.0",
-    "shacl-ast": "1.0.5"
+    "shacl-ast": "2.0.0"
   },
   "description": "Generate TypeScript from SHACL shapes",
   "devDependencies": {
@@ -46,5 +46,5 @@
   },
   "type": "module",
   "types": "index.d.ts",
-  "version": "1.0.5"
+  "version": "2.0.0"
 }
