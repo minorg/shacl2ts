@@ -44,6 +44,7 @@ function toValidTsIdentifier(value: string): string {
 }
 
 export class ShapesGraphToAstTransformer {
+  private readonly iriPrefixes: Record<string, NamedNode>;
   private readonly objectTypesByIdentifier: TermMap<
     BlankNode | NamedNode,
     ObjectType
@@ -52,8 +53,18 @@ export class ShapesGraphToAstTransformer {
     BlankNode | NamedNode,
     Property
   > = new TermMap();
+  private readonly shapesGraph: ShapesGraph;
 
-  constructor(private readonly shapesGraph: ShapesGraph) {}
+  constructor({
+    iriPrefixes,
+    shapesGraph,
+  }: {
+    iriPrefixes: Record<string, NamedNode>;
+    shapesGraph: ShapesGraph;
+  }) {
+    this.iriPrefixes = iriPrefixes;
+    this.shapesGraph = shapesGraph;
+  }
 
   private classNodeShapes(class_: NamedNode): readonly NodeShape[] {
     const classNodeShapes: NodeShape[] = [];

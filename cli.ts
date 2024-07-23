@@ -13,6 +13,7 @@ import { ShapesGraph } from "shacl-ast";
 import { ShapesGraphToAstTransformer } from "./ShapesGraphToAstTransformer.js";
 import { Parser, Store } from "n3";
 import { AstJsonGenerator } from "./generators";
+import { NamedNode } from "@rdfjs/types";
 
 const inputFilePaths = restPositionals({
   displayName: "inputFilePaths",
@@ -29,21 +30,26 @@ const outputFilePath = option({
   type: string,
 });
 
-function readShapesGraph(inputFilePaths: readonly string[]): ShapesGraph {
+function readInput(inputFilePaths: readonly string[]) {
   if (inputFilePaths.length === 0) {
     throw new Error("must specify at least one input shapes graph file path");
   }
 
-  const parser = new Parser();
-  const store = new Store();
+  const inputParser = new Parser();
+  const dataset = new Store();
+  const iriPrefixes: Record<string, NamedNode> = {};
   for (const inputFilePath of inputFilePaths) {
-    store.addQuads(parser.parse(fs.readFileSync(inputFilePath).toString()));
+    dataset.addQuads(
+      inputParser.parse(
+        fs.readFileSync(inputFilePath).toString(),
+        null,
+        (prefix, prefixNode) => (iriPrefixes[prefix] = prefixNode),
+      ),
+    );
   }
-  return ShapesGraph.fromDataset(store);
-}
+  const shapesGraph = ShapesGraph.fromDataset(dataset);
 
-function transformShapesGraphToAst(shapesGraph: ShapesGraph): Ast {
-  return new ShapesGraphToAstTransformer(shapesGraph)
+  return new ShapesGraphToAstTransformer({ iriPrefixes, shapesGraph })
     .transform()
     .ifLeft((error) => {
       throw error;
@@ -71,9 +77,7 @@ run(
         },
         handler: async ({ inputFilePaths, outputFilePath }) => {
           writeOutput(
-            new AstJsonGenerator(
-              transformShapesGraphToAst(readShapesGraph(inputFilePaths)),
-            ).generate(),
+            new AstJsonGenerator(readInput(inputFilePaths)).generate(),
             outputFilePath,
           );
         },

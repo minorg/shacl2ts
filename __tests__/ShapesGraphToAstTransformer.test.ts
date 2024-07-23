@@ -9,7 +9,10 @@ describe("ShapesGraphToAstTransformer", () => {
   let personObjectType: ObjectType;
 
   beforeAll(() => {
-    const ast = new ShapesGraphToAstTransformer(testData.shapesGraph)
+    const ast = new ShapesGraphToAstTransformer({
+      iriPrefixes: testData.iriPrefixes,
+      shapesGraph: testData.shapesGraph,
+    })
       .transform()
       .extract();
     if (ast instanceof Error) {
