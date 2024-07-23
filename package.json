@@ -1,7 +1,17 @@
 {
   "author": "Minor Gordon",
   "dependencies": {
-    "shacl-ast": "1.0.5"
+    "@rdfjs/term-map": "^2.0.2",
+    "@rdfjs/term-set": "^2.0.3",
+    "@rdfjs/types": "^1.1.0",
+    "@sindresorhus/base62": "^0.1.0",
+    "@tpluscode/rdf-ns-builders": "^4.3.0",
+    "@types/rdfjs__term-map": "^2.0.10",
+    "@types/rdfjs__term-set": "^2.0.9",
+    "pino": "^9.3.1",
+    "purify-ts": "^2.1.0",
+    "reserved-identifiers": "^1.0.0",
+    "shacl-ast": "2.0.0"
   },
   "description": "Generate TypeScript from SHACL shapes",
   "devDependencies": {
@@ -22,6 +32,9 @@
   "license": "GPL-3.0-only",
   "main": "index.js",
   "name": "shacl2ts",
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.6.1"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/minorg/shacl2ts"
@@ -36,5 +49,5 @@
   },
   "type": "module",
   "types": "index.d.ts",
-  "version": "1.0.5"
+  "version": "2.0.0"
 }
