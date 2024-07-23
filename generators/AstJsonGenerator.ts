@@ -54,6 +54,7 @@ export class AstJsonGenerator {
       identifier: this.termToJson(name.identifier),
       tsName: name.tsName,
     };
+    name.curie.ifJust((curie) => (json["curie"] = curie));
     name.shName.ifJust((shName) => (json["shName"] = shName));
     name.shacl2tsName.ifJust(
       (shacl2tsName) => (json["shacl2tsName"] = shacl2tsName),

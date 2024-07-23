@@ -11,9 +11,10 @@ import * as fs from "node:fs";
 import { Ast } from "./ast";
 import { ShapesGraph } from "shacl-ast";
 import { ShapesGraphToAstTransformer } from "./ShapesGraphToAstTransformer.js";
-import { Parser, Store } from "n3";
+import { DataFactory, Parser, Store } from "n3";
 import { AstJsonGenerator } from "./generators";
-import { NamedNode } from "@rdfjs/types";
+import PrefixMap, { PrefixMapInit } from "@rdfjs/prefix-map/PrefixMap";
+import { logger } from "./logger.js";
 
 const inputFilePaths = restPositionals({
   displayName: "inputFilePaths",
@@ -37,19 +38,42 @@ function readInput(inputFilePaths: readonly string[]) {
 
   const inputParser = new Parser();
   const dataset = new Store();
-  const iriPrefixes: Record<string, NamedNode> = {};
+  const iriPrefixes: PrefixMapInit = [];
   for (const inputFilePath of inputFilePaths) {
     dataset.addQuads(
       inputParser.parse(
         fs.readFileSync(inputFilePath).toString(),
         null,
-        (prefix, prefixNode) => (iriPrefixes[prefix] = prefixNode),
+        (prefix, prefixNode) => {
+          const existingIriPrefix = iriPrefixes.find(
+            (iriPrefix) =>
+              iriPrefix[0] === prefix || iriPrefix[1].equals(prefixNode),
+          );
+          if (existingIriPrefix) {
+            if (
+              existingIriPrefix[0] !== prefix ||
+              !existingIriPrefix[1].equals(prefixNode)
+            ) {
+              logger.warn(
+                "conflicting prefix %s: %s",
+                prefix,
+                prefixNode.value,
+              );
+            }
+            return;
+          }
+
+          iriPrefixes.push([prefix, prefixNode]);
+        },
       ),
     );
   }
   const shapesGraph = ShapesGraph.fromDataset(dataset);
 
-  return new ShapesGraphToAstTransformer({ iriPrefixes, shapesGraph })
+  return new ShapesGraphToAstTransformer({
+    iriPrefixMap: new PrefixMap(iriPrefixes, { factory: DataFactory }),
+    shapesGraph,
+  })
     .transform()
     .ifLeft((error) => {
       throw error;
