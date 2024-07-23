@@ -32,6 +32,9 @@
   "license": "GPL-3.0-only",
   "main": "index.js",
   "name": "shacl2ts",
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.6.1"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/minorg/shacl2ts"
