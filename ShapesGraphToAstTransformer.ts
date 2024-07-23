@@ -2,17 +2,27 @@ import TermMap from "@rdfjs/term-map";
 import { ObjectType, Property, Type, Name } from "./ast";
 import { NodeShape, PropertyShape, Shape, ShapesGraph } from "shacl-ast";
 import { BlankNode, NamedNode } from "@rdfjs/types";
-import reservedIdentifiers_ from "reserved-identifiers";
+import reservedTsIdentifiers_ from "reserved-identifiers";
 import base62 from "@sindresorhus/base62";
 import { Either, Left, Maybe } from "purify-ts";
 import { Ast } from "./ast/Ast.js";
 import { logger } from "./logger.js";
 import { rdfs } from "@tpluscode/rdf-ns-builders";
 import { shacl2ts } from "./vocabularies/";
+import PrefixMap from "@rdfjs/prefix-map/PrefixMap.js";
 
-const reservedIdentifiers = reservedIdentifiers_({
+const reservedTsIdentifiers = reservedTsIdentifiers_({
   includeGlobalProperties: true,
 });
+
+function rdfIdentifierToString(identifier: BlankNode | NamedNode): string {
+  switch (identifier.termType) {
+    case "BlankNode":
+      return `_:${identifier.value}`;
+    case "NamedNode":
+      return `<${identifier.value}>`;
+  }
+}
 
 class ShapeWrapper extends Shape {
   constructor(private readonly delegate: Shape) {
@@ -32,7 +42,7 @@ class ShapeWrapper extends Shape {
 
 // Adapted from https://github.com/sindresorhus/to-valid-identifier , MIT license
 function toValidTsIdentifier(value: string): string {
-  if (reservedIdentifiers.has(value)) {
+  if (reservedTsIdentifiers.has(value)) {
     // We prefix with underscore to avoid any potential conflicts with the Base62 encoded string.
     return `$_${value}$`;
   }
@@ -44,6 +54,7 @@ function toValidTsIdentifier(value: string): string {
 }
 
 export class ShapesGraphToAstTransformer {
+  private readonly iriPrefixMap: PrefixMap;
   private readonly objectTypesByIdentifier: TermMap<
     BlankNode | NamedNode,
     ObjectType
@@ -52,8 +63,18 @@ export class ShapesGraphToAstTransformer {
     BlankNode | NamedNode,
     Property
   > = new TermMap();
+  private readonly shapesGraph: ShapesGraph;
 
-  constructor(private readonly shapesGraph: ShapesGraph) {}
+  constructor({
+    iriPrefixMap,
+    shapesGraph,
+  }: {
+    iriPrefixMap: PrefixMap;
+    shapesGraph: ShapesGraph;
+  }) {
+    this.iriPrefixMap = iriPrefixMap;
+    this.shapesGraph = shapesGraph;
+  }
 
   private classNodeShapes(class_: NamedNode): readonly NodeShape[] {
     const classNodeShapes: NodeShape[] = [];
@@ -207,30 +228,36 @@ export class ShapesGraphToAstTransformer {
 
   private shapeName(shape: Shape): Name {
     const identifier = shape.node;
+    const curie =
+      identifier.termType === "NamedNode"
+        ? Maybe.fromNullable(this.iriPrefixMap.shrink(identifier)?.value)
+        : Maybe.empty();
     const shName = shape.name.map((name) => name.value);
     const shacl2tsName = new ShapeWrapper(shape).shacl2tsName;
+
+    const tsNameAlternatives: (string | null | undefined)[] = [
+      shacl2tsName.extract(),
+      shName.extract()?.replace(" ", "_"),
+      curie.map((curie) => curie.replace(":", "_")).extract(),
+    ];
+    if (shape instanceof PropertyShape && shape.path.kind === "PredicatePath") {
+      const pathIri = shape.path.iri;
+      const pathCurie = this.iriPrefixMap.shrink(pathIri)?.value;
+      if (pathCurie) {
+        tsNameAlternatives.push(pathCurie.replace(":", "_"));
+      }
+      tsNameAlternatives.push(rdfIdentifierToString(pathIri));
+    }
+    tsNameAlternatives.push(rdfIdentifierToString(identifier));
+
     return {
+      curie,
       identifier,
       shName,
       shacl2tsName,
-      tsName: shacl2tsName
-        .alt(shName)
-        .map((name) => toValidTsIdentifier(name))
-        .orDefaultLazy(() => {
-          let tsNameIdentifier: BlankNode | NamedNode = identifier;
-          if (
-            shape instanceof PropertyShape &&
-            shape.path.kind === "PredicatePath"
-          ) {
-            tsNameIdentifier = shape.path.iri;
-          }
-          switch (tsNameIdentifier.termType) {
-            case "BlankNode":
-              return toValidTsIdentifier(`_:${tsNameIdentifier.value}`);
-            case "NamedNode":
-              return toValidTsIdentifier(`<${tsNameIdentifier.value}>`);
-          }
-        }),
+      tsName: toValidTsIdentifier(
+        tsNameAlternatives.find((tsNameAlternative) => !!tsNameAlternative)!,
+      ),
     };
   }
 

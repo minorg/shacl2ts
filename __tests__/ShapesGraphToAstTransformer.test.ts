@@ -9,7 +9,10 @@ describe("ShapesGraphToAstTransformer", () => {
   let personObjectType: ObjectType;
 
   beforeAll(() => {
-    const ast = new ShapesGraphToAstTransformer(testData.shapesGraph)
+    const ast = new ShapesGraphToAstTransformer({
+      iriPrefixMap: testData.iriPrefixMap,
+      shapesGraph: testData.shapesGraph,
+    })
       .transform()
       .extract();
     if (ast instanceof Error) {
@@ -34,6 +37,6 @@ describe("ShapesGraphToAstTransformer", () => {
     );
     expect(property).toBeDefined();
     expect(property?.type.kind).toStrictEqual("Literal");
-    expect(property?.name.tsName).toStrictEqual("given$W$name");
+    expect(property?.name.tsName).toStrictEqual("given_name");
   });
 });
