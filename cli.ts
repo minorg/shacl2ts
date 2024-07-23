@@ -6,7 +6,7 @@ import {
   string,
   subcommands,
 } from "cmd-ts";
-import { ExistingPath } from "cmd-ts/batteries/fs";
+import { ExistingPath } from "cmd-ts/dist/esm/batteries/fs.js";
 import * as fs from "node:fs";
 import { Ast } from "./ast";
 import { ShapesGraph } from "shacl-ast";
@@ -31,7 +31,7 @@ const outputFilePath = option({
 
 function readShapesGraph(inputFilePaths: readonly string[]): ShapesGraph {
   if (inputFilePaths.length === 0) {
-    throw new Error("must specify at least one input path");
+    throw new Error("must specify at least one input shapes graph file path");
   }
 
   const parser = new Parser();
@@ -62,7 +62,7 @@ function writeOutput(output: string, outputFilePath: string) {
 run(
   subcommands({
     cmds: {
-      astJsonCommand: command({
+      "ast-json": command({
         name: "ast-json",
         description: "generate JSON for the SHACL Shapes Graph AST",
         args: {

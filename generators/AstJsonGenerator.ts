@@ -23,22 +23,30 @@ export class AstJsonGenerator {
   constructor(private readonly ast: ast.Ast) {}
 
   generate(): string {
-    return JSON.stringify({
-      objectTypes: this.ast.objectTypes.map((objectType) => ({
-        kind: objectType.kind,
-        name: this.nameToJson(objectType.name),
-        properties: objectType.properties.map((property) => {
-          const json: any = {
-            name: this.nameToJson(property.name),
-            path: property.path.iri.value,
-            type: this.typeToJson(property.type),
-          };
-          property.maxCount.ifJust((maxCount) => (json["maxCount"] = maxCount));
-          property.maxCount.ifJust((minCount) => (json["minCount"] = minCount));
-          return json;
-        }),
-      })),
-    });
+    return JSON.stringify(
+      {
+        objectTypes: this.ast.objectTypes.map((objectType) => ({
+          kind: objectType.kind,
+          name: this.nameToJson(objectType.name),
+          properties: objectType.properties.map((property) => {
+            const json: any = {
+              name: this.nameToJson(property.name),
+              path: property.path.iri.value,
+              type: this.typeToJson(property.type),
+            };
+            property.maxCount.ifJust(
+              (maxCount) => (json["maxCount"] = maxCount),
+            );
+            property.maxCount.ifJust(
+              (minCount) => (json["minCount"] = minCount),
+            );
+            return json;
+          }),
+        })),
+      },
+      undefined,
+      2,
+    );
   }
 
   private nameToJson(name: ast.Name): AstJson.Name {
