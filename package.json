@@ -36,7 +36,7 @@
     "*.js",
     "*.js.map"
   ],
-  "license": "GPL-3.0-only",
+  "license": "Apache-2.0",
   "main": "index.js",
   "name": "shacl2ts",
   "optionalDependencies": {
