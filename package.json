@@ -1,7 +1,7 @@
 {
   "author": "Minor Gordon",
   "bin": {
-    "annotize": "cli.js"
+    "shacl2ts": "cli.js"
   },
   "dependencies": {
     "@rdfjs/prefix-map": "^0.1.2",
@@ -56,5 +56,5 @@
   },
   "type": "module",
   "types": "index.d.ts",
-  "version": "2.0.0"
+  "version": "2.0.1"
 }
