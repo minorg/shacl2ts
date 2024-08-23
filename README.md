@@ -1,13 +1,22 @@
 # shacl2ts
 
-Transform SHACL to TypeScript
+Command line program and library for transforming SHACL to TypeScript.
 
 ## Getting started
 
-### Installation
+### Install dependencies
 
-    npm install shacl2ts
+    npm install
 
-### Generating JSON for the SHACL AST
+The package is also available on npmjs as `shacl2ts`.
 
-    node_modules/.bin/shacl2ts -- ast-json __tests__/testShapesGraph.ttl 2>/dev/null
+### Running
+
+#### Generate JSON for the SHACL AST
+
+    ./cli.sh ast-json __tests__/testShapesGraph.ttl 2>/dev/null
+
+## Example SHACL
+
+- [schema.org SHACL by Topquadrant](https://datashapes.org/schemashacl.shapes.ttl)
+- [SHACL shapes for SKOS](https://github.com/kos-kit/skos-shacl)
