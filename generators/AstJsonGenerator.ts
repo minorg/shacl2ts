@@ -76,7 +76,7 @@ export class AstJsonGenerator {
       case "NamedNode":
         return { termType: term.termType, value: term.value };
       default:
-        throw new Error("unsupported term type: " + term.termType);
+        throw new Error(`unsupported term type: ${term.termType}`);
     }
   }
 
@@ -93,7 +93,7 @@ export class AstJsonGenerator {
           kind: type.kind,
           members: type.members.map((term) => this.termToJson(term)),
         };
-      case "Literal":
+      case "Literal": {
         const json: AstJson.Type & { name: AstJson.Name } = {
           kind: type.kind,
           name: this.nameToJson(type.name),
@@ -119,6 +119,7 @@ export class AstJsonGenerator {
             (json["minInclusive"] = this.termToJson(minInclusive)),
         );
         return json;
+      }
       case "Object":
         return {
           kind: type.kind,
