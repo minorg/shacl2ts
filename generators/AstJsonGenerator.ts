@@ -34,12 +34,12 @@ export class AstJsonGenerator {
               path: property.path.iri.value,
               type: this.typeToJson(property.type),
             };
-            property.maxCount.ifJust(
-              (maxCount) => (json["maxCount"] = maxCount),
-            );
-            property.maxCount.ifJust(
-              (minCount) => (json["minCount"] = minCount),
-            );
+            property.maxCount.ifJust((maxCount) => {
+              json["maxCount"] = maxCount;
+            });
+            property.maxCount.ifJust((minCount) => {
+              json["minCount"] = minCount;
+            });
             return json;
           }),
         })),
@@ -54,11 +54,15 @@ export class AstJsonGenerator {
       identifier: this.termToJson(name.identifier),
       tsName: name.tsName,
     };
-    name.curie.ifJust((curie) => (json["curie"] = curie));
-    name.shName.ifJust((shName) => (json["shName"] = shName));
-    name.shacl2tsName.ifJust(
-      (shacl2tsName) => (json["shacl2tsName"] = shacl2tsName),
-    );
+    name.curie.ifJust((curie) => {
+      json["curie"] = curie;
+    });
+    name.shName.ifJust((shName) => {
+      json["shName"] = shName;
+    });
+    name.shacl2tsName.ifJust((shacl2tsName) => {
+      json["shacl2tsName"] = shacl2tsName;
+    });
     return json;
   }
 
@@ -98,26 +102,24 @@ export class AstJsonGenerator {
           kind: type.kind,
           name: this.nameToJson(type.name),
         };
-        type.datatype.ifJust((datatype) => (json["datatype"] = datatype));
-        type.hasValue.ifJust(
-          (hasValue) => (json["hasValue"] = this.termToJson(hasValue)),
-        );
-        type.maxExclusive.ifJust(
-          (maxExclusive) =>
-            (json["maxExclusive"] = this.termToJson(maxExclusive)),
-        );
-        type.maxInclusive.ifJust(
-          (maxInclusive) =>
-            (json["maxInclusive"] = this.termToJson(maxInclusive)),
-        );
-        type.minExclusive.ifJust(
-          (minExclusive) =>
-            (json["minExclusive"] = this.termToJson(minExclusive)),
-        );
-        type.minInclusive.ifJust(
-          (minInclusive) =>
-            (json["minInclusive"] = this.termToJson(minInclusive)),
-        );
+        type.datatype.ifJust((datatype) => {
+          json["datatype"] = datatype;
+        });
+        type.hasValue.ifJust((hasValue) => {
+          json["hasValue"] = this.termToJson(hasValue);
+        });
+        type.maxExclusive.ifJust((maxExclusive) => {
+          json["maxExclusive"] = this.termToJson(maxExclusive);
+        });
+        type.maxInclusive.ifJust((maxInclusive) => {
+          json["maxInclusive"] = this.termToJson(maxInclusive);
+        });
+        type.minExclusive.ifJust((minExclusive) => {
+          json["minExclusive"] = this.termToJson(minExclusive);
+        });
+        type.minInclusive.ifJust((minInclusive) => {
+          json["minInclusive"] = this.termToJson(minInclusive);
+        });
         return json;
       }
       case "Object":

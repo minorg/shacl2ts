@@ -13,7 +13,13 @@
       "complexity": {
         "useLiteralKeys": "off"
       },
-      "recommended": true
+      "recommended": true,
+      "style": {
+        "noNonNullAssertion": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "off"
+      }
     }
   },
   "organizeImports": {
