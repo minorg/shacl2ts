@@ -8,7 +8,7 @@ import reservedTsIdentifiers_ from "reserved-identifiers";
 import {
   type NodeShape,
   PropertyShape,
-  Shape,
+  type Shape,
   type ShapesGraph,
 } from "shacl-ast";
 import type { Name, ObjectType, Property, Type } from "./ast";
@@ -29,20 +29,8 @@ function rdfIdentifierToString(identifier: BlankNode | NamedNode): string {
   }
 }
 
-class ShapeWrapper extends Shape {
-  constructor(private readonly delegate: Shape) {
-    super({ node: delegate.node, shapesGraph: delegate.shapesGraph });
-  }
-
-  get constraints() {
-    return this.delegate.constraints;
-  }
-
-  get shacl2tsName(): Maybe<string> {
-    return this.findAndMapObject(shacl2ts.name, (term) =>
-      term.termType === "Literal" ? Maybe.of(term.value) : Maybe.empty(),
-    );
-  }
+function shacl2tsName(shape: Shape): Maybe<string> {
+  return shape.resource.value(shacl2ts.name).chain((value) => value.toString());
 }
 
 // Adapted from https://github.com/sindresorhus/to-valid-identifier , MIT license
@@ -111,7 +99,9 @@ export class ShapesGraphToAstTransformer {
   transform(): Either<Error, Ast> {
     return Either.sequence(
       this.shapesGraph.nodeShapes
-        .filter((nodeShape) => nodeShape.node.termType === "NamedNode")
+        .filter(
+          (nodeShape) => nodeShape.resource.identifier.termType === "NamedNode",
+        )
         .map((nodeShape) => this.transformNodeShape(nodeShape)),
     ).map((objectTypes) => ({
       objectTypes,
@@ -236,16 +226,16 @@ export class ShapesGraphToAstTransformer {
   }
 
   private shapeName(shape: Shape): Name {
-    const identifier = shape.node;
+    const identifier = shape.resource.identifier;
     const curie =
       identifier.termType === "NamedNode"
         ? Maybe.fromNullable(this.iriPrefixMap.shrink(identifier)?.value)
         : Maybe.empty();
     const shName = shape.name.map((name) => name.value);
-    const shacl2tsName = new ShapeWrapper(shape).shacl2tsName;
+    const shacl2tsName_ = shacl2tsName(shape);
 
     const tsNameAlternatives: (string | null | undefined)[] = [
-      shacl2tsName.extract(),
+      shacl2tsName_.extract(),
       shName.extract()?.replace(" ", "_"),
       curie.map((curie) => curie.replace(":", "_")).extract(),
     ];
@@ -263,7 +253,7 @@ export class ShapesGraphToAstTransformer {
       curie,
       identifier,
       shName,
-      shacl2tsName,
+      shacl2tsName: shacl2tsName_,
       tsName: toValidTsIdentifier(
         tsNameAlternatives.find((tsNameAlternative) => !!tsNameAlternative)!,
       ),
@@ -272,7 +262,9 @@ export class ShapesGraphToAstTransformer {
 
   private transformNodeShape(nodeShape: NodeShape): Either<Error, ObjectType> {
     {
-      const objectType = this.objectTypesByIdentifier.get(nodeShape.node);
+      const objectType = this.objectTypesByIdentifier.get(
+        nodeShape.resource.identifier,
+      );
       if (objectType) {
         return Either.of(objectType);
       }
@@ -286,7 +278,7 @@ export class ShapesGraphToAstTransformer {
       name: this.shapeName(nodeShape),
       properties: [], // This is mutable, we'll populate it below.
     };
-    this.objectTypesByIdentifier.set(nodeShape.node, objectType);
+    this.objectTypesByIdentifier.set(nodeShape.resource.identifier, objectType);
 
     const propertiesByTsName: Record<string, Property> = {};
     for (const propertyShape of nodeShape.constraints.properties) {
@@ -321,7 +313,9 @@ export class ShapesGraphToAstTransformer {
     propertyShape: PropertyShape,
   ): Either<Error, Property> {
     {
-      const property = this.propertiesByIdentifier.get(propertyShape.node);
+      const property = this.propertiesByIdentifier.get(
+        propertyShape.resource.identifier,
+      );
       if (property) {
         return Either.of(property);
       }
@@ -346,7 +340,10 @@ export class ShapesGraphToAstTransformer {
       path,
       type: type.extract() as Type,
     };
-    this.propertiesByIdentifier.set(propertyShape.node, property);
+    this.propertiesByIdentifier.set(
+      propertyShape.resource.identifier,
+      property,
+    );
     return Either.of(property);
   }
 }
