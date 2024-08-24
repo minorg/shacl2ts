@@ -1,10 +1,10 @@
-import { DataFactory, Parser, Store } from "n3";
-import { DatasetCore } from "@rdfjs/types";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import PrefixMap, { type PrefixMapInit } from "@rdfjs/prefix-map/PrefixMap";
+import type { DatasetCore } from "@rdfjs/types";
+import { DataFactory, Parser, Store } from "n3";
 import { ShapesGraph } from "shacl-ast";
-import PrefixMap, { PrefixMapInit } from "@rdfjs/prefix-map/PrefixMap";
 
 const iriPrefixes: PrefixMapInit = [];
 

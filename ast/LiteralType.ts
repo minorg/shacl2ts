@@ -1,6 +1,6 @@
-import { Literal, NamedNode } from "@rdfjs/types";
-import { Name } from ".";
-import { Maybe } from "purify-ts";
+import type { Literal, NamedNode } from "@rdfjs/types";
+import type { Maybe } from "purify-ts";
+import type { Name } from ".";
 
 export interface LiteralType {
   readonly datatype: Maybe<NamedNode>;

@@ -1,19 +1,19 @@
+import * as fs from "node:fs";
+import PrefixMap, { type PrefixMapInit } from "@rdfjs/prefix-map/PrefixMap";
 import {
   command,
-  run,
-  restPositionals,
   option,
+  restPositionals,
+  run,
   string,
   subcommands,
 } from "cmd-ts";
 import { ExistingPath } from "cmd-ts/dist/esm/batteries/fs.js";
-import * as fs from "node:fs";
-import { Ast } from "./ast";
+import { DataFactory, Parser, Store } from "n3";
 import { ShapesGraph } from "shacl-ast";
 import { ShapesGraphToAstTransformer } from "./ShapesGraphToAstTransformer.js";
-import { DataFactory, Parser, Store } from "n3";
+import type { Ast } from "./ast";
 import { AstJsonGenerator } from "./generators";
-import PrefixMap, { PrefixMapInit } from "@rdfjs/prefix-map/PrefixMap";
 import { logger } from "./logger.js";
 
 const inputFilePaths = restPositionals({

@@ -1,4 +1,4 @@
-import { Type } from ".";
+import type { Type } from ".";
 
 /**
  * A disjunction ("or") of types, corresponding to an sh:or.

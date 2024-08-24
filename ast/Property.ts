@@ -1,6 +1,6 @@
-import { Maybe } from "purify-ts";
-import { Type, Name } from ".";
-import { PredicatePath } from "shacl-ast";
+import type { Maybe } from "purify-ts";
+import type { PredicatePath } from "shacl-ast";
+import type { Name, Type } from ".";
 
 export interface Property {
   readonly name: Name;

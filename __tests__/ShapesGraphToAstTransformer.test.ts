@@ -1,7 +1,7 @@
+import { schema } from "@tpluscode/rdf-ns-builders";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ShapesGraphToAstTransformer } from "../ShapesGraphToAstTransformer.js";
-import { ObjectType } from "../ast/ObjectType.js";
-import { schema } from "@tpluscode/rdf-ns-builders";
+import type { ObjectType } from "../ast/ObjectType.js";
 import { testData } from "./testData.js";
 
 describe("ShapesGraphToAstTransformer", () => {

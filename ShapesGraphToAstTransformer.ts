@@ -1,15 +1,20 @@
+import type PrefixMap from "@rdfjs/prefix-map/PrefixMap.js";
 import TermMap from "@rdfjs/term-map";
-import { ObjectType, Property, Type, Name } from "./ast";
-import { NodeShape, PropertyShape, Shape, ShapesGraph } from "shacl-ast";
-import { BlankNode, NamedNode } from "@rdfjs/types";
-import reservedTsIdentifiers_ from "reserved-identifiers";
+import type { BlankNode, NamedNode } from "@rdfjs/types";
 import base62 from "@sindresorhus/base62";
-import { Either, Left, Maybe } from "purify-ts";
-import { Ast } from "./ast/Ast.js";
-import { logger } from "./logger.js";
 import { rdfs } from "@tpluscode/rdf-ns-builders";
+import { Either, Left, Maybe } from "purify-ts";
+import reservedTsIdentifiers_ from "reserved-identifiers";
+import {
+  type NodeShape,
+  PropertyShape,
+  type Shape,
+  type ShapesGraph,
+} from "shacl-ast";
+import type { Name, ObjectType, Property, Type } from "./ast";
+import type { Ast } from "./ast/Ast.js";
+import { logger } from "./logger.js";
 import { shacl2ts } from "./vocabularies/";
-import PrefixMap from "@rdfjs/prefix-map/PrefixMap.js";
 
 const reservedTsIdentifiers = reservedTsIdentifiers_({
   includeGlobalProperties: true,
@@ -24,20 +29,8 @@ function rdfIdentifierToString(identifier: BlankNode | NamedNode): string {
   }
 }
 
-class ShapeWrapper extends Shape {
-  constructor(private readonly delegate: Shape) {
-    super({ node: delegate.node, shapesGraph: delegate.shapesGraph });
-  }
-
-  get constraints() {
-    return this.delegate.constraints;
-  }
-
-  get shacl2tsName(): Maybe<string> {
-    return this.findAndMapObject(shacl2ts.name, (term) =>
-      term.termType === "Literal" ? Maybe.of(term.value) : Maybe.empty(),
-    );
-  }
+function shacl2tsName(shape: Shape): Maybe<string> {
+  return shape.resource.value(shacl2ts.name).chain((value) => value.toString());
 }
 
 // Adapted from https://github.com/sindresorhus/to-valid-identifier , MIT license
@@ -106,7 +99,9 @@ export class ShapesGraphToAstTransformer {
   transform(): Either<Error, Ast> {
     return Either.sequence(
       this.shapesGraph.nodeShapes
-        .filter((nodeShape) => nodeShape.node.termType === "NamedNode")
+        .filter(
+          (nodeShape) => nodeShape.resource.identifier.termType === "NamedNode",
+        )
         .map((nodeShape) => this.transformNodeShape(nodeShape)),
     ).map((objectTypes) => ({
       objectTypes,
@@ -135,7 +130,8 @@ export class ShapesGraphToAstTransformer {
               types,
             }),
       );
-    } else if (
+    }
+    if (
       [
         shape.constraints.datatype,
         shape.constraints.maxExclusive,
@@ -158,7 +154,8 @@ export class ShapesGraphToAstTransformer {
         minInclusive: shape.constraints.minInclusive,
         name,
       });
-    } else if (shape.constraints.classes.length > 0) {
+    }
+    if (shape.constraints.classes.length > 0) {
       const nodeShapes: NodeShape[] = [];
       for (const class_ of shape.constraints.classes) {
         const classNodeShapes = this.classNodeShapes(class_);
@@ -189,13 +186,15 @@ export class ShapesGraphToAstTransformer {
               types,
             }),
       );
-    } else if (shape.constraints.in_.isJust()) {
+    }
+    if (shape.constraints.in_.isJust()) {
       // Treat any shape with sh:in as an enum type
       return Either.of({
         kind: "Enum",
         members: shape.constraints.in_.extract(),
       });
-    } else if (shape.constraints.nodes.length > 0) {
+    }
+    if (shape.constraints.nodes.length > 0) {
       // Treat any type with sh:node(s) as the conjunction of those nodes.
       return Either.sequence(
         shape.constraints.nodes.map((nodeShape) =>
@@ -209,7 +208,8 @@ export class ShapesGraphToAstTransformer {
               types,
             }),
       );
-    } else if (shape.constraints.or.length > 0) {
+    }
+    if (shape.constraints.or.length > 0) {
       // Treat any shape with sh:or as the disjunction of the member shapes.
       return Either.sequence(
         shape.constraints.or.map((shape) => this.shapeType(shape)),
@@ -221,22 +221,21 @@ export class ShapesGraphToAstTransformer {
               types,
             }),
       );
-    } else {
-      return Left(new Error(`unable to transform type on ${shape}`));
     }
+    return Left(new Error(`unable to transform type on ${shape}`));
   }
 
   private shapeName(shape: Shape): Name {
-    const identifier = shape.node;
+    const identifier = shape.resource.identifier;
     const curie =
       identifier.termType === "NamedNode"
         ? Maybe.fromNullable(this.iriPrefixMap.shrink(identifier)?.value)
         : Maybe.empty();
     const shName = shape.name.map((name) => name.value);
-    const shacl2tsName = new ShapeWrapper(shape).shacl2tsName;
+    const shacl2tsName_ = shacl2tsName(shape);
 
     const tsNameAlternatives: (string | null | undefined)[] = [
-      shacl2tsName.extract(),
+      shacl2tsName_.extract(),
       shName.extract()?.replace(" ", "_"),
       curie.map((curie) => curie.replace(":", "_")).extract(),
     ];
@@ -254,7 +253,7 @@ export class ShapesGraphToAstTransformer {
       curie,
       identifier,
       shName,
-      shacl2tsName,
+      shacl2tsName: shacl2tsName_,
       tsName: toValidTsIdentifier(
         tsNameAlternatives.find((tsNameAlternative) => !!tsNameAlternative)!,
       ),
@@ -263,7 +262,9 @@ export class ShapesGraphToAstTransformer {
 
   private transformNodeShape(nodeShape: NodeShape): Either<Error, ObjectType> {
     {
-      const objectType = this.objectTypesByIdentifier.get(nodeShape.node);
+      const objectType = this.objectTypesByIdentifier.get(
+        nodeShape.resource.identifier,
+      );
       if (objectType) {
         return Either.of(objectType);
       }
@@ -277,9 +278,9 @@ export class ShapesGraphToAstTransformer {
       name: this.shapeName(nodeShape),
       properties: [], // This is mutable, we'll populate it below.
     };
-    this.objectTypesByIdentifier.set(nodeShape.node, objectType);
+    this.objectTypesByIdentifier.set(nodeShape.resource.identifier, objectType);
 
-    let propertiesByTsName: Record<string, Property> = {};
+    const propertiesByTsName: Record<string, Property> = {};
     for (const propertyShape of nodeShape.constraints.properties) {
       const propertyEither = this.transformPropertyShape(propertyShape);
       if (propertyEither.isLeft()) {
@@ -312,7 +313,9 @@ export class ShapesGraphToAstTransformer {
     propertyShape: PropertyShape,
   ): Either<Error, Property> {
     {
-      const property = this.propertiesByIdentifier.get(propertyShape.node);
+      const property = this.propertiesByIdentifier.get(
+        propertyShape.resource.identifier,
+      );
       if (property) {
         return Either.of(property);
       }
@@ -337,7 +340,10 @@ export class ShapesGraphToAstTransformer {
       path,
       type: type.extract() as Type,
     };
-    this.propertiesByIdentifier.set(propertyShape.node, property);
+    this.propertiesByIdentifier.set(
+      propertyShape.resource.identifier,
+      property,
+    );
     return Either.of(property);
   }
 }

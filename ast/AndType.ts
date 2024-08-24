@@ -1,4 +1,4 @@
-import { Type } from ".";
+import type { Type } from ".";
 
 /**
  * A conjunction ("and") of types, corresponding to an sh:and.
