@@ -1,4 +1,4 @@
-import { Property, Name } from ".";
+import type { Name, Property } from ".";
 
 export interface ObjectType {
   readonly kind: "Object";

@@ -1,15 +1,20 @@
+import type PrefixMap from "@rdfjs/prefix-map/PrefixMap.js";
 import TermMap from "@rdfjs/term-map";
-import { ObjectType, Property, Type, Name } from "./ast";
-import { NodeShape, PropertyShape, Shape, ShapesGraph } from "shacl-ast";
-import { BlankNode, NamedNode } from "@rdfjs/types";
-import reservedTsIdentifiers_ from "reserved-identifiers";
+import type { BlankNode, NamedNode } from "@rdfjs/types";
 import base62 from "@sindresorhus/base62";
-import { Either, Left, Maybe } from "purify-ts";
-import { Ast } from "./ast/Ast.js";
-import { logger } from "./logger.js";
 import { rdfs } from "@tpluscode/rdf-ns-builders";
+import { Either, Left, Maybe } from "purify-ts";
+import reservedTsIdentifiers_ from "reserved-identifiers";
+import {
+  type NodeShape,
+  PropertyShape,
+  Shape,
+  type ShapesGraph,
+} from "shacl-ast";
+import type { Name, ObjectType, Property, Type } from "./ast";
+import type { Ast } from "./ast/Ast.js";
+import { logger } from "./logger.js";
 import { shacl2ts } from "./vocabularies/";
-import PrefixMap from "@rdfjs/prefix-map/PrefixMap.js";
 
 const reservedTsIdentifiers = reservedTsIdentifiers_({
   includeGlobalProperties: true,
@@ -279,7 +284,7 @@ export class ShapesGraphToAstTransformer {
     };
     this.objectTypesByIdentifier.set(nodeShape.node, objectType);
 
-    let propertiesByTsName: Record<string, Property> = {};
+    const propertiesByTsName: Record<string, Property> = {};
     for (const propertyShape of nodeShape.constraints.properties) {
       const propertyEither = this.transformPropertyShape(propertyShape);
       if (propertyEither.isLeft()) {

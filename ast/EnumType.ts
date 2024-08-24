@@ -1,4 +1,4 @@
-import { BlankNode, Literal, NamedNode } from "@rdfjs/types";
+import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 
 export interface EnumType {
   readonly kind: "Enum";

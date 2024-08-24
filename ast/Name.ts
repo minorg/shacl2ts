@@ -1,5 +1,5 @@
-import { BlankNode, NamedNode } from "@rdfjs/types";
-import { Maybe } from "purify-ts";
+import type { BlankNode, NamedNode } from "@rdfjs/types";
+import type { Maybe } from "purify-ts";
 
 export interface Name {
   readonly curie: Maybe<string>;

@@ -1,5 +1,5 @@
-import namespace, { NamespaceBuilder } from "@rdfjs/namespace";
-import { NamedNode } from "@rdfjs/types";
+import namespace, { type NamespaceBuilder } from "@rdfjs/namespace";
+import type { NamedNode } from "@rdfjs/types";
 
 export interface Shacl2ts {
   "": NamedNode<"http://minorg.github.io/shacl2ts/ns#">;
