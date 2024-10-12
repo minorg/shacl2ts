@@ -3,19 +3,80 @@ import type * as ast from "../ast";
 
 namespace AstJson {
   export interface Name {
-    [index: string]: any;
+    [index: string]: boolean | number | object | string | undefined;
     identifier: Term;
   }
 
   export interface Term {
-    [index: string]: any;
+    [index: string]: string;
     termType: RdfjsTerm["termType"];
     value: string;
   }
 
   export interface Type {
-    [index: string]: any;
+    [index: string]: boolean | number | object | string | undefined;
     kind: ast.Type["kind"];
+  }
+}
+
+function nameToJson(name: ast.Name): AstJson.Name {
+  return {
+    curie: name.curie.extract(),
+    identifier: termToJson(name.identifier),
+    shName: name.shName.extract(),
+    shacl2tsName: name.shacl2tsName.extract(),
+    tsName: name.tsName,
+  };
+}
+
+function termToJson(term: RdfjsTerm): AstJson.Term {
+  switch (term.termType) {
+    case "BlankNode":
+      return { termType: term.termType, value: term.value };
+    case "Literal":
+      return {
+        datatype: term.datatype.value,
+        language: term.language,
+        termType: term.termType,
+        value: term.value,
+      };
+    case "NamedNode":
+      return { termType: term.termType, value: term.value };
+    default:
+      throw new Error(`unsupported term type: ${term.termType}`);
+  }
+}
+
+function typeToJson(type: ast.Type): AstJson.Type {
+  switch (type.kind) {
+    case "And":
+    case "Or":
+      return {
+        kind: type.kind,
+        types: type.types.map((type) => typeToJson(type)),
+      };
+    case "Enum":
+      return {
+        kind: type.kind,
+        members: type.members.map((term) => termToJson(term)),
+      };
+    case "Literal": {
+      return {
+        datatype: type.datatype.extract(),
+        hasValue: type.hasValue.map(termToJson).extract(),
+        kind: type.kind,
+        maxExclusive: type.maxExclusive.map(termToJson).extract(),
+        maxInclusive: type.maxInclusive.map(termToJson).extract(),
+        minExclusive: type.minExclusive.map(termToJson).extract(),
+        minInclusive: type.minInclusive.map(termToJson).extract(),
+        name: nameToJson(type.name),
+      } satisfies AstJson.Type & { name: AstJson.Name };
+    }
+    case "Object":
+      return {
+        kind: type.kind,
+        name: nameToJson(type.name),
+      };
   }
 }
 
@@ -27,106 +88,18 @@ export class AstJsonGenerator {
       {
         objectTypes: this.ast.objectTypes.map((objectType) => ({
           kind: objectType.kind,
-          name: this.nameToJson(objectType.name),
-          properties: objectType.properties.map((property) => {
-            const json: any = {
-              name: this.nameToJson(property.name),
-              path: property.path.iri.value,
-              type: this.typeToJson(property.type),
-            };
-            property.maxCount.ifJust((maxCount) => {
-              json["maxCount"] = maxCount;
-            });
-            property.maxCount.ifJust((minCount) => {
-              json["minCount"] = minCount;
-            });
-            return json;
-          }),
+          name: nameToJson(objectType.name),
+          properties: objectType.properties.map((property) => ({
+            maxCount: property.maxCount.extract(),
+            minCount: property.minCount.extract(),
+            name: nameToJson(property.name),
+            path: property.path.iri.value,
+            type: typeToJson(property.type),
+          })),
         })),
       },
       undefined,
       2,
     );
-  }
-
-  private nameToJson(name: ast.Name): AstJson.Name {
-    const json: AstJson.Name = {
-      identifier: this.termToJson(name.identifier),
-      tsName: name.tsName,
-    };
-    name.curie.ifJust((curie) => {
-      json["curie"] = curie;
-    });
-    name.shName.ifJust((shName) => {
-      json["shName"] = shName;
-    });
-    name.shacl2tsName.ifJust((shacl2tsName) => {
-      json["shacl2tsName"] = shacl2tsName;
-    });
-    return json;
-  }
-
-  private termToJson(term: RdfjsTerm): AstJson.Term {
-    switch (term.termType) {
-      case "BlankNode":
-        return { termType: term.termType, value: term.value };
-      case "Literal":
-        return {
-          datatype: term.datatype.value,
-          language: term.language,
-          termType: term.termType,
-          value: term.value,
-        };
-      case "NamedNode":
-        return { termType: term.termType, value: term.value };
-      default:
-        throw new Error(`unsupported term type: ${term.termType}`);
-    }
-  }
-
-  private typeToJson(type: ast.Type): AstJson.Type {
-    switch (type.kind) {
-      case "And":
-      case "Or":
-        return {
-          kind: type.kind,
-          types: type.types.map((type) => this.typeToJson(type)),
-        };
-      case "Enum":
-        return {
-          kind: type.kind,
-          members: type.members.map((term) => this.termToJson(term)),
-        };
-      case "Literal": {
-        const json: AstJson.Type & { name: AstJson.Name } = {
-          kind: type.kind,
-          name: this.nameToJson(type.name),
-        };
-        type.datatype.ifJust((datatype) => {
-          json["datatype"] = datatype.value;
-        });
-        type.hasValue.ifJust((hasValue) => {
-          json["hasValue"] = this.termToJson(hasValue);
-        });
-        type.maxExclusive.ifJust((maxExclusive) => {
-          json["maxExclusive"] = this.termToJson(maxExclusive);
-        });
-        type.maxInclusive.ifJust((maxInclusive) => {
-          json["maxInclusive"] = this.termToJson(maxInclusive);
-        });
-        type.minExclusive.ifJust((minExclusive) => {
-          json["minExclusive"] = this.termToJson(minExclusive);
-        });
-        type.minInclusive.ifJust((minInclusive) => {
-          json["minInclusive"] = this.termToJson(minInclusive);
-        });
-        return json;
-      }
-      case "Object":
-        return {
-          kind: type.kind,
-          name: this.nameToJson(type.name),
-        };
-    }
   }
 }
