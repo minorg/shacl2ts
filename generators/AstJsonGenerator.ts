@@ -103,7 +103,7 @@ export class AstJsonGenerator {
           name: this.nameToJson(type.name),
         };
         type.datatype.ifJust((datatype) => {
-          json["datatype"] = datatype;
+          json["datatype"] = datatype.value;
         });
         type.hasValue.ifJust((hasValue) => {
           json["hasValue"] = this.termToJson(hasValue);
