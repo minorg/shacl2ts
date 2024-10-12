@@ -1,0 +1,182 @@
+# baseURI: http://purl.annotize.ai/ontology/mlm
+
+@prefix anno-mlm: <http://purl.annotize.ai/ontology/mlm#> .
+@prefix dash: <http://datashapes.org/dash#> .
+@prefix graphql: <http://datashapes.org/graphql#> .
+@prefix metadata: <http://topbraid.org/metadata#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix teamwork: <http://topbraid.org/teamwork#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://purl.annotize.ai/ontology/mlm>
+  a owl:Ontology ;
+  graphql:publicClass anno-mlm:DataSheet ;
+  graphql:publicClass anno-mlm:Model ;
+  graphql:publicClass anno-mlm:ScalarDatum ;
+  graphql:publicClass anno-mlm:ScalarIntegerDatum ;
+  metadata:status metadata:UnderDevelopmentStatus ;
+  rdfs:label "machine learning model ontology" ;
+  owl:imports <http://datashapes.org/schema> ;
+.
+anno-mlm:LanguageModel
+  a owl:Class ;
+  a sh:NodeShape ;
+  rdfs:label "language model" ;
+  rdfs:subClassOf anno-mlm:Model ;
+  skos:definition "A language model is a model that represents the structure and usage of language, capable of predicting or generating text based on input sequences. It functions by analyzing and learning patterns in linguistic data, enabling tasks such as translation, summarization, and natural language understanding." ;
+.
+anno-mlm:MachineLearningModel
+  a owl:Class ;
+  a sh:NodeShape ;
+  rdfs:label "machine learning model" ;
+  rdfs:subClassOf owl:Thing ;
+  rdfs:subClassOf schema:ProductModel ;
+  sh:property anno-mlm:MachineLearningModel-contextWindow ;
+  sh:property anno-mlm:MachineLearningModel-description ;
+  sh:property anno-mlm:MachineLearningModel-identifier ;
+  sh:property anno-mlm:MachineLearningModel-isVariantOf ;
+  sh:property anno-mlm:MachineLearningModel-label ;
+  sh:property anno-mlm:MachineLearningModel-maxTokenOutput ;
+  sh:property anno-mlm:MachineLearningModel-name ;
+  sh:property anno-mlm:MachineLearningModel-trainingDataCutoff ;
+  sh:property anno-mlm:MachineLearningModel-url ;
+.
+anno-mlm:MachineLearningModel-contextWindow
+  a sh:PropertyShape ;
+  sh:path anno-mlm:contextWindow ;
+  sh:datatype xsd:integer ;
+  sh:maxCount 1 ;
+  sh:minCount 1 ;
+  sh:name "context window size (tokens)" ;
+.
+anno-mlm:MachineLearningModel-description
+  a sh:PropertyShape ;
+  sh:path schema:description ;
+  sh:datatype xsd:string ;
+  sh:maxCount 1 ;
+  sh:name "has description" ;
+.
+anno-mlm:MachineLearningModel-identifier
+  a sh:PropertyShape ;
+  sh:path schema:identifier ;
+  sh:datatype xsd:string ;
+  sh:name "has identifier" ;
+.
+anno-mlm:MachineLearningModel-isVariantOf
+  a sh:PropertyShape ;
+  sh:path schema:isVariantOf ;
+  sh:class anno-mlm:MachineLearningModelFamily ;
+  sh:name "is variant of" ;
+.
+anno-mlm:MachineLearningModel-label
+  a sh:PropertyShape ;
+  sh:path rdfs:label ;
+  dash:singleLine true ;
+  sh:name "labels" ;
+  sh:or dash:StringOrLangString ;
+.
+anno-mlm:MachineLearningModel-maxTokenOutput
+  a sh:PropertyShape ;
+  sh:path anno-mlm:maxTokenOutput ;
+  sh:maxCount 1 ;
+  sh:name "has maximum output tokens" ;
+  sh:nodeKind sh:Literal ;
+.
+anno-mlm:MachineLearningModel-multilingual
+  a sh:PropertyShape ;
+  sh:path anno-mlm:multilingual ;
+  sh:datatype xsd:boolean ;
+  sh:maxCount 1 ;
+  sh:minCount 1 ;
+  sh:name "is multilingual" ;
+.
+anno-mlm:MachineLearningModel-name
+  a sh:PropertyShape ;
+  sh:path schema:name ;
+  sh:datatype xsd:string ;
+  sh:maxCount 1 ;
+  sh:minCount 1 ;
+  sh:name "has name" ;
+.
+anno-mlm:MachineLearningModel-trainingDataCutoff
+  a sh:PropertyShape ;
+  sh:path anno-mlm:trainingDataCutoff ;
+  rdfs:comment "Should be a valid ISO 8601 string." ;
+  sh:datatype xsd:string ;
+  sh:name "has training data cutoff" ;
+.
+anno-mlm:MachineLearningModel-url
+  a sh:PropertyShape ;
+  sh:path schema:url ;
+  sh:datatype xsd:anyURI ;
+  sh:maxCount 1 ;
+  sh:name "has url" ;
+.
+anno-mlm:MachineLearningModelFamily
+  a owl:Class ;
+  a sh:NodeShape ;
+  rdfs:label "machine learning model family" ;
+  rdfs:subClassOf owl:Thing ;
+  rdfs:subClassOf schema:ProductGroup ;
+  sh:property anno-mlm:MachineLearningModelFamily-description ;
+  sh:property anno-mlm:MachineLearningModelFamily-label ;
+  sh:property anno-mlm:MachineLearningModelFamily-manufacturer ;
+  sh:property anno-mlm:MachineLearningModelFamily-name ;
+  sh:property anno-mlm:MachineLearningModelFamily-url ;
+.
+anno-mlm:MachineLearningModelFamily-description
+  a sh:PropertyShape ;
+  sh:path schema:description ;
+  sh:datatype xsd:string ;
+  sh:maxCount 1 ;
+  sh:name "has description" ;
+.
+anno-mlm:MachineLearningModelFamily-label
+  a sh:PropertyShape ;
+  sh:path rdfs:label ;
+  dash:singleLine true ;
+  sh:name "labels" ;
+  sh:or dash:StringOrLangString ;
+.
+anno-mlm:MachineLearningModelFamily-manufacturer
+  a sh:PropertyShape ;
+  sh:path schema:manufacturer ;
+  sh:class schema:Organization ;
+  sh:maxCount 1 ;
+  sh:name "has manufacturer" ;
+  sh:nodeKind sh:IRI ;
+.
+anno-mlm:MachineLearningModelFamily-name
+  a sh:PropertyShape ;
+  sh:path schema:name ;
+  sh:datatype xsd:string ;
+  sh:maxCount 1 ;
+  sh:minCount 1 ;
+  sh:name "has name" ;
+.
+anno-mlm:MachineLearningModelFamily-url
+  a sh:PropertyShape ;
+  sh:path schema:url ;
+  sh:datatype xsd:anyURI ;
+  sh:maxCount 1 ;
+  sh:name "has url" ;
+.
+anno-mlm:contextWindow
+  a owl:DatatypeProperty ;
+  rdfs:label "context window size (tokens)" ;
+.
+anno-mlm:maxTokenOutput
+  a owl:DatatypeProperty ;
+  rdfs:label "has maximum output tokens" ;
+.
+anno-mlm:trainingDataCutoff
+  a owl:DatatypeProperty ;
+  rdfs:label "has training data cutoff" ;
+.

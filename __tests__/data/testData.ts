@@ -56,10 +56,13 @@ function parseTurtleFile(fileName: string): DatasetCore {
 }
 
 export function testData(): {
+  // MachineLearningModel test data
+  mlm: TestData;
   // schema.org test data
   sdo: TestData;
 } {
   return {
+    mlm: parseTestData("mlm"),
     sdo: parseTestData("sdo"),
   };
 }
