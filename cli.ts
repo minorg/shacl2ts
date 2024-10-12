@@ -13,7 +13,7 @@ import { DataFactory, Parser, Store } from "n3";
 import { ShapesGraph } from "shacl-ast";
 import { ShapesGraphToAstTransformer } from "./ShapesGraphToAstTransformer.js";
 import type { Ast } from "./ast";
-import { AstJsonGenerator } from "./generators";
+import { AstJsonGenerator, InterfaceTsGenerator } from "./generators";
 import { logger } from "./logger.js";
 
 const inputFilePaths = restPositionals({
@@ -102,6 +102,21 @@ run(
         handler: async ({ inputFilePaths, outputFilePath }) => {
           writeOutput(
             new AstJsonGenerator(readInput(inputFilePaths)).generate(),
+            outputFilePath,
+          );
+        },
+      }),
+      "interface-ts": command({
+        name: "interface-ts",
+        description:
+          "generate interface TypeScript for the SHACL Shapes Graph AST",
+        args: {
+          inputFilePaths,
+          outputFilePath,
+        },
+        handler: async ({ inputFilePaths, outputFilePath }) => {
+          writeOutput(
+            new InterfaceTsGenerator(readInput(inputFilePaths)).generate(),
             outputFilePath,
           );
         },
