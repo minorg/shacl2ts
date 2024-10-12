@@ -1,6 +1,5 @@
 import { schema } from "@tpluscode/rdf-ns-builders";
 import { beforeAll, describe, expect, it } from "vitest";
-import { ShapesGraphToAstTransformer } from "../ShapesGraphToAstTransformer.js";
 import type { ObjectType } from "../ast/ObjectType.js";
 import { testData } from "./testData.js";
 
@@ -9,15 +8,7 @@ describe("ShapesGraphToAstTransformer", () => {
   let personObjectType: ObjectType;
 
   beforeAll(() => {
-    const ast = new ShapesGraphToAstTransformer({
-      iriPrefixMap: testData.iriPrefixMap,
-      shapesGraph: testData.shapesGraph,
-    })
-      .transform()
-      .extract();
-    if (ast instanceof Error) {
-      throw ast;
-    }
+    const ast = testData().ast;
     expect(ast.objectTypes).toHaveLength(56);
 
     // const addressObjectType = ast.objectTypes.find(
@@ -31,7 +22,7 @@ describe("ShapesGraphToAstTransformer", () => {
     expect(personObjectType).toBeDefined();
   });
 
-  it("should transform the givenName property", () => {
+  it("should transform the givenName property", ({ expect }) => {
     const property = personObjectType.properties.find((property) =>
       property.path.iri.equals(schema.givenName),
     );
