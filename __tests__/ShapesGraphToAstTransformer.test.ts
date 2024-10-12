@@ -1,14 +1,14 @@
 import { schema } from "@tpluscode/rdf-ns-builders";
 import { beforeAll, describe, expect, it } from "vitest";
 import type { ObjectType } from "../ast/ObjectType.js";
-import { testData } from "./testData.js";
+import { testData } from "./data/testData.js";
 
 describe("ShapesGraphToAstTransformer", () => {
   // let addressObjectType: ObjectType;
   let personObjectType: ObjectType;
 
   beforeAll(() => {
-    const ast = testData().ast;
+    const ast = testData().sdo.ast;
     expect(ast.objectTypes).toHaveLength(56);
 
     // const addressObjectType = ast.objectTypes.find(
