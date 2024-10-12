@@ -4,6 +4,7 @@
     "declarationMap": true,
     "esModuleInterop": true,
     "exactOptionalPropertyTypes": false,
+    "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
     "lib": ["ES2021.String"],

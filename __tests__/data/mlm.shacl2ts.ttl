@@ -8,7 +8,7 @@ anno-mlm:LanguageModel shacl2ts:name "LanguageModel" .
 anno-mlm:MachineLearningModel shacl2ts:name "MachineLearningModel" .
 anno-mlm:MachineLearningModel-contextWindow shacl2ts:name "contextWindow" .
 anno-mlm:MachineLearningModel-description shacl2ts:name "description" .
-anno-mlm:MachineLearningModel-identifier shacl2ts:name "identifier" .
+anno-mlm:MachineLearningModel-identifier shacl2ts:name "literalIdentifier" .
 anno-mlm:MachineLearningModel-isVariantOf shacl2ts:name "isVariantOf" .
 anno-mlm:MachineLearningModel-label shacl2ts:name "label" .
 anno-mlm:MachineLearningModel-maxTokenOutput shacl2ts:name "maxTokenOutput" .
