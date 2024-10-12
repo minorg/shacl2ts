@@ -334,6 +334,20 @@ export class ShapesGraphToAstTransformer {
     }
 
     const property: Property = {
+      inline: propertyShape.resource
+        .value(shacl2ts.inline)
+        .chain((value) => value.toBoolean())
+        .orDefaultLazy(() => {
+          switch ((type.extract() as Type).kind) {
+            case "And":
+            case "Object":
+            case "Or":
+              return false;
+            case "Enum":
+            case "Literal":
+              return true;
+          }
+        }),
       maxCount: propertyShape.constraints.maxCount,
       minCount: propertyShape.constraints.minCount,
       name: this.shapeName(propertyShape),
