@@ -20,6 +20,7 @@ export abstract class TsGenerator {
     for (const objectType of this.ast.objectTypes) {
       this.addObjectType(objectType, this.sourceFile);
     }
+    this.sourceFile.saveSync();
     return this.project
       .getFileSystem()
       .readFileSync(this.sourceFile.getFilePath());
