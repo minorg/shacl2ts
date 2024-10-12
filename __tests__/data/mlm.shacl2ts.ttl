@@ -1,0 +1,25 @@
+# baseURI: http://purl.annotize.ai/ontology/mlm
+
+@prefix anno-mlm: <http://purl.annotize.ai/ontology/mlm#> .
+@prefix shacl2ts: <http://minorg.github.io/shacl2ts/ns#> .
+
+anno-mlm:LanguageModel shacl2ts:name "LanguageModel" .
+
+anno-mlm:MachineLearningModel shacl2ts:name "MachineLearningModel" .
+anno-mlm:MachineLearningModel-contextWindow shacl2ts:name "contextWindow" .
+anno-mlm:MachineLearningModel-description shacl2ts:name "description" .
+anno-mlm:MachineLearningModel-identifier shacl2ts:name "identifier" .
+anno-mlm:MachineLearningModel-isVariantOf shacl2ts:name "isVariantOf" .
+anno-mlm:MachineLearningModel-label shacl2ts:name "label" .
+anno-mlm:MachineLearningModel-maxTokenOutput shacl2ts:name "maxTokenOutput" .
+anno-mlm:MachineLearningModel-multilingual shacl2ts:name "multilingual" .
+anno-mlm:MachineLearningModel-name shacl2ts:name "name" .
+anno-mlm:MachineLearningModel-trainingDataCutoff shacl2ts:name "trainingDataCutoff" .
+anno-mlm:MachineLearningModel-url shacl2ts:name "url" .
+
+anno-mlm:MachineLearningModelFamily shacl2ts:name "MachineLearningModelFamily" .
+anno-mlm:MachineLearningModelFamily-description shacl2ts:name "description" .
+anno-mlm:MachineLearningModelFamily-label shacl2ts:name "label" .
+anno-mlm:MachineLearningModelFamily-manufacturer shacl2ts:name "manufacturer" .
+anno-mlm:MachineLearningModelFamily-name shacl2ts:name "name" .
+anno-mlm:MachineLearningModelFamily-url shacl2ts:name "url" .

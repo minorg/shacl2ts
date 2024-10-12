@@ -18,9 +18,10 @@ interface TestData {
 
 function parseTestData(fileStem: string): TestData {
   const dataGraph = parseTurtleFile(`${fileStem}.data.ttl`);
-  const shapesGraph = ShapesGraph.fromDataset(
-    parseTurtleFile(`${fileStem}.shapes.ttl`),
-  );
+  const shapesDataset = new Store();
+  shapesDataset.addQuads([...parseTurtleFile(`${fileStem}.shapes.ttl`)]);
+  shapesDataset.addQuads([...parseTurtleFile(`${fileStem}.shacl2ts.ttl`)]);
+  const shapesGraph = ShapesGraph.fromDataset(shapesDataset);
   const iriPrefixMap = new PrefixMap(iriPrefixes, { factory: DataFactory });
   const ast = new ShapesGraphToAstTransformer({
     iriPrefixMap,
