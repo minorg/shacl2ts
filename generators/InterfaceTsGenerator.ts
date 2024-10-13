@@ -1,4 +1,5 @@
 import type {
+  InterfaceDeclarationStructure,
   OptionalKind,
   PropertySignatureStructure,
   SourceFile,
@@ -7,57 +8,64 @@ import type * as ast from "../ast/index";
 import { TsGenerator } from "./TsGenerator";
 
 export class InterfaceTsGenerator extends TsGenerator {
-  constructor(ast: ast.Ast) {
-    super(ast, new InterfaceTsGenerator.Factory());
+  private readonly factory = new InterfaceTsGenerator.Factory();
+
+  protected override addObjectType(
+    astObjectType: ast.ObjectType,
+    toSourceFile: SourceFile,
+  ) {
+    toSourceFile.addInterface(
+      this.factory
+        .createObjectType(astObjectType)
+        .toInterfaceDeclarationStructure(),
+    );
   }
 }
 
 export namespace InterfaceTsGenerator {
   export class Factory extends TsGenerator.Factory {
-    override createObjectType(astType: ast.ObjectType): TsGenerator.ObjectType {
+    override createObjectType(astType: ast.ObjectType): ObjectType {
       return new ObjectType(astType, this);
     }
   }
 
   export class ObjectType extends TsGenerator.ObjectType {
-    override addStructureTo(sourceFile: SourceFile): void {
+    toInterfaceDeclarationStructure(): OptionalKind<InterfaceDeclarationStructure> {
       const propertySignatureStructures: OptionalKind<PropertySignatureStructure>[] =
-        [
-          {
-            isReadonly: true,
-            name: "identifier",
-            type: "rdfjs.BlankNode | rdfjs.NamedNode",
-          },
-        ];
+        [{ isReadonly: true, name: "node", type: this.nodeType }];
+
       for (const property of this.properties) {
-        const propertySignatureStructure = property
-          .toPropertySignatureStructure()
-          .extractNullable();
-        if (propertySignatureStructure === null) {
-          continue;
+        if (property.inline) {
+          const propertySignatureStructure: OptionalKind<PropertySignatureStructure> =
+            {
+              isReadonly: true,
+              name: this.name,
+              type: property.typeName,
+            };
+          if (
+            propertySignatureStructures.some(
+              (existingPropertySignatureStructure) =>
+                existingPropertySignatureStructure.name ===
+                propertySignatureStructure.name,
+            )
+          ) {
+            throw new Error(
+              `duplicate property '${propertySignatureStructure.name}' on ${this.name}`,
+            );
+          }
+          propertySignatureStructures.push(propertySignatureStructure);
+        } else {
         }
-        if (
-          propertySignatureStructures.some(
-            (existingPropertySignatureStructure) =>
-              existingPropertySignatureStructure.name ===
-              propertySignatureStructure.name,
-          )
-        ) {
-          throw new Error(
-            `duplicate property '${propertySignatureStructure.name}' on ${this.name}`,
-          );
-        }
-        propertySignatureStructures.push(propertySignatureStructure);
       }
       propertySignatureStructures.sort((left, right) =>
         left.name.localeCompare(right.name),
       );
 
-      sourceFile.addInterface({
+      return {
         isExported: true,
         name: this.name,
         properties: propertySignatureStructures,
-      });
+      };
     }
   }
 }

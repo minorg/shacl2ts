@@ -1,44 +1,40 @@
-import {
-  type OptionalKind,
-  Project,
-  type PropertySignatureStructure,
-  type SourceFile,
-  ts,
-} from "ts-morph";
-import type * as ast from "../ast";
-import ScriptTarget = ts.ScriptTarget;
 import { xsd } from "@tpluscode/rdf-ns-builders";
-import { Maybe } from "purify-ts";
+import { NodeKind } from "shacl-ast";
+import { Project, type SourceFile } from "ts-morph";
 import { Memoize } from "typescript-memoize";
+import type * as ast from "../ast";
 
 export abstract class TsGenerator {
   private readonly project: Project;
   private readonly sourceFile: SourceFile;
 
-  constructor(
-    private readonly ast: ast.Ast,
-    private readonly factory: TsGenerator.Factory,
-  ) {
+  constructor(private readonly ast: ast.Ast) {
     this.project = new Project({
-      compilerOptions: {
-        target: ScriptTarget.ES2020,
-      },
       useInMemoryFileSystem: true,
     });
     this.sourceFile = this.project.createSourceFile("generated.ts");
   }
 
-  generate(): string {
-    this.sourceFile.addImportDeclaration({
+  protected addImportDeclarations(toSourceFile: SourceFile): void {
+    toSourceFile.addImportDeclaration({
       moduleSpecifier: "@rdfjs/types",
       namespaceImport: "rdfjs",
     });
-    this.sourceFile.addImportDeclaration({
+    toSourceFile.addImportDeclaration({
       moduleSpecifier: "purify-ts",
       namespaceImport: "purify",
     });
+  }
+
+  protected abstract addObjectType(
+    astObjectType: ast.ObjectType,
+    toSourceFile: SourceFile,
+  ): void;
+
+  generate(): string {
+    this.addImportDeclarations(this.sourceFile);
     for (const objectType of this.ast.objectTypes) {
-      this.factory.createObjectType(objectType).addStructureTo(this.sourceFile);
+      this.addObjectType(objectType, this.sourceFile);
     }
     this.sourceFile.saveSync();
     return this.project
@@ -137,7 +133,7 @@ export namespace TsGenerator {
     }
   }
 
-  export abstract class ObjectType extends Type<ast.ObjectType> {
+  export class ObjectType extends Type<ast.ObjectType> {
     readonly properties: readonly Property[];
 
     constructor(astType: ast.ObjectType, factory: Factory) {
@@ -147,10 +143,21 @@ export namespace TsGenerator {
       );
     }
 
-    abstract addStructureTo(sourceFile: SourceFile): void;
-
     get name(): string {
       return this.astType.name.tsName;
+    }
+
+    get nodeType(): string {
+      switch (this.astType.nodeKind) {
+        case NodeKind.BLANK_NODE:
+          return "rdfjs.BlankNode";
+        case NodeKind.BLANK_NODE_OR_IRI:
+          return "rdfjs.BlankNode | rdfjs.NamedNode";
+        case NodeKind.IRI:
+          return "rdfjs.NamedNode";
+        default:
+          throw new RangeError(this.astType.nodeKind);
+      }
     }
   }
 
@@ -177,13 +184,16 @@ export namespace TsGenerator {
       this.type = this.factory.createType(astProperty.type);
     }
 
+    get inline(): boolean {
+      return this.astProperty.inline;
+    }
+
     get name(): string {
       return this.astProperty.name.tsName;
     }
 
-    toPropertySignatureStructure(): Maybe<
-      OptionalKind<PropertySignatureStructure>
-    > {
+    @Memoize()
+    get typeName(): string {
       const minCount = this.astProperty.minCount.orDefault(0);
       const maxCount = this.astProperty.maxCount.extractNullable();
       let type = this.type.name;
@@ -193,12 +203,7 @@ export namespace TsGenerator {
       } else {
         type = `readonly (${type})[]`;
       }
-
-      return Maybe.of({
-        isReadonly: true,
-        name: this.name,
-        type,
-      });
+      return type;
     }
   }
 
