@@ -162,12 +162,20 @@ export namespace TsGenerator {
   }
 
   export class ObjectType extends Type<ast.ObjectType> {
+    readonly ancestorObjectTypes: readonly ObjectType[];
     readonly properties: readonly Property[];
+    readonly superObjectTypes: readonly ObjectType[];
 
     constructor(astType: ast.ObjectType, factory: Factory) {
       super(astType, factory);
+      this.ancestorObjectTypes = this.astType.ancestorObjectTypes.map(
+        (astObjectType) => this.factory.createObjectType(astObjectType),
+      );
       this.properties = this.astType.properties.map((astProperty) =>
         this.factory.createProperty(astProperty),
+      );
+      this.superObjectTypes = this.astType.superObjectTypes.map(
+        (astObjectType) => this.factory.createObjectType(astObjectType),
       );
     }
 

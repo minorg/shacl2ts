@@ -65,6 +65,9 @@ export namespace InterfaceTsGenerator {
       );
 
       return {
+        extends: this.superObjectTypes.map(
+          (superObjectType) => superObjectType.inlineName,
+        ),
         isExported: true,
         name: this.inlineName,
         properties: propertySignatureStructures,
