@@ -65,10 +65,18 @@ export namespace TsGenerator {
     AstType extends ast.AndType | ast.OrType,
   > extends Type<AstType> {
     get externName(): string {
+      if (this.types.every((type) => type instanceof LiteralType)) {
+        return "rdfjs.Literal";
+      }
+
       return `(${this.types.map((type) => type.externName).join(` ${this.separator} `)})`;
     }
 
     get inlineName(): string {
+      if (this.types.every((type) => type instanceof LiteralType)) {
+        return "rdfjs.Literal";
+      }
+
       return `(${this.types.map((type) => type.inlineName).join(` ${this.separator} `)})`;
     }
 
