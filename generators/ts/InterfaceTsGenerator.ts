@@ -8,7 +8,7 @@ import type * as ast from "../ast/index";
 import { TsGenerator } from "./TsGenerator";
 
 export class InterfaceTsGenerator extends TsGenerator {
-  private readonly factory = new InterfaceTsGenerator.Factory();
+  private readonly factory = new InterfaceTsGenerator.Factories();
 
   protected override addImportDeclarations(toSourceFile: SourceFile): void {
     toSourceFile.addImportDeclaration({
@@ -36,13 +36,14 @@ export class InterfaceTsGenerator extends TsGenerator {
 }
 
 export namespace InterfaceTsGenerator {
-  export class Factory extends TsGenerator.Factory {
-    override createObjectType(astType: ast.ObjectType): ObjectType {
-      return new ObjectType(astType, this);
+  class ObjectType extends TsGenerator.ObjectType {
+    constructor(astType: ast.ObjectType, factories: TsGenerator.Factories) {
+      super(astType, factories);
+      this.properties.push({
+        type: new TsGenerator.ObjectType(),
+      });
     }
-  }
 
-  export class ObjectType extends TsGenerator.ObjectType {
     private propertySignatureStructures(): OptionalKind<PropertySignatureStructure>[] {
       const propertySignatureStructuresByName: Record<
         string,
@@ -56,19 +57,18 @@ export namespace InterfaceTsGenerator {
       };
 
       for (const property of this.properties) {
-        const propertySignatureStructure: OptionalKind<PropertySignatureStructure> =
-          {
-            isReadonly: true,
-            name: property.name,
-            type: property.typeName,
-          };
+        const propertySignatureStructure = (
+          property as Property
+        ).toPropertySignatureStructure();
+
         if (
           propertySignatureStructuresByName[propertySignatureStructure.name]
         ) {
           throw new Error(
-            `duplicate property '${propertySignatureStructure.name}' on ${this.inlineName}`,
+            `duplicate property '${propertySignatureStructure.name}' on ${this.name}`,
           );
         }
+
         propertySignatureStructuresByName[propertySignatureStructure.name] =
           propertySignatureStructure;
       }
@@ -81,11 +81,21 @@ export namespace InterfaceTsGenerator {
     toInterfaceDeclarationStructure(): OptionalKind<InterfaceDeclarationStructure> {
       return {
         extends: this.superObjectTypes.map(
-          (superObjectType) => superObjectType.inlineName,
+          (superObjectType) => superObjectType.name,
         ),
         isExported: true,
-        name: this.inlineName,
+        name: this.name,
         properties: this.propertySignatureStructures(),
+      };
+    }
+  }
+
+  class Property extends TsGenerator.Property {
+    toPropertySignatureStructure(): OptionalKind<PropertySignatureStructure> {
+      return {
+        isReadonly: true,
+        name: this.name,
+        type: this.typeName,
       };
     }
   }
