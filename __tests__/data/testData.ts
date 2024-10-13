@@ -7,6 +7,7 @@ import { DataFactory, Parser, Store } from "n3";
 import { ShapesGraph } from "shacl-ast";
 import { ShapesGraphToAstTransformer } from "../../ShapesGraphToAstTransformer.js";
 import type { Ast } from "../../ast";
+import { dashDataset } from "../../vocabularies/dashDataset";
 
 const iriPrefixes: PrefixMapInit = [];
 
@@ -19,8 +20,15 @@ interface TestData {
 function parseTestData(fileStem: string): TestData {
   const dataGraph = parseTurtleFile(`${fileStem}.data.ttl`);
   const shapesDataset = new Store();
-  shapesDataset.addQuads([...parseTurtleFile(`${fileStem}.shapes.ttl`)]);
-  shapesDataset.addQuads([...parseTurtleFile(`${fileStem}.shacl2ts.ttl`)]);
+  for (const quad of parseTurtleFile(`${fileStem}.shapes.ttl`)) {
+    shapesDataset.addQuad(quad);
+  }
+  for (const quad of parseTurtleFile(`${fileStem}.shacl2ts.ttl`)) {
+    shapesDataset.addQuad(quad);
+  }
+  for (const quad of dashDataset) {
+    shapesDataset.addQuad(quad);
+  }
   const shapesGraph = ShapesGraph.fromDataset(shapesDataset);
   const iriPrefixMap = new PrefixMap(iriPrefixes, { factory: DataFactory });
   const ast = new ShapesGraphToAstTransformer({

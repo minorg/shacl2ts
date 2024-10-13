@@ -15,6 +15,7 @@ import { ShapesGraphToAstTransformer } from "./ShapesGraphToAstTransformer.js";
 import type { Ast } from "./ast";
 import { AstJsonGenerator, InterfaceTsGenerator } from "./generators";
 import { logger } from "./logger.js";
+import { dashDataset } from "./vocabularies/dashDataset";
 
 const inputFilePaths = restPositionals({
   displayName: "inputFilePaths",
@@ -38,6 +39,9 @@ function readInput(inputFilePaths: readonly string[]) {
 
   const inputParser = new Parser();
   const dataset = new Store();
+  for (const quad of dashDataset) {
+    dataset.add(quad);
+  }
   const iriPrefixes: PrefixMapInit = [];
   for (const inputFilePath of inputFilePaths) {
     dataset.addQuads(
