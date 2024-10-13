@@ -176,16 +176,14 @@ export namespace TsGenerator {
     }
 
     get identifierTypeName(): string {
-      switch (this.astType.nodeKind) {
-        case NodeKind.BLANK_NODE:
-          return "rdfjs.BlankNode";
-        case NodeKind.BLANK_NODE_OR_IRI:
-          return "rdfjs.BlankNode | rdfjs.NamedNode";
-        case NodeKind.IRI:
-          return "rdfjs.NamedNode";
-        default:
-          throw new RangeError(this.astType.nodeKind);
+      const identifierTypeNames: string[] = [];
+      if (this.astType.nodeKinds.has(NodeKind.BLANK_NODE)) {
+        identifierTypeNames.push("rdfjs.BlankNode");
       }
+      if (this.astType.nodeKinds.has(NodeKind.IRI)) {
+        identifierTypeNames.push("rdfjs.NamedNode");
+      }
+      return identifierTypeNames.join(" | ");
     }
 
     get inlineName(): string {

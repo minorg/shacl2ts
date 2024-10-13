@@ -277,13 +277,11 @@ export class ShapesGraphToAstTransformer {
     const objectType: ObjectType = {
       kind: "Object",
       name: this.shapeName(nodeShape),
-      nodeKind:
-        nodeShape.constraints.nodeKinds.find(
-          (shapeNodeKind) =>
-            shapeNodeKind === NodeKind.BLANK_NODE ||
-            shapeNodeKind === NodeKind.BLANK_NODE_OR_IRI ||
-            shapeNodeKind === NodeKind.IRI,
-        ) ?? NodeKind.BLANK_NODE_OR_IRI,
+      nodeKinds: new Set<NodeKind.BLANK_NODE | NodeKind.IRI>(
+        [...nodeShape.constraints.nodeKinds].filter(
+          (nodeKind) => nodeKind !== NodeKind.LITERAL,
+        ),
+      ),
       properties: [], // This is mutable, we'll populate it below.
     };
     this.objectTypesByIdentifier.set(nodeShape.resource.identifier, objectType);
