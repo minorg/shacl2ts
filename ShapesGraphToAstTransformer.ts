@@ -6,6 +6,7 @@ import { rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
 import reservedTsIdentifiers_ from "reserved-identifiers";
 import {
+  NodeKind,
   type NodeShape,
   PropertyShape,
   type Shape,
@@ -276,6 +277,13 @@ export class ShapesGraphToAstTransformer {
     const objectType: ObjectType = {
       kind: "Object",
       name: this.shapeName(nodeShape),
+      nodeKind:
+        nodeShape.constraints.nodeKinds.find(
+          (shapeNodeKind) =>
+            shapeNodeKind === NodeKind.BLANK_NODE ||
+            shapeNodeKind === NodeKind.BLANK_NODE_OR_IRI ||
+            shapeNodeKind === NodeKind.IRI,
+        ) ?? NodeKind.BLANK_NODE_OR_IRI,
       properties: [], // This is mutable, we'll populate it below.
     };
     this.objectTypesByIdentifier.set(nodeShape.resource.identifier, objectType);
@@ -333,6 +341,10 @@ export class ShapesGraphToAstTransformer {
       );
     }
 
+    const minCount = propertyShape.constraints.minCount
+      .filter((minCount) => minCount >= 0)
+      .orDefault(0);
+
     const property: Property = {
       inline: propertyShape.resource
         .value(shacl2ts.inline)
@@ -348,8 +360,10 @@ export class ShapesGraphToAstTransformer {
               return true;
           }
         }),
-      maxCount: propertyShape.constraints.maxCount,
-      minCount: propertyShape.constraints.minCount,
+      maxCount: propertyShape.constraints.maxCount.filter(
+        (maxCount) => maxCount >= minCount,
+      ),
+      minCount,
       name: this.shapeName(propertyShape),
       path,
       type: type.extract() as Type,

@@ -91,7 +91,7 @@ export class AstJsonGenerator {
           name: nameToJson(objectType.name),
           properties: objectType.properties.map((property) => ({
             maxCount: property.maxCount.extract(),
-            minCount: property.minCount.extract(),
+            minCount: property.minCount,
             name: nameToJson(property.name),
             path: property.path.iri.value,
             type: typeToJson(property.type),

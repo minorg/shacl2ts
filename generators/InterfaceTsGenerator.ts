@@ -32,30 +32,33 @@ export namespace InterfaceTsGenerator {
   export class ObjectType extends TsGenerator.ObjectType {
     toInterfaceDeclarationStructure(): OptionalKind<InterfaceDeclarationStructure> {
       const propertySignatureStructures: OptionalKind<PropertySignatureStructure>[] =
-        [{ isReadonly: true, name: "node", type: this.nodeType }];
+        [
+          {
+            isReadonly: true,
+            name: "identifier",
+            type: this.identifierTypeName,
+          },
+        ];
 
       for (const property of this.properties) {
-        if (property.inline) {
-          const propertySignatureStructure: OptionalKind<PropertySignatureStructure> =
-            {
-              isReadonly: true,
-              name: this.name,
-              type: property.typeName,
-            };
-          if (
-            propertySignatureStructures.some(
-              (existingPropertySignatureStructure) =>
-                existingPropertySignatureStructure.name ===
-                propertySignatureStructure.name,
-            )
-          ) {
-            throw new Error(
-              `duplicate property '${propertySignatureStructure.name}' on ${this.name}`,
-            );
-          }
-          propertySignatureStructures.push(propertySignatureStructure);
-        } else {
+        const propertySignatureStructure: OptionalKind<PropertySignatureStructure> =
+          {
+            isReadonly: true,
+            name: property.name,
+            type: property.typeName,
+          };
+        if (
+          propertySignatureStructures.some(
+            (existingPropertySignatureStructure) =>
+              existingPropertySignatureStructure.name ===
+              propertySignatureStructure.name,
+          )
+        ) {
+          throw new Error(
+            `duplicate property '${propertySignatureStructure.name}' on ${this.inlineName}`,
+          );
         }
+        propertySignatureStructures.push(propertySignatureStructure);
       }
       propertySignatureStructures.sort((left, right) =>
         left.name.localeCompare(right.name),
@@ -63,7 +66,7 @@ export namespace InterfaceTsGenerator {
 
       return {
         isExported: true,
-        name: this.name,
+        name: this.inlineName,
         properties: propertySignatureStructures,
       };
     }

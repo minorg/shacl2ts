@@ -50,12 +50,26 @@ export namespace TsGenerator {
       protected readonly factory: Factory,
     ) {}
 
-    abstract readonly name: string;
+    /**
+     * TypeScript type when the property is externed/not inlined.
+     */
+    abstract readonly externName: string;
+
+    /**
+     * TypeScript type when the property is inlined.
+     */
+    abstract readonly inlineName: string;
   }
 
-  export class AndType extends Type<ast.AndType> {
-    get name(): string {
-      return `(${this.types.map((type) => type.name).join(" & ")})`;
+  abstract class ComposedType<
+    AstType extends ast.AndType | ast.OrType,
+  > extends Type<AstType> {
+    get externName(): string {
+      return `(${this.types.map((type) => type.externName).join(` ${this.separator} `)})`;
+    }
+
+    get inlineName(): string {
+      return `(${this.types.map((type) => type.inlineName).join(` ${this.separator} `)})`;
     }
 
     @Memoize()
@@ -64,6 +78,12 @@ export namespace TsGenerator {
         this.factory.createType(astType),
       );
     }
+
+    protected abstract readonly separator: string;
+  }
+
+  export class AndType extends ComposedType<ast.AndType> {
+    protected readonly separator = "&";
   }
 
   export abstract class Factory {
@@ -122,13 +142,21 @@ export namespace TsGenerator {
   }
 
   export class EnumType extends Type<ast.EnumType> {
-    get name(): string {
+    get externName(): string {
+      throw new Error("not implemented");
+    }
+
+    get inlineName(): string {
       throw new Error("not implemented");
     }
   }
 
   export class LiteralType extends Type<ast.LiteralType> {
-    get name(): string {
+    get externName(): string {
+      return this.inlineName;
+    }
+
+    get inlineName(): string {
       return "rdfjs.Literal";
     }
   }
@@ -143,11 +171,11 @@ export namespace TsGenerator {
       );
     }
 
-    get name(): string {
-      return this.astType.name.tsName;
+    get externName(): string {
+      return this.identifierTypeName;
     }
 
-    get nodeType(): string {
+    get identifierTypeName(): string {
       switch (this.astType.nodeKind) {
         case NodeKind.BLANK_NODE:
           return "rdfjs.BlankNode";
@@ -159,19 +187,14 @@ export namespace TsGenerator {
           throw new RangeError(this.astType.nodeKind);
       }
     }
+
+    get inlineName(): string {
+      return this.astType.name.tsName;
+    }
   }
 
-  export class OrType extends Type<ast.OrType> {
-    get name(): string {
-      return `(${this.types.map((type) => type.name).join(" | ")})`;
-    }
-
-    @Memoize()
-    private get types(): readonly Type<ast.Type>[] {
-      return this.astType.types.map((astType) =>
-        this.factory.createType(astType),
-      );
-    }
+  export class OrType extends ComposedType<ast.OrType> {
+    protected readonly separator = "|";
   }
 
   export class Property {
@@ -194,9 +217,9 @@ export namespace TsGenerator {
 
     @Memoize()
     get typeName(): string {
-      const minCount = this.astProperty.minCount.orDefault(0);
+      const minCount = this.astProperty.minCount;
       const maxCount = this.astProperty.maxCount.extractNullable();
-      let type = this.type.name;
+      let type = this.inline ? this.type.inlineName : this.type.externName;
       if (minCount === 0 && maxCount === 1) {
         type = `purify.Maybe<${type}>`;
       } else if (minCount === 1 && maxCount === 1) {
@@ -209,13 +232,13 @@ export namespace TsGenerator {
 
   // LiteralType subclasses
   export class NumberType extends LiteralType {
-    override get name(): string {
+    override get inlineName(): string {
       return "number";
     }
   }
 
   export class StringType extends LiteralType {
-    override get name(): string {
+    override get inlineName(): string {
       return "string";
     }
   }

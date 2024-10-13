@@ -6,7 +6,7 @@ export interface Property {
   readonly inline: boolean;
   readonly name: Name;
   readonly maxCount: Maybe<number>;
-  readonly minCount: Maybe<number>;
+  readonly minCount: number;
   readonly path: PredicatePath;
   readonly type: Type;
 }
