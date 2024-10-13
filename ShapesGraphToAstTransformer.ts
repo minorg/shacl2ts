@@ -135,6 +135,7 @@ export class ShapesGraphToAstTransformer {
       );
     }
     if (
+      // Treat any shape with the constraints in the list as a literal type
       [
         shape.constraints.datatype,
         shape.constraints.maxExclusive,
@@ -142,9 +143,12 @@ export class ShapesGraphToAstTransformer {
         shape.constraints.minExclusive,
         shape.constraints.minInclusive,
       ].some((constraint) => constraint.isJust()) ||
-      hasValue.extractNullable()?.termType === "Literal"
+      // Treat any shape with a literal value as a literal type
+      hasValue.extractNullable()?.termType === "Literal" ||
+      // Treat any shape with a single sh:nodeKind of sh:Literal as a literal type
+      (shape.constraints.nodeKinds.size === 1 &&
+        shape.constraints.nodeKinds.has(NodeKind.LITERAL))
     ) {
-      // Treat any shape with the constraints in the list as a literal type
       return Either.of({
         datatype: shape.constraints.datatype,
         hasValue: hasValue.filter(
@@ -158,6 +162,8 @@ export class ShapesGraphToAstTransformer {
         name,
       });
     }
+
+    // Treat any shape with sh:class as an object type
     if (shape.constraints.classes.length > 0) {
       const nodeShapes: NodeShape[] = [];
       for (const class_ of shape.constraints.classes) {
@@ -190,15 +196,17 @@ export class ShapesGraphToAstTransformer {
             }),
       );
     }
+
+    // Treat any shape with sh:in as an enum type
     if (shape.constraints.in_.isJust()) {
-      // Treat any shape with sh:in as an enum type
       return Either.of({
         kind: "Enum",
         members: shape.constraints.in_.extract(),
       });
     }
+
+    // Treat any type with sh:node(s) as the conjunction of those nodes.
     if (shape.constraints.nodes.length > 0) {
-      // Treat any type with sh:node(s) as the conjunction of those nodes.
       return Either.sequence(
         shape.constraints.nodes.map((nodeShape) =>
           this.transformNodeShape(nodeShape),
@@ -212,8 +220,9 @@ export class ShapesGraphToAstTransformer {
             }),
       );
     }
+
+    // Treat any shape with sh:or as the disjunction of the member shapes.
     if (shape.constraints.or.length > 0) {
-      // Treat any shape with sh:or as the disjunction of the member shapes.
       return Either.sequence(
         shape.constraints.or.map((shape) => this.shapeType(shape)),
       ).chain((types) =>
@@ -225,6 +234,7 @@ export class ShapesGraphToAstTransformer {
             }),
       );
     }
+
     return Left(new Error(`unable to transform type on ${shape}`));
   }
 
