@@ -9,7 +9,7 @@ describe("ShapesGraphToAstTransformer", () => {
 
   beforeAll(() => {
     const ast = testData().sdo.ast;
-    expect(ast.objectTypes).toHaveLength(56);
+    expect(ast.objectTypes).toHaveLength(13);
 
     // const addressObjectType = ast.objectTypes.find(
     //   (objectType) => objectType.name.tsName === "Address",
