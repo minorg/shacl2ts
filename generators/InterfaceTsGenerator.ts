@@ -10,6 +10,19 @@ import { TsGenerator } from "./TsGenerator";
 export class InterfaceTsGenerator extends TsGenerator {
   private readonly factory = new InterfaceTsGenerator.Factory();
 
+  protected override addImportDeclarations(toSourceFile: SourceFile): void {
+    toSourceFile.addImportDeclaration({
+      isTypeOnly: true,
+      moduleSpecifier: "@rdfjs/types",
+      namespaceImport: "rdfjs",
+    });
+    toSourceFile.addImportDeclaration({
+      isTypeOnly: true,
+      moduleSpecifier: "purify-ts",
+      namespaceImport: "purify",
+    });
+  }
+
   protected override addObjectType(
     astObjectType: ast.ObjectType,
     toSourceFile: SourceFile,
