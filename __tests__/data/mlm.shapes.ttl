@@ -29,7 +29,7 @@ anno-mlm:LanguageModel
   a owl:Class ;
   a sh:NodeShape ;
   rdfs:label "language model" ;
-  rdfs:subClassOf anno-mlm:Model ;
+  rdfs:subClassOf anno-mlm:MachineLearningModel ;
   skos:definition "A language model is a model that represents the structure and usage of language, capable of predicting or generating text based on input sequences. It functions by analyzing and learning patterns in linguistic data, enabling tasks such as translation, summarization, and natural language understanding." ;
 .
 anno-mlm:MachineLearningModel
