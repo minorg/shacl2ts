@@ -30,15 +30,17 @@ export namespace InterfaceTsGenerator {
   }
 
   export class ObjectType extends TsGenerator.ObjectType {
-    toInterfaceDeclarationStructure(): OptionalKind<InterfaceDeclarationStructure> {
-      const propertySignatureStructures: OptionalKind<PropertySignatureStructure>[] =
-        [
-          {
-            isReadonly: true,
-            name: "identifier",
-            type: this.identifierTypeName,
-          },
-        ];
+    private propertySignatureStructures(): OptionalKind<PropertySignatureStructure>[] {
+      const propertySignatureStructuresByName: Record<
+        string,
+        OptionalKind<PropertySignatureStructure>
+      > = {
+        identifier: {
+          isReadonly: true,
+          name: "identifier",
+          type: this.identifierTypeName,
+        },
+      };
 
       for (const property of this.properties) {
         const propertySignatureStructure: OptionalKind<PropertySignatureStructure> =
@@ -48,29 +50,29 @@ export namespace InterfaceTsGenerator {
             type: property.typeName,
           };
         if (
-          propertySignatureStructures.some(
-            (existingPropertySignatureStructure) =>
-              existingPropertySignatureStructure.name ===
-              propertySignatureStructure.name,
-          )
+          propertySignatureStructuresByName[propertySignatureStructure.name]
         ) {
           throw new Error(
             `duplicate property '${propertySignatureStructure.name}' on ${this.inlineName}`,
           );
         }
-        propertySignatureStructures.push(propertySignatureStructure);
+        propertySignatureStructuresByName[propertySignatureStructure.name] =
+          propertySignatureStructure;
       }
-      propertySignatureStructures.sort((left, right) =>
-        left.name.localeCompare(right.name),
-      );
 
+      return Object.values(propertySignatureStructuresByName).sort(
+        (left, right) => left.name.localeCompare(right.name),
+      );
+    }
+
+    toInterfaceDeclarationStructure(): OptionalKind<InterfaceDeclarationStructure> {
       return {
         extends: this.superObjectTypes.map(
           (superObjectType) => superObjectType.inlineName,
         ),
         isExported: true,
         name: this.inlineName,
-        properties: propertySignatureStructures,
+        properties: this.propertySignatureStructures(),
       };
     }
   }

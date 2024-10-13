@@ -33,9 +33,15 @@ export abstract class TsGenerator {
 
   generate(): string {
     this.addImportDeclarations(this.sourceFile);
-    for (const objectType of this.ast.objectTypes) {
-      this.addObjectType(objectType, this.sourceFile);
+
+    const astObjectTypes = this.ast.objectTypes.concat();
+    astObjectTypes.sort((left, right) =>
+      left.name.tsName.localeCompare(right.name.tsName),
+    );
+    for (const astObjectType of astObjectTypes) {
+      this.addObjectType(astObjectType, this.sourceFile);
     }
+
     this.sourceFile.saveSync();
     return this.project
       .getFileSystem()
