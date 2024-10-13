@@ -2,7 +2,7 @@ import type PrefixMap from "@rdfjs/prefix-map/PrefixMap.js";
 import TermMap from "@rdfjs/term-map";
 import type { BlankNode, NamedNode } from "@rdfjs/types";
 import base62 from "@sindresorhus/base62";
-import { rdfs } from "@tpluscode/rdf-ns-builders";
+import { dash, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
 import reservedTsIdentifiers_ from "reserved-identifiers";
 import {
@@ -101,7 +101,9 @@ export class ShapesGraphToAstTransformer {
     return Either.sequence(
       this.shapesGraph.nodeShapes
         .filter(
-          (nodeShape) => nodeShape.resource.identifier.termType === "NamedNode",
+          (nodeShape) =>
+            nodeShape.resource.identifier.termType === "NamedNode" &&
+            !nodeShape.resource.identifier.value.startsWith(dash[""].value),
         )
         .map((nodeShape) => this.transformNodeShape(nodeShape)),
     ).map((objectTypes) => ({
