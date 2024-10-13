@@ -49,6 +49,7 @@
     "check:write": "biome check --write",
     "check:write:unsafe": "biome check --write --unsafe",
     "clean": "rimraf *.d.ts* *.js *.js.map __tests__/*.d.ts* __tests__/*.js __tests__/*.js.map tsconfig.tsbuildinfo",
+    "link-dependencies": "npm link shacl-ast",
     "test": "biome check && vitest",
     "test:watch": "vitest watch",
     "watch": "tsc -w --preserveWatchOutput"
