@@ -1,408 +1,19 @@
-# schema.org as SHACL
-# Copied from https://datashapes.org/schema
-# There is also a hand-written Example File containing SHACL constraints using (almost) all elements of the SHACL Core vocabulary.
-# baseURI: http://topbraid.org/examples/schemashacl
-# imports: http://datashapes.org/dash
-# imports: http://datashapes.org/schema
-# prefix: schemashacl
+import type { DatasetCore } from "@rdfjs/types";
+import { Parser, Store } from "n3";
+
+export const dashDataset: DatasetCore = new Store(
+  new Parser({ format: "text/turtle" }).parse(`
+# baseURI: http://datashapes.org/dash
+# imports: http://www.w3.org/ns/shacl#
+# prefix: dash
 
 @prefix dash: <http://datashapes.org/dash#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix schema: <http://schema.org/> .
-@prefix schemashacl: <http://topbraid.org/examples/schemashacl#> .
-@prefix schemax: <http://topbraid.org/schemax/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix swa: <http://topbraid.org/swa#> .
 @prefix tosh: <http://topbraid.org/tosh#> .
-@prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-
-schema:DatedMoneySpecification
-  rdf:type sh:NodeShape ;
-  sh:closed "true"^^xsd:boolean ;
-  sh:ignoredProperties (
-      rdf:type
-    ) ;
-  sh:property [
-      sh:path schema:amount ;
-      sh:datatype xsd:float ;
-      sh:maxCount 1 ;
-      sh:minCount 1 ;
-    ] ;
-  sh:property [
-      sh:path schema:currency ;
-      rdfs:comment "The currency code (here) is a mandatory property consisting of three upper-case letters" ;
-      sh:datatype xsd:string ;
-      sh:flags "i" ;
-      sh:maxCount 1 ;
-      sh:minCount 1 ;
-      sh:pattern "^[A-Z]{3}$" ;
-    ] ;
-  sh:property [
-      sh:path schema:endDate ;
-      sh:maxCount 1 ;
-      sh:or dash:DateOrDateTime ;
-    ] ;
-  sh:property [
-      sh:path schema:startDate ;
-      rdfs:comment "Start date must be before end date" ;
-      sh:lessThanOrEquals schema:endDate ;
-      sh:maxCount 1 ;
-      sh:or dash:DateOrDateTime ;
-    ] ;
-.
-schema:GeoCoordinates
-  rdf:type sh:NodeShape ;
-  sh:property [
-      sh:path schema:latitude ;
-      sh:maxCount 1 ;
-      sh:maxInclusive 90 ;
-      sh:minInclusive -90 ;
-    ] ;
-  sh:property [
-      sh:path schema:longitude ;
-      sh:maxCount 1 ;
-      sh:maxInclusive 180 ;
-      sh:minInclusive -180 ;
-    ] ;
-.
-schema:Hotel
-  rdf:type sh:NodeShape ;
-  sh:property [
-      sh:path schema:starRating ;
-      rdfs:comment "Produce a warning if there is not at least one starRating that actually has a ratingValue." ;
-      sh:qualifiedMinCount 1 ;
-      sh:qualifiedValueShape [
-          rdf:type sh:NodeShape ;
-          sh:property [
-              sh:path schema:ratingValue ;
-              sh:minCount 1 ;
-            ] ;
-        ] ;
-      sh:severity sh:Warning ;
-    ] ;
-  sh:sparql [
-      sh:message "Hotel has been rated by {?author} more than once" ;
-      sh:prefixes <http://topbraid.org/examples/schemashacl> ;
-      sh:select """SELECT DISTINCT $this ?author
-WHERE {
-    $this schema:starRating ?rating1 .
-	?rating1 schema:author ?author .
-	$this schema:starRating ?rating2 .
-	?rating2 schema:author ?author .
-	FILTER (?rating1 != ?rating2) .
-}""" ;
-      sh:severity sh:Warning ;
-    ] ;
-.
-schema:ItemList
-  rdf:type sh:NodeShape ;
-  sh:property [
-      sh:path schema:numberOfItems ;
-      rdfs:comment "The number of items in this list is derived by counting the values of schema:itemListElement." ;
-      sh:derivedValues [
-          rdf:type sh:SPARQLValuesDeriver ;
-          sh:select """SELECT (COUNT(?element) AS ?value)
-WHERE {
-    $this schema:itemListElement ?element .
-}""" ;
-        ] ;
-    ] ;
-.
-schema:Person
-  rdf:type sh:NodeShape ;
-  sh:property [
-      sh:path schema:birthDate ;
-      rdfs:comment "Birth date must be before death date (in this example)" ;
-      sh:datatype xsd:date ;
-      sh:lessThan schema:deathDate ;
-      sh:maxCount 1 ;
-      sh:name "birth date" ;
-    ] ;
-  sh:property [
-      sh:path schema:deathDate ;
-      sh:datatype xsd:date ;
-      sh:maxCount 1 ;
-      sh:name "death date" ;
-    ] ;
-  sh:property [
-      sh:path schema:familyName ;
-      sh:datatype xsd:string ;
-      sh:name "family name" ;
-    ] ;
-  sh:property [
-      sh:path schema:gender ;
-      sh:datatype xsd:string ;
-      sh:in (
-          "female"
-          "male"
-        ) ;
-      sh:maxCount 1 ;
-      sh:name "gender" ;
-    ] ;
-  sh:property [
-      sh:path schema:givenName ;
-      sh:datatype xsd:string ;
-      sh:name "given name" ;
-    ] ;
-  sh:property [
-      sh:path schema:parent ;
-      sh:class schema:Person ;
-      sh:disjoint schema:sibling ;
-      sh:maxCount 2 ;
-      sh:name "parent" ;
-      sh:nodeKind sh:IRI ;
-    ] ;
-  sh:property [
-      sh:path schema:parent ;
-      sh:qualifiedMaxCount 1 ;
-      sh:qualifiedValueShape schemashacl:FemalePerson ;
-    ] ;
-  sh:property [
-      sh:path schema:parent ;
-      sh:qualifiedMaxCount 1 ;
-      sh:qualifiedValueShape schemashacl:MalePerson ;
-    ] ;
-  sh:property [
-      sh:path [
-          sh:inversePath schema:parent ;
-        ] ;
-      rdfs:comment "Children are represented by using the schema:parent relationship in the inverse direction." ;
-      sh:class schema:Person ;
-      sh:name "child" ;
-      sh:nodeKind sh:IRI ;
-    ] ;
-.
-schema:PriceSpecification
-  rdf:type sh:NodeShape ;
-  sh:property [
-      sh:path schema:baseSalary ;
-      rdfs:comment "There must be a base salary of more than 0, but less than 1 billion (slightly artificial example of sh:maxExclusive)." ;
-      sh:maxExclusive "1000000000"^^xsd:float ;
-      sh:minExclusive "0"^^xsd:float ;
-    ] ;
-.
-schema:Vehicle
-  rdf:type sh:NodeShape ;
-  sh:property [
-      sh:path schema:fuelConsumption ;
-      sh:node [
-          rdf:type sh:NodeShape ;
-          rdfs:comment "The fuel consumption must be either stated in Liter per 100 km accompanied by a km/h speed, or in gallons per 100 miles accompanied by a miles/h speed." ;
-          sh:or (
-              [
-                sh:and (
-                    [
-                      sh:property [
-                          sh:path schema:unitText ;
-                          sh:hasValue "L/100 km" ;
-                        ] ;
-                    ]
-                    [
-                      sh:property [
-                          sh:path rdfs:comment ;
-                          sh:pattern "^at [0-9]* km/h$" ;
-                        ] ;
-                    ]
-                  ) ;
-              ]
-              [
-                sh:and (
-                    [
-                      sh:property [
-                          sh:path schema:unitText ;
-                          sh:hasValue "gal/100 mi" ;
-                        ] ;
-                    ]
-                    [
-                      sh:property [
-                          sh:path rdfs:comment ;
-                          sh:pattern "^at [0-9]* mi/h$" ;
-                        ] ;
-                    ]
-                  ) ;
-              ]
-            ) ;
-        ] ;
-    ] ;
-.
-<http://topbraid.org/examples/schemashacl>
-  rdf:type owl:Ontology ;
-  rdfs:comment "This SHACL file contains a small selection of hand-crafted shapes on classes and properties from the schema.org namespace. In addition to illustrating possible use cases of SHACL and helping with test cases, the goal of this file is cover all of the features of SHACL for demos and tests." ;
-  rdfs:label "Schema.org SHACL example shapes" ;
-  owl:imports <http://datashapes.org/dash> ;
-  owl:imports <http://datashapes.org/schema> ;
-  sh:declare [
-      rdf:type sh:PrefixDeclaration ;
-      sh:namespace "http://schema.org/"^^xsd:anyURI ;
-      sh:prefix "schema" ;
-    ] ;
-.
-schemashacl:AustralianAddressShape
-  rdf:type sh:NodeShape ;
-  rdfs:comment "This shape constrains those instances of schema:PostalAddress that have \"au\" as their country." ;
-  rdfs:label "Australian address shape" ;
-  sh:or (
-      sh:not
-      [
-        sh:property [
-            sh:path schema:addressCountry ;
-            sh:hasValue "au" ;
-          ] ;
-      ]
-      [
-        sh:property [
-            sh:path schema:addressRegion ;
-            sh:in (
-                "ACT"
-                "NSW"
-                "NT"
-                "QLD"
-                "SA"
-                "TAS"
-                "VIC"
-                "WA"
-              ) ;
-            sh:maxCount 1 ;
-            sh:minCount 1 ;
-          ] ;
-        sh:property [
-            sh:path schema:postalCode ;
-            sh:datatype xsd:string ;
-            sh:maxCount 1 ;
-            sh:maxLength 4 ;
-            sh:minCount 1 ;
-            sh:minLength 4 ;
-            sh:name "postal code" ;
-            sh:pattern "^\\d{4}$" ;
-          ] ;
-      ]
-    ) ;
-  sh:targetClass schema:PostalAddress ;
-.
-schemashacl:FemalePerson
-  rdf:type sh:NodeShape ;
-  rdfs:label "Female person" ;
-  sh:property [
-      sh:path schema:gender ;
-      sh:hasValue "female" ;
-    ] ;
-.
-schemashacl:MalePerson
-  rdf:type sh:NodeShape ;
-  rdfs:label "Male person" ;
-  sh:property [
-      sh:path schema:gender ;
-      sh:hasValue "male" ;
-    ] ;
-.
-schemashacl:USAddressShape
-  rdf:type sh:NodeShape ;
-  rdfs:comment "This shape constrains those instances of schema:PostalAddress that have \"us\" as their country." ;
-  rdfs:label "US address shape" ;
-  sh:or (
-      sh:not
-      [
-        sh:property [
-            sh:path schema:addressCountry ;
-            sh:hasValue "us" ;
-          ] ;
-      ]
-      [
-        sh:property [
-            sh:path schema:addressRegion ;
-            sh:in (
-                "AK"
-                "AL"
-                "AR"
-                "AZ"
-                "CA"
-                "CO"
-                "CT"
-                "DC"
-                "DE"
-                "FL"
-                "GA"
-                "GU"
-                "HI"
-                "IA"
-                "ID"
-                "IL"
-                "IN"
-                "KS"
-                "KY"
-                "LA"
-                "MA"
-                "MD"
-                "ME"
-                "MH"
-                "MI"
-                "MN"
-                "MO"
-                "MS"
-                "MT"
-                "NC"
-                "ND"
-                "NE"
-                "NH"
-                "NJ"
-                "NM"
-                "NV"
-                "NY"
-                "OH"
-                "OK"
-                "OR"
-                "PA"
-                "PR"
-                "PW"
-                "RI"
-                "SC"
-                "SD"
-                "TN"
-                "TX"
-                "UT"
-                "VA"
-                "VI"
-                "VT"
-                "WA"
-                "WI"
-                "WV"
-                "WY"
-              ) ;
-            sh:maxCount 1 ;
-            sh:minCount 1 ;
-          ] ;
-        sh:property [
-            sh:path schema:postalCode ;
-            sh:datatype xsd:string ;
-            sh:maxCount 1 ;
-            sh:minCount 1 ;
-            sh:name "zip code" ;
-            sh:pattern "^\\d{5}(?:[-\\s]\\d{4})?$" ;
-          ] ;
-      ]
-    ) ;
-  sh:targetClass schema:PostalAddress ;
-.
-schemashacl:nameShape
-  rdf:type sh:NodeShape ;
-  rdfs:comment "This shape applies to all subject that have at least one value for schema:name." ;
-  rdfs:label "name shape" ;
-  sh:property [
-      sh:path schema:name ;
-      rdfs:comment "Ensures that the values of schema:name are either strings or strings with a language tag, but no language tag can be used more than once." ;
-      sh:name "name" ;
-      sh:or dash:StringOrLangString ;
-      sh:uniqueLang "true"^^xsd:boolean ;
-    ] ;
-  sh:targetSubjectsOf schema:name ;
-.
-
-
-# DASH vocabulary referenced by the above
-# Copied from https://datashapes.org/dash.ttl
 
 <http://datashapes.org/dash>
   a owl:Ontology ;
@@ -532,7 +143,7 @@ Change scripts are executed by their relative sh:order, with a default value of 
 .
 dash:ClosedByTypesConstraintComponent
   a sh:ConstraintComponent ;
-  rdfs:comment "A constraint component that can be used to declare that focus nodes are \"closed\" based on their rdf:types, meaning that focus nodes may only have values for the properties that are explicitly enumerated via sh:property/sh:path in property constraints at their rdf:types and the superclasses of those. This assumes that the type classes are also shapes." ;
+  rdfs:comment "A constraint component that can be used to declare that focus nodes are \\"closed\\" based on their rdf:types, meaning that focus nodes may only have values for the properties that are explicitly enumerated via sh:property/sh:path in property constraints at their rdf:types and the superclasses of those. This assumes that the type classes are also shapes." ;
   rdfs:label "Closed by types constraint component" ;
   sh:nodeValidator [
       a sh:SPARQLSelectValidator ;
@@ -540,16 +151,16 @@ dash:ClosedByTypesConstraintComponent
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """SELECT $this (?predicate AS ?path) ?value
 WHERE {
-	FILTER ($closedByTypes) .
+\tFILTER ($closedByTypes) .
     $this ?predicate ?value .
-	FILTER (?predicate != rdf:type) .
-	FILTER NOT EXISTS {
-		$this rdf:type ?type .
-		?type rdfs:subClassOf* ?class .
-		GRAPH $shapesGraph {
-			?class sh:property/sh:path ?predicate .
-		}
-	}
+\tFILTER (?predicate != rdf:type) .
+\tFILTER NOT EXISTS {
+\t\t$this rdf:type ?type .
+\t\t?type rdfs:subClassOf* ?class .
+\t\tGRAPH $shapesGraph {
+\t\t\t?class sh:property/sh:path ?predicate .
+\t\t}
+\t}
 }""" ;
     ] ;
   sh:parameter dash:ClosedByTypesConstraintComponent-closedByTypes ;
@@ -574,13 +185,13 @@ dash:CoExistsWithConstraintComponent
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """SELECT $this
 WHERE {
-	{
-    	FILTER (EXISTS { $this $PATH ?any } && NOT EXISTS { $this $coExistsWith ?any })
-	}
-	UNION
-	{
-    	FILTER (NOT EXISTS { $this $PATH ?any } && EXISTS { $this $coExistsWith ?any })
-	}
+\t{
+    \tFILTER (EXISTS { $this $PATH ?any } && NOT EXISTS { $this $coExistsWith ?any })
+\t}
+\tUNION
+\t{
+    \tFILTER (NOT EXISTS { $this $PATH ?any } && EXISTS { $this $coExistsWith ?any })
+\t}
 }""" ;
     ] ;
 .
@@ -680,7 +291,7 @@ dash:DescriptionRole
 .
 dash:DetailsEditor
   a dash:SingleEditor ;
-  rdfs:comment "An editor for non-literal values, typically displaying a nested form where the values of the linked resource can be edited directly on the \"parent\" form. Implementations that do not support this (yet) could fall back to an auto-complete widget." ;
+  rdfs:comment "An editor for non-literal values, typically displaying a nested form where the values of the linked resource can be edited directly on the \\"parent\\" form. Implementations that do not support this (yet) could fall back to an auto-complete widget." ;
   rdfs:label "Details editor" ;
 .
 dash:DetailsViewer
@@ -785,12 +396,12 @@ dash:HasValueInConstraintComponent
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """SELECT $this
 WHERE {
-	FILTER NOT EXISTS {
-    	$this $PATH ?value .
-		GRAPH $shapesGraph {
-			$hasValueIn rdf:rest*/rdf:first ?value .
-		}
-	}
+\tFILTER NOT EXISTS {
+    \t$this $PATH ?value .
+\t\tGRAPH $shapesGraph {
+\t\t\t$hasValueIn rdf:rest*/rdf:first ?value .
+\t\t}
+\t}
 }""" ;
     ] ;
 .
@@ -838,11 +449,11 @@ dash:HasValueWithClassConstraintComponent
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """SELECT $this
 WHERE {
-	FILTER NOT EXISTS {
-    	$this $PATH ?value .
-		?value a ?type .
-		?type rdfs:subClassOf* $hasValueWithClass .
-	}
+\tFILTER NOT EXISTS {
+    \t$this $PATH ?value .
+\t\t?value a ?type .
+\t\t?type rdfs:subClassOf* $hasValueWithClass .
+\t}
 }""" ;
     ] ;
 .
@@ -927,21 +538,21 @@ dash:JSONTableViewer
   rdfs:comment """A tabular viewer for rdf:JSON literals with a lexical form in the following format:
 
 {
-	vars: [ 'col1', 'col2' ],                   // These are the column keys
-	headerLabels: [ 'Column 1', 'Column 2' ],   // Optional, for the column headers
-	bindings: [                                 // These become the rows
-		{
-			col1: {
-				lex: 'Value2',
-				datatype: '...#string',
-			},
-			col2: {
-				uri: 'http://.../Instance',
-				label: 'Example Instance',
-			},
-		},
-		...
-	],
+\tvars: [ 'col1', 'col2' ],                   // These are the column keys
+\theaderLabels: [ 'Column 1', 'Column 2' ],   // Optional, for the column headers
+\tbindings: [                                 // These become the rows
+\t\t{
+\t\t\tcol1: {
+\t\t\t\tlex: 'Value2',
+\t\t\t\tdatatype: '...#string',
+\t\t\t},
+\t\t\tcol2: {
+\t\t\t\turi: 'http://.../Instance',
+\t\t\t\tlabel: 'Example Instance',
+\t\t\t},
+\t\t},
+\t\t...
+\t],
 }
 
 The resulting table will use the headerLabels (if they exist) as column headers, otherwise derive the headers from the variable names. The vars must match the fields in the bindings. The table will contain one row for each binding.
@@ -949,18 +560,18 @@ The resulting table will use the headerLabels (if they exist) as column headers,
 Using Active Data Shapes, you can construct such literals dynamically using a sh:values rule, e.g.
 
 ex:MyClass-myProperty
-	a sh:PropertyShape ;
-	sh:path ex:myProperty ;
-	sh:values [
-		dash:js ""\"
-			DataViewers.createTableViewerJSON(focusNode.select(`
-				SELECT ?col1 ?col2
-				WHERE {
-					$this ex:prop1 ?col1 .
-					$this ex:prop2 ?col2 .
-				}
-			`))""\"
-	] .
+\ta sh:PropertyShape ;
+\tsh:path ex:myProperty ;
+\tsh:values [
+\t\tdash:js ""\\"
+\t\t\tDataViewers.createTableViewerJSON(focusNode.select(\`
+\t\t\t\tSELECT ?col1 ?col2
+\t\t\t\tWHERE {
+\t\t\t\t\t$this ex:prop1 ?col1 .
+\t\t\t\t\t$this ex:prop2 ?col2 .
+\t\t\t\t}
+\t\t\t\`))""\\"
+\t] .
 
 You may also produce the JSON literal programmatically in JavaScript, or assert the triples by other means.""" ;
   rdfs:label "JSON table viewer" ;
@@ -1089,7 +700,7 @@ dash:MultiViewer
 .
 dash:NoSuitableEditor
   a dash:SingleEditor ;
-  rdfs:comment "An \"editor\" that simply informs the user that the values cannot be edited here, but for example through source code editing." ;
+  rdfs:comment "An \\"editor\\" that simply informs the user that the values cannot be edited here, but for example through source code editing." ;
   rdfs:label "No suitable editor" ;
 .
 dash:NodeExpressionViewer
@@ -1108,9 +719,9 @@ dash:NonRecursiveConstraintComponent
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """SELECT DISTINCT $this ($this AS ?value)
 WHERE {
-	{
-		FILTER (?nonRecursive)
-	}
+\t{
+\t\tFILTER (?nonRecursive)
+\t}
     $this $PATH $this .
 }""" ;
     ] ;
@@ -1147,7 +758,7 @@ dash:ParameterConstraintComponent-parameter
 dash:PrimaryKeyConstraintComponent
   a sh:ConstraintComponent ;
   dash:localConstraint true ;
-  rdfs:comment "Enforces a constraint that the given property (sh:path) serves as primary key for all resources in the target of the shape. If a property has been declared to be the primary key then each resource must have exactly one value for that property. Furthermore, the URIs of those resources must start with a given string (dash:uriStart), followed by the URL-encoded primary key value. For example if dash:uriStart is \"http://example.org/country-\" and the primary key for an instance is \"de\" then the URI must be \"http://example.org/country-de\". Finally, as a result of the URI policy, there can not be any other resource with the same value under the same primary key policy." ;
+  rdfs:comment "Enforces a constraint that the given property (sh:path) serves as primary key for all resources in the target of the shape. If a property has been declared to be the primary key then each resource must have exactly one value for that property. Furthermore, the URIs of those resources must start with a given string (dash:uriStart), followed by the URL-encoded primary key value. For example if dash:uriStart is \\"http://example.org/country-\\" and the primary key for an instance is \\"de\\" then the URI must be \\"http://example.org/country-de\\". Finally, as a result of the URI policy, there can not be any other resource with the same value under the same primary key policy." ;
   rdfs:label "Primary key constraint component" ;
   sh:labelTemplate "The property {?predicate} is the primary key and URIs start with {?uriStart}" ;
   sh:message "Violation of primary key constraint" ;
@@ -1158,26 +769,26 @@ dash:PrimaryKeyConstraintComponent
       sh:select """SELECT DISTINCT $this
 WHERE {
         FILTER (
-			# Must have a value for the primary key
-			NOT EXISTS { ?this $PATH ?any }
-			||
-			# Must have no more than one value for the primary key
-			EXISTS {
-				?this $PATH ?value1 .
-				?this $PATH ?value2 .
-				FILTER (?value1 != ?value2) .
-			}
-			||
-			# The value of the primary key must align with the derived URI
-			EXISTS {
-				{
-        			?this $PATH ?value .
-					FILTER NOT EXISTS { ?this $PATH ?value2 . FILTER (?value != ?value2) }
-				}
-        		BIND (CONCAT($uriStart, ENCODE_FOR_URI(str(?value))) AS ?uri) .
-        		FILTER (str(?this) != ?uri) .
-    		}
-		)
+\t\t\t# Must have a value for the primary key
+\t\t\tNOT EXISTS { ?this $PATH ?any }
+\t\t\t||
+\t\t\t# Must have no more than one value for the primary key
+\t\t\tEXISTS {
+\t\t\t\t?this $PATH ?value1 .
+\t\t\t\t?this $PATH ?value2 .
+\t\t\t\tFILTER (?value1 != ?value2) .
+\t\t\t}
+\t\t\t||
+\t\t\t# The value of the primary key must align with the derived URI
+\t\t\tEXISTS {
+\t\t\t\t{
+        \t\t\t?this $PATH ?value .
+\t\t\t\t\tFILTER NOT EXISTS { ?this $PATH ?value2 . FILTER (?value != ?value2) }
+\t\t\t\t}
+        \t\tBIND (CONCAT($uriStart, ENCODE_FOR_URI(str(?value))) AS ?uri) .
+        \t\tFILTER (str(?this) != ?uri) .
+    \t\t}
+\t\t)
 }""" ;
     ] ;
 .
@@ -1186,7 +797,7 @@ dash:PrimaryKeyConstraintComponent-uriStart
   sh:path dash:uriStart ;
   dash:reifiableBy dash:ConstraintReificationShape ;
   sh:datatype xsd:string ;
-  sh:description "The start of the URIs of well-formed resources. If specified then the associated property/path serves as \"primary key\" for all target nodes (instances). All such target nodes need to have a URI that starts with the given string, followed by the URI-encoded value of the primary key property." ;
+  sh:description "The start of the URIs of well-formed resources. If specified then the associated property/path serves as \\"primary key\\" for all target nodes (instances). All such target nodes need to have a URI that starts with the given string, followed by the URI-encoded value of the primary key property." ;
   sh:maxCount 1 ;
   sh:name "URI start" ;
 .
@@ -1330,7 +941,7 @@ dash:ScriptAPIShape-generatePrefixClasses
   a sh:PropertyShape ;
   sh:path dash:generatePrefixClasses ;
   sh:datatype xsd:string ;
-  sh:description "If a prefix (such as \"edg\") is listed here then the API generator will produce classes for all RDFS classes or node shapes from the associated namespace." ;
+  sh:description "If a prefix (such as \\"edg\\") is listed here then the API generator will produce classes for all RDFS classes or node shapes from the associated namespace." ;
   sh:group dash:ScriptAPIGenerationRules ;
   sh:name "generate prefix classes" ;
   sh:order "15"^^xsd:decimal ;
@@ -1339,7 +950,7 @@ dash:ScriptAPIShape-generatePrefixConstants
   a sh:PropertyShape ;
   sh:path dash:generatePrefixConstants ;
   sh:datatype xsd:string ;
-  sh:description "If a prefix (such as \"edg\") is listed here then the API generator will produce constants for class, datatype, shape and property names." ;
+  sh:description "If a prefix (such as \\"edg\\") is listed here then the API generator will produce constants for class, datatype, shape and property names." ;
   sh:group dash:ScriptAPIGenerationRules ;
   sh:name "generate prefix constants" ;
   sh:order "10"^^xsd:decimal ;
@@ -1392,14 +1003,14 @@ dash:ScriptSuggestionGenerator
 Each response object can have the following fields:
 
 {
-	message: "The human readable message",  // Defaults to the rdfs:label(s) of the suggestion generator
-	add: [ // An array of triples to add, each triple as an array with three nodes
-		[ subject, predicate, object ],
-		[ ... ]
-	],
-	delete: [
-		... like add, for the triples to delete
-	]
+\tmessage: "The human readable message",  // Defaults to the rdfs:label(s) of the suggestion generator
+\tadd: [ // An array of triples to add, each triple as an array with three nodes
+\t\t[ subject, predicate, object ],
+\t\t[ ... ]
+\t],
+\tdelete: [
+\t\t... like add, for the triples to delete
+\t]
 }
 
 Suggestions with neither added nor deleted triples will be discarded.
@@ -1415,9 +1026,9 @@ The script will be executed in read-only mode, i.e. it cannot modify the graph.
 Example with dash:js:
 
 ({
-	message: `Copy labels into ${graph.localName(predicate)}`,
-	add: focusNode.values(rdfs.label).map(label => 
-		[ focusNode, predicate, label ]
+\tmessage: \`\`,
+\tadd: focusNode.values(rdfs.label).map(label => 
+\t\t[ focusNode, predicate, label ]
     )
 })""" ;
   rdfs:label "Script suggestion generator" ;
@@ -1472,7 +1083,7 @@ dash:SingleEditor
 .
 dash:SingleLineConstraintComponent
   a sh:ConstraintComponent ;
-  rdfs:comment """A constraint component that can be used to declare that all values that are literals must have a lexical form that contains no line breaks ('\\n' or '\\r').
+  rdfs:comment """A constraint component that can be used to declare that all values that are literals must have a lexical form that contains no line breaks ('\\\\n' or '\\\\r').
 
 User interfaces may use the dash:singleLine flag to prefer a text field over a (multi-line) text area.""" ;
   rdfs:label "Single line constraint component" ;
@@ -1481,7 +1092,7 @@ User interfaces may use the dash:singleLine flag to prefer a text field over a (
   sh:validator [
       a sh:SPARQLAskValidator ;
       sh:ask """ASK {
-    FILTER (!$singleLine || !isLiteral($value) || (!contains(str($value), '\\n') && !contains(str($value), '\\r')))
+    FILTER (!$singleLine || !isLiteral($value) || (!contains(str($value), '\\\\n') && !contains(str($value), '\\\\r')))
 }""" ;
       sh:prefixes <http://datashapes.org/dash> ;
     ] ;
@@ -1599,7 +1210,7 @@ dash:SuccessTestCaseResult
 dash:Suggestion
   a rdfs:Class ;
   dash:abstract true ;
-  rdfs:comment "Base class of suggestions that modify a graph to \"fix\" the source of a validation result." ;
+  rdfs:comment "Base class of suggestions that modify a graph to \\"fix\\" the source of a validation result." ;
   rdfs:label "Suggestion" ;
   rdfs:subClassOf rdfs:Resource ;
 .
@@ -1626,11 +1237,11 @@ dash:SymmetricConstraintComponent
       a sh:SPARQLSelectValidator ;
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """SELECT $this ?value {
-	FILTER ($symmetric) .
-	$this $PATH ?value .
-	FILTER NOT EXISTS {
-    	?value $PATH $this .
-	}
+\tFILTER ($symmetric) .
+\t$this $PATH ?value .
+\tFILTER NOT EXISTS {
+    \t?value $PATH $this .
+\t}
 }""" ;
     ] ;
 .
@@ -1708,13 +1319,13 @@ dash:UniqueValueForClassConstraintComponent
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """SELECT DISTINCT $this ?value ?other
 WHERE {
-	{
-    	$this $PATH ?value .
-		?other $PATH ?value .
-		FILTER (?other != $this) .
-	}
-	?other a ?type .
-	?type rdfs:subClassOf* $uniqueValueForClass .
+\t{
+    \t$this $PATH ?value .
+\t\t?other $PATH ?value .
+\t\tFILTER (?other != $this) .
+\t}
+\t?other a ?type .
+\t?type rdfs:subClassOf* $uniqueValueForClass .
 }""" ;
     ] ;
 .
@@ -1760,7 +1371,7 @@ dash:Widget
 .
 dash:abstract
   a rdf:Property ;
-  rdfs:comment "Indicates that a class is \"abstract\" and cannot be used in asserted rdf:type triples. Only non-abstract subclasses of abstract classes should be instantiated directly." ;
+  rdfs:comment "Indicates that a class is \\"abstract\\" and cannot be used in asserted rdf:type triples. Only non-abstract subclasses of abstract classes should be instantiated directly." ;
   rdfs:domain rdfs:Class ;
   rdfs:label "abstract" ;
   rdfs:range xsd:boolean ;
@@ -1799,7 +1410,7 @@ dash:apiStatus
 .
 dash:applicableToClass
   a rdf:Property ;
-  rdfs:comment "Can be used to state that a shape is applicable to instances of a given class. This is a softer statement than \"target class\": a target means that all instances of the class must conform to the shape. Being applicable to simply means that the shape may apply to (some) instances of the class. This information can be used by algorithms or humans." ;
+  rdfs:comment "Can be used to state that a shape is applicable to instances of a given class. This is a softer statement than \\"target class\\": a target means that all instances of the class must conform to the shape. Being applicable to simply means that the shape may apply to (some) instances of the class. This information can be used by algorithms or humans." ;
   rdfs:domain sh:Shape ;
   rdfs:label "applicable to class" ;
   rdfs:range rdfs:Class ;
@@ -1823,7 +1434,7 @@ dash:coExistsWith
 .
 dash:composite
   a rdf:Property ;
-  rdfs:comment "Can be used to indicate that a property/path represented by a property constraint represents a composite relationship. In a composite relationship, the life cycle of a \"child\" object (value of the property/path) depends on the \"parent\" object (focus node). If the parent gets deleted, then the child objects should be deleted, too. Tools may use dash:composite (if set to true) to implement cascading delete operations." ;
+  rdfs:comment "Can be used to indicate that a property/path represented by a property constraint represents a composite relationship. In a composite relationship, the life cycle of a \\"child\\" object (value of the property/path) depends on the \\"parent\\" object (focus node). If the parent gets deleted, then the child objects should be deleted, too. Tools may use dash:composite (if set to true) to implement cascading delete operations." ;
   rdfs:domain sh:PropertyShape ;
   rdfs:label "composite" ;
   rdfs:range xsd:boolean ;
@@ -1836,7 +1447,7 @@ dash:contextFree
 .
 dash:defaultLang
   a rdf:Property ;
-  rdfs:comment "Can be used to annotate a graph (usually the owl:Ontology) with the default language that tools should suggest for new literal values. For example, predominantly English graphs should have \"en\" as default language." ;
+  rdfs:comment "Can be used to annotate a graph (usually the owl:Ontology) with the default language that tools should suggest for new literal values. For example, predominantly English graphs should have \\"en\\" as default language." ;
   rdfs:domain owl:Ontology ;
   rdfs:label "default language" ;
   rdfs:range xsd:string ;
@@ -1856,7 +1467,7 @@ dash:deletedTriple
 .
 dash:dependencyPredicate
   a rdf:Property ;
-  rdfs:comment "Can be used in dash:js node expressions to enumerate the predicates that the computation of the values may depend on. This can be used by clients to determine whether an edit requires re-computation of values on a form or elsewhere. For example, if the dash:js is something like \"focusNode.firstName + focusNode.lastName\" then the dependency predicates should be ex:firstName and ex:lastName." ;
+  rdfs:comment "Can be used in dash:js node expressions to enumerate the predicates that the computation of the values may depend on. This can be used by clients to determine whether an edit requires re-computation of values on a form or elsewhere. For example, if the dash:js is something like \\"focusNode.firstName + focusNode.lastName\\" then the dependency predicates should be ex:firstName and ex:lastName." ;
   rdfs:label "dependency predicate" ;
   rdfs:range rdf:Property ;
 .
@@ -1915,10 +1526,10 @@ dash:hasClass
   a sh:SPARQLAskValidator ;
   rdfs:label "has class" ;
   sh:ask """
-		ASK {
-			$value rdf:type/rdfs:subClassOf* $class .
-		}
-		""" ;
+\t\tASK {
+\t\t\t$value rdf:type/rdfs:subClassOf* $class .
+\t\t}
+\t\t""" ;
   sh:message "Value does not have class {$class}" ;
   sh:prefixes <http://datashapes.org/dash> ;
 .
@@ -1941,10 +1552,10 @@ dash:hasMaxLength
   rdfs:comment "Checks whether a given string (?value) has a length within a given maximum string length." ;
   rdfs:label "has max length" ;
   sh:ask """
-		ASK {
-			FILTER (STRLEN(str($value)) <= $maxLength) .
-		}
-		""" ;
+\t\tASK {
+\t\t\tFILTER (STRLEN(str($value)) <= $maxLength) .
+\t\t}
+\t\t""" ;
   sh:prefixes <http://datashapes.org/dash> ;
 .
 dash:hasMinExclusive
@@ -1966,10 +1577,10 @@ dash:hasMinLength
   rdfs:comment "Checks whether a given string (?value) has a length within a given minimum string length." ;
   rdfs:label "has min length" ;
   sh:ask """
-		ASK {
-			FILTER (STRLEN(str($value)) >= $minLength) .
-		}
-		""" ;
+\t\tASK {
+\t\t\tFILTER (STRLEN(str($value)) >= $minLength) .
+\t\t}
+\t\t""" ;
   sh:prefixes <http://datashapes.org/dash> ;
 .
 dash:hasNodeKind
@@ -1977,12 +1588,12 @@ dash:hasNodeKind
   rdfs:comment "Checks whether a given node (?value) has a given sh:NodeKind (?nodeKind). For example, sh:hasNodeKind(42, sh:Literal) = true." ;
   rdfs:label "has node kind" ;
   sh:ask """
-		ASK {
-			FILTER ((isIRI($value) && $nodeKind IN ( sh:IRI, sh:BlankNodeOrIRI, sh:IRIOrLiteral ) ) ||
-				(isLiteral($value) && $nodeKind IN ( sh:Literal, sh:BlankNodeOrLiteral, sh:IRIOrLiteral ) ) ||
-				(isBlank($value)   && $nodeKind IN ( sh:BlankNode, sh:BlankNodeOrIRI, sh:BlankNodeOrLiteral ) )) .
-		}
-		""" ;
+\t\tASK {
+\t\t\tFILTER ((isIRI($value) && $nodeKind IN ( sh:IRI, sh:BlankNodeOrIRI, sh:IRIOrLiteral ) ) ||
+\t\t\t\t(isLiteral($value) && $nodeKind IN ( sh:Literal, sh:BlankNodeOrLiteral, sh:IRIOrLiteral ) ) ||
+\t\t\t\t(isBlank($value)   && $nodeKind IN ( sh:BlankNode, sh:BlankNodeOrIRI, sh:BlankNodeOrLiteral ) )) .
+\t\t}
+\t\t""" ;
   sh:prefixes <http://datashapes.org/dash> ;
 .
 dash:hasPattern
@@ -2045,7 +1656,7 @@ dash:indexed
 dash:isDeactivated
   a sh:SPARQLFunction ;
   dash:apiStatus dash:Stable ;
-  rdfs:comment "Checks whether a given shape or constraint has been marked as \"deactivated\" using sh:deactivated." ;
+  rdfs:comment "Checks whether a given shape or constraint has been marked as \\"deactivated\\" using sh:deactivated." ;
   rdfs:label "is deactivated" ;
   sh:ask """ASK {
     ?constraintOrShape sh:deactivated true .
@@ -2063,27 +1674,27 @@ dash:isIn
   a sh:SPARQLAskValidator ;
   rdfs:label "is in" ;
   sh:ask """
-		ASK {
-			GRAPH $shapesGraph {
-				$in (rdf:rest*)/rdf:first $value .
-			}
-		}
-		""" ;
+\t\tASK {
+\t\t\tGRAPH $shapesGraph {
+\t\t\t\t$in (rdf:rest*)/rdf:first $value .
+\t\t\t}
+\t\t}
+\t\t""" ;
   sh:prefixes <http://datashapes.org/dash> ;
 .
 dash:isLanguageIn
   a sh:SPARQLAskValidator ;
   rdfs:label "is language in" ;
   sh:ask """
-		ASK {
-			BIND (lang($value) AS ?valueLang) .
-			FILTER EXISTS {
-				GRAPH $shapesGraph {
-					$languageIn (rdf:rest*)/rdf:first ?lang .
-				    FILTER (langMatches(?valueLang, ?lang))
-				} }
-		}
-		""" ;
+\t\tASK {
+\t\t\tBIND (lang($value) AS ?valueLang) .
+\t\t\tFILTER EXISTS {
+\t\t\t\tGRAPH $shapesGraph {
+\t\t\t\t\t$languageIn (rdf:rest*)/rdf:first ?lang .
+\t\t\t\t    FILTER (langMatches(?valueLang, ?lang))
+\t\t\t\t} }
+\t\t}
+\t\t""" ;
   sh:prefixes <http://datashapes.org/dash> ;
 .
 dash:isNodeKindBlankNode
@@ -2094,7 +1705,7 @@ dash:isNodeKindBlankNode
   rdfs:comment "Checks if a given sh:NodeKind is one that includes BlankNodes." ;
   rdfs:label "is NodeKind BlankNode" ;
   sh:ask """ASK {
-	FILTER ($nodeKind IN ( sh:BlankNode, sh:BlankNodeOrIRI, sh:BlankNodeOrLiteral ))
+\tFILTER ($nodeKind IN ( sh:BlankNode, sh:BlankNodeOrIRI, sh:BlankNodeOrLiteral ))
 }""" ;
   sh:parameter [
       a sh:Parameter ;
@@ -2115,7 +1726,7 @@ dash:isNodeKindIRI
   rdfs:comment "Checks if a given sh:NodeKind is one that includes IRIs." ;
   rdfs:label "is NodeKind IRI" ;
   sh:ask """ASK {
-	FILTER ($nodeKind IN ( sh:IRI, sh:BlankNodeOrIRI, sh:IRIOrLiteral ))
+\tFILTER ($nodeKind IN ( sh:IRI, sh:BlankNodeOrIRI, sh:IRIOrLiteral ))
 }""" ;
   sh:parameter [
       a sh:Parameter ;
@@ -2136,7 +1747,7 @@ dash:isNodeKindLiteral
   rdfs:comment "Checks if a given sh:NodeKind is one that includes Literals." ;
   rdfs:label "is NodeKind Literal" ;
   sh:ask """ASK {
-	FILTER ($nodeKind IN ( sh:Literal, sh:BlankNodeOrLiteral, sh:IRIOrLiteral ))
+\tFILTER ($nodeKind IN ( sh:Literal, sh:BlankNodeOrLiteral, sh:IRIOrLiteral ))
 }""" ;
   sh:parameter [
       a sh:Parameter ;
@@ -2350,7 +1961,7 @@ In the future this should support RFC 6570 but for now it is limited to simple {
       a sh:Parameter ;
       sh:path dash:template ;
       sh:datatype xsd:string ;
-      sh:description "The URI template, e.g. \"http://example.org/{symbol}\"." ;
+      sh:description "The URI template, e.g. \\"http://example.org/{symbol}\\"." ;
       sh:name "template" ;
       sh:order 0 ;
     ] ;
@@ -2366,7 +1977,7 @@ In the future this should support RFC 6570 but for now it is limited to simple {
   sh:returnType xsd:anyURI ;
   sh:select """SELECT ?result
 WHERE {
-    	BIND (xsd:anyURI(REPLACE(?template, "\\\\{[a-zA-Z]+\\\\}", $value)) AS ?result)
+    \tBIND (xsd:anyURI(REPLACE(?template, "\\\\\\\\{[a-zA-Z]+\\\\\\\\}", $value)) AS ?result)
 }""" ;
 .
 dash:validateShapes
@@ -2400,10 +2011,10 @@ dash:valueCount
   sh:prefixes <http://datashapes.org/dash> ;
   sh:returnType xsd:integer ;
   sh:select """
-		SELECT (COUNT(?object) AS ?result)
-		WHERE {
-    		$subject $predicate ?object .
-		}
+\t\tSELECT (COUNT(?object) AS ?result)
+\t\tWHERE {
+    \t\t$subject $predicate ?object .
+\t\t}
 """ ;
 .
 dash:viewer
@@ -2450,22 +2061,22 @@ sh:ClosedConstraintComponent
       sh:message "Predicate {?path} is not allowed (closed shape)" ;
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """
-		SELECT $this (?predicate AS ?path) ?value
-		WHERE {
-			{
-				FILTER ($closed) .
-			}
-			$this ?predicate ?value .
-			FILTER (NOT EXISTS {
-				GRAPH $shapesGraph {
-					$currentShape sh:property/sh:path ?predicate .
-				}
-			} && (!bound($ignoredProperties) || NOT EXISTS {
-				GRAPH $shapesGraph {
-					$ignoredProperties rdf:rest*/rdf:first ?predicate .
-				}
-			}))
-		}
+\t\tSELECT $this (?predicate AS ?path) ?value
+\t\tWHERE {
+\t\t\t{
+\t\t\t\tFILTER ($closed) .
+\t\t\t}
+\t\t\t$this ?predicate ?value .
+\t\t\tFILTER (NOT EXISTS {
+\t\t\t\tGRAPH $shapesGraph {
+\t\t\t\t\t$currentShape sh:property/sh:path ?predicate .
+\t\t\t\t}
+\t\t\t} && (!bound($ignoredProperties) || NOT EXISTS {
+\t\t\t\tGRAPH $shapesGraph {
+\t\t\t\t\t$ignoredProperties rdf:rest*/rdf:first ?predicate .
+\t\t\t\t}
+\t\t\t}))
+\t\t}
 """ ;
     ] ;
 .
@@ -2479,12 +2090,12 @@ sh:DisjointConstraintComponent
   sh:validator [
       a sh:SPARQLAskValidator ;
       sh:ask """
-		ASK {
-			FILTER NOT EXISTS {
-				$this $disjoint $value .
-			}
-		}
-		""" ;
+\t\tASK {
+\t\t\tFILTER NOT EXISTS {
+\t\t\t\t$this $disjoint $value .
+\t\t\t}
+\t\t}
+\t\t""" ;
       sh:message "Property must not share any values with {$disjoint}" ;
       sh:prefixes <http://datashapes.org/dash> ;
     ] ;
@@ -2496,41 +2107,41 @@ sh:EqualsConstraintComponent
       a sh:SPARQLSelectValidator ;
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """
-		SELECT DISTINCT $this ?value
-		WHERE {
-			{
-				FILTER NOT EXISTS { $this $equals $this }
-				BIND ($this AS ?value) .
-			}
-			UNION
-			{
-				$this $equals ?value .
-				FILTER (?value != $this) .
-			}
-		}
-		""" ;
+\t\tSELECT DISTINCT $this ?value
+\t\tWHERE {
+\t\t\t{
+\t\t\t\tFILTER NOT EXISTS { $this $equals $this }
+\t\t\t\tBIND ($this AS ?value) .
+\t\t\t}
+\t\t\tUNION
+\t\t\t{
+\t\t\t\t$this $equals ?value .
+\t\t\t\tFILTER (?value != $this) .
+\t\t\t}
+\t\t}
+\t\t""" ;
     ] ;
   sh:propertyValidator [
       a sh:SPARQLSelectValidator ;
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """
-		SELECT DISTINCT $this ?value
-		WHERE {
-			{
-				$this $PATH ?value .
-				MINUS {
-					$this $equals ?value .
-				}
-			}
-			UNION
-			{
-				$this $equals ?value .
-				MINUS {
-					$this $PATH ?value .
-				}
-			}
-		}
-		""" ;
+\t\tSELECT DISTINCT $this ?value
+\t\tWHERE {
+\t\t\t{
+\t\t\t\t$this $PATH ?value .
+\t\t\t\tMINUS {
+\t\t\t\t\t$this $equals ?value .
+\t\t\t\t}
+\t\t\t}
+\t\t\tUNION
+\t\t\t{
+\t\t\t\t$this $equals ?value .
+\t\t\t\tMINUS {
+\t\t\t\t\t$this $PATH ?value .
+\t\t\t\t}
+\t\t\t}
+\t\t}
+\t\t""" ;
     ] ;
 .
 sh:Function
@@ -2552,11 +2163,11 @@ sh:HasValueConstraintComponent
       sh:message "Missing expected value {$hasValue}" ;
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """
-		SELECT $this
-		WHERE {
-			FILTER NOT EXISTS { $this $PATH $hasValue }
-		}
-		""" ;
+\t\tSELECT $this
+\t\tWHERE {
+\t\t\tFILTER NOT EXISTS { $this $PATH $hasValue }
+\t\t}
+\t\t""" ;
     ] ;
 .
 sh:InConstraintComponent
@@ -2578,14 +2189,14 @@ sh:LessThanConstraintComponent
       a sh:SPARQLSelectValidator ;
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """
-		SELECT $this ?value
-		WHERE {
-			$this $PATH ?value .
-			$this $lessThan ?otherValue .
-			BIND (?value < ?otherValue AS ?result) .
-			FILTER (!bound(?result) || !(?result)) .
-		}
-		""" ;
+\t\tSELECT $this ?value
+\t\tWHERE {
+\t\t\t$this $PATH ?value .
+\t\t\t$this $lessThan ?otherValue .
+\t\t\tBIND (?value < ?otherValue AS ?result) .
+\t\t\tFILTER (!bound(?result) || !(?result)) .
+\t\t}
+\t\t""" ;
     ] ;
 .
 sh:LessThanOrEqualsConstraintComponent
@@ -2595,13 +2206,13 @@ sh:LessThanOrEqualsConstraintComponent
       a sh:SPARQLSelectValidator ;
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """
-		SELECT DISTINCT $this ?value
-		WHERE {
-			$this $PATH ?value .
-			$this $lessThanOrEquals ?otherValue .
-			BIND (?value <= ?otherValue AS ?result) .
-			FILTER (!bound(?result) || !(?result)) .
-		}
+\t\tSELECT DISTINCT $this ?value
+\t\tWHERE {
+\t\t\t$this $PATH ?value .
+\t\t\t$this $lessThanOrEquals ?otherValue .
+\t\t\tBIND (?value <= ?otherValue AS ?result) .
+\t\t\tFILTER (!bound(?result) || !(?result)) .
+\t\t}
 """ ;
     ] ;
 .
@@ -2613,13 +2224,13 @@ sh:MaxCountConstraintComponent
       a sh:SPARQLSelectValidator ;
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """
-		SELECT $this
-		WHERE {
-			$this $PATH ?value .
-		}
-		GROUP BY $this
-		HAVING (COUNT(DISTINCT ?value) > $maxCount)
-		""" ;
+\t\tSELECT $this
+\t\tWHERE {
+\t\t\t$this $PATH ?value .
+\t\t}
+\t\tGROUP BY $this
+\t\tHAVING (COUNT(DISTINCT ?value) > $maxCount)
+\t\t""" ;
     ] ;
 .
 sh:MaxExclusiveConstraintComponent
@@ -2648,15 +2259,15 @@ sh:MinCountConstraintComponent
       a sh:SPARQLSelectValidator ;
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """
-		SELECT $this
-		WHERE {
-			OPTIONAL {
-				$this $PATH ?value .
-			}
-		}
-		GROUP BY $this
-		HAVING (COUNT(DISTINCT ?value) < $minCount)
-		""" ;
+\t\tSELECT $this
+\t\tWHERE {
+\t\t\tOPTIONAL {
+\t\t\t\t$this $PATH ?value .
+\t\t\t}
+\t\t}
+\t\tGROUP BY $this
+\t\tHAVING (COUNT(DISTINCT ?value) < $minCount)
+\t\t""" ;
     ] ;
 .
 sh:MinExclusiveConstraintComponent
@@ -2695,8 +2306,8 @@ sh:Parameterizable
 .
 sh:PatternConstraintComponent
   dash:staticConstraint true ;
-  sh:labelTemplate "Value must match pattern \"{$pattern}\"" ;
-  sh:message "Value does not match pattern \"{$pattern}\"" ;
+  sh:labelTemplate "Value must match pattern \\"{$pattern}\\"" ;
+  sh:message "Value does not match pattern \\"{$pattern}\\"" ;
   sh:validator dash:hasPattern ;
 .
 sh:QualifiedMaxCountConstraintComponent
@@ -2731,25 +2342,25 @@ sh:TargetType
 sh:UniqueLangConstraintComponent
   dash:localConstraint true ;
   sh:labelTemplate "No language can be used more than once" ;
-  sh:message "Language \"{?lang}\" used more than once" ;
+  sh:message "Language \\"{?lang}\\" used more than once" ;
   sh:propertyValidator [
       a sh:SPARQLSelectValidator ;
       sh:prefixes <http://datashapes.org/dash> ;
       sh:select """
-		SELECT DISTINCT $this ?lang
-		WHERE {
-			{
-				FILTER sameTerm($uniqueLang, true) .
-			}
-			$this $PATH ?value .
-			BIND (lang(?value) AS ?lang) .
-			FILTER (bound(?lang) && ?lang != "") .
-			FILTER EXISTS {
-				$this $PATH ?otherValue .
-				FILTER (?otherValue != ?value && ?lang = lang(?otherValue)) .
-			}
-		}
-		""" ;
+\t\tSELECT DISTINCT $this ?lang
+\t\tWHERE {
+\t\t\t{
+\t\t\t\tFILTER sameTerm($uniqueLang, true) .
+\t\t\t}
+\t\t\t$this $PATH ?value .
+\t\t\tBIND (lang(?value) AS ?lang) .
+\t\t\tFILTER (bound(?lang) && ?lang != "") .
+\t\t\tFILTER EXISTS {
+\t\t\t\t$this $PATH ?otherValue .
+\t\t\t\tFILTER (?otherValue != ?value && ?lang = lang(?otherValue)) .
+\t\t\t}
+\t\t}
+\t\t""" ;
     ] ;
 .
 sh:Validator
@@ -2758,3 +2369,5 @@ sh:Validator
 sh:order
   rdfs:range xsd:decimal ;
 .
+`),
+);

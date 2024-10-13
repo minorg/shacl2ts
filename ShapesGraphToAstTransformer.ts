@@ -1,11 +1,14 @@
 import type PrefixMap from "@rdfjs/prefix-map/PrefixMap.js";
 import TermMap from "@rdfjs/term-map";
+import TermSet from "@rdfjs/term-set";
 import type { BlankNode, NamedNode } from "@rdfjs/types";
 import base62 from "@sindresorhus/base62";
-import { rdfs } from "@tpluscode/rdf-ns-builders";
+import { dash, owl, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
+import type { Resource } from "rdfjs-resource";
 import reservedTsIdentifiers_ from "reserved-identifiers";
 import {
+  NodeKind,
   type NodeShape,
   PropertyShape,
   type Shape,
@@ -15,6 +18,30 @@ import type { Name, ObjectType, Property, Type } from "./ast";
 import type { Ast } from "./ast/Ast.js";
 import { logger } from "./logger.js";
 import { shacl2ts } from "./vocabularies/";
+
+function ancestorClassIris(classResource: Resource): readonly NamedNode[] {
+  const ancestorClassIris = new TermSet<NamedNode>();
+
+  function ancestorClassIrisRecursive(classResource: Resource): void {
+    for (const superClassValue of classResource.values(rdfs.subClassOf)) {
+      const superClassResource = superClassValue
+        .toNamedResource()
+        .extractNullable();
+      if (superClassResource === null) {
+        continue;
+      }
+      if (ancestorClassIris.has(superClassResource.identifier)) {
+        continue;
+      }
+      ancestorClassIris.add(superClassResource.identifier);
+      ancestorClassIrisRecursive(superClassResource);
+    }
+  }
+
+  ancestorClassIrisRecursive(classResource);
+
+  return [...ancestorClassIris];
+}
 
 const reservedTsIdentifiers = reservedTsIdentifiers_({
   includeGlobalProperties: true,
@@ -31,6 +58,19 @@ function rdfIdentifierToString(identifier: BlankNode | NamedNode): string {
 
 function shacl2tsName(shape: Shape): Maybe<string> {
   return shape.resource.value(shacl2ts.name).chain((value) => value.toString());
+}
+
+function superClassIris(classResource: Resource): readonly NamedNode[] {
+  const superClassIris = new TermSet<NamedNode>();
+
+  for (const superClassValue of classResource.values(rdfs.subClassOf)) {
+    const superClassIri = superClassValue.toIri().extractNullable();
+    if (superClassIri !== null) {
+      superClassIris.add(superClassIri);
+    }
+  }
+
+  return [...superClassIris];
 }
 
 // Adapted from https://github.com/sindresorhus/to-valid-identifier , MIT license
@@ -100,7 +140,9 @@ export class ShapesGraphToAstTransformer {
     return Either.sequence(
       this.shapesGraph.nodeShapes
         .filter(
-          (nodeShape) => nodeShape.resource.identifier.termType === "NamedNode",
+          (nodeShape) =>
+            nodeShape.resource.identifier.termType === "NamedNode" &&
+            !nodeShape.resource.identifier.value.startsWith(dash[""].value),
         )
         .map((nodeShape) => this.transformNodeShape(nodeShape)),
     ).map((objectTypes) => ({
@@ -132,6 +174,7 @@ export class ShapesGraphToAstTransformer {
       );
     }
     if (
+      // Treat any shape with the constraints in the list as a literal type
       [
         shape.constraints.datatype,
         shape.constraints.maxExclusive,
@@ -139,9 +182,12 @@ export class ShapesGraphToAstTransformer {
         shape.constraints.minExclusive,
         shape.constraints.minInclusive,
       ].some((constraint) => constraint.isJust()) ||
-      hasValue.extractNullable()?.termType === "Literal"
+      // Treat any shape with a literal value as a literal type
+      hasValue.extractNullable()?.termType === "Literal" ||
+      // Treat any shape with a single sh:nodeKind of sh:Literal as a literal type
+      (shape.constraints.nodeKinds.size === 1 &&
+        shape.constraints.nodeKinds.has(NodeKind.LITERAL))
     ) {
-      // Treat any shape with the constraints in the list as a literal type
       return Either.of({
         datatype: shape.constraints.datatype,
         hasValue: hasValue.filter(
@@ -155,6 +201,8 @@ export class ShapesGraphToAstTransformer {
         name,
       });
     }
+
+    // Treat any shape with sh:class as an object type
     if (shape.constraints.classes.length > 0) {
       const nodeShapes: NodeShape[] = [];
       for (const class_ of shape.constraints.classes) {
@@ -187,15 +235,17 @@ export class ShapesGraphToAstTransformer {
             }),
       );
     }
+
+    // Treat any shape with sh:in as an enum type
     if (shape.constraints.in_.isJust()) {
-      // Treat any shape with sh:in as an enum type
       return Either.of({
         kind: "Enum",
         members: shape.constraints.in_.extract(),
       });
     }
+
+    // Treat any type with sh:node(s) as the conjunction of those nodes.
     if (shape.constraints.nodes.length > 0) {
-      // Treat any type with sh:node(s) as the conjunction of those nodes.
       return Either.sequence(
         shape.constraints.nodes.map((nodeShape) =>
           this.transformNodeShape(nodeShape),
@@ -209,8 +259,9 @@ export class ShapesGraphToAstTransformer {
             }),
       );
     }
+
+    // Treat any shape with sh:or as the disjunction of the member shapes.
     if (shape.constraints.or.length > 0) {
-      // Treat any shape with sh:or as the disjunction of the member shapes.
       return Either.sequence(
         shape.constraints.or.map((shape) => this.shapeType(shape)),
       ).chain((types) =>
@@ -222,6 +273,7 @@ export class ShapesGraphToAstTransformer {
             }),
       );
     }
+
     return Left(new Error(`unable to transform type on ${shape}`));
   }
 
@@ -274,11 +326,61 @@ export class ShapesGraphToAstTransformer {
     // If this node shape's properties (directly or indirectly) refer to the node shape itself,
     // we'll return this placeholder.
     const objectType: ObjectType = {
+      ancestorObjectTypes: [],
       kind: "Object",
       name: this.shapeName(nodeShape),
+      nodeKinds: new Set<NodeKind.BLANK_NODE | NodeKind.IRI>(
+        [...nodeShape.constraints.nodeKinds].filter(
+          (nodeKind) => nodeKind !== NodeKind.LITERAL,
+        ),
+      ),
       properties: [], // This is mutable, we'll populate it below.
+      superObjectTypes: [], // This is mutable, we'll populate it below
     };
     this.objectTypesByIdentifier.set(nodeShape.resource.identifier, objectType);
+
+    const resolveSuperObjectTypes = (
+      superClassIris: readonly NamedNode[],
+    ): readonly ObjectType[] => {
+      const subTypeOf: ObjectType[] = [];
+      for (const superClassIri of superClassIris) {
+        if (
+          superClassIri.equals(owl.Class) ||
+          superClassIri.equals(owl.Thing) ||
+          superClassIri.equals(rdfs.Class)
+        ) {
+          continue;
+        }
+        const superNodeShape = this.shapesGraph
+          .nodeShapeByNode(superClassIri)
+          .extractNullable();
+        if (superNodeShape === null) {
+          logger.info(
+            "node shape %s ancestor/super class %s does not correspond to a node shape",
+            nodeShape.resource.identifier.value,
+            superClassIri.value,
+          );
+          continue;
+        }
+        this.transformNodeShape(superNodeShape)
+          .ifLeft(() => {
+            logger.info(
+              "error transforming node shape %s ancestor node shape %s",
+              nodeShape.resource.identifier.value,
+              superNodeShape.resource.identifier.value,
+            );
+          })
+          .ifRight((superObjectType) => subTypeOf.push(superObjectType));
+      }
+      return subTypeOf;
+    };
+
+    objectType.ancestorObjectTypes.push(
+      ...resolveSuperObjectTypes(ancestorClassIris(nodeShape.resource)),
+    );
+    objectType.superObjectTypes.push(
+      ...resolveSuperObjectTypes(superClassIris(nodeShape.resource)),
+    );
 
     const propertiesByTsName: Record<string, Property> = {};
     for (const propertyShape of nodeShape.constraints.properties) {
@@ -333,9 +435,29 @@ export class ShapesGraphToAstTransformer {
       );
     }
 
+    const minCount = propertyShape.constraints.minCount
+      .filter((minCount) => minCount >= 0)
+      .orDefault(0);
+
     const property: Property = {
-      maxCount: propertyShape.constraints.maxCount,
-      minCount: propertyShape.constraints.minCount,
+      inline: propertyShape.resource
+        .value(shacl2ts.inline)
+        .chain((value) => value.toBoolean())
+        .orDefaultLazy(() => {
+          switch ((type.extract() as Type).kind) {
+            case "And":
+            case "Object":
+            case "Or":
+              return false;
+            case "Enum":
+            case "Literal":
+              return true;
+          }
+        }),
+      maxCount: propertyShape.constraints.maxCount.filter(
+        (maxCount) => maxCount >= minCount,
+      ),
+      minCount,
       name: this.shapeName(propertyShape),
       path,
       type: type.extract() as Type,
