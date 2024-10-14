@@ -1,6 +1,6 @@
 import { beforeAll, describe, it } from "vitest";
-import { AstJsonGenerator } from "../../generators";
-import { testData } from "../data/testData.js";
+import { AstJsonGenerator } from "../../../generators/json";
+import { testData } from "../../data/testData.js";
 
 describe("AstJsonGenerator", () => {
   let sut: AstJsonGenerator;

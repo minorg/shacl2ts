@@ -1,4 +1,9 @@
 import type { Maybe } from "purify-ts";
+import type {
+  OptionalKind,
+  PropertyDeclarationStructure,
+  PropertySignatureStructure,
+} from "ts-morph";
 import { Memoize } from "typescript-memoize";
 import type * as ast from "../../../ast";
 import type { Type } from "./Type.js";
@@ -39,6 +44,22 @@ export class Property {
       name: astProperty.name.tsName,
       type: createTypeFromAstType(astProperty.type),
     });
+  }
+
+  get propertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
+    return {
+      isReadonly: true,
+      name: this.name,
+      type: this.typeName,
+    };
+  }
+
+  get propertySignature(): OptionalKind<PropertySignatureStructure> {
+    return {
+      isReadonly: true,
+      name: this.name,
+      type: this.typeName,
+    };
   }
 
   @Memoize()

@@ -1,6 +1,6 @@
 import { beforeAll, describe, it } from "vitest";
-import { InterfaceTsGenerator } from "../../generators";
-import { testData } from "../data/testData.js";
+import { InterfaceTsGenerator } from "../../../generators/ts";
+import { testData } from "../../data/testData.js";
 
 describe("InterfaceTsGenerator", () => {
   let sut: InterfaceTsGenerator;

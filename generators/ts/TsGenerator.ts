@@ -1,5 +1,6 @@
 import { Project, type SourceFile } from "ts-morph";
 import type * as ast from "../../ast";
+import * as types from "./types";
 
 export abstract class TsGenerator {
   private readonly project: Project;
@@ -15,7 +16,7 @@ export abstract class TsGenerator {
   protected abstract addImportDeclarations(toSourceFile: SourceFile): void;
 
   protected abstract addObjectType(
-    astObjectType: ast.ObjectType,
+    astObjectType: types.ObjectType,
     toSourceFile: SourceFile,
   ): void;
 
@@ -44,7 +45,10 @@ export abstract class TsGenerator {
       return left.name.tsName.localeCompare(right.name.tsName);
     });
     for (const astObjectType of astObjectTypes) {
-      this.addObjectType(astObjectType, this.sourceFile);
+      this.addObjectType(
+        types.ObjectType.fromAstType(astObjectType),
+        this.sourceFile,
+      );
     }
 
     this.sourceFile.saveSync();

@@ -1,3 +1,2 @@
-export * from "./AstJsonGenerator.js";
-export * from "./ClassTsGenerator.js";
-export * from "./InterfaceTsGenerator.js";
+export * as json from "./json";
+export * as ts from "./ts";
