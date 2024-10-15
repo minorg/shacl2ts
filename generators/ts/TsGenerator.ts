@@ -1,6 +1,7 @@
 import { Project, type SourceFile } from "ts-morph";
 import type * as ast from "../../ast";
 import * as types from "./types";
+import type { ObjectType } from "./types";
 
 export abstract class TsGenerator {
   private readonly project: Project;
@@ -13,16 +14,12 @@ export abstract class TsGenerator {
     this.sourceFile = this.project.createSourceFile("generated.ts");
   }
 
-  protected abstract addImportDeclarations(toSourceFile: SourceFile): void;
-
-  protected abstract addObjectType(
-    astObjectType: types.ObjectType,
-    toSourceFile: SourceFile,
+  protected abstract generateSourceFile(
+    objectTypes: readonly ObjectType[],
+    sourceFile: SourceFile,
   ): void;
 
   generate(): string {
-    this.addImportDeclarations(this.sourceFile);
-
     const astObjectTypes = this.ast.objectTypes.concat();
     astObjectTypes.sort((left, right) => {
       if (
@@ -44,14 +41,14 @@ export abstract class TsGenerator {
       // Neither is an ancestor of the other, sort by name
       return left.name.tsName.localeCompare(right.name.tsName);
     });
-    for (const astObjectType of astObjectTypes) {
-      this.addObjectType(
-        types.ObjectType.fromAstType(astObjectType),
-        this.sourceFile,
-      );
-    }
+
+    this.generateSourceFile(
+      astObjectTypes.map(types.ObjectType.fromAstType),
+      this.sourceFile,
+    );
 
     this.sourceFile.saveSync();
+
     return this.project
       .getFileSystem()
       .readFileSync(this.sourceFile.getFilePath());

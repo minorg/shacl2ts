@@ -6,21 +6,20 @@ import {
   type InterfaceDeclarationStructure,
   type ModuleDeclarationStructure,
   type OptionalKind,
-  type PropertyDeclarationStructure,
-  type PropertySignatureStructure,
   type StatementStructures,
   StructureKind,
 } from "ts-morph";
 import type * as ast from "../../../ast";
 import { Property } from "./Property.js";
 import type { Type } from "./Type.js";
+import "iterator-helpers-polyfill";
 
 export class ObjectType implements Type {
   readonly ancestorObjectTypes: readonly ObjectType[];
   readonly identifierProperty: Property;
   readonly kind = "Object";
   readonly name: string;
-  readonly properties: ObjectType.Properties;
+  readonly properties: readonly Property[];
   readonly superObjectTypes: readonly ObjectType[];
 
   constructor({
@@ -33,29 +32,37 @@ export class ObjectType implements Type {
     ancestorObjectTypes: readonly ObjectType[];
     identifierProperty: Property;
     name: string;
-    properties: ObjectType.Properties;
+    properties: readonly Property[];
     superObjectTypes: readonly ObjectType[];
   }) {
     this.ancestorObjectTypes = ancestorObjectTypes;
     this.identifierProperty = identifierProperty;
     this.name = name;
-    this.properties = properties;
+    this.properties = properties
+      .concat()
+      .sort((left, right) => left.name.localeCompare(right.name));
+    const propertyNames = new Set<string>();
+    for (const property of this.properties) {
+      if (propertyNames.has(property.name)) {
+        throw new Error(`duplicate property '${property.name}'`);
+      }
+    }
     this.superObjectTypes = superObjectTypes;
   }
 
   get classDeclaration(): OptionalKind<ClassDeclarationStructure> {
     return {
       ctors:
-        this.properties.propertyDeclarations.length > 0
-          ? [this.constructorDeclaration]
-          : undefined,
+        this.properties.length > 0 ? [this.constructorDeclaration] : undefined,
       extends:
         this.superObjectTypes.length > 0
           ? this.superObjectTypes[0].name
           : undefined,
       isExported: true,
       name: this.name,
-      properties: this.properties.propertyDeclarations,
+      properties: this.properties.map(
+        (property) => property.classPropertyDeclaration,
+      ),
     };
   }
 
@@ -64,10 +71,8 @@ export class ObjectType implements Type {
     if (this.superObjectTypes.length > 0) {
       statements.push("super(parameters);");
     }
-    for (const propertyDeclaration of this.properties.propertyDeclarations) {
-      statements.push(
-        `this.${propertyDeclaration.name} = parameters.${propertyDeclaration.name};`,
-      );
+    for (const property of this.properties) {
+      statements.push(`this.${property.name} = parameters.${property.name};`);
     }
 
     return {
@@ -82,7 +87,7 @@ export class ObjectType implements Type {
   }
 
   get externName(): string {
-    return this.identifierProperty.typeName;
+    return this.identifierProperty.interfaceTypeName;
   }
 
   static fromAstType(astType: ast.ObjectType): ObjectType {
@@ -119,7 +124,7 @@ export class ObjectType implements Type {
       ),
       identifierProperty,
       name: astType.name.tsName,
-      properties: new ObjectType.Properties(properties),
+      properties: properties,
       superObjectTypes: astType.superObjectTypes.map(ObjectType.fromAstType),
     });
   }
@@ -135,7 +140,9 @@ export class ObjectType implements Type {
       ),
       isExported: true,
       name: this.name,
-      properties: this.properties.propertySignatures,
+      properties: this.properties.map(
+        (property) => property.interfacePropertySignature,
+      ),
     };
   }
 
@@ -143,11 +150,11 @@ export class ObjectType implements Type {
     return {
       isExported: true,
       name: this.name,
-      statements: [this.parametersInterfaceDeclaration],
+      statements: [this.constructorParametersInterfaceDeclaration],
     };
   }
 
-  get parametersInterfaceDeclaration(): InterfaceDeclarationStructure {
+  get constructorParametersInterfaceDeclaration(): InterfaceDeclarationStructure {
     return {
       extends:
         this.superObjectTypes.length > 0
@@ -155,57 +162,10 @@ export class ObjectType implements Type {
           : undefined,
       isExported: true,
       kind: StructureKind.Interface,
-      properties: this.properties.propertyDeclarations.map(
-        (propertyDeclaration) => ({
-          isReadonly: true,
-          name: propertyDeclaration.name,
-          type: propertyDeclaration.type,
-        }),
+      properties: this.properties.map(
+        (property) => property.classConstructorParametersPropertySignature,
       ),
       name: "Parameters",
     };
-  }
-}
-
-export namespace ObjectType {
-  export class Properties implements Iterable<Property> {
-    private readonly properties: readonly Property[];
-
-    constructor(properties: readonly Property[]) {
-      this.properties = properties
-        .concat()
-        .sort((left, right) => left.name.localeCompare(right.name));
-    }
-
-    [Symbol.iterator](): Iterator<Property> {
-      return this.properties[Symbol.iterator]();
-    }
-
-    private ensureUniqueness(): void {
-      // if (this.superObjectTypes.length === 0) {
-      //   propertyDeclarationsByName["identifier"] = {
-      //     isReadonly: true,
-      //     name: "identifier",
-      //     type: this.identifierTypeName,
-      //   };
-      // }
-
-      const propertyNames = new Set<string>();
-      for (const property of this.properties) {
-        if (propertyNames.has(property.name)) {
-          throw new Error(`duplicate property '${property.name}'`);
-        }
-      }
-    }
-
-    get propertyDeclarations(): OptionalKind<PropertyDeclarationStructure>[] {
-      this.ensureUniqueness();
-      return this.properties.map((property) => property.propertyDeclaration);
-    }
-
-    get propertySignatures(): OptionalKind<PropertySignatureStructure>[] {
-      this.ensureUniqueness();
-      return this.properties.map((property) => property.propertySignature);
-    }
   }
 }

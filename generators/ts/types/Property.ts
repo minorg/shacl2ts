@@ -46,24 +46,49 @@ export class Property {
     });
   }
 
-  get propertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
+  classConstructorInitializer(parameter: string): string {
+    // Do assignment or call initMaybe or initArray generic functions
+    // Caller should emit those functions if they're called
+  }
+
+  get classConstructorParametersPropertySignature(): OptionalKind<PropertySignatureStructure> {
+    // If the interface type name is Maybe<string>
+    const typeNames: string[] = [this.interfaceTypeName];
+    const maxCount = this.maxCount.extractNullable();
+    if (this.minCount === 0) {
+      if (maxCount === 1) {
+        typeNames.push(
+          this.inline ? this.type.inlineName : this.type.externName,
+        ); // Allow Maybe<string> | string | undefined
+      }
+      typeNames.push("undefined"); // Allow Maybe<string> | undefined
+    }
+
     return {
       isReadonly: true,
       name: this.name,
-      type: this.typeName,
+      type: typeNames.join(" | "),
     };
   }
 
-  get propertySignature(): OptionalKind<PropertySignatureStructure> {
+  get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
     return {
       isReadonly: true,
       name: this.name,
-      type: this.typeName,
+      type: this.interfaceTypeName,
+    };
+  }
+
+  get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {
+    return {
+      isReadonly: true,
+      name: this.name,
+      type: this.interfaceTypeName,
     };
   }
 
   @Memoize()
-  get typeName(): string {
+  get interfaceTypeName(): string {
     const maxCount = this.maxCount.extractNullable();
     let type = this.inline ? this.type.inlineName : this.type.externName;
     if (this.minCount === 0 && maxCount === 1) {
