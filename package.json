@@ -15,6 +15,7 @@
     "@types/rdfjs__term-map": "^2.0.10",
     "@types/rdfjs__term-set": "^2.0.9",
     "cmd-ts": "^0.13.0",
+    "iterator-helpers-polyfill": "^3.0.1",
     "n3": "^1.17.4",
     "pino": "^9.3.1",
     "purify-ts": "^2.1.0",
@@ -27,7 +28,9 @@
   "description": "Generate TypeScript from SHACL shapes",
   "devDependencies": {
     "@biomejs/biome": "1.8.3",
+    "@rdfjs/data-model": "^2.0.2",
     "@tsconfig/strictest": "^2.0.5",
+    "@types/rdfjs__data-model": "^2.0.8",
     "rimraf": "3.0.2",
     "tsx": "^4.16.2",
     "typescript": "^5.5",

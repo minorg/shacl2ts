@@ -13,7 +13,7 @@ import { DataFactory, Parser, Store } from "n3";
 import { ShapesGraph } from "shacl-ast";
 import { ShapesGraphToAstTransformer } from "./ShapesGraphToAstTransformer.js";
 import type { Ast } from "./ast";
-import { AstJsonGenerator, InterfaceTsGenerator } from "./generators";
+import * as generators from "./generators";
 import { logger } from "./logger.js";
 import { dashDataset } from "./vocabularies/dashDataset";
 
@@ -105,7 +105,25 @@ run(
         },
         handler: async ({ inputFilePaths, outputFilePath }) => {
           writeOutput(
-            new AstJsonGenerator(readInput(inputFilePaths)).generate(),
+            new generators.json.AstJsonGenerator(
+              readInput(inputFilePaths),
+            ).generate(),
+            outputFilePath,
+          );
+        },
+      }),
+      "class-ts": command({
+        name: "class-ts",
+        description: "generate class TypeScript for the SHACL Shapes Graph AST",
+        args: {
+          inputFilePaths,
+          outputFilePath,
+        },
+        handler: async ({ inputFilePaths, outputFilePath }) => {
+          writeOutput(
+            new generators.ts.ClassTsGenerator(
+              readInput(inputFilePaths),
+            ).generate(),
             outputFilePath,
           );
         },
@@ -120,7 +138,9 @@ run(
         },
         handler: async ({ inputFilePaths, outputFilePath }) => {
           writeOutput(
-            new InterfaceTsGenerator(readInput(inputFilePaths)).generate(),
+            new generators.ts.InterfaceTsGenerator(
+              readInput(inputFilePaths),
+            ).generate(),
             outputFilePath,
           );
         },

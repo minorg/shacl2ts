@@ -1,5 +1,5 @@
 import type { Term as RdfjsTerm } from "@rdfjs/types";
-import type * as ast from "../ast";
+import type * as ast from "../../ast";
 
 namespace AstJson {
   export interface Name {
