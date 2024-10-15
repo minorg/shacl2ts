@@ -18,6 +18,19 @@ export class ClassTsGenerator extends TsGenerator {
       namespaceImport: "purify",
     });
 
+    sourceFile.addStatements([
+      `\
+function initZeroOrOneProperty<T>(value: purify.Maybe<T> | T | undefined): purify.Maybe<T> {
+  if (typeof value === "undefined") {
+      return purify.Maybe.empty();
+  }
+  if (typeof value === "object" && purify.Maybe.isMaybe(value)) {
+      return value;
+  }
+  return purify.Maybe.of(value);
+}`,
+    ]);
+
     for (const objectType of objectTypes) {
       if (objectType.superObjectTypes.length > 1) {
         throw new RangeError(

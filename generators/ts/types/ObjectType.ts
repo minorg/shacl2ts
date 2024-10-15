@@ -72,7 +72,9 @@ export class ObjectType implements Type {
       statements.push("super(parameters);");
     }
     for (const property of this.properties) {
-      statements.push(`this.${property.name} = parameters.${property.name};`);
+      statements.push(
+        `this.${property.name} = ${property.classConstructorInitializer(`parameters.${property.name}`)};`,
+      );
     }
 
     return {

@@ -46,13 +46,20 @@ export class Property {
     });
   }
 
-  // classConstructorInitializer(parameter: string): string {
-  //   // Do assignment or call initMaybe or initArray generic functions
-  //   // Caller should emit those functions if they're called
-  // }
+  classConstructorInitializer(parameter: string): string {
+    const maxCount = this.maxCount.extractNullable();
+    if (this.minCount === 0) {
+      if (maxCount === 1) {
+        return `initZeroOrOneProperty(${parameter})`;
+      }
+      return `(typeof ${parameter} !== "undefined" ? ${parameter} : [])`;
+    }
+    return parameter;
+  }
 
   get classConstructorParametersPropertySignature(): OptionalKind<PropertySignatureStructure> {
     // If the interface type name is Maybe<string>
+    let hasQuestionToken = false;
     const typeNames: string[] = [this.interfaceTypeName];
     const maxCount = this.maxCount.extractNullable();
     if (this.minCount === 0) {
@@ -61,10 +68,11 @@ export class Property {
           this.inline ? this.type.inlineName : this.type.externName,
         ); // Allow Maybe<string> | string | undefined
       }
-      typeNames.push("undefined"); // Allow Maybe<string> | undefined
+      hasQuestionToken = true; // Allow Maybe<string> | undefined
     }
 
     return {
+      hasQuestionToken,
       isReadonly: true,
       name: this.name,
       type: typeNames.join(" | "),
