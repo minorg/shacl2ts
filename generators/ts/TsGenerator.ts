@@ -1,7 +1,6 @@
 import { Project, type SourceFile } from "ts-morph";
 import type * as ast from "../../ast";
 import * as types from "./types";
-import type { ObjectType } from "./types";
 
 export abstract class TsGenerator {
   private readonly project: Project;
@@ -15,7 +14,7 @@ export abstract class TsGenerator {
   }
 
   protected abstract generateSourceFile(
-    objectTypes: readonly ObjectType[],
+    objectTypes: readonly types.ObjectType[],
     sourceFile: SourceFile,
   ): void;
 

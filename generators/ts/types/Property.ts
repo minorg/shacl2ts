@@ -46,10 +46,10 @@ export class Property {
     });
   }
 
-  classConstructorInitializer(parameter: string): string {
-    // Do assignment or call initMaybe or initArray generic functions
-    // Caller should emit those functions if they're called
-  }
+  // classConstructorInitializer(parameter: string): string {
+  //   // Do assignment or call initMaybe or initArray generic functions
+  //   // Caller should emit those functions if they're called
+  // }
 
   get classConstructorParametersPropertySignature(): OptionalKind<PropertySignatureStructure> {
     // If the interface type name is Maybe<string>
