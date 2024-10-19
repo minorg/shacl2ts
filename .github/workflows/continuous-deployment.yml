@@ -19,8 +19,8 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build
-      - name: Generate examples
-        run: ./examples/generate-examples.sh
+#      - name: Generate examples
+#        run: ./examples/generate-examples.sh
       - name: Test
         run: npm test
       - name: Publish
