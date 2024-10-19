@@ -7,24 +7,24 @@ describe("InterfaceTsGenerator", () => {
   it("should generate valid TypeScript interfaces", ({ expect }) => {
     const mlm: interfaces.MachineLearningModel = {
       contextWindow: 1,
-      description: Maybe.of("Test description"),
-      has_identifier: ["testidentifier"],
+      description: Maybe.of(dataFactory.literal("Test description")),
       identifier: dataFactory.namedNode("http://example.com/mlm"),
-      isVariantOf: [
-        {
-          description: Maybe.of("Family description"),
-          identifier: dataFactory.namedNode("http://example.com/family"),
-          label: [dataFactory.literal("should not be a string")],
-          name: "Family",
-          url: Maybe.of("http://example.com/family"),
+      isVariantOf: {
+        description: Maybe.of(dataFactory.literal("Family description")),
+        identifier: dataFactory.namedNode("http://example.com/family"),
+        manufacturer: {
+          identifier: dataFactory.namedNode("http://examhple.com/organization"),
+          name: dataFactory.literal("name"),
         },
-      ],
-      maxTokenOutput: Maybe.of("should not be a string"),
-      name: "Test name",
-      label: [dataFactory.literal("Test label")],
-      trainingDataCutoff: ["should not be a string"],
+        name: dataFactory.literal("name"),
+        url: Maybe.of("http://example.com/family"),
+      },
+      localIdentifier: "testidentifier",
+      maxTokenOutput: Maybe.of(1),
+      name: dataFactory.literal("Test name"),
+      trainingDataCutoff: Maybe.of("cutoff"),
       url: Maybe.of("http://example.com/mlm"),
     };
-    expect(mlm.name).toStrictEqual("Test name");
+    expect(mlm.name.value).toStrictEqual("Test name");
   });
 });

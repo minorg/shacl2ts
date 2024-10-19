@@ -1,5 +1,4 @@
 import dataFactory from "@rdfjs/data-model";
-import { Maybe } from "purify-ts";
 import { describe, it } from "vitest";
 import * as classes from "../../../examples/mlm/generated/classes.js";
 
@@ -7,27 +6,27 @@ describe("ClassTsGenerator", () => {
   it("should construct a class instance from parameters", ({ expect }) => {
     const mlm = new classes.MachineLearningModel({
       contextWindow: 1,
-      has_identifier: ["testidentifier"],
       identifier: dataFactory.namedNode("http://example.com/mlm"),
-      isVariantOf: [
-        new classes.MachineLearningModelFamily({
-          description: "Family description",
-          identifier: dataFactory.namedNode("http://example.com/family"),
-          label: [dataFactory.literal("should not be a string")],
-          name: "Family",
-          url: "http://example.com/family",
+      isVariantOf: new classes.MachineLearningModelFamily({
+        description: dataFactory.literal("Family description"),
+        identifier: dataFactory.namedNode("http://example.com/family"),
+        manufacturer: new classes.Organization({
+          identifier: dataFactory.namedNode("http://example.com/organization"),
+          name: dataFactory.literal("Test organization"),
         }),
-      ],
-      maxTokenOutput: Maybe.of("should not be a string"),
-      name: "Test name",
-      label: [dataFactory.literal("Test label")],
-      trainingDataCutoff: ["should not be a string"],
+        name: dataFactory.literal("Family"),
+        url: "http://example.com/family",
+      }),
+      localIdentifier: "testidentifier",
+      name: dataFactory.literal("Test name"),
+      maxTokenOutput: 5,
+      trainingDataCutoff: "Test cutoff",
       url: "http://example.com/mlm",
     });
     expect(mlm.description.isNothing()).toStrictEqual(true);
-    expect(mlm.isVariantOf[0].description.extractNullable()).toStrictEqual(
+    expect(mlm.isVariantOf.description.extractNullable()?.value).toStrictEqual(
       "Family description",
     );
-    expect(mlm.name).toStrictEqual("Test name");
+    expect(mlm.name.value).toStrictEqual("Test name");
   });
 });
