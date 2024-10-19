@@ -8,34 +8,20 @@
           "termType": "NamedNode",
           "value": "http://purl.annotize.ai/ontology/mlm#LanguageModel"
         },
-        "shacl2tsName": "LanguageModel",
+        "shName": "LanguageModel",
         "tsName": "LanguageModel"
-      },
-      "properties": []
-    },
-    {
-      "kind": "Object",
-      "name": {
-        "curie": "anno-mlm:MachineLearningModel",
-        "identifier": {
-          "termType": "NamedNode",
-          "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel"
-        },
-        "shacl2tsName": "MachineLearningModel",
-        "tsName": "MachineLearningModel"
       },
       "properties": [
         {
           "maxCount": 1,
           "minCount": 1,
           "name": {
-            "curie": "anno-mlm:MachineLearningModel-contextWindow",
+            "curie": "anno-mlm:LanguageModel-contextWindow",
             "identifier": {
               "termType": "NamedNode",
-              "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-contextWindow"
+              "value": "http://purl.annotize.ai/ontology/mlm#LanguageModel-contextWindow"
             },
-            "shName": "context window size (tokens)",
-            "shacl2tsName": "contextWindow",
+            "shName": "contextWindow",
             "tsName": "contextWindow"
           },
           "path": "http://purl.annotize.ai/ontology/mlm#contextWindow",
@@ -46,17 +32,60 @@
             },
             "kind": "Literal",
             "name": {
-              "curie": "anno-mlm:MachineLearningModel-contextWindow",
+              "curie": "anno-mlm:LanguageModel-contextWindow",
               "identifier": {
                 "termType": "NamedNode",
-                "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-contextWindow"
+                "value": "http://purl.annotize.ai/ontology/mlm#LanguageModel-contextWindow"
               },
-              "shName": "context window size (tokens)",
-              "shacl2tsName": "contextWindow",
+              "shName": "contextWindow",
               "tsName": "contextWindow"
             }
           }
         },
+        {
+          "maxCount": 1,
+          "minCount": 0,
+          "name": {
+            "curie": "anno-mlm:LanguageModel-maxTokenOutput",
+            "identifier": {
+              "termType": "NamedNode",
+              "value": "http://purl.annotize.ai/ontology/mlm#LanguageModel-maxTokenOutput"
+            },
+            "shName": "maxTokenOutput",
+            "tsName": "maxTokenOutput"
+          },
+          "path": "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
+          "type": {
+            "datatype": {
+              "termType": "NamedNode",
+              "value": "http://www.w3.org/2001/XMLSchema#integer"
+            },
+            "kind": "Literal",
+            "name": {
+              "curie": "anno-mlm:LanguageModel-maxTokenOutput",
+              "identifier": {
+                "termType": "NamedNode",
+                "value": "http://purl.annotize.ai/ontology/mlm#LanguageModel-maxTokenOutput"
+              },
+              "shName": "maxTokenOutput",
+              "tsName": "maxTokenOutput"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Object",
+      "name": {
+        "curie": "anno-mlm:MachineLearningModel",
+        "identifier": {
+          "termType": "NamedNode",
+          "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel"
+        },
+        "shName": "MachineLearningModel",
+        "tsName": "MachineLearningModel"
+      },
+      "properties": [
         {
           "maxCount": 1,
           "minCount": 0,
@@ -66,15 +95,14 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-description"
             },
-            "shName": "has description",
-            "shacl2tsName": "description",
+            "shName": "description",
             "tsName": "description"
           },
           "path": "https://schema.org/description",
           "type": {
             "datatype": {
               "termType": "NamedNode",
-              "value": "http://www.w3.org/2001/XMLSchema#string"
+              "value": "http://datashapes.org/dash#StringOrLangString"
             },
             "kind": "Literal",
             "name": {
@@ -83,22 +111,23 @@
                 "termType": "NamedNode",
                 "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-description"
               },
-              "shName": "has description",
-              "shacl2tsName": "description",
+              "shName": "description",
               "tsName": "description"
             }
           }
         },
         {
-          "minCount": 0,
+          "maxCount": 1,
+          "minCount": 1,
           "name": {
             "curie": "anno-mlm:MachineLearningModel-identifier",
             "identifier": {
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-identifier"
             },
-            "shName": "has identifier",
-            "tsName": "has_identifier"
+            "shName": "identifier",
+            "shacl2tsName": "localIdentifier",
+            "tsName": "localIdentifier"
           },
           "path": "https://schema.org/identifier",
           "type": {
@@ -113,21 +142,22 @@
                 "termType": "NamedNode",
                 "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-identifier"
               },
-              "shName": "has identifier",
-              "tsName": "has_identifier"
+              "shName": "identifier",
+              "shacl2tsName": "localIdentifier",
+              "tsName": "localIdentifier"
             }
           }
         },
         {
-          "minCount": 0,
+          "maxCount": 1,
+          "minCount": 1,
           "name": {
             "curie": "anno-mlm:MachineLearningModel-isVariantOf",
             "identifier": {
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-isVariantOf"
             },
-            "shName": "is variant of",
-            "shacl2tsName": "isVariantOf",
+            "shName": "isVariantOf",
             "tsName": "isVariantOf"
           },
           "path": "https://schema.org/isVariantOf",
@@ -139,83 +169,8 @@
                 "termType": "NamedNode",
                 "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily"
               },
-              "shacl2tsName": "MachineLearningModelFamily",
+              "shName": "MachineLearningModelFamily",
               "tsName": "MachineLearningModelFamily"
-            }
-          }
-        },
-        {
-          "minCount": 0,
-          "name": {
-            "curie": "anno-mlm:MachineLearningModel-label",
-            "identifier": {
-              "termType": "NamedNode",
-              "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-label"
-            },
-            "shName": "labels",
-            "shacl2tsName": "label",
-            "tsName": "label"
-          },
-          "path": "http://www.w3.org/2000/01/rdf-schema#label",
-          "type": {
-            "kind": "Or",
-            "types": [
-              {
-                "datatype": {
-                  "termType": "NamedNode",
-                  "value": "http://www.w3.org/2001/XMLSchema#string"
-                },
-                "kind": "Literal",
-                "name": {
-                  "identifier": {
-                    "termType": "BlankNode",
-                    "value": "n3-42"
-                  },
-                  "tsName": "_$w$n3$j$42"
-                }
-              },
-              {
-                "datatype": {
-                  "termType": "NamedNode",
-                  "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
-                },
-                "kind": "Literal",
-                "name": {
-                  "identifier": {
-                    "termType": "BlankNode",
-                    "value": "n3-44"
-                  },
-                  "tsName": "_$w$n3$j$44"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "maxCount": 1,
-          "minCount": 0,
-          "name": {
-            "curie": "anno-mlm:MachineLearningModel-maxTokenOutput",
-            "identifier": {
-              "termType": "NamedNode",
-              "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-maxTokenOutput"
-            },
-            "shName": "has maximum output tokens",
-            "shacl2tsName": "maxTokenOutput",
-            "tsName": "maxTokenOutput"
-          },
-          "path": "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
-          "type": {
-            "kind": "Literal",
-            "name": {
-              "curie": "anno-mlm:MachineLearningModel-maxTokenOutput",
-              "identifier": {
-                "termType": "NamedNode",
-                "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-maxTokenOutput"
-              },
-              "shName": "has maximum output tokens",
-              "shacl2tsName": "maxTokenOutput",
-              "tsName": "maxTokenOutput"
             }
           }
         },
@@ -228,15 +183,14 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-name"
             },
-            "shName": "has name",
-            "shacl2tsName": "name",
+            "shName": "name",
             "tsName": "name"
           },
           "path": "https://schema.org/name",
           "type": {
             "datatype": {
               "termType": "NamedNode",
-              "value": "http://www.w3.org/2001/XMLSchema#string"
+              "value": "http://datashapes.org/dash#StringOrLangString"
             },
             "kind": "Literal",
             "name": {
@@ -245,13 +199,13 @@
                 "termType": "NamedNode",
                 "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-name"
               },
-              "shName": "has name",
-              "shacl2tsName": "name",
+              "shName": "name",
               "tsName": "name"
             }
           }
         },
         {
+          "maxCount": 1,
           "minCount": 0,
           "name": {
             "curie": "anno-mlm:MachineLearningModel-trainingDataCutoff",
@@ -259,8 +213,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-trainingDataCutoff"
             },
-            "shName": "has training data cutoff",
-            "shacl2tsName": "trainingDataCutoff",
+            "shName": "trainingDataCutoff",
             "tsName": "trainingDataCutoff"
           },
           "path": "http://purl.annotize.ai/ontology/mlm#trainingDataCutoff",
@@ -276,8 +229,7 @@
                 "termType": "NamedNode",
                 "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-trainingDataCutoff"
               },
-              "shName": "has training data cutoff",
-              "shacl2tsName": "trainingDataCutoff",
+              "shName": "trainingDataCutoff",
               "tsName": "trainingDataCutoff"
             }
           }
@@ -291,8 +243,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-url"
             },
-            "shName": "has url",
-            "shacl2tsName": "url",
+            "shName": "url",
             "tsName": "url"
           },
           "path": "https://schema.org/url",
@@ -308,8 +259,7 @@
                 "termType": "NamedNode",
                 "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-url"
               },
-              "shName": "has url",
-              "shacl2tsName": "url",
+              "shName": "url",
               "tsName": "url"
             }
           }
@@ -324,7 +274,7 @@
           "termType": "NamedNode",
           "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily"
         },
-        "shacl2tsName": "MachineLearningModelFamily",
+        "shName": "MachineLearningModelFamily",
         "tsName": "MachineLearningModelFamily"
       },
       "properties": [
@@ -337,15 +287,14 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily-description"
             },
-            "shName": "has description",
-            "shacl2tsName": "description",
+            "shName": "description",
             "tsName": "description"
           },
           "path": "https://schema.org/description",
           "type": {
             "datatype": {
               "termType": "NamedNode",
-              "value": "http://www.w3.org/2001/XMLSchema#string"
+              "value": "http://datashapes.org/dash#StringOrLangString"
             },
             "kind": "Literal",
             "name": {
@@ -354,57 +303,35 @@
                 "termType": "NamedNode",
                 "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily-description"
               },
-              "shName": "has description",
-              "shacl2tsName": "description",
+              "shName": "description",
               "tsName": "description"
             }
           }
         },
         {
-          "minCount": 0,
+          "maxCount": 1,
+          "minCount": 1,
           "name": {
-            "curie": "anno-mlm:MachineLearningModelFamily-label",
+            "curie": "anno-mlm:MachineLearningModelFamily-manufacturer",
             "identifier": {
               "termType": "NamedNode",
-              "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily-label"
+              "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily-manufacturer"
             },
-            "shName": "labels",
-            "shacl2tsName": "label",
-            "tsName": "label"
+            "shName": "manufacturer",
+            "tsName": "manufacturer"
           },
-          "path": "http://www.w3.org/2000/01/rdf-schema#label",
+          "path": "https://schema.org/manufacturer",
           "type": {
-            "kind": "Or",
-            "types": [
-              {
-                "datatype": {
-                  "termType": "NamedNode",
-                  "value": "http://www.w3.org/2001/XMLSchema#string"
-                },
-                "kind": "Literal",
-                "name": {
-                  "identifier": {
-                    "termType": "BlankNode",
-                    "value": "n3-42"
-                  },
-                  "tsName": "_$w$n3$j$42"
-                }
+            "kind": "Object",
+            "name": {
+              "curie": "anno-mlm:Organization",
+              "identifier": {
+                "termType": "NamedNode",
+                "value": "http://purl.annotize.ai/ontology/mlm#Organization"
               },
-              {
-                "datatype": {
-                  "termType": "NamedNode",
-                  "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
-                },
-                "kind": "Literal",
-                "name": {
-                  "identifier": {
-                    "termType": "BlankNode",
-                    "value": "n3-44"
-                  },
-                  "tsName": "_$w$n3$j$44"
-                }
-              }
-            ]
+              "shName": "Organization",
+              "tsName": "Organization"
+            }
           }
         },
         {
@@ -416,15 +343,14 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily-name"
             },
-            "shName": "has name",
-            "shacl2tsName": "name",
+            "shName": "name",
             "tsName": "name"
           },
           "path": "https://schema.org/name",
           "type": {
             "datatype": {
               "termType": "NamedNode",
-              "value": "http://www.w3.org/2001/XMLSchema#string"
+              "value": "http://datashapes.org/dash#StringOrLangString"
             },
             "kind": "Literal",
             "name": {
@@ -433,8 +359,7 @@
                 "termType": "NamedNode",
                 "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily-name"
               },
-              "shName": "has name",
-              "shacl2tsName": "name",
+              "shName": "name",
               "tsName": "name"
             }
           }
@@ -448,8 +373,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily-url"
             },
-            "shName": "has url",
-            "shacl2tsName": "url",
+            "shName": "url",
             "tsName": "url"
           },
           "path": "https://schema.org/url",
@@ -465,9 +389,52 @@
                 "termType": "NamedNode",
                 "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily-url"
               },
-              "shName": "has url",
-              "shacl2tsName": "url",
+              "shName": "url",
               "tsName": "url"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Object",
+      "name": {
+        "curie": "anno-mlm:Organization",
+        "identifier": {
+          "termType": "NamedNode",
+          "value": "http://purl.annotize.ai/ontology/mlm#Organization"
+        },
+        "shName": "Organization",
+        "tsName": "Organization"
+      },
+      "properties": [
+        {
+          "maxCount": 1,
+          "minCount": 1,
+          "name": {
+            "curie": "anno-mlm:Organization-name",
+            "identifier": {
+              "termType": "NamedNode",
+              "value": "http://purl.annotize.ai/ontology/mlm#Organization-name"
+            },
+            "shName": "name",
+            "tsName": "name"
+          },
+          "path": "https://schema.org/name",
+          "type": {
+            "datatype": {
+              "termType": "NamedNode",
+              "value": "http://datashapes.org/dash#StringOrLangString"
+            },
+            "kind": "Literal",
+            "name": {
+              "curie": "anno-mlm:Organization-name",
+              "identifier": {
+                "termType": "NamedNode",
+                "value": "http://purl.annotize.ai/ontology/mlm#Organization-name"
+              },
+              "shName": "name",
+              "tsName": "name"
             }
           }
         }

@@ -50,7 +50,7 @@ export class Property {
     const maxCount = this.maxCount.extractNullable();
     if (this.minCount === 0) {
       if (maxCount === 1) {
-        return `initZeroOrOneProperty(${parameter})`;
+        return `(typeof ${parameter} === "undefined") ? purify.Maybe.empty() : (typeof ${parameter} === "object" && purify.Maybe.isMaybe(${parameter}) ? ${parameter} : purify.Maybe.of(${parameter}))`;
       }
       return `(typeof ${parameter} !== "undefined" ? ${parameter} : [])`;
     }

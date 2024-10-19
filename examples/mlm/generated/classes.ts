@@ -1,16 +1,5 @@
 import type * as rdfjs from "@rdfjs/types";
 import * as purify from "purify-ts";
-function initZeroOrOneProperty<T>(
-  value: purify.Maybe<T> | T | undefined,
-): purify.Maybe<T> {
-  if (typeof value === "undefined") {
-    return purify.Maybe.empty();
-  }
-  if (typeof value === "object" && purify.Maybe.isMaybe(value)) {
-    return value;
-  }
-  return purify.Maybe.of(value);
-}
 
 export class MachineLearningModel {
   readonly description: purify.Maybe<rdfjs.Literal>;
@@ -22,15 +11,31 @@ export class MachineLearningModel {
   readonly url: purify.Maybe<string>;
 
   constructor(parameters: MachineLearningModel.Parameters) {
-    this.description = initZeroOrOneProperty(parameters.description);
+    this.description =
+      typeof parameters.description === "undefined"
+        ? purify.Maybe.empty()
+        : typeof parameters.description === "object" &&
+            purify.Maybe.isMaybe(parameters.description)
+          ? parameters.description
+          : purify.Maybe.of(parameters.description);
     this.identifier = parameters.identifier;
     this.isVariantOf = parameters.isVariantOf;
     this.localIdentifier = parameters.localIdentifier;
     this.name = parameters.name;
-    this.trainingDataCutoff = initZeroOrOneProperty(
-      parameters.trainingDataCutoff,
-    );
-    this.url = initZeroOrOneProperty(parameters.url);
+    this.trainingDataCutoff =
+      typeof parameters.trainingDataCutoff === "undefined"
+        ? purify.Maybe.empty()
+        : typeof parameters.trainingDataCutoff === "object" &&
+            purify.Maybe.isMaybe(parameters.trainingDataCutoff)
+          ? parameters.trainingDataCutoff
+          : purify.Maybe.of(parameters.trainingDataCutoff);
+    this.url =
+      typeof parameters.url === "undefined"
+        ? purify.Maybe.empty()
+        : typeof parameters.url === "object" &&
+            purify.Maybe.isMaybe(parameters.url)
+          ? parameters.url
+          : purify.Maybe.of(parameters.url);
   }
 }
 
@@ -53,7 +58,13 @@ export class LanguageModel extends MachineLearningModel {
   constructor(parameters: LanguageModel.Parameters) {
     super(parameters);
     this.contextWindow = parameters.contextWindow;
-    this.maxTokenOutput = initZeroOrOneProperty(parameters.maxTokenOutput);
+    this.maxTokenOutput =
+      typeof parameters.maxTokenOutput === "undefined"
+        ? purify.Maybe.empty()
+        : typeof parameters.maxTokenOutput === "object" &&
+            purify.Maybe.isMaybe(parameters.maxTokenOutput)
+          ? parameters.maxTokenOutput
+          : purify.Maybe.of(parameters.maxTokenOutput);
   }
 }
 
@@ -72,11 +83,23 @@ export class MachineLearningModelFamily {
   readonly url: purify.Maybe<string>;
 
   constructor(parameters: MachineLearningModelFamily.Parameters) {
-    this.description = initZeroOrOneProperty(parameters.description);
+    this.description =
+      typeof parameters.description === "undefined"
+        ? purify.Maybe.empty()
+        : typeof parameters.description === "object" &&
+            purify.Maybe.isMaybe(parameters.description)
+          ? parameters.description
+          : purify.Maybe.of(parameters.description);
     this.identifier = parameters.identifier;
     this.manufacturer = parameters.manufacturer;
     this.name = parameters.name;
-    this.url = initZeroOrOneProperty(parameters.url);
+    this.url =
+      typeof parameters.url === "undefined"
+        ? purify.Maybe.empty()
+        : typeof parameters.url === "object" &&
+            purify.Maybe.isMaybe(parameters.url)
+          ? parameters.url
+          : purify.Maybe.of(parameters.url);
   }
 }
 
