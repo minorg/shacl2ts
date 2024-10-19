@@ -3,23 +3,27 @@ import type * as purify from "purify-ts";
 
 export interface MachineLearningModel {
   readonly contextWindow: number;
-  readonly description: purify.Maybe<string>;
-  readonly has_identifier: readonly string[];
+  readonly description: purify.Maybe<rdfjs.Literal>;
   readonly identifier: rdfjs.NamedNode;
-  readonly isVariantOf: readonly MachineLearningModelFamily[];
-  readonly label: readonly rdfjs.Literal[];
-  readonly maxTokenOutput: purify.Maybe<string>;
-  readonly name: string;
-  readonly trainingDataCutoff: readonly string[];
+  readonly isVariantOf: MachineLearningModelFamily;
+  readonly localIdentifier: string;
+  readonly maxTokenOutput: purify.Maybe<number>;
+  readonly name: rdfjs.Literal;
+  readonly trainingDataCutoff: purify.Maybe<string>;
   readonly url: purify.Maybe<string>;
 }
 
 export interface LanguageModel extends MachineLearningModel {}
 
 export interface MachineLearningModelFamily {
-  readonly description: purify.Maybe<string>;
+  readonly description: purify.Maybe<rdfjs.Literal>;
   readonly identifier: rdfjs.NamedNode;
-  readonly label: readonly rdfjs.Literal[];
-  readonly name: string;
+  readonly manufacturer: Organization;
+  readonly name: rdfjs.Literal;
   readonly url: purify.Maybe<string>;
+}
+
+export interface Organization {
+  readonly identifier: rdfjs.NamedNode;
+  readonly name: rdfjs.Literal;
 }

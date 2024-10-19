@@ -14,36 +14,26 @@ function initZeroOrOneProperty<T>(
 
 export class MachineLearningModel {
   readonly contextWindow: number;
-  readonly description: purify.Maybe<string>;
-  readonly has_identifier: readonly string[];
+  readonly description: purify.Maybe<rdfjs.Literal>;
   readonly identifier: rdfjs.NamedNode;
-  readonly isVariantOf: readonly MachineLearningModelFamily[];
-  readonly label: readonly rdfjs.Literal[];
-  readonly maxTokenOutput: purify.Maybe<string>;
-  readonly name: string;
-  readonly trainingDataCutoff: readonly string[];
+  readonly isVariantOf: MachineLearningModelFamily;
+  readonly localIdentifier: string;
+  readonly maxTokenOutput: purify.Maybe<number>;
+  readonly name: rdfjs.Literal;
+  readonly trainingDataCutoff: purify.Maybe<string>;
   readonly url: purify.Maybe<string>;
 
   constructor(parameters: MachineLearningModel.Parameters) {
     this.contextWindow = parameters.contextWindow;
     this.description = initZeroOrOneProperty(parameters.description);
-    this.has_identifier =
-      typeof parameters.has_identifier !== "undefined"
-        ? parameters.has_identifier
-        : [];
     this.identifier = parameters.identifier;
-    this.isVariantOf =
-      typeof parameters.isVariantOf !== "undefined"
-        ? parameters.isVariantOf
-        : [];
-    this.label =
-      typeof parameters.label !== "undefined" ? parameters.label : [];
+    this.isVariantOf = parameters.isVariantOf;
+    this.localIdentifier = parameters.localIdentifier;
     this.maxTokenOutput = initZeroOrOneProperty(parameters.maxTokenOutput);
     this.name = parameters.name;
-    this.trainingDataCutoff =
-      typeof parameters.trainingDataCutoff !== "undefined"
-        ? parameters.trainingDataCutoff
-        : [];
+    this.trainingDataCutoff = initZeroOrOneProperty(
+      parameters.trainingDataCutoff,
+    );
     this.url = initZeroOrOneProperty(parameters.url);
   }
 }
@@ -51,14 +41,13 @@ export class MachineLearningModel {
 export namespace MachineLearningModel {
   export interface Parameters {
     readonly contextWindow: number;
-    readonly description?: purify.Maybe<string> | string;
-    readonly has_identifier?: readonly string[];
+    readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
     readonly identifier: rdfjs.NamedNode;
-    readonly isVariantOf?: readonly MachineLearningModelFamily[];
-    readonly label?: readonly rdfjs.Literal[];
-    readonly maxTokenOutput?: purify.Maybe<string> | string;
-    readonly name: string;
-    readonly trainingDataCutoff?: readonly string[];
+    readonly isVariantOf: MachineLearningModelFamily;
+    readonly localIdentifier: string;
+    readonly maxTokenOutput?: purify.Maybe<number> | number;
+    readonly name: rdfjs.Literal;
+    readonly trainingDataCutoff?: purify.Maybe<string> | string;
     readonly url?: purify.Maybe<string> | string;
   }
 }
@@ -70,17 +59,16 @@ export namespace LanguageModel {
 }
 
 export class MachineLearningModelFamily {
-  readonly description: purify.Maybe<string>;
+  readonly description: purify.Maybe<rdfjs.Literal>;
   readonly identifier: rdfjs.NamedNode;
-  readonly label: readonly rdfjs.Literal[];
-  readonly name: string;
+  readonly manufacturer: Organization;
+  readonly name: rdfjs.Literal;
   readonly url: purify.Maybe<string>;
 
   constructor(parameters: MachineLearningModelFamily.Parameters) {
     this.description = initZeroOrOneProperty(parameters.description);
     this.identifier = parameters.identifier;
-    this.label =
-      typeof parameters.label !== "undefined" ? parameters.label : [];
+    this.manufacturer = parameters.manufacturer;
     this.name = parameters.name;
     this.url = initZeroOrOneProperty(parameters.url);
   }
@@ -88,10 +76,27 @@ export class MachineLearningModelFamily {
 
 export namespace MachineLearningModelFamily {
   export interface Parameters {
-    readonly description?: purify.Maybe<string> | string;
+    readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
     readonly identifier: rdfjs.NamedNode;
-    readonly label?: readonly rdfjs.Literal[];
-    readonly name: string;
+    readonly manufacturer: Organization;
+    readonly name: rdfjs.Literal;
     readonly url?: purify.Maybe<string> | string;
+  }
+}
+
+export class Organization {
+  readonly identifier: rdfjs.NamedNode;
+  readonly name: rdfjs.Literal;
+
+  constructor(parameters: Organization.Parameters) {
+    this.identifier = parameters.identifier;
+    this.name = parameters.name;
+  }
+}
+
+export namespace Organization {
+  export interface Parameters {
+    readonly identifier: rdfjs.NamedNode;
+    readonly name: rdfjs.Literal;
   }
 }

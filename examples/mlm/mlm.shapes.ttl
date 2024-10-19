@@ -28,9 +28,11 @@
 anno-mlm:LanguageModel
   a owl:Class ;
   a sh:NodeShape ;
+  sh:name "LanguageModel" ;
   rdfs:label "language model" ;
   rdfs:subClassOf anno-mlm:MachineLearningModel ;
   skos:definition "A language model is a model that represents the structure and usage of language, capable of predicting or generating text based on input sequences. It functions by analyzing and learning patterns in linguistic data, enabling tasks such as translation, summarization, and natural language understanding." ;
+  sh:nodeKind sh:IRI ;
 .
 anno-mlm:MachineLearningModel
   a owl:Class ;
@@ -38,56 +40,61 @@ anno-mlm:MachineLearningModel
   rdfs:label "machine learning model" ;
   rdfs:subClassOf owl:Thing ;
   rdfs:subClassOf schema:ProductModel ;
+  sh:name "MachineLearningModel" ;
   sh:property anno-mlm:MachineLearningModel-contextWindow ;
   sh:property anno-mlm:MachineLearningModel-description ;
   sh:property anno-mlm:MachineLearningModel-identifier ;
   sh:property anno-mlm:MachineLearningModel-isVariantOf ;
-  sh:property anno-mlm:MachineLearningModel-label ;
   sh:property anno-mlm:MachineLearningModel-maxTokenOutput ;
   sh:property anno-mlm:MachineLearningModel-name ;
   sh:property anno-mlm:MachineLearningModel-trainingDataCutoff ;
   sh:property anno-mlm:MachineLearningModel-url ;
+  sh:nodeKind sh:IRI ;
 .
 anno-mlm:MachineLearningModel-contextWindow
   a sh:PropertyShape ;
   sh:path anno-mlm:contextWindow ;
+  rdfs:label "context window size (tokens)" ;
   sh:datatype xsd:integer ;
   sh:maxCount 1 ;
   sh:minCount 1 ;
-  sh:name "context window size (tokens)" ;
+  sh:name "contextWindow" ;
 .
 anno-mlm:MachineLearningModel-description
   a sh:PropertyShape ;
   sh:path schema:description ;
-  sh:datatype xsd:string ;
+  rdfs:label "has description" ;
+  sh:datatype dash:StringOrLangString ;
   sh:maxCount 1 ;
-  sh:name "has description" ;
+  sh:name "description" ;
 .
 anno-mlm:MachineLearningModel-identifier
   a sh:PropertyShape ;
   sh:path schema:identifier ;
+  rdfs:label "has identifier" ;
   sh:datatype xsd:string ;
-  sh:name "has identifier" ;
+  sh:name "identifier" ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
 .
 anno-mlm:MachineLearningModel-isVariantOf
   a sh:PropertyShape ;
   sh:path schema:isVariantOf ;
+  rdfs:label "is variant of" ;
   sh:class anno-mlm:MachineLearningModelFamily ;
-  sh:name "is variant of" ;
-.
-anno-mlm:MachineLearningModel-label
-  a sh:PropertyShape ;
-  sh:path rdfs:label ;
-  dash:singleLine true ;
-  sh:name "labels" ;
-  sh:or dash:StringOrLangString ;
+  sh:name "isVariantOf" ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:nodeKind sh:IRI ;
 .
 anno-mlm:MachineLearningModel-maxTokenOutput
   a sh:PropertyShape ;
   sh:path anno-mlm:maxTokenOutput ;
+  rdfs:label "has maximum output tokens" ;
   sh:maxCount 1 ;
-  sh:name "has maximum output tokens" ;
+  sh:name "maxTokenOutput" ;
   sh:nodeKind sh:Literal ;
+  sh:datatype xsd:integer ;
 .
 anno-mlm:MachineLearningModel-multilingual
   a sh:PropertyShape ;
@@ -100,24 +107,28 @@ anno-mlm:MachineLearningModel-multilingual
 anno-mlm:MachineLearningModel-name
   a sh:PropertyShape ;
   sh:path schema:name ;
-  sh:datatype xsd:string ;
+  rdfs:label "has name" ;
+  sh:datatype dash:StringOrLangString ;
   sh:maxCount 1 ;
   sh:minCount 1 ;
-  sh:name "has name" ;
+  sh:name "name" ;
 .
 anno-mlm:MachineLearningModel-trainingDataCutoff
   a sh:PropertyShape ;
   sh:path anno-mlm:trainingDataCutoff ;
   rdfs:comment "Should be a valid ISO 8601 string." ;
+  rdfs:label "has training data cutoff" ;
   sh:datatype xsd:string ;
-  sh:name "has training data cutoff" ;
+  sh:name "trainingDataCutoff" ;
+  sh:maxCount 1;
 .
 anno-mlm:MachineLearningModel-url
   a sh:PropertyShape ;
   sh:path schema:url ;
+  rdfs:label "has url" ;
   sh:datatype xsd:anyURI ;
   sh:maxCount 1 ;
-  sh:name "has url" ;
+  sh:name "url" ;
 .
 anno-mlm:MachineLearningModelFamily
   a owl:Class ;
@@ -125,48 +136,67 @@ anno-mlm:MachineLearningModelFamily
   rdfs:label "machine learning model family" ;
   rdfs:subClassOf owl:Thing ;
   rdfs:subClassOf schema:ProductGroup ;
+  sh:name "MachineLearningModelFamily" ;
   sh:property anno-mlm:MachineLearningModelFamily-description ;
-  sh:property anno-mlm:MachineLearningModelFamily-label ;
   sh:property anno-mlm:MachineLearningModelFamily-manufacturer ;
   sh:property anno-mlm:MachineLearningModelFamily-name ;
   sh:property anno-mlm:MachineLearningModelFamily-url ;
+  sh:nodeKind sh:IRI ;
 .
 anno-mlm:MachineLearningModelFamily-description
   a sh:PropertyShape ;
   sh:path schema:description ;
-  sh:datatype xsd:string ;
+  rdfs:label "has description" ;
+  sh:datatype dash:StringOrLangString ;
   sh:maxCount 1 ;
-  sh:name "has description" ;
-.
-anno-mlm:MachineLearningModelFamily-label
-  a sh:PropertyShape ;
-  sh:path rdfs:label ;
-  dash:singleLine true ;
-  sh:name "labels" ;
-  sh:or dash:StringOrLangString ;
+  sh:name "description" ;
 .
 anno-mlm:MachineLearningModelFamily-manufacturer
   a sh:PropertyShape ;
   sh:path schema:manufacturer ;
-  sh:class schema:Organization ;
+  rdfs:label "has manufacturer" ;
   sh:maxCount 1 ;
-  sh:name "has manufacturer" ;
+  sh:minCount 1 ;
+  sh:name "manufacturer" ;
   sh:nodeKind sh:IRI ;
+  sh:class anno-mlm:Organization ;
 .
 anno-mlm:MachineLearningModelFamily-name
   a sh:PropertyShape ;
   sh:path schema:name ;
-  sh:datatype xsd:string ;
+  rdfs:label "has name" ;
+  sh:datatype dash:StringOrLangString ;
   sh:maxCount 1 ;
   sh:minCount 1 ;
-  sh:name "has name" ;
+  sh:name "name" ;
 .
 anno-mlm:MachineLearningModelFamily-url
   a sh:PropertyShape ;
   sh:path schema:url ;
+  rdfs:label "has url" ;
   sh:datatype xsd:anyURI ;
   sh:maxCount 1 ;
-  sh:name "has url" ;
+  sh:name "url" ;
+.
+anno-mlm:Organization
+  a owl:Class ;
+  a sh:NodeShape ;
+  rdfs:label "organization" ;
+  sh:name "Organization" ;
+  rdfs:subClassOf owl:Thing ;
+  rdfs:subClassOf schema:Organization ;
+  sh:property anno-mlm:Organization-name ;
+  sh:nodeKind sh:IRI ;
+.
+anno-mlm:Organization-name
+  a sh:PropertyShape ;
+  sh:path schema:name ;
+  rdfs:label "has name" ;
+  sh:datatype dash:StringOrLangString ;
+  sh:description "The name of the organization." ;
+  sh:maxCount 1 ;
+  sh:minCount 1 ;
+  sh:name "name" ;
 .
 anno-mlm:contextWindow
   a owl:DatatypeProperty ;
