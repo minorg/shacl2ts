@@ -4,7 +4,7 @@ import * as classes from "../../../examples/mlm/generated/classes.js";
 
 describe("ClassTsGenerator", () => {
   it("should construct a class instance from parameters", ({ expect }) => {
-    const mlm = new classes.MachineLearningModel({
+    const mlm = new classes.LanguageModel({
       contextWindow: 1,
       identifier: dataFactory.namedNode("http://example.com/mlm"),
       isVariantOf: new classes.MachineLearningModelFamily({

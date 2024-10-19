@@ -13,23 +13,19 @@ function initZeroOrOneProperty<T>(
 }
 
 export class MachineLearningModel {
-  readonly contextWindow: number;
   readonly description: purify.Maybe<rdfjs.Literal>;
   readonly identifier: rdfjs.NamedNode;
   readonly isVariantOf: MachineLearningModelFamily;
   readonly localIdentifier: string;
-  readonly maxTokenOutput: purify.Maybe<number>;
   readonly name: rdfjs.Literal;
   readonly trainingDataCutoff: purify.Maybe<string>;
   readonly url: purify.Maybe<string>;
 
   constructor(parameters: MachineLearningModel.Parameters) {
-    this.contextWindow = parameters.contextWindow;
     this.description = initZeroOrOneProperty(parameters.description);
     this.identifier = parameters.identifier;
     this.isVariantOf = parameters.isVariantOf;
     this.localIdentifier = parameters.localIdentifier;
-    this.maxTokenOutput = initZeroOrOneProperty(parameters.maxTokenOutput);
     this.name = parameters.name;
     this.trainingDataCutoff = initZeroOrOneProperty(
       parameters.trainingDataCutoff,
@@ -40,22 +36,32 @@ export class MachineLearningModel {
 
 export namespace MachineLearningModel {
   export interface Parameters {
-    readonly contextWindow: number;
     readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
     readonly identifier: rdfjs.NamedNode;
     readonly isVariantOf: MachineLearningModelFamily;
     readonly localIdentifier: string;
-    readonly maxTokenOutput?: purify.Maybe<number> | number;
     readonly name: rdfjs.Literal;
     readonly trainingDataCutoff?: purify.Maybe<string> | string;
     readonly url?: purify.Maybe<string> | string;
   }
 }
 
-export class LanguageModel extends MachineLearningModel {}
+export class LanguageModel extends MachineLearningModel {
+  readonly contextWindow: number;
+  readonly maxTokenOutput: purify.Maybe<number>;
+
+  constructor(parameters: LanguageModel.Parameters) {
+    super(parameters);
+    this.contextWindow = parameters.contextWindow;
+    this.maxTokenOutput = initZeroOrOneProperty(parameters.maxTokenOutput);
+  }
+}
 
 export namespace LanguageModel {
-  export interface Parameters extends MachineLearningModel.Parameters {}
+  export interface Parameters extends MachineLearningModel.Parameters {
+    readonly contextWindow: number;
+    readonly maxTokenOutput?: purify.Maybe<number> | number;
+  }
 }
 
 export class MachineLearningModelFamily {

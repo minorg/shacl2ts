@@ -33,6 +33,26 @@ anno-mlm:LanguageModel
   rdfs:subClassOf anno-mlm:MachineLearningModel ;
   skos:definition "A language model is a model that represents the structure and usage of language, capable of predicting or generating text based on input sequences. It functions by analyzing and learning patterns in linguistic data, enabling tasks such as translation, summarization, and natural language understanding." ;
   sh:nodeKind sh:IRI ;
+  sh:property anno-mlm:LanguageModel-contextWindow ;
+  sh:property anno-mlm:LanguageModel-maxTokenOutput ;
+.
+anno-mlm:LanguageModel-contextWindow
+  a sh:PropertyShape ;
+  sh:path anno-mlm:contextWindow ;
+  rdfs:label "context window size (tokens)" ;
+  sh:datatype xsd:integer ;
+  sh:maxCount 1 ;
+  sh:minCount 1 ;
+  sh:name "contextWindow" ;
+.
+anno-mlm:LanguageModel-maxTokenOutput
+  a sh:PropertyShape ;
+  sh:path anno-mlm:maxTokenOutput ;
+  rdfs:label "has maximum output tokens" ;
+  sh:maxCount 1 ;
+  sh:name "maxTokenOutput" ;
+  sh:nodeKind sh:Literal ;
+  sh:datatype xsd:integer ;
 .
 anno-mlm:MachineLearningModel
   a owl:Class ;
@@ -41,24 +61,13 @@ anno-mlm:MachineLearningModel
   rdfs:subClassOf owl:Thing ;
   rdfs:subClassOf schema:ProductModel ;
   sh:name "MachineLearningModel" ;
-  sh:property anno-mlm:MachineLearningModel-contextWindow ;
   sh:property anno-mlm:MachineLearningModel-description ;
   sh:property anno-mlm:MachineLearningModel-identifier ;
   sh:property anno-mlm:MachineLearningModel-isVariantOf ;
-  sh:property anno-mlm:MachineLearningModel-maxTokenOutput ;
   sh:property anno-mlm:MachineLearningModel-name ;
   sh:property anno-mlm:MachineLearningModel-trainingDataCutoff ;
   sh:property anno-mlm:MachineLearningModel-url ;
   sh:nodeKind sh:IRI ;
-.
-anno-mlm:MachineLearningModel-contextWindow
-  a sh:PropertyShape ;
-  sh:path anno-mlm:contextWindow ;
-  rdfs:label "context window size (tokens)" ;
-  sh:datatype xsd:integer ;
-  sh:maxCount 1 ;
-  sh:minCount 1 ;
-  sh:name "contextWindow" ;
 .
 anno-mlm:MachineLearningModel-description
   a sh:PropertyShape ;
@@ -86,23 +95,6 @@ anno-mlm:MachineLearningModel-isVariantOf
   sh:minCount 1 ;
   sh:maxCount 1 ;
   sh:nodeKind sh:IRI ;
-.
-anno-mlm:MachineLearningModel-maxTokenOutput
-  a sh:PropertyShape ;
-  sh:path anno-mlm:maxTokenOutput ;
-  rdfs:label "has maximum output tokens" ;
-  sh:maxCount 1 ;
-  sh:name "maxTokenOutput" ;
-  sh:nodeKind sh:Literal ;
-  sh:datatype xsd:integer ;
-.
-anno-mlm:MachineLearningModel-multilingual
-  a sh:PropertyShape ;
-  sh:path anno-mlm:multilingual ;
-  sh:datatype xsd:boolean ;
-  sh:maxCount 1 ;
-  sh:minCount 1 ;
-  sh:name "is multilingual" ;
 .
 anno-mlm:MachineLearningModel-name
   a sh:PropertyShape ;
