@@ -9,12 +9,14 @@ import type * as ast from "../../../ast";
 import type { Type } from "./Type.js";
 import { createTypeFromAstType } from "./createTypeFromAstType";
 
+type ContainerType = "Array" | "Maybe" | null;
+
 export class Property {
   readonly inline: boolean;
-  private readonly maxCount: Maybe<number>;
-  private readonly minCount: number;
   readonly name: string;
   readonly type: Type;
+  private readonly maxCount: Maybe<number>;
+  private readonly minCount: number;
 
   constructor({
     inline,
@@ -34,27 +36,6 @@ export class Property {
     this.minCount = minCount;
     this.name = name;
     this.type = type;
-  }
-
-  static fromAstProperty(astProperty: ast.Property): Property {
-    return new Property({
-      inline: astProperty.inline,
-      maxCount: astProperty.maxCount,
-      minCount: astProperty.minCount,
-      name: astProperty.name.tsName,
-      type: createTypeFromAstType(astProperty.type),
-    });
-  }
-
-  classConstructorInitializer(parameter: string): string {
-    const maxCount = this.maxCount.extractNullable();
-    if (this.minCount === 0) {
-      if (maxCount === 1) {
-        return `(typeof ${parameter} === "undefined") ? purify.Maybe.empty() : (typeof ${parameter} === "object" && purify.Maybe.isMaybe(${parameter}) ? ${parameter} : purify.Maybe.of(${parameter}))`;
-      }
-      return `(typeof ${parameter} !== "undefined" ? ${parameter} : [])`;
-    }
-    return parameter;
   }
 
   get classConstructorParametersPropertySignature(): OptionalKind<PropertySignatureStructure> {
@@ -87,6 +68,32 @@ export class Property {
     };
   }
 
+  // biome-ignore lint/suspicious/useGetterReturn: <explanation>
+  get equalsFunction(): string {
+    const typeEqualsFunction = this.type.equalsFunction("left", "right");
+    // const signature = `(left: ${this.interfaceTypeName}, right: ${this.interfaceTypeName})`;
+    const signature = "(left, right)";
+    switch (this.containerType) {
+      case "Array": {
+        if (typeEqualsFunction === "purifyHelpers.Equatable.equals") {
+          return "purifyHelpers.Equatable.arrayEquals";
+        }
+        return `${signature} => purifyHelpers.Arrays.equals(left, right, ${typeEqualsFunction})`;
+      }
+      case "Maybe": {
+        if (typeEqualsFunction === "purifyHelpers.Equatable.equals") {
+          return "purifyHelpers.Equatable.maybeEquals";
+        }
+        if (typeEqualsFunction === "purifyHelpers.Equatable.strictEquals") {
+          return `${signature} => left.equals(right)`; // Use Maybe.equals
+        }
+        return `${signature} => purifyHelpers.Maybes.equals(left, right, ${typeEqualsFunction})`;
+      }
+      case null:
+        return typeEqualsFunction;
+    }
+  }
+
   get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {
     return {
       isReadonly: true,
@@ -95,16 +102,50 @@ export class Property {
     };
   }
 
+  // biome-ignore lint/suspicious/useGetterReturn: <explanation>
   @Memoize()
   get interfaceTypeName(): string {
-    const maxCount = this.maxCount.extractNullable();
-    let type = this.inline ? this.type.inlineName : this.type.externName;
-    if (this.minCount === 0 && maxCount === 1) {
-      type = `purify.Maybe<${type}>`;
-    } else if (this.minCount === 1 && maxCount === 1) {
-    } else {
-      type = `readonly (${type})[]`;
+    const type = this.inline ? this.type.inlineName : this.type.externName;
+    switch (this.containerType) {
+      case "Array":
+        return `readonly (${type})[]`;
+      case "Maybe":
+        return `purify.Maybe<${type}>`;
+      case null:
+        return type;
     }
-    return type;
+  }
+
+  @Memoize()
+  private get containerType(): ContainerType {
+    const maxCount = this.maxCount.extractNullable();
+    if (this.minCount === 0 && maxCount === 1) {
+      return "Maybe";
+    }
+    if (this.minCount === 1 && maxCount === 1) {
+      return null;
+    }
+    return "Array";
+  }
+
+  static fromAstProperty(astProperty: ast.Property): Property {
+    return new Property({
+      inline: astProperty.inline,
+      maxCount: astProperty.maxCount,
+      minCount: astProperty.minCount,
+      name: astProperty.name.tsName,
+      type: createTypeFromAstType(astProperty.type),
+    });
+  }
+
+  classConstructorInitializer(parameter: string): string {
+    const maxCount = this.maxCount.extractNullable();
+    if (this.minCount === 0) {
+      if (maxCount === 1) {
+        return `purify.Maybe.isMaybe(${parameter}) ? ${parameter} : purify.Maybe.fromNullable(${parameter})`;
+      }
+      return `(typeof ${parameter} !== "undefined" ? ${parameter} : [])`;
+    }
+    return parameter;
   }
 }

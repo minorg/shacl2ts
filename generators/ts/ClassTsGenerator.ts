@@ -18,6 +18,11 @@ export class ClassTsGenerator extends TsGenerator {
       namespaceImport: "purify",
     });
 
+    sourceFile.addImportDeclaration({
+      moduleSpecifier: "purify-ts-helpers",
+      namespaceImport: "purifyHelpers",
+    });
+
     for (const objectType of objectTypes) {
       if (objectType.superObjectTypes.length > 1) {
         throw new RangeError(

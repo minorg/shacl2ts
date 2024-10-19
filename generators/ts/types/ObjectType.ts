@@ -4,6 +4,7 @@ import {
   type ClassDeclarationStructure,
   type ConstructorDeclarationStructure,
   type InterfaceDeclarationStructure,
+  type MethodDeclarationStructure,
   type ModuleDeclarationStructure,
   type OptionalKind,
   type StatementStructures,
@@ -59,6 +60,7 @@ export class ObjectType implements Type {
           ? this.superObjectTypes[0].name
           : undefined,
       isExported: true,
+      methods: [this.equalsMethodDeclaration],
       name: this.name,
       properties: this.properties.map(
         (property) => property.classPropertyDeclaration,
@@ -66,69 +68,8 @@ export class ObjectType implements Type {
     };
   }
 
-  get constructorDeclaration(): OptionalKind<ConstructorDeclarationStructure> {
-    const statements: (string | StatementStructures)[] = [];
-    if (this.superObjectTypes.length > 0) {
-      statements.push("super(parameters);");
-    }
-    for (const property of this.properties) {
-      statements.push(
-        `this.${property.name} = ${property.classConstructorInitializer(`parameters.${property.name}`)};`,
-      );
-    }
-
-    return {
-      parameters: [
-        {
-          name: "parameters",
-          type: `${this.name}.Parameters`,
-        },
-      ],
-      statements,
-    };
-  }
-
   get externName(): string {
     return this.identifierProperty.interfaceTypeName;
-  }
-
-  static fromAstType(astType: ast.ObjectType): ObjectType {
-    const identifierTypeNames: string[] = [];
-    if (astType.nodeKinds.has(NodeKind.BLANK_NODE)) {
-      identifierTypeNames.push("rdfjs.BlankNode");
-    }
-    if (astType.nodeKinds.has(NodeKind.IRI)) {
-      identifierTypeNames.push("rdfjs.NamedNode");
-    }
-    const identifierTypeName = identifierTypeNames.join(" | ");
-    const identifierProperty = new Property({
-      inline: true,
-      maxCount: Maybe.of(1),
-      minCount: 1,
-      name: "identifier",
-      type: {
-        externName: identifierTypeName,
-        kind: "Identifier",
-        inlineName: identifierTypeName,
-      },
-    });
-
-    const properties: Property[] = astType.properties.map(
-      Property.fromAstProperty,
-    );
-    if (astType.superObjectTypes.length === 0) {
-      properties.push(identifierProperty);
-    }
-
-    return new ObjectType({
-      ancestorObjectTypes: astType.ancestorObjectTypes.map(
-        ObjectType.fromAstType,
-      ),
-      identifierProperty,
-      name: astType.name.tsName,
-      properties: properties,
-      superObjectTypes: astType.superObjectTypes.map(ObjectType.fromAstType),
-    });
   }
 
   get inlineName(): string {
@@ -156,7 +97,29 @@ export class ObjectType implements Type {
     };
   }
 
-  get constructorParametersInterfaceDeclaration(): InterfaceDeclarationStructure {
+  private get constructorDeclaration(): OptionalKind<ConstructorDeclarationStructure> {
+    const statements: (string | StatementStructures)[] = [];
+    if (this.superObjectTypes.length > 0) {
+      statements.push("super(parameters);");
+    }
+    for (const property of this.properties) {
+      statements.push(
+        `this.${property.name} = ${property.classConstructorInitializer(`parameters.${property.name}`)};`,
+      );
+    }
+
+    return {
+      parameters: [
+        {
+          name: "parameters",
+          type: `${this.name}.Parameters`,
+        },
+      ],
+      statements,
+    };
+  }
+
+  private get constructorParametersInterfaceDeclaration(): InterfaceDeclarationStructure {
     return {
       extends:
         this.superObjectTypes.length > 0
@@ -169,5 +132,73 @@ export class ObjectType implements Type {
       ),
       name: "Parameters",
     };
+  }
+
+  private get equalsMethodDeclaration(): OptionalKind<MethodDeclarationStructure> {
+    let expression = `purifyHelpers.Equatable.objectEquals(this, other, { ${this.properties
+      .map((property) => `${property.name}: ${property.equalsFunction}`)
+      .join()} })`;
+    if (this.superObjectTypes.length > 0) {
+      expression = `super.equals(other).chain(() => ${expression})`;
+    }
+
+    return {
+      hasOverrideKeyword: this.superObjectTypes.length > 0,
+      name: "equals",
+      parameters: [
+        {
+          name: "other",
+          type: this.name,
+        },
+      ],
+      statements: [`return ${expression};`],
+      returnType: "purifyHelpers.Equatable.EqualsResult",
+    };
+  }
+
+  static fromAstType(astType: ast.ObjectType): ObjectType {
+    const identifierTypeNames: string[] = [];
+    if (astType.nodeKinds.has(NodeKind.BLANK_NODE)) {
+      identifierTypeNames.push("rdfjs.BlankNode");
+    }
+    if (astType.nodeKinds.has(NodeKind.IRI)) {
+      identifierTypeNames.push("rdfjs.NamedNode");
+    }
+    const identifierTypeName = identifierTypeNames.join(" | ");
+    const identifierProperty = new Property({
+      inline: true,
+      maxCount: Maybe.of(1),
+      minCount: 1,
+      name: "identifier",
+      type: {
+        equalsFunction(): string {
+          return "purifyHelpers.Equatable.booleanEquals";
+        },
+        externName: identifierTypeName,
+        kind: "Identifier",
+        inlineName: identifierTypeName,
+      },
+    });
+
+    const properties: Property[] = astType.properties.map(
+      Property.fromAstProperty,
+    );
+    if (astType.superObjectTypes.length === 0) {
+      properties.push(identifierProperty);
+    }
+
+    return new ObjectType({
+      ancestorObjectTypes: astType.ancestorObjectTypes.map(
+        ObjectType.fromAstType,
+      ),
+      identifierProperty,
+      name: astType.name.tsName,
+      properties: properties,
+      superObjectTypes: astType.superObjectTypes.map(ObjectType.fromAstType),
+    });
+  }
+
+  equalsFunction(): string {
+    return "purifyHelpers.Equatable.equals";
   }
 }

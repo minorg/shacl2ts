@@ -4,6 +4,10 @@ import type { Type } from "./Type.js";
 export class LiteralType implements Type {
   readonly kind = "Literal";
 
+  equalsFunction(): string {
+    return "purifyHelpers.Equatable.booleanEquals";
+  }
+
   get externName(): string {
     return this.inlineName;
   }
