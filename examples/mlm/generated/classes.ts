@@ -1,5 +1,6 @@
 import type * as rdfjs from "@rdfjs/types";
 import * as purify from "purify-ts";
+import * as purifyHelpers from "purify-ts-helpers";
 
 export class MachineLearningModel {
   readonly description: purify.Maybe<rdfjs.Literal>;
@@ -11,31 +12,38 @@ export class MachineLearningModel {
   readonly url: purify.Maybe<string>;
 
   constructor(parameters: MachineLearningModel.Parameters) {
-    this.description =
-      typeof parameters.description === "undefined"
-        ? purify.Maybe.empty()
-        : typeof parameters.description === "object" &&
-            purify.Maybe.isMaybe(parameters.description)
-          ? parameters.description
-          : purify.Maybe.of(parameters.description);
+    this.description = purify.Maybe.isMaybe(parameters.description)
+      ? parameters.description
+      : purify.Maybe.fromNullable(parameters.description);
     this.identifier = parameters.identifier;
     this.isVariantOf = parameters.isVariantOf;
     this.localIdentifier = parameters.localIdentifier;
     this.name = parameters.name;
-    this.trainingDataCutoff =
-      typeof parameters.trainingDataCutoff === "undefined"
-        ? purify.Maybe.empty()
-        : typeof parameters.trainingDataCutoff === "object" &&
-            purify.Maybe.isMaybe(parameters.trainingDataCutoff)
-          ? parameters.trainingDataCutoff
-          : purify.Maybe.of(parameters.trainingDataCutoff);
-    this.url =
-      typeof parameters.url === "undefined"
-        ? purify.Maybe.empty()
-        : typeof parameters.url === "object" &&
-            purify.Maybe.isMaybe(parameters.url)
-          ? parameters.url
-          : purify.Maybe.of(parameters.url);
+    this.trainingDataCutoff = purify.Maybe.isMaybe(
+      parameters.trainingDataCutoff,
+    )
+      ? parameters.trainingDataCutoff
+      : purify.Maybe.fromNullable(parameters.trainingDataCutoff);
+    this.url = purify.Maybe.isMaybe(parameters.url)
+      ? parameters.url
+      : purify.Maybe.fromNullable(parameters.url);
+  }
+
+  equals(other: MachineLearningModel): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
+      description: (left, right) =>
+        purifyHelpers.Maybes.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      isVariantOf: purifyHelpers.Equatable.equals,
+      localIdentifier: purifyHelpers.Equatable.strictEquals,
+      name: purifyHelpers.Equatable.booleanEquals,
+      trainingDataCutoff: (left, right) => left.equals(right),
+      url: (left, right) => left.equals(right),
+    });
   }
 }
 
@@ -58,13 +66,18 @@ export class LanguageModel extends MachineLearningModel {
   constructor(parameters: LanguageModel.Parameters) {
     super(parameters);
     this.contextWindow = parameters.contextWindow;
-    this.maxTokenOutput =
-      typeof parameters.maxTokenOutput === "undefined"
-        ? purify.Maybe.empty()
-        : typeof parameters.maxTokenOutput === "object" &&
-            purify.Maybe.isMaybe(parameters.maxTokenOutput)
-          ? parameters.maxTokenOutput
-          : purify.Maybe.of(parameters.maxTokenOutput);
+    this.maxTokenOutput = purify.Maybe.isMaybe(parameters.maxTokenOutput)
+      ? parameters.maxTokenOutput
+      : purify.Maybe.fromNullable(parameters.maxTokenOutput);
+  }
+
+  override equals(other: LanguageModel): purifyHelpers.Equatable.EqualsResult {
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        contextWindow: purifyHelpers.Equatable.strictEquals,
+        maxTokenOutput: (left, right) => left.equals(right),
+      }),
+    );
   }
 }
 
@@ -83,23 +96,32 @@ export class MachineLearningModelFamily {
   readonly url: purify.Maybe<string>;
 
   constructor(parameters: MachineLearningModelFamily.Parameters) {
-    this.description =
-      typeof parameters.description === "undefined"
-        ? purify.Maybe.empty()
-        : typeof parameters.description === "object" &&
-            purify.Maybe.isMaybe(parameters.description)
-          ? parameters.description
-          : purify.Maybe.of(parameters.description);
+    this.description = purify.Maybe.isMaybe(parameters.description)
+      ? parameters.description
+      : purify.Maybe.fromNullable(parameters.description);
     this.identifier = parameters.identifier;
     this.manufacturer = parameters.manufacturer;
     this.name = parameters.name;
-    this.url =
-      typeof parameters.url === "undefined"
-        ? purify.Maybe.empty()
-        : typeof parameters.url === "object" &&
-            purify.Maybe.isMaybe(parameters.url)
-          ? parameters.url
-          : purify.Maybe.of(parameters.url);
+    this.url = purify.Maybe.isMaybe(parameters.url)
+      ? parameters.url
+      : purify.Maybe.fromNullable(parameters.url);
+  }
+
+  equals(
+    other: MachineLearningModelFamily,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
+      description: (left, right) =>
+        purifyHelpers.Maybes.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      manufacturer: purifyHelpers.Equatable.equals,
+      name: purifyHelpers.Equatable.booleanEquals,
+      url: (left, right) => left.equals(right),
+    });
   }
 }
 
@@ -120,6 +142,13 @@ export class Organization {
   constructor(parameters: Organization.Parameters) {
     this.identifier = parameters.identifier;
     this.name = parameters.name;
+  }
+
+  equals(other: Organization): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      name: purifyHelpers.Equatable.booleanEquals,
+    });
   }
 }
 

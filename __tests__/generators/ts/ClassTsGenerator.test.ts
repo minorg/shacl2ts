@@ -29,4 +29,30 @@ describe("ClassTsGenerator", () => {
     );
     expect(mlm.name.value).toStrictEqual("Test name");
   });
+
+  it("equals should return true with two equal objects", ({ expect }) => {
+    const left = new classes.Organization({
+      identifier: dataFactory.namedNode("http://example.com/example"),
+      name: dataFactory.literal("Example"),
+    });
+    const right = new classes.Organization({
+      identifier: dataFactory.namedNode("http://example.com/example"),
+      name: dataFactory.literal("Example"),
+    });
+    expect(left.equals(right).extract()).toStrictEqual(true);
+  });
+
+  it("equals should return an Unequals with two unequal objects", ({
+    expect,
+  }) => {
+    const left = new classes.Organization({
+      identifier: dataFactory.namedNode("http://example.com/left"),
+      name: dataFactory.literal("Left"),
+    });
+    const right = new classes.Organization({
+      identifier: dataFactory.namedNode("http://example.com/right"),
+      name: dataFactory.literal("Right"),
+    });
+    expect(left.equals(right).extract()).not.toStrictEqual(true);
+  });
 });

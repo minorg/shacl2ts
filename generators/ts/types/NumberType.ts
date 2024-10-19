@@ -1,7 +1,7 @@
 import type * as ast from "../../../ast/index";
-import { LiteralType } from "./LiteralType.js";
+import { PrimitiveType } from "./PrimitiveType.js";
 
-export class NumberType extends LiteralType {
+export class NumberType extends PrimitiveType {
   static override fromAstType(_astType: ast.LiteralType): NumberType {
     return new NumberType();
   }

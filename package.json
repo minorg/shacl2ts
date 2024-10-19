@@ -31,6 +31,7 @@
     "@rdfjs/data-model": "^2.0.2",
     "@tsconfig/strictest": "^2.0.5",
     "@types/rdfjs__data-model": "^2.0.8",
+    "purify-ts-helpers": "^1.0.6",
     "rimraf": "3.0.2",
     "tsx": "^4.16.2",
     "typescript": "^5.5",

@@ -1,7 +1,7 @@
 import type * as ast from "../../../ast/index";
-import { LiteralType } from "./LiteralType.js";
+import { PrimitiveType } from "./PrimitiveType.js";
 
-export class StringType extends LiteralType {
+export class StringType extends PrimitiveType {
   static override fromAstType(_astType: ast.LiteralType): StringType {
     return new StringType();
   }
