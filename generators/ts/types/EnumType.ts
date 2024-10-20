@@ -20,7 +20,7 @@ export class EnumType implements Type {
     throw new Error("not implemented.");
   }
 
-  toRdf(_kwds: { resourceSetVariable: string; value: string }): string {
+  valueToRdf(_kwds: Type.ValueToRdfParameters): string {
     throw new Error("not implemented");
   }
 }

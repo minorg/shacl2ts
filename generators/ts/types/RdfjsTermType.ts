@@ -15,7 +15,7 @@ export abstract class RdfjsTermType implements Type {
     return "purifyHelpers.Equatable.booleanEquals";
   }
 
-  toRdf({ value }: { value: string }): string {
+  valueToRdf({ value }: Type.ValueToRdfParameters): string {
     return value;
   }
 }

@@ -1,6 +1,7 @@
 import type * as rdfjs from "@rdfjs/types";
 import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
+import type * as rdfjsResource from "rdfjs-resource";
 
 export class MachineLearningModel {
   readonly description: purify.Maybe<rdfjs.Literal>;
@@ -45,6 +46,55 @@ export class MachineLearningModel {
       url: (left, right) => left.equals(right),
     });
   }
+
+  toRdf({
+    mutateGraph,
+    resourceSet,
+  }: {
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+    const resource = resourceSet.mutableNamedResource({
+      identifier: this.identifier,
+      mutateGraph,
+    });
+    this.description.ifJust((descriptionValue) => {
+      resource.add(
+        resourceSet.dataFactory.namedNode("https://schema.org/description"),
+        descriptionValue,
+      );
+    });
+    resource.add(
+      resourceSet.dataFactory.namedNode("https://schema.org/isVariantOf"),
+      this.isVariantOf.toRdf({
+        mutateGraph: mutateGraph,
+        resourceSet: resourceSet,
+      }).identifier,
+    );
+    resource.add(
+      resourceSet.dataFactory.namedNode("https://schema.org/identifier"),
+      this.localIdentifier,
+    );
+    resource.add(
+      resourceSet.dataFactory.namedNode("https://schema.org/name"),
+      this.name,
+    );
+    this.trainingDataCutoff.ifJust((trainingDataCutoffValue) => {
+      resource.add(
+        resourceSet.dataFactory.namedNode(
+          "http://purl.annotize.ai/ontology/mlm#trainingDataCutoff",
+        ),
+        trainingDataCutoffValue,
+      );
+    });
+    this.url.ifJust((urlValue) => {
+      resource.add(
+        resourceSet.dataFactory.namedNode("https://schema.org/url"),
+        urlValue,
+      );
+    });
+    return resource;
+  }
 }
 
 export namespace MachineLearningModel {
@@ -78,6 +128,31 @@ export class LanguageModel extends MachineLearningModel {
         maxTokenOutput: (left, right) => left.equals(right),
       }),
     );
+  }
+
+  override toRdf({
+    mutateGraph,
+    resourceSet,
+  }: {
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+    const resource = super.toRdf({ mutateGraph, resourceSet });
+    resource.add(
+      resourceSet.dataFactory.namedNode(
+        "http://purl.annotize.ai/ontology/mlm#contextWindow",
+      ),
+      this.contextWindow,
+    );
+    this.maxTokenOutput.ifJust((maxTokenOutputValue) => {
+      resource.add(
+        resourceSet.dataFactory.namedNode(
+          "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
+        ),
+        maxTokenOutputValue,
+      );
+    });
+    return resource;
   }
 }
 
@@ -123,6 +198,43 @@ export class MachineLearningModelFamily {
       url: (left, right) => left.equals(right),
     });
   }
+
+  toRdf({
+    mutateGraph,
+    resourceSet,
+  }: {
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+    const resource = resourceSet.mutableNamedResource({
+      identifier: this.identifier,
+      mutateGraph,
+    });
+    this.description.ifJust((descriptionValue) => {
+      resource.add(
+        resourceSet.dataFactory.namedNode("https://schema.org/description"),
+        descriptionValue,
+      );
+    });
+    resource.add(
+      resourceSet.dataFactory.namedNode("https://schema.org/manufacturer"),
+      this.manufacturer.toRdf({
+        mutateGraph: mutateGraph,
+        resourceSet: resourceSet,
+      }).identifier,
+    );
+    resource.add(
+      resourceSet.dataFactory.namedNode("https://schema.org/name"),
+      this.name,
+    );
+    this.url.ifJust((urlValue) => {
+      resource.add(
+        resourceSet.dataFactory.namedNode("https://schema.org/url"),
+        urlValue,
+      );
+    });
+    return resource;
+  }
 }
 
 export namespace MachineLearningModelFamily {
@@ -149,6 +261,24 @@ export class Organization {
       identifier: purifyHelpers.Equatable.booleanEquals,
       name: purifyHelpers.Equatable.booleanEquals,
     });
+  }
+
+  toRdf({
+    mutateGraph,
+    resourceSet,
+  }: {
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+    const resource = resourceSet.mutableNamedResource({
+      identifier: this.identifier,
+      mutateGraph,
+    });
+    resource.add(
+      resourceSet.dataFactory.namedNode("https://schema.org/name"),
+      this.name,
+    );
+    return resource;
   }
 }
 

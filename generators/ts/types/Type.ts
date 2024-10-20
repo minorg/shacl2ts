@@ -13,5 +13,13 @@ export interface Type {
 
   equalsFunction(leftValue: string, rightValue: string): string;
 
-  toRdf(kwds: { resourceSetVariable: string; value: string }): string;
+  valueToRdf(parameters: Type.ValueToRdfParameters): string;
+}
+
+export namespace Type {
+  export interface ValueToRdfParameters {
+    mutateGraphVariable: string;
+    resourceSetVariable: string;
+    value: string;
+  }
 }

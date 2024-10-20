@@ -33,7 +33,7 @@ export abstract class ComposedType implements Type {
     throw new Error("not implemented");
   }
 
-  toRdf({ value }: { resourceSetVariable: string; value: string }): string {
+  valueToRdf({ value }: Type.ValueToRdfParameters): string {
     if (this.types.every((type) => type.kind === "Literal")) {
       return value;
     }

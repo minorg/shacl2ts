@@ -1,5 +1,8 @@
-import dataFactory from "@rdfjs/data-model";
+import { schema } from "@tpluscode/rdf-ns-builders";
+import { DataFactory as dataFactory } from "n3";
+import N3 from "n3";
 import { describe, it } from "vitest";
+import { MutableResourceSet } from "../../../../rdfjs-resource";
 import * as classes from "../../../examples/mlm/generated/classes.js";
 
 describe("ClassTsGenerator", () => {
@@ -54,5 +57,30 @@ describe("ClassTsGenerator", () => {
       name: dataFactory.literal("Right"),
     });
     expect(left.equals(right).extract()).not.toStrictEqual(true);
+  });
+
+  it("toRdf should populate a dataset", ({ expect }) => {
+    const organization = new classes.Organization({
+      identifier: dataFactory.namedNode("http://example.com/organization"),
+      name: dataFactory.literal("Test organization"),
+    });
+    const dataset = new N3.Store();
+    const resourceSet = new MutableResourceSet({ dataFactory, dataset });
+    const resource = organization.toRdf({
+      resourceSet,
+      mutateGraph: dataFactory.defaultGraph(),
+    });
+    expect(dataset.size).toStrictEqual(2);
+    expect(
+      resource.identifier.equals(
+        dataFactory.namedNode("http://example.com/organization"),
+      ),
+    ).toStrictEqual(true);
+    expect(
+      resource
+        .value(schema.name)
+        .chain((value) => value.toString())
+        .unsafeCoerce(),
+    ).toStrictEqual("Test organization");
   });
 });

@@ -8,12 +8,6 @@ export class ClassTsGenerator extends TsGenerator {
     sourceFile: SourceFile,
   ) {
     sourceFile.addImportDeclaration({
-      isTypeOnly: true,
-      moduleSpecifier: "@rdfjs/types",
-      namespaceImport: "rdfjs",
-    });
-
-    sourceFile.addImportDeclaration({
       moduleSpecifier: "purify-ts",
       namespaceImport: "purify",
     });
@@ -21,6 +15,17 @@ export class ClassTsGenerator extends TsGenerator {
     sourceFile.addImportDeclaration({
       moduleSpecifier: "purify-ts-helpers",
       namespaceImport: "purifyHelpers",
+    });
+
+    sourceFile.addImportDeclaration({
+      isTypeOnly: true,
+      moduleSpecifier: "@rdfjs/types",
+      namespaceImport: "rdfjs",
+    });
+
+    sourceFile.addImportDeclaration({
+      moduleSpecifier: "rdfjs-resource",
+      namespaceImport: "rdfjsResource",
     });
 
     for (const objectType of objectTypes) {
