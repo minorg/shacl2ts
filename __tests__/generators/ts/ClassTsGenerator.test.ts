@@ -1,8 +1,8 @@
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import { DataFactory as dataFactory } from "n3";
 import N3 from "n3";
+import { MutableResourceSet } from "rdfjs-resource";
 import { beforeAll, describe, it } from "vitest";
-import { MutableResourceSet } from "../../../../rdfjs-resource";
 import * as classes from "../../../examples/mlm/generated/classes.js";
 
 describe("ClassTsGenerator", () => {
