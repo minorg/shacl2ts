@@ -1,3 +1,4 @@
+import type * as rdfjs from "@rdfjs/types";
 import type { Maybe } from "purify-ts";
 import type {
   OptionalKind,
@@ -17,24 +18,28 @@ export class Property {
   readonly type: Type;
   private readonly maxCount: Maybe<number>;
   private readonly minCount: number;
+  private readonly path: rdfjs.NamedNode;
 
   constructor({
     inline,
     maxCount,
     minCount,
     name,
+    path,
     type,
   }: {
     inline: boolean;
     maxCount: Maybe<number>;
     minCount: number;
     name: string;
+    path: rdfjs.NamedNode;
     type: Type;
   }) {
     this.inline = inline;
     this.maxCount = maxCount;
     this.minCount = minCount;
     this.name = name;
+    this.path = path;
     this.type = type;
   }
 
@@ -134,6 +139,7 @@ export class Property {
       maxCount: astProperty.maxCount,
       minCount: astProperty.minCount,
       name: astProperty.name.tsName,
+      path: astProperty.path.iri,
       type: createTypeFromAstType(astProperty.type),
     });
   }
@@ -147,5 +153,25 @@ export class Property {
       return `(typeof ${parameter} !== "undefined" ? ${parameter} : [])`;
     }
     return parameter;
+  }
+
+  valueToRdf({
+    mutateGraphVariable,
+    resourceSetVariable,
+    value,
+  }: Type.ValueToRdfParameters): string {
+    const path = `${resourceSetVariable}.dataFactory.namedNode("${this.path.value}")`;
+    switch (this.containerType) {
+      case "Array":
+        return `${value}.forEach((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ mutateGraphVariable, resourceSetVariable, value: `${this.name}Value` })}); });`;
+      case "Maybe":
+        return `${value}.ifJust((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ mutateGraphVariable, resourceSetVariable, value: `${this.name}Value` })}); });`;
+      case null:
+        return `resource.add(${path}, ${this.type.valueToRdf({
+          mutateGraphVariable,
+          resourceSetVariable,
+          value: value,
+        })});`;
+    }
   }
 }

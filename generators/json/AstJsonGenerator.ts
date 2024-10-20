@@ -1,21 +1,25 @@
 import type { Term as RdfjsTerm } from "@rdfjs/types";
+import * as shaclAst from "shacl-ast";
 import type * as ast from "../../ast";
 
 namespace AstJson {
   export interface Name {
-    [index: string]: boolean | number | object | string | undefined;
     identifier: Term;
+
+    [index: string]: boolean | number | object | string | undefined;
   }
 
   export interface Term {
-    [index: string]: string;
     termType: RdfjsTerm["termType"];
     value: string;
+
+    [index: string]: string;
   }
 
   export interface Type {
-    [index: string]: boolean | number | object | string | undefined;
     kind: ast.Type["kind"];
+
+    [index: string]: boolean | number | object | string | undefined;
   }
 }
 
@@ -27,6 +31,17 @@ function nameToJson(name: ast.Name): AstJson.Name {
     shacl2tsName: name.shacl2tsName.extract(),
     tsName: name.tsName,
   };
+}
+
+function nodeKindToJson(nodeKind: shaclAst.NodeKind): string {
+  switch (nodeKind) {
+    case shaclAst.NodeKind.BLANK_NODE:
+      return "BlankNode";
+    case shaclAst.NodeKind.IRI:
+      return "NamedNode";
+    case shaclAst.NodeKind.LITERAL:
+      return "Literal";
+  }
 }
 
 function termToJson(term: RdfjsTerm): AstJson.Term {
@@ -60,6 +75,11 @@ function typeToJson(type: ast.Type): AstJson.Type {
         kind: type.kind,
         members: type.members.map((term) => termToJson(term)),
       };
+    case "Identifier":
+      return {
+        kind: type.kind,
+        nodeKinds: [...type.nodeKinds].map(nodeKindToJson),
+      };
     case "Literal": {
       return {
         datatype: type.datatype.extract(),
@@ -69,13 +89,14 @@ function typeToJson(type: ast.Type): AstJson.Type {
         maxInclusive: type.maxInclusive.map(termToJson).extract(),
         minExclusive: type.minExclusive.map(termToJson).extract(),
         minInclusive: type.minInclusive.map(termToJson).extract(),
-        name: nameToJson(type.name),
-      } satisfies AstJson.Type & { name: AstJson.Name };
+      } satisfies AstJson.Type;
     }
     case "Object":
       return {
         kind: type.kind,
         name: nameToJson(type.name),
+        superObjectTypes: type.superObjectTypes.map(typeToJson),
+        nodeKinds: [...type.nodeKinds].map(nodeKindToJson),
       };
   }
 }

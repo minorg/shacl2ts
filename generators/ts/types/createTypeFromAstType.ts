@@ -2,6 +2,7 @@ import { xsd } from "@tpluscode/rdf-ns-builders";
 import type * as ast from "../../../ast";
 import { AndType } from "./AndType.js";
 import { EnumType } from "./EnumType.js";
+import { IdentifierType } from "./IdentifierType";
 import { LiteralType } from "./LiteralType.js";
 import { NumberType } from "./NumberType.js";
 import { ObjectType } from "./ObjectType.js";
@@ -15,6 +16,8 @@ export function createTypeFromAstType(astType: ast.Type): Type {
       return AndType.fromAstType(astType);
     case "Enum":
       return EnumType.fromAstType(astType);
+    case "Identifier":
+      return IdentifierType.fromAstType(astType);
     case "Literal": {
       const datatype = astType.datatype.orDefault(xsd.string);
       if (datatype.equals(xsd.integer)) {

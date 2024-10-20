@@ -1,4 +1,4 @@
-import dataFactory from "@rdfjs/data-model";
+import { DataFactory as dataFactory } from "n3";
 import { Maybe } from "purify-ts";
 import { describe, it } from "vitest";
 import type * as interfaces from "../../../examples/mlm/generated/interfaces.js";
