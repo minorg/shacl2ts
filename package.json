@@ -21,7 +21,7 @@
     "purify-ts": "^2.1.0",
     "rdfjs-resource": "1.0.5",
     "reserved-identifiers": "^1.0.0",
-    "shacl-ast": "2.0.3",
+    "shacl-ast": "2.0.4",
     "ts-morph": "^24.0.0",
     "typescript-memoize": "^1.1.1"
   },
@@ -52,7 +52,7 @@
     "check:write": "biome check --write",
     "check:write:unsafe": "biome check --write --unsafe",
     "clean": "rimraf *.d.ts* *.js *.js.map __tests__/*.d.ts* __tests__/*.js __tests__/*.js.map tsconfig.tsbuildinfo",
-    "link-dependencies": "npm link rdfjs-resource shacl-ast",
+    "link-dependencies": "npm link purify-ts-helpers rdfjs-resource shacl-ast",
     "test": "biome check && vitest",
     "test:watch": "vitest watch",
     "watch": "tsc -w --preserveWatchOutput"
