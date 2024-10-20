@@ -3,19 +3,22 @@ import type * as ast from "../../ast";
 
 namespace AstJson {
   export interface Name {
-    [index: string]: boolean | number | object | string | undefined;
     identifier: Term;
+
+    [index: string]: boolean | number | object | string | undefined;
   }
 
   export interface Term {
-    [index: string]: string;
     termType: RdfjsTerm["termType"];
     value: string;
+
+    [index: string]: string;
   }
 
   export interface Type {
-    [index: string]: boolean | number | object | string | undefined;
     kind: ast.Type["kind"];
+
+    [index: string]: boolean | number | object | string | undefined;
   }
 }
 
@@ -69,8 +72,7 @@ function typeToJson(type: ast.Type): AstJson.Type {
         maxInclusive: type.maxInclusive.map(termToJson).extract(),
         minExclusive: type.minExclusive.map(termToJson).extract(),
         minInclusive: type.minInclusive.map(termToJson).extract(),
-        name: nameToJson(type.name),
-      } satisfies AstJson.Type & { name: AstJson.Name };
+      } satisfies AstJson.Type;
     }
     case "Object":
       return {
