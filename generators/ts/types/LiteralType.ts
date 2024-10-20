@@ -1,12 +1,8 @@
 import type * as ast from "../../../ast";
-import type { Type } from "./Type.js";
+import { RdfjsTermType } from "./RdfjsTermType.js";
 
-export class LiteralType implements Type {
+export class LiteralType extends RdfjsTermType {
   readonly kind = "Literal";
-
-  get externName(): string {
-    return this.inlineName;
-  }
 
   get inlineName(): string {
     return "rdfjs.Literal";
@@ -14,13 +10,5 @@ export class LiteralType implements Type {
 
   static fromAstType(_astType: ast.LiteralType): LiteralType {
     return new LiteralType();
-  }
-
-  equalsFunction(): string {
-    return "purifyHelpers.Equatable.booleanEquals";
-  }
-
-  toRdf({ value }: { value: string }): string {
-    return value;
   }
 }

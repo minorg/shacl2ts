@@ -1,4 +1,5 @@
 import type { Term as RdfjsTerm } from "@rdfjs/types";
+import * as shaclAst from "shacl-ast";
 import type * as ast from "../../ast";
 
 namespace AstJson {
@@ -32,6 +33,17 @@ function nameToJson(name: ast.Name): AstJson.Name {
   };
 }
 
+function nodeKindToJson(nodeKind: shaclAst.NodeKind): string {
+  switch (nodeKind) {
+    case shaclAst.NodeKind.BLANK_NODE:
+      return "BlankNode";
+    case shaclAst.NodeKind.IRI:
+      return "NamedNode";
+    case shaclAst.NodeKind.LITERAL:
+      return "Literal";
+  }
+}
+
 function termToJson(term: RdfjsTerm): AstJson.Term {
   switch (term.termType) {
     case "BlankNode":
@@ -63,6 +75,11 @@ function typeToJson(type: ast.Type): AstJson.Type {
         kind: type.kind,
         members: type.members.map((term) => termToJson(term)),
       };
+    case "Identifier":
+      return {
+        kind: type.kind,
+        nodeKinds: [...type.nodeKinds].map(nodeKindToJson),
+      };
     case "Literal": {
       return {
         datatype: type.datatype.extract(),
@@ -78,6 +95,8 @@ function typeToJson(type: ast.Type): AstJson.Type {
       return {
         kind: type.kind,
         name: nameToJson(type.name),
+        superObjectTypes: type.superObjectTypes.map(typeToJson),
+        nodeKinds: [...type.nodeKinds].map(nodeKindToJson),
       };
   }
 }

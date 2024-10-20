@@ -1,5 +1,8 @@
 import type { Type } from "./Type.js";
 
+/**
+ * Abstract base class for AndType and OrType.
+ */
 export abstract class ComposedType implements Type {
   abstract readonly kind: "And" | "Or";
   protected abstract readonly separator: string;

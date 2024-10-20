@@ -9,7 +9,7 @@ export interface Type {
    * TypeScript type when the property is inlined.
    */
   readonly inlineName: string;
-  readonly kind: ast.Type["kind"] | "Identifier";
+  readonly kind: ast.Type["kind"];
 
   equalsFunction(leftValue: string, rightValue: string): string;
 

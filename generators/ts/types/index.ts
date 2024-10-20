@@ -1,5 +1,6 @@
 export * from "./AndType.js";
 export * from "./EnumType.js";
+export * from "./IdentifierType.js";
 export * from "./LiteralType.js";
 export * from "./NumberType.js";
 export * from "./ObjectType.js";

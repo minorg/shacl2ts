@@ -1,5 +1,4 @@
 import { Maybe } from "purify-ts";
-import { NodeKind } from "shacl-ast";
 import {
   type ClassDeclarationStructure,
   type ConstructorDeclarationStructure,
@@ -14,6 +13,7 @@ import type * as ast from "../../../ast";
 import { Property } from "./Property.js";
 import type { Type } from "./Type.js";
 import "iterator-helpers-polyfill";
+import { IdentifierType } from "./IdentifierType.js";
 
 export class ObjectType implements Type {
   readonly ancestorObjectTypes: readonly ObjectType[];
@@ -157,30 +157,12 @@ export class ObjectType implements Type {
   }
 
   static fromAstType(astType: ast.ObjectType): ObjectType {
-    const identifierTypeNames: string[] = [];
-    if (astType.nodeKinds.has(NodeKind.BLANK_NODE)) {
-      identifierTypeNames.push("rdfjs.BlankNode");
-    }
-    if (astType.nodeKinds.has(NodeKind.IRI)) {
-      identifierTypeNames.push("rdfjs.NamedNode");
-    }
-    const identifierTypeName = identifierTypeNames.join(" | ");
     const identifierProperty = new Property({
       inline: true,
       maxCount: Maybe.of(1),
       minCount: 1,
       name: "identifier",
-      type: {
-        equalsFunction(): string {
-          return "purifyHelpers.Equatable.booleanEquals";
-        },
-        externName: identifierTypeName,
-        kind: "Identifier",
-        inlineName: identifierTypeName,
-        toRdf({ value }: { value: string }): string {
-          return value;
-        },
-      },
+      type: IdentifierType.fromNodeKinds(astType.nodeKinds),
     });
 
     const properties: Property[] = astType.properties.map(
