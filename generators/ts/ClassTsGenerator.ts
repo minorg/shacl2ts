@@ -31,7 +31,7 @@ export class ClassTsGenerator extends TsGenerator {
     for (const objectType of objectTypes) {
       if (objectType.superObjectTypes.length > 1) {
         throw new RangeError(
-          `object type '${objectType.name}' has multiple super object types, can't use with classes`,
+          `object type '${objectType.name("inline")}' has multiple super object types, can't use with classes`,
         );
       }
 

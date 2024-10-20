@@ -110,7 +110,7 @@ export class ObjectType implements Type {
       parameters: [
         {
           name: "parameters",
-          type: `${this.name}.Parameters`,
+          type: `${this._name}.Parameters`,
         },
       ],
       statements,
