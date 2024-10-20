@@ -6,7 +6,7 @@ export class NumberType extends PrimitiveType {
     return new NumberType();
   }
 
-  override get inlineName(): string {
+  override name(): string {
     return "number";
   }
 }

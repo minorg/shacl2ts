@@ -21,9 +21,9 @@ export class ObjectType implements Type {
   readonly ancestorObjectTypes: readonly ObjectType[];
   readonly identifierType: IdentifierType;
   readonly kind = "Object";
-  readonly name: string;
   readonly properties: readonly Property[];
   readonly superObjectTypes: readonly ObjectType[];
+  private readonly _name: string;
   private readonly rdfType: Maybe<NamedNode>;
 
   constructor({
@@ -43,7 +43,7 @@ export class ObjectType implements Type {
   }) {
     this.ancestorObjectTypes = ancestorObjectTypes;
     this.identifierType = identifierType;
-    this.name = name;
+    this._name = name;
     this.properties = properties
       .concat()
       .sort((left, right) => left.name.localeCompare(right.name));
@@ -63,32 +63,24 @@ export class ObjectType implements Type {
         this.properties.length > 0 ? [this.constructorDeclaration] : undefined,
       extends:
         this.superObjectTypes.length > 0
-          ? this.superObjectTypes[0].name
+          ? this.superObjectTypes[0]._name
           : undefined,
       isExported: true,
       methods: [this.equalsMethodDeclaration, this.toRdfMethodDeclaration],
-      name: this.name,
+      name: this._name,
       properties: this.properties.map(
         (property) => property.classPropertyDeclaration,
       ),
     };
   }
 
-  get externName(): string {
-    return this.identifierType.externName;
-  }
-
-  get inlineName(): string {
-    return this.name;
-  }
-
   get interfaceDeclaration(): OptionalKind<InterfaceDeclarationStructure> {
     return {
       extends: this.superObjectTypes.map(
-        (superObjectType) => superObjectType.name,
+        (superObjectType) => superObjectType._name,
       ),
       isExported: true,
-      name: this.name,
+      name: this._name,
       properties: this.properties.map(
         (property) => property.interfacePropertySignature,
       ),
@@ -98,7 +90,7 @@ export class ObjectType implements Type {
   get moduleDeclaration(): OptionalKind<ModuleDeclarationStructure> {
     return {
       isExported: true,
-      name: this.name,
+      name: this._name,
       statements: [this.constructorParametersInterfaceDeclaration],
     };
   }
@@ -118,7 +110,7 @@ export class ObjectType implements Type {
       parameters: [
         {
           name: "parameters",
-          type: `${this.name}.Parameters`,
+          type: `${this._name}.Parameters`,
         },
       ],
       statements,
@@ -129,7 +121,7 @@ export class ObjectType implements Type {
     return {
       extends:
         this.superObjectTypes.length > 0
-          ? [`${this.superObjectTypes[0].inlineName}.Parameters`]
+          ? [`${this.superObjectTypes[0]._name}.Parameters`]
           : undefined,
       isExported: true,
       kind: StructureKind.Interface,
@@ -154,7 +146,7 @@ export class ObjectType implements Type {
       parameters: [
         {
           name: "other",
-          type: this.name,
+          type: this._name,
         },
       ],
       statements: [`return ${expression};`],
@@ -199,7 +191,6 @@ export class ObjectType implements Type {
         property.valueToRdf({
           mutateGraphVariable: "mutateGraph",
           resourceSetVariable: "resourceSet",
-          value: `this.${property.name}`,
         }),
       );
     }
@@ -256,11 +247,23 @@ export class ObjectType implements Type {
     return "purifyHelpers.Equatable.equals";
   }
 
+  name(type: Type.NameType): string {
+    switch (type) {
+      case "extern":
+        return this.identifierType.name();
+      case "inline":
+        return this._name;
+    }
+  }
+
   valueToRdf({
+    inline,
     mutateGraphVariable,
     resourceSetVariable,
     value,
   }: Type.ValueToRdfParameters): string {
-    return `${value}.toRdf({ mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
+    return inline
+      ? `${value}.toRdf({ mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`
+      : value;
   }
 }

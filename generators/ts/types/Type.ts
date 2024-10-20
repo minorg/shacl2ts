@@ -1,23 +1,20 @@
 import type * as ast from "../../../ast";
 
 export interface Type {
-  /**
-   * TypeScript type when the property is externed/not inlined.
-   */
-  readonly externName: string;
-  /**
-   * TypeScript type when the property is inlined.
-   */
-  readonly inlineName: string;
   readonly kind: ast.Type["kind"];
 
   equalsFunction(leftValue: string, rightValue: string): string;
+
+  name(type: Type.NameType): string;
 
   valueToRdf(parameters: Type.ValueToRdfParameters): string;
 }
 
 export namespace Type {
+  export type NameType = "extern" | "inline";
+
   export interface ValueToRdfParameters {
+    inline: boolean;
     mutateGraphVariable: string;
     resourceSetVariable: string;
     value: string;
