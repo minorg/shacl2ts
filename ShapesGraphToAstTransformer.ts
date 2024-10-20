@@ -308,6 +308,20 @@ export class ShapesGraphToAstTransformer {
       );
     }
 
+    // Treat any shape with sh:nodeKind blank node or IRI as an identifier type
+    if (
+      shape.constraints.nodeKinds.size > 0 &&
+      shape.constraints.nodeKinds.size <= 2 &&
+      !shape.constraints.nodeKinds.has(shaclAst.NodeKind.LITERAL)
+    ) {
+      return Either.of({
+        kind: "Identifier",
+        nodeKinds: shape.constraints.nodeKinds as Set<
+          shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
+        >,
+      });
+    }
+
     return Left(new Error(`unable to transform type on ${shape}`));
   }
 
@@ -451,6 +465,7 @@ export class ShapesGraphToAstTransformer {
             case "Or":
               return false;
             case "Enum":
+            case "Identifier":
             case "Literal":
               return true;
           }
