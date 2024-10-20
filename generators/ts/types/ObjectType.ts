@@ -13,6 +13,7 @@ import type * as ast from "../../../ast";
 import { Property } from "./Property.js";
 import type { Type } from "./Type.js";
 import "iterator-helpers-polyfill";
+import type { NamedNode } from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import { IdentifierType } from "./IdentifierType.js";
 
@@ -23,18 +24,21 @@ export class ObjectType implements Type {
   readonly name: string;
   readonly properties: readonly Property[];
   readonly superObjectTypes: readonly ObjectType[];
+  private readonly rdfType: Maybe<NamedNode>;
 
   constructor({
     ancestorObjectTypes,
     identifierType,
     name,
     properties,
+    rdfType,
     superObjectTypes,
   }: {
     ancestorObjectTypes: readonly ObjectType[];
     identifierType: IdentifierType;
     name: string;
     properties: readonly Property[];
+    rdfType: Maybe<NamedNode>;
     superObjectTypes: readonly ObjectType[];
   }) {
     this.ancestorObjectTypes = ancestorObjectTypes;
@@ -49,6 +53,7 @@ export class ObjectType implements Type {
         throw new Error(`duplicate property '${property.name}'`);
       }
     }
+    this.rdfType = rdfType;
     this.superObjectTypes = superObjectTypes;
   }
 
@@ -179,6 +184,12 @@ export class ObjectType implements Type {
       );
     }
 
+    this.rdfType.ifJust((rdfType) => {
+      statements.push(
+        `resource.add(resource.dataFactory.namedNode("${rdf.type.value}"), resource.dataFactory.namedNode("${rdfType.value}"));`,
+      );
+    });
+
     for (const property of this.properties) {
       if (property.name === "identifier") {
         continue;
@@ -236,6 +247,7 @@ export class ObjectType implements Type {
       identifierType,
       name: astType.name.tsName,
       properties: properties,
+      rdfType: astType.rdfType,
       superObjectTypes: astType.superObjectTypes.map(ObjectType.fromAstType),
     });
   }

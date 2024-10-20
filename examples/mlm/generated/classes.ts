@@ -58,6 +58,14 @@ export class MachineLearningModel {
       identifier: this.identifier,
       mutateGraph,
     });
+    resource.add(
+      resource.dataFactory.namedNode(
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      ),
+      resource.dataFactory.namedNode(
+        "http://purl.annotize.ai/ontology/mlm#MachineLearningModel",
+      ),
+    );
     this.description.ifJust((descriptionValue) => {
       resource.add(
         resourceSet.dataFactory.namedNode("https://schema.org/description"),
@@ -122,12 +130,14 @@ export class LanguageModel extends MachineLearningModel {
   }
 
   override equals(other: LanguageModel): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        contextWindow: purifyHelpers.Equatable.strictEquals,
-        maxTokenOutput: (left, right) => left.equals(right),
-      }),
-    );
+    return super
+      .equals(other)
+      .chain(() =>
+        purifyHelpers.Equatable.objectEquals(this, other, {
+          contextWindow: purifyHelpers.Equatable.strictEquals,
+          maxTokenOutput: (left, right) => left.equals(right),
+        }),
+      );
   }
 
   override toRdf({
@@ -138,6 +148,14 @@ export class LanguageModel extends MachineLearningModel {
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
     const resource = super.toRdf({ mutateGraph, resourceSet });
+    resource.add(
+      resource.dataFactory.namedNode(
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      ),
+      resource.dataFactory.namedNode(
+        "http://purl.annotize.ai/ontology/mlm#LanguageModel",
+      ),
+    );
     resource.add(
       resourceSet.dataFactory.namedNode(
         "http://purl.annotize.ai/ontology/mlm#contextWindow",
@@ -210,6 +228,14 @@ export class MachineLearningModelFamily {
       identifier: this.identifier,
       mutateGraph,
     });
+    resource.add(
+      resource.dataFactory.namedNode(
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      ),
+      resource.dataFactory.namedNode(
+        "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily",
+      ),
+    );
     this.description.ifJust((descriptionValue) => {
       resource.add(
         resourceSet.dataFactory.namedNode("https://schema.org/description"),
@@ -274,6 +300,14 @@ export class Organization {
       identifier: this.identifier,
       mutateGraph,
     });
+    resource.add(
+      resource.dataFactory.namedNode(
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      ),
+      resource.dataFactory.namedNode(
+        "http://purl.annotize.ai/ontology/mlm#Organization",
+      ),
+    );
     resource.add(
       resourceSet.dataFactory.namedNode("https://schema.org/name"),
       this.name,
