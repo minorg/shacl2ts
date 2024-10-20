@@ -1,5 +1,6 @@
 export * from "./AndType.js";
 export * from "./Ast.js";
+export * from "./ComposedType.js";
 export * from "./EnumType.js";
 export * from "./LiteralType.js";
 export * from "./Name.js";

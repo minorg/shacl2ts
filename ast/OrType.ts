@@ -1,9 +1,8 @@
-import type { Type } from ".";
+import type { ComposedType } from ".";
 
 /**
  * A disjunction ("or") of types, corresponding to an sh:or.
  */
-export interface OrType {
+export interface OrType extends ComposedType {
   readonly kind: "Or";
-  readonly types: readonly Type[];
 }
