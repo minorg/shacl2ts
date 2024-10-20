@@ -50,9 +50,7 @@ export class Property {
     const maxCount = this.maxCount.extractNullable();
     if (this.minCount === 0) {
       if (maxCount === 1) {
-        typeNames.push(
-          this.inline ? this.type.inlineName : this.type.externName,
-        ); // Allow Maybe<string> | string | undefined
+        typeNames.push(this.type.name(this.inline ? "inline" : "extern")); // Allow Maybe<string> | string | undefined
       }
       hasQuestionToken = true; // Allow Maybe<string> | undefined
     }
@@ -110,7 +108,7 @@ export class Property {
   // biome-ignore lint/suspicious/useGetterReturn: <explanation>
   @Memoize()
   get interfaceTypeName(): string {
-    const type = this.inline ? this.type.inlineName : this.type.externName;
+    const type = this.type.name(this.inline ? "inline" : "extern");
     switch (this.containerType) {
       case "Array":
         return `readonly (${type})[]`;
@@ -158,16 +156,20 @@ export class Property {
   valueToRdf({
     mutateGraphVariable,
     resourceSetVariable,
-    value,
-  }: Type.ValueToRdfParameters): string {
+  }: Pick<
+    Type.ValueToRdfParameters,
+    "mutateGraphVariable" | "resourceSetVariable"
+  >): string {
     const path = `${resourceSetVariable}.dataFactory.namedNode("${this.path.value}")`;
+    const value = `this.${this.name}`;
     switch (this.containerType) {
       case "Array":
-        return `${value}.forEach((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ mutateGraphVariable, resourceSetVariable, value: `${this.name}Value` })}); });`;
+        return `${value}.forEach((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ inline: this.inline, mutateGraphVariable, resourceSetVariable, value: `${this.name}Value` })}); });`;
       case "Maybe":
-        return `${value}.ifJust((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ mutateGraphVariable, resourceSetVariable, value: `${this.name}Value` })}); });`;
+        return `${value}.ifJust((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ inline: this.inline, mutateGraphVariable, resourceSetVariable, value: `${this.name}Value` })}); });`;
       case null:
         return `resource.add(${path}, ${this.type.valueToRdf({
+          inline: this.inline,
           mutateGraphVariable,
           resourceSetVariable,
           value: value,

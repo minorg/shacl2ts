@@ -6,7 +6,7 @@ export class StringType extends PrimitiveType {
     return new StringType();
   }
 
-  override get inlineName(): string {
+  override name(): string {
     return "string";
   }
 }

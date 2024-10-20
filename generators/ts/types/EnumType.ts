@@ -4,14 +4,6 @@ import type { Type } from "./Type.js";
 export class EnumType implements Type {
   readonly kind = "Enum";
 
-  get externName(): string {
-    throw new Error("not implemented");
-  }
-
-  get inlineName(): string {
-    throw new Error("not implemented");
-  }
-
   static fromAstType(_astType: ast.EnumType): EnumType {
     throw new Error("not implemented");
   }
@@ -20,7 +12,11 @@ export class EnumType implements Type {
     throw new Error("not implemented.");
   }
 
-  valueToRdf(_kwds: Type.ValueToRdfParameters): string {
+  name(_: Type.NameType): string {
+    throw new Error("not implemented");
+  }
+
+  valueToRdf(_: Type.ValueToRdfParameters): string {
     throw new Error("not implemented");
   }
 }

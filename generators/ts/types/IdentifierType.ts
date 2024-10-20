@@ -14,18 +14,6 @@ export class IdentifierType extends RdfjsTermType {
     this.nodeKinds = new Set([...nodeKinds]);
   }
 
-  @Memoize()
-  get inlineName(): string {
-    const inlineNames: string[] = [];
-    if (this.nodeKinds.has(NodeKind.BLANK_NODE)) {
-      inlineNames.push("rdfjs.BlankNode");
-    }
-    if (this.nodeKinds.has(NodeKind.IRI)) {
-      inlineNames.push("rdfjs.NamedNode");
-    }
-    return inlineNames.join(" | ");
-  }
-
   get isNamedNodeKind(): boolean {
     return this.nodeKinds.size === 1 && this.nodeKinds.has(NodeKind.IRI);
   }
@@ -38,5 +26,17 @@ export class IdentifierType extends RdfjsTermType {
     nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>,
   ): IdentifierType {
     return new IdentifierType({ nodeKinds });
+  }
+
+  @Memoize()
+  name(): string {
+    const names: string[] = [];
+    if (this.nodeKinds.has(NodeKind.BLANK_NODE)) {
+      names.push("rdfjs.BlankNode");
+    }
+    if (this.nodeKinds.has(NodeKind.IRI)) {
+      names.push("rdfjs.NamedNode");
+    }
+    return names.join(" | ");
   }
 }
