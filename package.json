@@ -19,7 +19,7 @@
     "n3": "^1.17.4",
     "pino": "^9.3.1",
     "purify-ts": "^2.1.0",
-    "rdfjs-resource": "1.0.2",
+    "rdfjs-resource": "1.0.5",
     "reserved-identifiers": "^1.0.0",
     "shacl-ast": "2.0.3",
     "ts-morph": "^24.0.0",
