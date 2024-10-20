@@ -177,6 +177,9 @@ export class ObjectType implements Type {
         externName: identifierTypeName,
         kind: "Identifier",
         inlineName: identifierTypeName,
+        toRdf({ value }: { value: string }): string {
+          return value;
+        },
       },
     });
 
@@ -200,5 +203,12 @@ export class ObjectType implements Type {
 
   equalsFunction(): string {
     return "purifyHelpers.Equatable.equals";
+  }
+
+  toRdf({
+    resourceSetVariable,
+    value,
+  }: { resourceSetVariable: string; value: string }): string {
+    return `${value}.toRdf(${resourceSetVariable})`;
   }
 }

@@ -148,4 +148,18 @@ export class Property {
     }
     return parameter;
   }
+
+  toRdf({
+    resourceSetVariable,
+    value,
+  }: { resourceSetVariable: string; value: string }): string {
+    switch (this.containerType) {
+      case "Array":
+        return `${value}.forEach((${this.name}Value) => { ${this.type.toRdf({ resourceSetVariable, value: `${this.name}Value` })} })`;
+      case "Maybe":
+        return `${value}.ifJust((${this.name}Value) => { ${this.type.toRdf({ resourceSetVariable, value: `${this.name}Value` })} }`;
+      case null:
+        return this.type.toRdf({ resourceSetVariable, value: value });
+    }
+  }
 }
