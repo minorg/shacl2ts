@@ -130,14 +130,12 @@ export class LanguageModel extends MachineLearningModel {
   }
 
   override equals(other: LanguageModel): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          contextWindow: purifyHelpers.Equatable.strictEquals,
-          maxTokenOutput: (left, right) => left.equals(right),
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        contextWindow: purifyHelpers.Equatable.strictEquals,
+        maxTokenOutput: (left, right) => left.equals(right),
+      }),
+    );
   }
 
   override toRdf({
