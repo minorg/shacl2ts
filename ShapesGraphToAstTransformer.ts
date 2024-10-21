@@ -19,17 +19,13 @@ function ancestorClassIris(
 
   function ancestorClassIrisRecursive(classResource: Resource): void {
     for (const superClassValue of classResource.values(rdfs.subClassOf)) {
-      const superClassResource = superClassValue
-        .toNamedResource()
-        .extractNullable();
-      if (superClassResource === null) {
-        continue;
-      }
-      if (ancestorClassIris.has(superClassResource.identifier)) {
-        continue;
-      }
-      ancestorClassIris.add(superClassResource.identifier);
-      ancestorClassIrisRecursive(superClassResource);
+      superClassValue.toNamedResource().ifRight((superClassResource) => {
+        if (ancestorClassIris.has(superClassResource.identifier)) {
+          return;
+        }
+        ancestorClassIris.add(superClassResource.identifier);
+        ancestorClassIrisRecursive(superClassResource);
+      });
     }
   }
 
@@ -54,17 +50,19 @@ function rdfIdentifierToString(
 }
 
 function shacl2tsName(shape: shaclAst.Shape): Maybe<string> {
-  return shape.resource.value(shacl2ts.name).chain((value) => value.toString());
+  return shape.resource
+    .value(shacl2ts.name)
+    .chain((value) => value.toString())
+    .toMaybe();
 }
 
 function superClassIris(classResource: Resource): readonly rdfjs.NamedNode[] {
   const superClassIris = new TermSet<rdfjs.NamedNode>();
 
   for (const superClassValue of classResource.values(rdfs.subClassOf)) {
-    const superClassIri = superClassValue.toIri().extractNullable();
-    if (superClassIri !== null) {
-      superClassIris.add(superClassIri);
-    }
+    superClassValue
+      .toIri()
+      .ifRight((superClassIri) => superClassIris.add(superClassIri));
   }
 
   return [...superClassIris];
@@ -342,7 +340,7 @@ export class ShapesGraphToAstTransformer {
     // If the node shape is an owl:class or rdfs:Class, make the ObjectType have an rdf:type of the NodeShape.
     for (const nodeShapeRdfType of nodeShape.resource
       .values(rdf.type)
-      .flatMap((value) => value.toNamedResource().toList())) {
+      .flatMap((value) => value.toNamedResource().toMaybe().toList())) {
       if (
         nodeShapeRdfType.isInstanceOf(owl.Class) ||
         nodeShapeRdfType.isInstanceOf(rdfs.Class)
