@@ -10,29 +10,28 @@
     "@rdfjs/types": "^1.1.0",
     "@sindresorhus/base62": "^0.1.0",
     "@tpluscode/rdf-ns-builders": "^4.3.0",
-    "@types/n3": "^1.16.4",
+    "@types/n3": "^1.21.1",
     "@types/rdfjs__prefix-map": "^0.1.5",
     "@types/rdfjs__term-map": "^2.0.10",
     "@types/rdfjs__term-set": "^2.0.9",
     "cmd-ts": "^0.13.0",
-    "iterator-helpers-polyfill": "^3.0.1",
-    "n3": "^1.17.4",
+    "n3": "^1.21.3",
     "pino": "^9.3.1",
     "purify-ts": "^2.1.0",
-    "rdfjs-resource": "1.0.6",
+    "rdfjs-resource": "1.0.7",
     "reserved-identifiers": "^1.0.0",
-    "shacl-ast": "2.0.5",
+    "shacl-ast": "2.0.6",
     "ts-morph": "^24.0.0",
     "typescript-memoize": "^1.1.1"
   },
   "description": "Generate TypeScript from SHACL shapes",
   "devDependencies": {
-    "@biomejs/biome": "1.8.3",
+    "@biomejs/biome": "1.9.4",
     "@tsconfig/strictest": "^2.0.5",
-    "purify-ts-helpers": "^1.0.6",
+    "purify-ts-helpers": "1.0.7",
     "rimraf": "3.0.2",
     "tsx": "^4.16.2",
-    "typescript": "^5.5",
+    "typescript": "~5.6",
     "vitest": "^2.0.3"
   },
   "files": ["*.d.ts", "*.d.ts.map", "*.js", "*.js.map"],
@@ -59,5 +58,5 @@
   },
   "type": "module",
   "types": "index.d.ts",
-  "version": "2.0.5"
+  "version": "2.0.6"
 }
