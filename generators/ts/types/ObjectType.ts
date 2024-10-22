@@ -1,3 +1,5 @@
+import type { NamedNode } from "@rdfjs/types";
+import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import {
   type ClassDeclarationStructure,
@@ -10,12 +12,9 @@ import {
   StructureKind,
 } from "ts-morph";
 import type * as ast from "../../../ast";
+import { IdentifierType } from "./IdentifierType.js";
 import { Property } from "./Property.js";
 import type { Type } from "./Type.js";
-import "iterator-helpers-polyfill";
-import type { NamedNode } from "@rdfjs/types";
-import { rdf } from "@tpluscode/rdf-ns-builders";
-import { IdentifierType } from "./IdentifierType.js";
 
 export class ObjectType implements Type {
   readonly ancestorObjectTypes: readonly ObjectType[];
