@@ -7,7 +7,7 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
-    "lib": ["ES2021.String"],
+    "lib": ["ES2021.String", "ESNext.Iterator"],
     "module": "ES2020",
     "moduleResolution": "Node",
     "noUncheckedIndexedAccess": false,

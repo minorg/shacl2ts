@@ -338,9 +338,9 @@ export class ShapesGraphToAstTransformer {
     let rdfType: Maybe<rdfjs.NamedNode> = Maybe.empty();
     // https://www.w3.org/TR/shacl/#implicit-targetClass
     // If the node shape is an owl:class or rdfs:Class, make the ObjectType have an rdf:type of the NodeShape.
-    for (const nodeShapeRdfType of [
-      ...nodeShape.resource.values(rdf.type),
-    ].flatMap((value) => value.toNamedResource().toMaybe().toList())) {
+    for (const nodeShapeRdfType of nodeShape.resource
+      .values(rdf.type)
+      .flatMap((value) => value.toNamedResource().toMaybe().toList())) {
       if (
         nodeShapeRdfType.isInstanceOf(owl.Class) ||
         nodeShapeRdfType.isInstanceOf(rdfs.Class)
