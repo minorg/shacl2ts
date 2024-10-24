@@ -1,8 +1,14 @@
+import type { DataFactory, NamedNode } from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
-import { DataFactory as dataFactory } from "n3";
-import N3 from "n3";
-import { MutableResourceSet } from "rdfjs-resource";
-import { beforeAll, describe, it } from "vitest";
+import N3, { DataFactory as dataFactory } from "n3";
+import type { Either } from "purify-ts";
+import type { Equatable } from "purify-ts-helpers";
+import {
+  type MutableResource,
+  MutableResourceSet,
+  type Resource,
+} from "rdfjs-resource";
+import { type ExpectStatic, beforeAll, describe, it } from "vitest";
 import * as classes from "../../../examples/mlm/generated/classes.js";
 
 describe("ClassTsGenerator", () => {
@@ -60,22 +66,50 @@ describe("ClassTsGenerator", () => {
     ).not.toStrictEqual(true);
   });
 
-  it("fromRdf should deserialize the results of toRdf (Organization)", ({
+  function testFromRdf<
+    ModelT extends {
+      equals: (other: ModelT) => Equatable.EqualsResult;
+      toRdf: (kwds: {
+        mutateGraph: MutableResource.MutateGraph;
+        resourceSet: MutableResourceSet;
+      }) => Resource<NamedNode>;
+    },
+  >({
     expect,
-  }) => {
+    modelFromRdf,
+    model,
+  }: {
+    expect: ExpectStatic;
+    modelFromRdf: (kwds: {
+      dataFactory: DataFactory;
+      resource: Resource<NamedNode>;
+    }) => Either<Resource.ValueError, ModelT>;
+    model: ModelT;
+  }) {
     const dataset = new N3.Store();
     const resourceSet = new MutableResourceSet({ dataFactory, dataset });
-    const resource = organization.toRdf({
+    const resource = model.toRdf({
       mutateGraph: dataFactory.defaultGraph(),
       resourceSet,
     });
-    const fromRdfOrganization = classes.Organization.fromRdf({
-      dataFactory,
-      resource,
-    }).unsafeCoerce();
-    expect(fromRdfOrganization.equals(organization).extract()).toStrictEqual(
-      true,
-    );
+    const fromRdfModel = modelFromRdf({ dataFactory, resource }).unsafeCoerce();
+    expect(fromRdfModel.equals(model).extract()).toStrictEqual(true);
+  }
+
+  it("fromRdf (LanguageModel)", ({ expect }) => {
+    testFromRdf({
+      expect,
+      model: languageModel,
+      modelFromRdf: classes.LanguageModel.fromRdf,
+    });
+  });
+
+  it("fromRdf (Organization)", ({ expect }) => {
+    testFromRdf({
+      expect,
+      model: organization,
+      modelFromRdf: classes.Organization.fromRdf,
+    });
   });
 
   it("toRdf should populate a dataset", ({ expect }) => {
