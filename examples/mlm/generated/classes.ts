@@ -1,7 +1,7 @@
 import type * as rdfjs from "@rdfjs/types";
 import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
-import type * as rdfjsResource from "rdfjs-resource";
+import * as rdfjsResource from "rdfjs-resource";
 
 export class MachineLearningModel {
   readonly description: purify.Maybe<rdfjs.Literal>;
@@ -54,12 +54,30 @@ export class MachineLearningModel {
     dataFactory: rdfjs.DataFactory;
     resource: rdfjsResource.Resource<rdfjs.NamedNode>;
   }): purify.Either<rdfjsResource.Resource.ValueError, MachineLearningModel> {
+    if (
+      !resource.isInstanceOf(
+        dataFactory.namedNode(
+          "http://purl.annotize.ai/ontology/mlm#MachineLearningModel",
+        ),
+      )
+    ) {
+      return purify.Left(
+        new rdfjsResource.Resource.ValueError({
+          focusResource: resource,
+          message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+          predicate: dataFactory.namedNode(
+            "http://purl.annotize.ai/ontology/mlm#MachineLearningModel",
+          ),
+        }),
+      );
+    }
+
     const description = resource
       .value(dataFactory.namedNode("https://schema.org/description"))
       .chain((value) => value.toLiteral())
       .toMaybe();
     const identifier = resource.identifier;
-    const isVariantOf = resource
+    const _isVariantOfEither = resource
       .value(dataFactory.namedNode("https://schema.org/isVariantOf"))
       .chain((value) =>
         value.toNamedResource().chain((resource) =>
@@ -68,16 +86,25 @@ export class MachineLearningModel {
             resource,
           }),
         ),
-      )
-      .unsafeCoerce();
-    const localIdentifier = resource
+      );
+    if (_isVariantOfEither.isLeft()) {
+      return _isVariantOfEither;
+    }
+    const isVariantOf = _isVariantOfEither.unsafeCoerce();
+    const _localIdentifierEither = resource
       .value(dataFactory.namedNode("https://schema.org/identifier"))
-      .chain((value) => value.toString())
-      .unsafeCoerce();
-    const name = resource
+      .chain((value) => value.toString());
+    if (_localIdentifierEither.isLeft()) {
+      return _localIdentifierEither;
+    }
+    const localIdentifier = _localIdentifierEither.unsafeCoerce();
+    const _nameEither = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
-      .chain((value) => value.toLiteral())
-      .unsafeCoerce();
+      .chain((value) => value.toLiteral());
+    if (_nameEither.isLeft()) {
+      return _nameEither;
+    }
+    const name = _nameEither.unsafeCoerce();
     const trainingDataCutoff = resource
       .value(
         dataFactory.namedNode(
@@ -203,14 +230,34 @@ export class LanguageModel extends MachineLearningModel {
   }): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel> {
     return MachineLearningModel.fromRdf({ dataFactory, resource }).chain(
       (_super) => {
-        const contextWindow = resource
+        if (
+          !resource.isInstanceOf(
+            dataFactory.namedNode(
+              "http://purl.annotize.ai/ontology/mlm#LanguageModel",
+            ),
+          )
+        ) {
+          return purify.Left(
+            new rdfjsResource.Resource.ValueError({
+              focusResource: resource,
+              message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+              predicate: dataFactory.namedNode(
+                "http://purl.annotize.ai/ontology/mlm#LanguageModel",
+              ),
+            }),
+          );
+        }
+        const _contextWindowEither = resource
           .value(
             dataFactory.namedNode(
               "http://purl.annotize.ai/ontology/mlm#contextWindow",
             ),
           )
-          .chain((value) => value.toNumber())
-          .unsafeCoerce();
+          .chain((value) => value.toNumber());
+        if (_contextWindowEither.isLeft()) {
+          return _contextWindowEither;
+        }
+        const contextWindow = _contextWindowEither.unsafeCoerce();
         const maxTokenOutput = resource
           .value(
             dataFactory.namedNode(
@@ -323,12 +370,30 @@ export class MachineLearningModelFamily {
     rdfjsResource.Resource.ValueError,
     MachineLearningModelFamily
   > {
+    if (
+      !resource.isInstanceOf(
+        dataFactory.namedNode(
+          "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily",
+        ),
+      )
+    ) {
+      return purify.Left(
+        new rdfjsResource.Resource.ValueError({
+          focusResource: resource,
+          message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+          predicate: dataFactory.namedNode(
+            "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily",
+          ),
+        }),
+      );
+    }
+
     const description = resource
       .value(dataFactory.namedNode("https://schema.org/description"))
       .chain((value) => value.toLiteral())
       .toMaybe();
     const identifier = resource.identifier;
-    const manufacturer = resource
+    const _manufacturerEither = resource
       .value(dataFactory.namedNode("https://schema.org/manufacturer"))
       .chain((value) =>
         value
@@ -336,12 +401,18 @@ export class MachineLearningModelFamily {
           .chain((resource) =>
             Organization.fromRdf({ dataFactory: dataFactory, resource }),
           ),
-      )
-      .unsafeCoerce();
-    const name = resource
+      );
+    if (_manufacturerEither.isLeft()) {
+      return _manufacturerEither;
+    }
+    const manufacturer = _manufacturerEither.unsafeCoerce();
+    const _nameEither = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
-      .chain((value) => value.toLiteral())
-      .unsafeCoerce();
+      .chain((value) => value.toLiteral());
+    if (_nameEither.isLeft()) {
+      return _nameEither;
+    }
+    const name = _nameEither.unsafeCoerce();
     const url = resource
       .value(dataFactory.namedNode("https://schema.org/url"))
       .chain((value) => value.toString())
@@ -436,11 +507,32 @@ export class Organization {
     dataFactory: rdfjs.DataFactory;
     resource: rdfjsResource.Resource<rdfjs.NamedNode>;
   }): purify.Either<rdfjsResource.Resource.ValueError, Organization> {
+    if (
+      !resource.isInstanceOf(
+        dataFactory.namedNode(
+          "http://purl.annotize.ai/ontology/mlm#Organization",
+        ),
+      )
+    ) {
+      return purify.Left(
+        new rdfjsResource.Resource.ValueError({
+          focusResource: resource,
+          message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+          predicate: dataFactory.namedNode(
+            "http://purl.annotize.ai/ontology/mlm#Organization",
+          ),
+        }),
+      );
+    }
+
     const identifier = resource.identifier;
-    const name = resource
+    const _nameEither = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
-      .chain((value) => value.toLiteral())
-      .unsafeCoerce();
+      .chain((value) => value.toLiteral());
+    if (_nameEither.isLeft()) {
+      return _nameEither;
+    }
+    const name = _nameEither.unsafeCoerce();
     return purify.Either.of(new Organization({ identifier, name }));
   }
 

@@ -162,12 +162,18 @@ export class ObjectType implements Type {
     const resourceVariable = "resource";
 
     let statements: string[] = [];
+    this.rdfType.ifJust((rdfType) => {
+      statements.push(
+        `if (!${resourceVariable}.isInstanceOf(${dataFactoryVariable}.namedNode("${rdfType.value}"))) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${resourceVariable}, message: \`\${rdfjsResource.Resource.Identifier.toString(${resourceVariable}.identifier)} has unexpected RDF type\`, predicate: ${dataFactoryVariable}.namedNode("${rdfType.value}") })); }`,
+      );
+    });
+
     for (const property of this.properties) {
       if (property.name === "identifier") {
         statements.push(`const identifier = ${resourceVariable}.identifier`);
       } else {
         statements.push(
-          `const ${property.name} = ${property.valueFromRdf({ dataFactoryVariable, resourceVariable })}`,
+          property.valueFromRdf({ dataFactoryVariable, resourceVariable }),
         );
       }
     }
