@@ -173,7 +173,7 @@ export class ObjectType implements Type {
         statements.push(`const identifier = ${resourceVariable}.identifier`);
       } else {
         statements.push(
-          `const ${property.name} = ${property.valueFromRdf({ dataFactoryVariable, resourceVariable })}`,
+          property.valueFromRdf({ dataFactoryVariable, resourceVariable }),
         );
       }
     }

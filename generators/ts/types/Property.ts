@@ -160,15 +160,15 @@ export class Property {
     const path = `${dataFactoryVariable}.namedNode("${this.path.value}")`;
     const resourceValueVariable = "value";
     if (this.containerType === "Array") {
-      return `${resourceVariable}.values(${path}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.valueFromRdf({ dataFactoryVariable, inline: this.inline, resourceValueVariable })}).toMaybe().toList())).orDefault([])`;
+      return `const ${this.name} = ${resourceVariable}.values(${path}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.valueFromRdf({ dataFactoryVariable, inline: this.inline, resourceValueVariable })}).toMaybe().toList())).orDefault([]);`;
     }
 
     const valueFromRdf = `${resourceVariable}.value(${path}).chain(${resourceValueVariable} => ${this.type.valueFromRdf({ dataFactoryVariable, inline: this.inline, resourceValueVariable })})`;
     switch (this.containerType) {
       case "Maybe":
-        return `${valueFromRdf}.toMaybe()`;
+        return `const ${this.name} = ${valueFromRdf}.toMaybe();`;
       case null:
-        return `${valueFromRdf}.unsafeCoerce()`;
+        return `const _${this.name}Either = ${valueFromRdf}; if (_${this.name}Either.isLeft()) { return _${this.name}Either; } const ${this.name} = _${this.name}Either.unsafeCoerce();`;
     }
   }
 
