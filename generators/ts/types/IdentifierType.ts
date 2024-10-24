@@ -2,6 +2,7 @@ import { NodeKind } from "shacl-ast";
 import { Memoize } from "typescript-memoize";
 import type * as ast from "../../../ast";
 import { RdfjsTermType } from "./RdfjsTermType.js";
+import type { Type } from "./Type";
 
 export class IdentifierType extends RdfjsTermType {
   readonly kind = "Identifier";
@@ -38,5 +39,18 @@ export class IdentifierType extends RdfjsTermType {
       names.push("rdfjs.NamedNode");
     }
     return names.join(" | ");
+  }
+
+  valueFromRdf({ resourceValueVariable }: Type.ValueFromRdfParameters): string {
+    switch (this.name()) {
+      case "rdfjs.BlankNode":
+        throw new Error("not implemented");
+      case "rdfjs.NamedNode":
+        return `${resourceValueVariable}.toIri()`;
+      case "rdfjs.BlankNode | rdfjs.NamedNode":
+        return `${resourceValueVariable}.toIdentifier()`;
+      default:
+        throw new Error(`not implemented: ${this.name()}`);
+    }
   }
 }

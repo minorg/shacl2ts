@@ -47,6 +47,75 @@ export class MachineLearningModel {
     });
   }
 
+  static fromRdf({
+    dataFactory,
+    resource,
+  }: {
+    dataFactory: rdfjs.DataFactory;
+    resource: rdfjsResource.Resource<rdfjs.NamedNode>;
+  }): purify.Either<rdfjsResource.Resource.ValueError, MachineLearningModel> {
+    const description = resource
+      .value(dataFactory.namedNode("https://schema.org/description"))
+      .chain((descriptionResourceValue) => descriptionResourceValue.toLiteral())
+      .toMaybe();
+    const identifier = resource
+      .value(
+        dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject",
+        ),
+      )
+      .chain((identifierResourceValue) => identifierResourceValue.toIri())
+      .unsafeCoerce();
+    const isVariantOf = resource
+      .value(dataFactory.namedNode("https://schema.org/isVariantOf"))
+      .chain((isVariantOfResourceValue) =>
+        isVariantOfResourceValue
+          .toNamedResource()
+          .chain((resource) =>
+            MachineLearningModelFamily.fromRdf({
+              dataFactory: dataFactory,
+              resource,
+            }),
+          ),
+      )
+      .unsafeCoerce();
+    const localIdentifier = resource
+      .value(dataFactory.namedNode("https://schema.org/identifier"))
+      .chain((localIdentifierResourceValue) =>
+        localIdentifierResourceValue.toString(),
+      )
+      .unsafeCoerce();
+    const name = resource
+      .value(dataFactory.namedNode("https://schema.org/name"))
+      .chain((nameResourceValue) => nameResourceValue.toLiteral())
+      .unsafeCoerce();
+    const trainingDataCutoff = resource
+      .value(
+        dataFactory.namedNode(
+          "http://purl.annotize.ai/ontology/mlm#trainingDataCutoff",
+        ),
+      )
+      .chain((trainingDataCutoffResourceValue) =>
+        trainingDataCutoffResourceValue.toString(),
+      )
+      .toMaybe();
+    const url = resource
+      .value(dataFactory.namedNode("https://schema.org/url"))
+      .chain((urlResourceValue) => urlResourceValue.toString())
+      .toMaybe();
+    return purify.Either.of(
+      new MachineLearningModel({
+        description,
+        identifier,
+        isVariantOf,
+        localIdentifier,
+        name,
+        trainingDataCutoff,
+        url,
+      }),
+    );
+  }
+
   toRdf({
     mutateGraph,
     resourceSet,
@@ -130,11 +199,59 @@ export class LanguageModel extends MachineLearningModel {
   }
 
   override equals(other: LanguageModel): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        contextWindow: purifyHelpers.Equatable.strictEquals,
-        maxTokenOutput: (left, right) => left.equals(right),
-      }),
+    return super
+      .equals(other)
+      .chain(() =>
+        purifyHelpers.Equatable.objectEquals(this, other, {
+          contextWindow: purifyHelpers.Equatable.strictEquals,
+          maxTokenOutput: (left, right) => left.equals(right),
+        }),
+      );
+  }
+
+  static override fromRdf({
+    dataFactory,
+    resource,
+  }: {
+    dataFactory: rdfjs.DataFactory;
+    resource: rdfjsResource.Resource<rdfjs.NamedNode>;
+  }): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel> {
+    return MachineLearningModel.fromRdf({ dataFactory, resource }).chain(
+      (_super) => {
+        const contextWindow = resource
+          .value(
+            dataFactory.namedNode(
+              "http://purl.annotize.ai/ontology/mlm#contextWindow",
+            ),
+          )
+          .chain((contextWindowResourceValue) =>
+            contextWindowResourceValue.toNumber(),
+          )
+          .unsafeCoerce();
+        const maxTokenOutput = resource
+          .value(
+            dataFactory.namedNode(
+              "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
+            ),
+          )
+          .chain((maxTokenOutputResourceValue) =>
+            maxTokenOutputResourceValue.toNumber(),
+          )
+          .toMaybe();
+        return purify.Either.of(
+          new LanguageModel({
+            contextWindow,
+            description: _super.description,
+            identifier: _super.identifier,
+            isVariantOf: _super.isVariantOf,
+            localIdentifier: _super.localIdentifier,
+            maxTokenOutput,
+            name: _super.name,
+            trainingDataCutoff: _super.trainingDataCutoff,
+            url: _super.url,
+          }),
+        );
+      },
     );
   }
 
@@ -215,6 +332,57 @@ export class MachineLearningModelFamily {
     });
   }
 
+  static fromRdf({
+    dataFactory,
+    resource,
+  }: {
+    dataFactory: rdfjs.DataFactory;
+    resource: rdfjsResource.Resource<rdfjs.NamedNode>;
+  }): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    MachineLearningModelFamily
+  > {
+    const description = resource
+      .value(dataFactory.namedNode("https://schema.org/description"))
+      .chain((descriptionResourceValue) => descriptionResourceValue.toLiteral())
+      .toMaybe();
+    const identifier = resource
+      .value(
+        dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject",
+        ),
+      )
+      .chain((identifierResourceValue) => identifierResourceValue.toIri())
+      .unsafeCoerce();
+    const manufacturer = resource
+      .value(dataFactory.namedNode("https://schema.org/manufacturer"))
+      .chain((manufacturerResourceValue) =>
+        manufacturerResourceValue
+          .toNamedResource()
+          .chain((resource) =>
+            Organization.fromRdf({ dataFactory: dataFactory, resource }),
+          ),
+      )
+      .unsafeCoerce();
+    const name = resource
+      .value(dataFactory.namedNode("https://schema.org/name"))
+      .chain((nameResourceValue) => nameResourceValue.toLiteral())
+      .unsafeCoerce();
+    const url = resource
+      .value(dataFactory.namedNode("https://schema.org/url"))
+      .chain((urlResourceValue) => urlResourceValue.toString())
+      .toMaybe();
+    return purify.Either.of(
+      new MachineLearningModelFamily({
+        description,
+        identifier,
+        manufacturer,
+        name,
+        url,
+      }),
+    );
+  }
+
   toRdf({
     mutateGraph,
     resourceSet,
@@ -285,6 +453,28 @@ export class Organization {
       identifier: purifyHelpers.Equatable.booleanEquals,
       name: purifyHelpers.Equatable.booleanEquals,
     });
+  }
+
+  static fromRdf({
+    dataFactory,
+    resource,
+  }: {
+    dataFactory: rdfjs.DataFactory;
+    resource: rdfjsResource.Resource<rdfjs.NamedNode>;
+  }): purify.Either<rdfjsResource.Resource.ValueError, Organization> {
+    const identifier = resource
+      .value(
+        dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject",
+        ),
+      )
+      .chain((identifierResourceValue) => identifierResourceValue.toIri())
+      .unsafeCoerce();
+    const name = resource
+      .value(dataFactory.namedNode("https://schema.org/name"))
+      .chain((nameResourceValue) => nameResourceValue.toLiteral())
+      .unsafeCoerce();
+    return purify.Either.of(new Organization({ identifier, name }));
   }
 
   toRdf({

@@ -65,7 +65,11 @@ export class ObjectType implements Type {
           ? this.superObjectTypes[0]._name
           : undefined,
       isExported: true,
-      methods: [this.equalsMethodDeclaration, this.toRdfMethodDeclaration],
+      methods: [
+        this.equalsMethodDeclaration,
+        this.fromRdfMethodDeclaration,
+        this.toRdfMethodDeclaration,
+      ],
       name: this._name,
       properties: this.properties.map(
         (property) => property.classPropertyDeclaration,
@@ -153,23 +157,62 @@ export class ObjectType implements Type {
     };
   }
 
+  private get fromRdfMethodDeclaration(): OptionalKind<MethodDeclarationStructure> {
+    const dataFactoryVariable = "dataFactory";
+    const resourceVariable = "resource";
+
+    let statements: string[] = [];
+    for (const property of this.properties) {
+      statements.push(
+        `const ${property.name} = ${property.valueFromRdf({ dataFactoryVariable, resourceVariable })}`,
+      );
+    }
+    statements.push(
+      `return purify.Either.of(new ${this._name}({ ${this.properties
+        .map((property) => property.name)
+        .concat(
+          this.ancestorObjectTypes.flatMap((ancestorObjectType) =>
+            ancestorObjectType.properties.map(
+              (property) => `${property.name}: _super.${property.name}`,
+            ),
+          ),
+        )
+        .sort()
+        .join(", ")} }))`,
+    );
+
+    if (this.superObjectTypes.length > 0) {
+      statements = [
+        `return ${this.superObjectTypes[0]._name}.fromRdf({ ${dataFactoryVariable}, ${resourceVariable} }).chain(_super => { ${statements.join("\n")} })`,
+      ];
+    }
+
+    return {
+      hasOverrideKeyword: this.superObjectTypes.length > 0,
+      isStatic: true,
+      name: "fromRdf",
+      parameters: [
+        {
+          name: "{ dataFactory, resource }",
+          type: `{ dataFactory: rdfjs.DataFactory, resource: ${this.rdfjsResourceType().name} }`,
+        },
+      ],
+      returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this._name}>`,
+      statements,
+    };
+  }
+
   private get toRdfMethodDeclaration(): OptionalKind<MethodDeclarationStructure> {
-    let returnType: string;
     const statements: string[] = [];
     if (this.superObjectTypes.length > 0) {
       statements.push(
         "const resource = super.toRdf({ mutateGraph, resourceSet });",
       );
-      returnType = this.superObjectTypes[0].identifierType.isNamedNodeKind
-        ? "rdfjsResource.MutableResource<rdfjs.NamedNode>"
-        : "rdfjsResource.MutableResource";
     } else if (this.identifierType.isNamedNodeKind) {
-      returnType = "rdfjsResource.MutableResource<rdfjs.NamedNode>";
       statements.push(
         "const resource = resourceSet.mutableNamedResource({ identifier: this.identifier, mutateGraph });",
       );
     } else {
-      returnType = "rdfjsResource.MutableResource";
       statements.push(
         "const resource = resourceSet.mutableResource({ identifier: this.identifier, mutateGraph });",
       );
@@ -205,7 +248,7 @@ export class ObjectType implements Type {
           type: "{ mutateGraph: rdfjsResource.MutableResource.MutateGraph, resourceSet: rdfjsResource.MutableResourceSet }",
         },
       ],
-      returnType,
+      returnType: this.rdfjsResourceType({ mutable: true }).name,
       statements,
     };
   }
@@ -255,14 +298,40 @@ export class ObjectType implements Type {
     }
   }
 
+  valueFromRdf({
+    dataFactoryVariable,
+    inline,
+    resourceValueVariable,
+  }: Type.ValueFromRdfParameters): string {
+    return inline
+      ? `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this._name}.fromRdf({ dataFactory: ${dataFactoryVariable}, resource }))`
+      : `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Iri" : "Identifier"}()`;
+  }
+
   valueToRdf({
     inline,
     mutateGraphVariable,
     resourceSetVariable,
-    value,
+    propertyValueVariable,
   }: Type.ValueToRdfParameters): string {
     return inline
-      ? `${value}.toRdf({ mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`
-      : value;
+      ? `${propertyValueVariable}.toRdf({ mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`
+      : propertyValueVariable;
+  }
+
+  private rdfjsResourceType(options?: { mutable?: boolean }): {
+    readonly mutable: boolean;
+    readonly name: string;
+    readonly named: boolean;
+  } {
+    if (this.superObjectTypes.length > 0) {
+      return this.superObjectTypes[0].rdfjsResourceType(options);
+    }
+
+    return {
+      mutable: !!options?.mutable,
+      name: `rdfjsResource.${options?.mutable ? "Mutable" : ""}Resource${this.identifierType.isNamedNodeKind ? "<rdfjs.NamedNode>" : ""}`,
+      named: this.identifierType.isNamedNodeKind,
+    };
   }
 }
