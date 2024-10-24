@@ -1,7 +1,7 @@
 import type * as rdfjs from "@rdfjs/types";
 import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
-import type * as rdfjsResource from "rdfjs-resource";
+import * as rdfjsResource from "rdfjs-resource";
 
 export class MachineLearningModel {
   readonly description: purify.Maybe<rdfjs.Literal>;
@@ -54,6 +54,24 @@ export class MachineLearningModel {
     dataFactory: rdfjs.DataFactory;
     resource: rdfjsResource.Resource<rdfjs.NamedNode>;
   }): purify.Either<rdfjsResource.Resource.ValueError, MachineLearningModel> {
+    if (
+      !resource.isInstanceOf(
+        dataFactory.namedNode(
+          "http://purl.annotize.ai/ontology/mlm#MachineLearningModel",
+        ),
+      )
+    ) {
+      return purify.Left(
+        new rdfjsResource.Resource.ValueError({
+          focusResource: resource,
+          message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+          predicate: dataFactory.namedNode(
+            "http://purl.annotize.ai/ontology/mlm#MachineLearningModel",
+          ),
+        }),
+      );
+    }
+
     const description = resource
       .value(dataFactory.namedNode("https://schema.org/description"))
       .chain((value) => value.toLiteral())
@@ -62,12 +80,14 @@ export class MachineLearningModel {
     const isVariantOf = resource
       .value(dataFactory.namedNode("https://schema.org/isVariantOf"))
       .chain((value) =>
-        value.toNamedResource().chain((resource) =>
-          MachineLearningModelFamily.fromRdf({
-            dataFactory: dataFactory,
-            resource,
-          }),
-        ),
+        value
+          .toNamedResource()
+          .chain((resource) =>
+            MachineLearningModelFamily.fromRdf({
+              dataFactory: dataFactory,
+              resource,
+            }),
+          ),
       )
       .unsafeCoerce();
     const localIdentifier = resource
@@ -186,12 +206,14 @@ export class LanguageModel extends MachineLearningModel {
   }
 
   override equals(other: LanguageModel): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        contextWindow: purifyHelpers.Equatable.strictEquals,
-        maxTokenOutput: (left, right) => left.equals(right),
-      }),
-    );
+    return super
+      .equals(other)
+      .chain(() =>
+        purifyHelpers.Equatable.objectEquals(this, other, {
+          contextWindow: purifyHelpers.Equatable.strictEquals,
+          maxTokenOutput: (left, right) => left.equals(right),
+        }),
+      );
   }
 
   static override fromRdf({
@@ -203,6 +225,23 @@ export class LanguageModel extends MachineLearningModel {
   }): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel> {
     return MachineLearningModel.fromRdf({ dataFactory, resource }).chain(
       (_super) => {
+        if (
+          !resource.isInstanceOf(
+            dataFactory.namedNode(
+              "http://purl.annotize.ai/ontology/mlm#LanguageModel",
+            ),
+          )
+        ) {
+          return purify.Left(
+            new rdfjsResource.Resource.ValueError({
+              focusResource: resource,
+              message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+              predicate: dataFactory.namedNode(
+                "http://purl.annotize.ai/ontology/mlm#LanguageModel",
+              ),
+            }),
+          );
+        }
         const contextWindow = resource
           .value(
             dataFactory.namedNode(
@@ -323,6 +362,24 @@ export class MachineLearningModelFamily {
     rdfjsResource.Resource.ValueError,
     MachineLearningModelFamily
   > {
+    if (
+      !resource.isInstanceOf(
+        dataFactory.namedNode(
+          "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily",
+        ),
+      )
+    ) {
+      return purify.Left(
+        new rdfjsResource.Resource.ValueError({
+          focusResource: resource,
+          message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+          predicate: dataFactory.namedNode(
+            "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily",
+          ),
+        }),
+      );
+    }
+
     const description = resource
       .value(dataFactory.namedNode("https://schema.org/description"))
       .chain((value) => value.toLiteral())
@@ -436,6 +493,24 @@ export class Organization {
     dataFactory: rdfjs.DataFactory;
     resource: rdfjsResource.Resource<rdfjs.NamedNode>;
   }): purify.Either<rdfjsResource.Resource.ValueError, Organization> {
+    if (
+      !resource.isInstanceOf(
+        dataFactory.namedNode(
+          "http://purl.annotize.ai/ontology/mlm#Organization",
+        ),
+      )
+    ) {
+      return purify.Left(
+        new rdfjsResource.Resource.ValueError({
+          focusResource: resource,
+          message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+          predicate: dataFactory.namedNode(
+            "http://purl.annotize.ai/ontology/mlm#Organization",
+          ),
+        }),
+      );
+    }
+
     const identifier = resource.identifier;
     const name = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
