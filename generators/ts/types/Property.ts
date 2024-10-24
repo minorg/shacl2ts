@@ -158,7 +158,7 @@ export class Property {
     resourceVariable,
   }: { dataFactoryVariable: string; resourceVariable: string }): string {
     const path = `${dataFactoryVariable}.namedNode("${this.path.value}")`;
-    const resourceValueVariable = `${this.name}ResourceValue`;
+    const resourceValueVariable = "value";
     if (this.containerType === "Array") {
       return `${resourceVariable}.values(${path}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.valueFromRdf({ dataFactoryVariable, inline: this.inline, resourceValueVariable })}).toMaybe().toList())).orDefault([])`;
     }

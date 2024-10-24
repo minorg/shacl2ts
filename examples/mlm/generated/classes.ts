@@ -56,13 +56,13 @@ export class MachineLearningModel {
   }): purify.Either<rdfjsResource.Resource.ValueError, MachineLearningModel> {
     const description = resource
       .value(dataFactory.namedNode("https://schema.org/description"))
-      .chain((descriptionResourceValue) => descriptionResourceValue.toLiteral())
+      .chain((value) => value.toLiteral())
       .toMaybe();
     const identifier = resource.identifier;
     const isVariantOf = resource
       .value(dataFactory.namedNode("https://schema.org/isVariantOf"))
-      .chain((isVariantOfResourceValue) =>
-        isVariantOfResourceValue
+      .chain((value) =>
+        value
           .toNamedResource()
           .chain((resource) =>
             MachineLearningModelFamily.fromRdf({
@@ -74,13 +74,11 @@ export class MachineLearningModel {
       .unsafeCoerce();
     const localIdentifier = resource
       .value(dataFactory.namedNode("https://schema.org/identifier"))
-      .chain((localIdentifierResourceValue) =>
-        localIdentifierResourceValue.toString(),
-      )
+      .chain((value) => value.toString())
       .unsafeCoerce();
     const name = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
-      .chain((nameResourceValue) => nameResourceValue.toLiteral())
+      .chain((value) => value.toLiteral())
       .unsafeCoerce();
     const trainingDataCutoff = resource
       .value(
@@ -88,13 +86,11 @@ export class MachineLearningModel {
           "http://purl.annotize.ai/ontology/mlm#trainingDataCutoff",
         ),
       )
-      .chain((trainingDataCutoffResourceValue) =>
-        trainingDataCutoffResourceValue.toString(),
-      )
+      .chain((value) => value.toString())
       .toMaybe();
     const url = resource
       .value(dataFactory.namedNode("https://schema.org/url"))
-      .chain((urlResourceValue) => urlResourceValue.toString())
+      .chain((value) => value.toString())
       .toMaybe();
     return purify.Either.of(
       new MachineLearningModel({
@@ -217,9 +213,7 @@ export class LanguageModel extends MachineLearningModel {
               "http://purl.annotize.ai/ontology/mlm#contextWindow",
             ),
           )
-          .chain((contextWindowResourceValue) =>
-            contextWindowResourceValue.toNumber(),
-          )
+          .chain((value) => value.toNumber())
           .unsafeCoerce();
         const maxTokenOutput = resource
           .value(
@@ -227,9 +221,7 @@ export class LanguageModel extends MachineLearningModel {
               "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
             ),
           )
-          .chain((maxTokenOutputResourceValue) =>
-            maxTokenOutputResourceValue.toNumber(),
-          )
+          .chain((value) => value.toNumber())
           .toMaybe();
         return purify.Either.of(
           new LanguageModel({
@@ -337,13 +329,13 @@ export class MachineLearningModelFamily {
   > {
     const description = resource
       .value(dataFactory.namedNode("https://schema.org/description"))
-      .chain((descriptionResourceValue) => descriptionResourceValue.toLiteral())
+      .chain((value) => value.toLiteral())
       .toMaybe();
     const identifier = resource.identifier;
     const manufacturer = resource
       .value(dataFactory.namedNode("https://schema.org/manufacturer"))
-      .chain((manufacturerResourceValue) =>
-        manufacturerResourceValue
+      .chain((value) =>
+        value
           .toNamedResource()
           .chain((resource) =>
             Organization.fromRdf({ dataFactory: dataFactory, resource }),
@@ -352,11 +344,11 @@ export class MachineLearningModelFamily {
       .unsafeCoerce();
     const name = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
-      .chain((nameResourceValue) => nameResourceValue.toLiteral())
+      .chain((value) => value.toLiteral())
       .unsafeCoerce();
     const url = resource
       .value(dataFactory.namedNode("https://schema.org/url"))
-      .chain((urlResourceValue) => urlResourceValue.toString())
+      .chain((value) => value.toString())
       .toMaybe();
     return purify.Either.of(
       new MachineLearningModelFamily({
@@ -451,7 +443,7 @@ export class Organization {
     const identifier = resource.identifier;
     const name = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
-      .chain((nameResourceValue) => nameResourceValue.toLiteral())
+      .chain((value) => value.toLiteral())
       .unsafeCoerce();
     return purify.Either.of(new Organization({ identifier, name }));
   }
