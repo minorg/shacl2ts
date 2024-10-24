@@ -80,14 +80,12 @@ export class MachineLearningModel {
     const _isVariantOfEither = resource
       .value(dataFactory.namedNode("https://schema.org/isVariantOf"))
       .chain((value) =>
-        value
-          .toNamedResource()
-          .chain((resource) =>
-            MachineLearningModelFamily.fromRdf({
-              dataFactory: dataFactory,
-              resource,
-            }),
-          ),
+        value.toNamedResource().chain((resource) =>
+          MachineLearningModelFamily.fromRdf({
+            dataFactory: dataFactory,
+            resource,
+          }),
+        ),
       );
     if (_isVariantOfEither.isLeft()) {
       return _isVariantOfEither;
@@ -215,14 +213,12 @@ export class LanguageModel extends MachineLearningModel {
   }
 
   override equals(other: LanguageModel): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          contextWindow: purifyHelpers.Equatable.strictEquals,
-          maxTokenOutput: (left, right) => left.equals(right),
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        contextWindow: purifyHelpers.Equatable.strictEquals,
+        maxTokenOutput: (left, right) => left.equals(right),
+      }),
+    );
   }
 
   static override fromRdf({
