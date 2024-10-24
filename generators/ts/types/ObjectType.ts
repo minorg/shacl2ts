@@ -163,9 +163,13 @@ export class ObjectType implements Type {
 
     let statements: string[] = [];
     for (const property of this.properties) {
-      statements.push(
-        `const ${property.name} = ${property.valueFromRdf({ dataFactoryVariable, resourceVariable })}`,
-      );
+      if (property.name === "identifier") {
+        statements.push(`const identifier = ${resourceVariable}.identifier`);
+      } else {
+        statements.push(
+          `const ${property.name} = ${property.valueFromRdf({ dataFactoryVariable, resourceVariable })}`,
+        );
+      }
     }
     statements.push(
       `return purify.Either.of(new ${this._name}({ ${this.properties

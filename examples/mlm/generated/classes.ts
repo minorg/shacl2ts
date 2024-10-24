@@ -58,14 +58,7 @@ export class MachineLearningModel {
       .value(dataFactory.namedNode("https://schema.org/description"))
       .chain((descriptionResourceValue) => descriptionResourceValue.toLiteral())
       .toMaybe();
-    const identifier = resource
-      .value(
-        dataFactory.namedNode(
-          "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject",
-        ),
-      )
-      .chain((identifierResourceValue) => identifierResourceValue.toIri())
-      .unsafeCoerce();
+    const identifier = resource.identifier;
     const isVariantOf = resource
       .value(dataFactory.namedNode("https://schema.org/isVariantOf"))
       .chain((isVariantOfResourceValue) =>
@@ -346,14 +339,7 @@ export class MachineLearningModelFamily {
       .value(dataFactory.namedNode("https://schema.org/description"))
       .chain((descriptionResourceValue) => descriptionResourceValue.toLiteral())
       .toMaybe();
-    const identifier = resource
-      .value(
-        dataFactory.namedNode(
-          "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject",
-        ),
-      )
-      .chain((identifierResourceValue) => identifierResourceValue.toIri())
-      .unsafeCoerce();
+    const identifier = resource.identifier;
     const manufacturer = resource
       .value(dataFactory.namedNode("https://schema.org/manufacturer"))
       .chain((manufacturerResourceValue) =>
@@ -462,14 +448,7 @@ export class Organization {
     dataFactory: rdfjs.DataFactory;
     resource: rdfjsResource.Resource<rdfjs.NamedNode>;
   }): purify.Either<rdfjsResource.Resource.ValueError, Organization> {
-    const identifier = resource
-      .value(
-        dataFactory.namedNode(
-          "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject",
-        ),
-      )
-      .chain((identifierResourceValue) => identifierResourceValue.toIri())
-      .unsafeCoerce();
+    const identifier = resource.identifier;
     const name = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
       .chain((nameResourceValue) => nameResourceValue.toLiteral())
