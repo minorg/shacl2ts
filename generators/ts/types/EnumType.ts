@@ -16,6 +16,10 @@ export class EnumType implements Type {
     throw new Error("not implemented");
   }
 
+  valueFromRdf(_: Type.ValueFromRdfParameters): string {
+    throw new Error("not implemented");
+  }
+
   valueToRdf(_: Type.ValueToRdfParameters): string {
     throw new Error("not implemented");
   }

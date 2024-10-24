@@ -25,9 +25,17 @@ export abstract class ComposedType implements Type {
     return `(${this.types.map((type) => type.name(nameType)).join(` ${this.separator} `)})`;
   }
 
-  valueToRdf({ value }: Type.ValueToRdfParameters): string {
+  valueFromRdf({ resourceValueVariable }: Type.ValueFromRdfParameters): string {
     if (this.types.every((type) => type.kind === "Literal")) {
-      return value;
+      return `${resourceValueVariable}.toLiteral()`;
+    }
+
+    throw new Error("not implemented");
+  }
+
+  valueToRdf({ propertyValueVariable }: Type.ValueToRdfParameters): string {
+    if (this.types.every((type) => type.kind === "Literal")) {
+      return propertyValueVariable;
     }
 
     throw new Error("not implemented");

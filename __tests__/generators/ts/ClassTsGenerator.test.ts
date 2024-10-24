@@ -1,24 +1,33 @@
+import type { DataFactory, NamedNode } from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
-import { DataFactory as dataFactory } from "n3";
-import N3 from "n3";
-import { MutableResourceSet } from "rdfjs-resource";
-import { beforeAll, describe, it } from "vitest";
+import N3, { DataFactory as dataFactory } from "n3";
+import type { Either } from "purify-ts";
+import type { Equatable } from "purify-ts-helpers";
+import {
+  type MutableResource,
+  MutableResourceSet,
+  type Resource,
+} from "rdfjs-resource";
+import { type ExpectStatic, beforeAll, describe, it } from "vitest";
 import * as classes from "../../../examples/mlm/generated/classes.js";
 
 describe("ClassTsGenerator", () => {
   let languageModel: classes.LanguageModel;
+  let organization: classes.Organization;
 
   beforeAll(() => {
+    organization = new classes.Organization({
+      identifier: dataFactory.namedNode("http://example.com/organization"),
+      name: dataFactory.literal("Test organization"),
+    });
+
     languageModel = new classes.LanguageModel({
       contextWindow: 1,
       identifier: dataFactory.namedNode("http://example.com/mlm"),
       isVariantOf: new classes.MachineLearningModelFamily({
         description: dataFactory.literal("Family description"),
         identifier: dataFactory.namedNode("http://example.com/family"),
-        manufacturer: new classes.Organization({
-          identifier: dataFactory.namedNode("http://example.com/organization"),
-          name: dataFactory.literal("Test organization"),
-        }),
+        manufacturer: organization,
         name: dataFactory.literal("Family"),
         url: "http://example.com/family",
       }),
@@ -39,36 +48,71 @@ describe("ClassTsGenerator", () => {
   });
 
   it("equals should return true with two equal objects", ({ expect }) => {
-    const left = new classes.Organization({
-      identifier: dataFactory.namedNode("http://example.com/example"),
-      name: dataFactory.literal("Example"),
-    });
-    const right = new classes.Organization({
-      identifier: dataFactory.namedNode("http://example.com/example"),
-      name: dataFactory.literal("Example"),
-    });
-    expect(left.equals(right).extract()).toStrictEqual(true);
+    expect(organization.equals(organization).extract()).toStrictEqual(true);
   });
 
   it("equals should return an Unequals with two unequal objects", ({
     expect,
   }) => {
-    const left = new classes.Organization({
-      identifier: dataFactory.namedNode("http://example.com/left"),
-      name: dataFactory.literal("Left"),
+    expect(
+      organization
+        .equals(
+          new classes.Organization({
+            identifier: dataFactory.namedNode("http://example.com/other"),
+            name: dataFactory.literal("Other"),
+          }),
+        )
+        .extract(),
+    ).not.toStrictEqual(true);
+  });
+
+  function testFromRdf<
+    ModelT extends {
+      equals: (other: ModelT) => Equatable.EqualsResult;
+      toRdf: (kwds: {
+        mutateGraph: MutableResource.MutateGraph;
+        resourceSet: MutableResourceSet;
+      }) => Resource<NamedNode>;
+    },
+  >({
+    expect,
+    modelFromRdf,
+    model,
+  }: {
+    expect: ExpectStatic;
+    modelFromRdf: (kwds: {
+      dataFactory: DataFactory;
+      resource: Resource<NamedNode>;
+    }) => Either<Resource.ValueError, ModelT>;
+    model: ModelT;
+  }) {
+    const dataset = new N3.Store();
+    const resourceSet = new MutableResourceSet({ dataFactory, dataset });
+    const resource = model.toRdf({
+      mutateGraph: dataFactory.defaultGraph(),
+      resourceSet,
     });
-    const right = new classes.Organization({
-      identifier: dataFactory.namedNode("http://example.com/right"),
-      name: dataFactory.literal("Right"),
+    const fromRdfModel = modelFromRdf({ dataFactory, resource }).unsafeCoerce();
+    expect(fromRdfModel.equals(model).extract()).toStrictEqual(true);
+  }
+
+  it("fromRdf (LanguageModel)", ({ expect }) => {
+    testFromRdf({
+      expect,
+      model: languageModel,
+      modelFromRdf: classes.LanguageModel.fromRdf,
     });
-    expect(left.equals(right).extract()).not.toStrictEqual(true);
+  });
+
+  it("fromRdf (Organization)", ({ expect }) => {
+    testFromRdf({
+      expect,
+      model: organization,
+      modelFromRdf: classes.Organization.fromRdf,
+    });
   });
 
   it("toRdf should populate a dataset", ({ expect }) => {
-    const organization = new classes.Organization({
-      identifier: dataFactory.namedNode("http://example.com/organization"),
-      name: dataFactory.literal("Test organization"),
-    });
     const dataset = new N3.Store();
     const resourceSet = new MutableResourceSet({ dataFactory, dataset });
     const resource = organization.toRdf({

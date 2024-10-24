@@ -47,6 +47,62 @@ export class MachineLearningModel {
     });
   }
 
+  static fromRdf({
+    dataFactory,
+    resource,
+  }: {
+    dataFactory: rdfjs.DataFactory;
+    resource: rdfjsResource.Resource<rdfjs.NamedNode>;
+  }): purify.Either<rdfjsResource.Resource.ValueError, MachineLearningModel> {
+    const description = resource
+      .value(dataFactory.namedNode("https://schema.org/description"))
+      .chain((value) => value.toLiteral())
+      .toMaybe();
+    const identifier = resource.identifier;
+    const isVariantOf = resource
+      .value(dataFactory.namedNode("https://schema.org/isVariantOf"))
+      .chain((value) =>
+        value.toNamedResource().chain((resource) =>
+          MachineLearningModelFamily.fromRdf({
+            dataFactory: dataFactory,
+            resource,
+          }),
+        ),
+      )
+      .unsafeCoerce();
+    const localIdentifier = resource
+      .value(dataFactory.namedNode("https://schema.org/identifier"))
+      .chain((value) => value.toString())
+      .unsafeCoerce();
+    const name = resource
+      .value(dataFactory.namedNode("https://schema.org/name"))
+      .chain((value) => value.toLiteral())
+      .unsafeCoerce();
+    const trainingDataCutoff = resource
+      .value(
+        dataFactory.namedNode(
+          "http://purl.annotize.ai/ontology/mlm#trainingDataCutoff",
+        ),
+      )
+      .chain((value) => value.toString())
+      .toMaybe();
+    const url = resource
+      .value(dataFactory.namedNode("https://schema.org/url"))
+      .chain((value) => value.toString())
+      .toMaybe();
+    return purify.Either.of(
+      new MachineLearningModel({
+        description,
+        identifier,
+        isVariantOf,
+        localIdentifier,
+        name,
+        trainingDataCutoff,
+        url,
+      }),
+    );
+  }
+
   toRdf({
     mutateGraph,
     resourceSet,
@@ -138,6 +194,48 @@ export class LanguageModel extends MachineLearningModel {
     );
   }
 
+  static override fromRdf({
+    dataFactory,
+    resource,
+  }: {
+    dataFactory: rdfjs.DataFactory;
+    resource: rdfjsResource.Resource<rdfjs.NamedNode>;
+  }): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel> {
+    return MachineLearningModel.fromRdf({ dataFactory, resource }).chain(
+      (_super) => {
+        const contextWindow = resource
+          .value(
+            dataFactory.namedNode(
+              "http://purl.annotize.ai/ontology/mlm#contextWindow",
+            ),
+          )
+          .chain((value) => value.toNumber())
+          .unsafeCoerce();
+        const maxTokenOutput = resource
+          .value(
+            dataFactory.namedNode(
+              "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
+            ),
+          )
+          .chain((value) => value.toNumber())
+          .toMaybe();
+        return purify.Either.of(
+          new LanguageModel({
+            contextWindow,
+            description: _super.description,
+            identifier: _super.identifier,
+            isVariantOf: _super.isVariantOf,
+            localIdentifier: _super.localIdentifier,
+            maxTokenOutput,
+            name: _super.name,
+            trainingDataCutoff: _super.trainingDataCutoff,
+            url: _super.url,
+          }),
+        );
+      },
+    );
+  }
+
   override toRdf({
     mutateGraph,
     resourceSet,
@@ -215,6 +313,50 @@ export class MachineLearningModelFamily {
     });
   }
 
+  static fromRdf({
+    dataFactory,
+    resource,
+  }: {
+    dataFactory: rdfjs.DataFactory;
+    resource: rdfjsResource.Resource<rdfjs.NamedNode>;
+  }): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    MachineLearningModelFamily
+  > {
+    const description = resource
+      .value(dataFactory.namedNode("https://schema.org/description"))
+      .chain((value) => value.toLiteral())
+      .toMaybe();
+    const identifier = resource.identifier;
+    const manufacturer = resource
+      .value(dataFactory.namedNode("https://schema.org/manufacturer"))
+      .chain((value) =>
+        value
+          .toNamedResource()
+          .chain((resource) =>
+            Organization.fromRdf({ dataFactory: dataFactory, resource }),
+          ),
+      )
+      .unsafeCoerce();
+    const name = resource
+      .value(dataFactory.namedNode("https://schema.org/name"))
+      .chain((value) => value.toLiteral())
+      .unsafeCoerce();
+    const url = resource
+      .value(dataFactory.namedNode("https://schema.org/url"))
+      .chain((value) => value.toString())
+      .toMaybe();
+    return purify.Either.of(
+      new MachineLearningModelFamily({
+        description,
+        identifier,
+        manufacturer,
+        name,
+        url,
+      }),
+    );
+  }
+
   toRdf({
     mutateGraph,
     resourceSet,
@@ -285,6 +427,21 @@ export class Organization {
       identifier: purifyHelpers.Equatable.booleanEquals,
       name: purifyHelpers.Equatable.booleanEquals,
     });
+  }
+
+  static fromRdf({
+    dataFactory,
+    resource,
+  }: {
+    dataFactory: rdfjs.DataFactory;
+    resource: rdfjsResource.Resource<rdfjs.NamedNode>;
+  }): purify.Either<rdfjsResource.Resource.ValueError, Organization> {
+    const identifier = resource.identifier;
+    const name = resource
+      .value(dataFactory.namedNode("https://schema.org/name"))
+      .chain((value) => value.toLiteral())
+      .unsafeCoerce();
+    return purify.Either.of(new Organization({ identifier, name }));
   }
 
   toRdf({

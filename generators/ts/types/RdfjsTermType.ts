@@ -12,7 +12,9 @@ export abstract class RdfjsTermType implements Type {
 
   abstract name(_: Type.NameType): string;
 
-  valueToRdf({ value }: Type.ValueToRdfParameters): string {
-    return value;
+  abstract valueFromRdf(parameters: Type.ValueFromRdfParameters): string;
+
+  valueToRdf({ propertyValueVariable }: Type.ValueToRdfParameters): string {
+    return propertyValueVariable;
   }
 }
