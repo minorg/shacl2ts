@@ -47,8 +47,8 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
     isExported: true,
     methods: [
       equalsMethodDeclaration.bind(this)(),
-      // this.fromRdfMethodDeclaration,
-      // this.toRdfMethodDeclaration,
+      fromRdfMethodDeclaration.bind(this)(),
+      toRdfMethodDeclaration.bind(this)(),
     ],
     name: "Class",
     properties: this.properties.map(
@@ -78,5 +78,42 @@ function equalsMethodDeclaration(
     ],
     statements: [`return ${expression};`],
     returnType: "purifyHelpers.Equatable.EqualsResult",
+  };
+}
+
+function fromRdfMethodDeclaration(
+  this: ObjectType,
+): OptionalKind<MethodDeclarationStructure> {
+  return {
+    hasOverrideKeyword: this.superObjectTypes.length > 0,
+    isStatic: true,
+    name: "fromRdf",
+    parameters: [
+      {
+        name: "kwds",
+        type: `{ dataFactory: rdfjs.DataFactory, resource: ${this.rdfjsResourceType().name} }`,
+      },
+    ],
+    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name("class")}>`,
+    statements: [
+      `return ${this.name("module")}.fromRdf(kwds).map(properties => new ${this.name("class")}(properties));`,
+    ],
+  };
+}
+
+function toRdfMethodDeclaration(
+  this: ObjectType,
+): OptionalKind<MethodDeclarationStructure> {
+  return {
+    hasOverrideKeyword: this.superObjectTypes.length > 0,
+    name: "toRdf",
+    parameters: [
+      {
+        name: "kwds",
+        type: "{ mutateGraph: rdfjsResource.MutableResource.MutateGraph, resourceSet: rdfjsResource.MutableResourceSet }",
+      },
+    ],
+    returnType: this.rdfjsResourceType({ mutable: true }).name,
+    statements: [`return ${this.name("module")}.toRdf(this, kwds);`],
   };
 }

@@ -59,6 +59,25 @@ export namespace MachineLearningModel {
         url: (left, right) => left.equals(right),
       });
     }
+
+    static fromRdf(kwds: {
+      dataFactory: rdfjs.DataFactory;
+      resource: rdfjsResource.Resource<rdfjs.NamedNode>;
+    }): purify.Either<
+      rdfjsResource.Resource.ValueError,
+      MachineLearningModel.Class
+    > {
+      return MachineLearningModel.fromRdf(kwds).map(
+        (properties) => new MachineLearningModel.Class(properties),
+      );
+    }
+
+    toRdf(kwds: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+      return MachineLearningModel.toRdf(this, kwds);
+    }
   }
 
   export namespace Class {
@@ -255,6 +274,22 @@ export namespace LanguageModel {
           }),
         );
     }
+
+    static override fromRdf(kwds: {
+      dataFactory: rdfjs.DataFactory;
+      resource: rdfjsResource.Resource<rdfjs.NamedNode>;
+    }): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel.Class> {
+      return LanguageModel.fromRdf(kwds).map(
+        (properties) => new LanguageModel.Class(properties),
+      );
+    }
+
+    override toRdf(kwds: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+      return LanguageModel.toRdf(this, kwds);
+    }
   }
 
   export namespace Class {
@@ -411,6 +446,25 @@ export namespace MachineLearningModelFamily {
         url: (left, right) => left.equals(right),
       });
     }
+
+    static fromRdf(kwds: {
+      dataFactory: rdfjs.DataFactory;
+      resource: rdfjsResource.Resource<rdfjs.NamedNode>;
+    }): purify.Either<
+      rdfjsResource.Resource.ValueError,
+      MachineLearningModelFamily.Class
+    > {
+      return MachineLearningModelFamily.fromRdf(kwds).map(
+        (properties) => new MachineLearningModelFamily.Class(properties),
+      );
+    }
+
+    toRdf(kwds: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+      return MachineLearningModelFamily.toRdf(this, kwds);
+    }
   }
 
   export namespace Class {
@@ -560,6 +614,22 @@ export namespace Organization {
         identifier: purifyHelpers.Equatable.booleanEquals,
         name: purifyHelpers.Equatable.booleanEquals,
       });
+    }
+
+    static fromRdf(kwds: {
+      dataFactory: rdfjs.DataFactory;
+      resource: rdfjsResource.Resource<rdfjs.NamedNode>;
+    }): purify.Either<rdfjsResource.Resource.ValueError, Organization.Class> {
+      return Organization.fromRdf(kwds).map(
+        (properties) => new Organization.Class(properties),
+      );
+    }
+
+    toRdf(kwds: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+      return Organization.toRdf(this, kwds);
     }
   }
 
