@@ -1,7 +1,7 @@
 import type { DataFactory, NamedNode } from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import N3, { DataFactory as dataFactory } from "n3";
-import type { Either } from "purify-ts";
+import { type Either, Maybe } from "purify-ts";
 import type { Equatable } from "purify-ts-helpers";
 import {
   type MutableResource,
@@ -9,22 +9,22 @@ import {
   type Resource,
 } from "rdfjs-resource";
 import { type ExpectStatic, beforeAll, describe, it } from "vitest";
-import * as classes from "../../../examples/mlm/generated/classes.js";
+import * as generated from "../../../examples/mlm/generated/generated.js";
 
-describe("ClassTsGenerator", () => {
-  let languageModel: classes.LanguageModel;
-  let organization: classes.Organization;
+describe("TsGenerator", () => {
+  let languageModel: generated.LanguageModel.Class;
+  let organization: generated.Organization.Class;
 
   beforeAll(() => {
-    organization = new classes.Organization({
+    organization = new generated.Organization.Class({
       identifier: dataFactory.namedNode("http://example.com/organization"),
       name: dataFactory.literal("Test organization"),
     });
 
-    languageModel = new classes.LanguageModel({
+    languageModel = new generated.LanguageModel.Class({
       contextWindow: 1,
       identifier: dataFactory.namedNode("http://example.com/mlm"),
-      isVariantOf: new classes.MachineLearningModelFamily({
+      isVariantOf: new generated.MachineLearningModelFamily.Class({
         description: dataFactory.literal("Family description"),
         identifier: dataFactory.namedNode("http://example.com/family"),
         manufacturer: organization,
@@ -37,6 +37,30 @@ describe("ClassTsGenerator", () => {
       trainingDataCutoff: "Test cutoff",
       url: "http://example.com/mlm",
     });
+  });
+
+  it("should generate valid TypeScript interfaces", ({ expect }) => {
+    const mlm: generated.LanguageModel.Interface = {
+      contextWindow: 1,
+      description: Maybe.of(dataFactory.literal("Test description")),
+      identifier: dataFactory.namedNode("http://example.com/mlm"),
+      isVariantOf: {
+        description: Maybe.of(dataFactory.literal("Family description")),
+        identifier: dataFactory.namedNode("http://example.com/family"),
+        manufacturer: {
+          identifier: dataFactory.namedNode("http://examhple.com/organization"),
+          name: dataFactory.literal("name"),
+        },
+        name: dataFactory.literal("name"),
+        url: Maybe.of("http://example.com/family"),
+      },
+      localIdentifier: "testidentifier",
+      maxTokenOutput: Maybe.of(1),
+      name: dataFactory.literal("Test name"),
+      trainingDataCutoff: Maybe.of("cutoff"),
+      url: Maybe.of("http://example.com/mlm"),
+    };
+    expect(mlm.name.value).toStrictEqual("Test name");
   });
 
   it("should construct a class instance from parameters", ({ expect }) => {
@@ -57,7 +81,7 @@ describe("ClassTsGenerator", () => {
     expect(
       organization
         .equals(
-          new classes.Organization({
+          new generated.Organization.Class({
             identifier: dataFactory.namedNode("http://example.com/other"),
             name: dataFactory.literal("Other"),
           }),
@@ -100,7 +124,7 @@ describe("ClassTsGenerator", () => {
     testFromRdf({
       expect,
       model: languageModel,
-      modelFromRdf: classes.LanguageModel.fromRdf,
+      modelFromRdf: generated.LanguageModel.Class.fromRdf,
     });
   });
 
@@ -108,7 +132,7 @@ describe("ClassTsGenerator", () => {
     testFromRdf({
       expect,
       model: organization,
-      modelFromRdf: classes.Organization.fromRdf,
+      modelFromRdf: generated.Organization.Class.fromRdf,
     });
   });
 
