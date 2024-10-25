@@ -174,24 +174,21 @@ export class Property {
 
   valueToRdf({
     mutateGraphVariable,
+    propertyValueVariable,
     resourceSetVariable,
-  }: Pick<
-    Type.ValueToRdfParameters,
-    "mutateGraphVariable" | "resourceSetVariable"
-  >): string {
+  }: Omit<Type.ValueToRdfParameters, "inline">): string {
     const path = `${resourceSetVariable}.dataFactory.namedNode("${this.path.value}")`;
-    const value = `this.${this.name}`;
     switch (this.containerType) {
       case "Array":
-        return `${value}.forEach((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ inline: this.inline, mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`;
+        return `${propertyValueVariable}.forEach((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ inline: this.inline, mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`;
       case "Maybe":
-        return `${value}.ifJust((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ inline: this.inline, mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`;
+        return `${propertyValueVariable}.ifJust((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ inline: this.inline, mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`;
       case null:
         return `resource.add(${path}, ${this.type.valueToRdf({
           inline: this.inline,
           mutateGraphVariable,
           resourceSetVariable,
-          propertyValueVariable: value,
+          propertyValueVariable,
         })});`;
     }
   }

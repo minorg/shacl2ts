@@ -98,9 +98,8 @@ export class TsGenerator {
           );
         }
 
-        sourceFile.addClass(objectType.classDeclaration);
-
-        sourceFile.addModule(objectType.moduleDeclaration);
+        sourceFile.addClass(objectType.classDeclaration());
+        // sourceFile.addModule(objectType.moduleDeclaration());
       }
     }
 
