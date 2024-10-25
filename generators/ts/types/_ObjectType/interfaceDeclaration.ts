@@ -10,7 +10,7 @@ export function interfaceDeclaration(
     ),
     isExported: true,
     kind: StructureKind.Interface,
-    name: "Interface",
+    name: this.interfaceUnqualifiedName,
     properties: this.properties.map(
       (property) => property.interfacePropertySignature,
     ),

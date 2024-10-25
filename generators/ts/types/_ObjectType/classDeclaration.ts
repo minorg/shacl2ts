@@ -63,7 +63,7 @@ export function classDeclaration(
     kind: StructureKind.Class,
     isExported: true,
     methods,
-    name: "Class",
+    name: this.classUnqualifiedName,
     properties: this.properties.map(
       (property) => property.classPropertyDeclaration,
     ),

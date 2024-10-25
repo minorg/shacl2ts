@@ -7,7 +7,8 @@ import {
   StructureKind,
 } from "ts-morph";
 import type * as ast from "../../../ast";
-import type { TsGenerator } from "../TsGenerator";
+import type { TsGenerator } from "../TsGenerator.js";
+import { shorthandProperty } from "../shorthandProperty.js";
 import { IdentifierType } from "./IdentifierType.js";
 import { Property } from "./Property.js";
 import type { Type } from "./Type.js";
@@ -28,32 +29,33 @@ export class ObjectType implements Type {
   readonly interfaceQualifiedName: string;
   readonly kind = "Object";
   readonly moduleQualifiedName: string;
-  readonly name: string;
   readonly properties: readonly Property[];
   readonly rdfType: Maybe<NamedNode>;
+  readonly sparqlGraphPatternsClassQualifiedName: string;
   readonly superObjectTypes: readonly ObjectType[];
+  protected readonly classUnqualifiedName: string = "Class";
+  protected readonly interfaceUnqualifiedName: string = "Interface";
+  protected readonly sparqlGraphPatternsClassUnqualifiedName: string =
+    "SparqlGraphPatterns";
+  private readonly astName: string;
 
   constructor({
     ancestorObjectTypes,
+    astName,
     identifierType,
-    name,
     properties,
     rdfType,
     superObjectTypes,
   }: {
     ancestorObjectTypes: readonly ObjectType[];
+    astName: string;
     identifierType: IdentifierType;
-    name: string;
     properties: readonly Property[];
     rdfType: Maybe<NamedNode>;
     superObjectTypes: readonly ObjectType[];
   }) {
     this.ancestorObjectTypes = ancestorObjectTypes;
-    this.classQualifiedName = `${name}.Class`;
     this.identifierType = identifierType;
-    this.interfaceQualifiedName = `${name}.Interface`;
-    this.moduleQualifiedName = name;
-    this.name = name;
     this.properties = properties
       .concat()
       .sort((left, right) => left.name.localeCompare(right.name));
@@ -65,6 +67,16 @@ export class ObjectType implements Type {
     }
     this.rdfType = rdfType;
     this.superObjectTypes = superObjectTypes;
+
+    this.astName = astName;
+    this.moduleQualifiedName = astName;
+    this.classQualifiedName = `${this.moduleQualifiedName}.${this.classUnqualifiedName}`;
+    this.interfaceQualifiedName = `${this.moduleQualifiedName}.${this.interfaceUnqualifiedName}`;
+    this.sparqlGraphPatternsClassQualifiedName = `${astName}.${this.sparqlGraphPatternsClassUnqualifiedName}`;
+  }
+
+  get name(): string {
+    return this.interfaceQualifiedName;
   }
 
   static fromAstType(astType: ast.ObjectType): ObjectType {
@@ -90,8 +102,8 @@ export class ObjectType implements Type {
       ancestorObjectTypes: astType.ancestorObjectTypes.map(
         ObjectType.fromAstType,
       ),
+      astName: astType.name.tsName,
       identifierType,
-      name: astType.name.tsName,
       properties: properties,
       rdfType: astType.rdfType,
       superObjectTypes: astType.superObjectTypes.map(ObjectType.fromAstType),
@@ -130,7 +142,7 @@ export class ObjectType implements Type {
     if (features.has("sparql-graph-patterns")) {
       if (this.superObjectTypes.length > 1) {
         throw new RangeError(
-          `object type '${this.name}' has multiple super object types, can't use with SPARQL graph patterns`,
+          `object type '${this.astName}' has multiple super object types, can't use with SPARQL graph patterns`,
         );
       }
 
@@ -144,7 +156,7 @@ export class ObjectType implements Type {
     return {
       isExported: true,
       kind: StructureKind.Module,
-      name: this.name,
+      name: this.astName,
       statements: statements,
     };
   }
@@ -169,15 +181,20 @@ export class ObjectType implements Type {
     };
   }
 
-  sparqlGraphPatterns(_: Type.SparqlGraphPatternParameters): readonly string[] {
-    throw new Error("not implemented");
+  sparqlGraphPatterns({
+    dataFactoryVariable,
+    subjectVariable,
+  }: Type.SparqlGraphPatternParameters): readonly string[] {
+    return [
+      `...new ${this.moduleQualifiedName}.SparqlGraphPatterns({ ${shorthandProperty("dataFactory", dataFactoryVariable)}, ${shorthandProperty("subject", subjectVariable)} })`,
+    ];
   }
 
   valueFromRdf({
     dataFactoryVariable,
     resourceValueVariable,
   }: Type.ValueFromRdfParameters): string {
-    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf({ dataFactory: ${dataFactoryVariable}, resource }))`;
+    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf({ ${shorthandProperty("dataFactory", dataFactoryVariable)}, resource }))`;
   }
 
   valueToRdf({
@@ -191,7 +208,7 @@ export class ObjectType implements Type {
   protected ensureAtMostOneSuperObjectType() {
     if (this.superObjectTypes.length > 1) {
       throw new RangeError(
-        `object type '${this.name}' has multiple super object types`,
+        `object type '${this.astName}' has multiple super object types`,
       );
     }
   }

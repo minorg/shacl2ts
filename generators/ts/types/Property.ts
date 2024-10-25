@@ -164,13 +164,13 @@ export class Property {
   }: {
     dataFactoryVariable: string;
   }): string {
-    let sparqlGraphPattern = `sparqlBuilder.GraphPattern.basic(this.subject, ${dataFactoryVariable}.namedNode("${this.path.value}"), this.variable("${pascalCase(this.name)}")`;
+    let sparqlGraphPattern = `sparqlBuilder.GraphPattern.basic(this.subject, ${dataFactoryVariable}.namedNode("${this.path.value}"), this.variable("${pascalCase(this.name)}"))`;
     const typeSparqlGraphPatterns = this.type.sparqlGraphPatterns({
       dataFactoryVariable,
       subjectVariable: this.name,
     });
     if (typeSparqlGraphPatterns.length > 0) {
-      sparqlGraphPattern = `${sparqlGraphPattern}.chainObject(${this.name} => [${typeSparqlGraphPatterns.join(", ")}])`;
+      sparqlGraphPattern = `sparqlBuilder.GraphPattern.group(${sparqlGraphPattern}.chainObject(${this.name} => [${typeSparqlGraphPatterns.join(", ")}]))`;
     }
     if (this.containerType === "Maybe") {
       sparqlGraphPattern = `sparqlBuilder.GraphPattern.optional(${sparqlGraphPattern})`;

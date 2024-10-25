@@ -1,4 +1,5 @@
 import { type ClassDeclarationStructure, StructureKind } from "ts-morph";
+import { shorthandProperty } from "../../shorthandProperty.js";
 import type { ObjectType } from "../ObjectType.js";
 
 export function sparqlGraphPatternsClassDeclaration(
@@ -6,12 +7,23 @@ export function sparqlGraphPatternsClassDeclaration(
 ): ClassDeclarationStructure {
   this.ensureAtMostOneSuperObjectType();
 
+  const dataFactoryVariable = "dataFactory";
+  const subjectVariable = "subject";
+
   const constructorStatements: string[] = [];
+
   if (this.superObjectTypes.length > 0) {
-    constructorStatements.push("super(subject);");
+    constructorStatements.push(
+      `super({ ${shorthandProperty("dataFactory", dataFactoryVariable)}, ${shorthandProperty("subject", subjectVariable)} });`,
+    );
+  } else {
+    constructorStatements.push(`super(${subjectVariable});`);
   }
+
   for (const property of this.properties) {
-    constructorStatements.push(`this.add(${property.sparqlGraphPattern})`);
+    constructorStatements.push(
+      `this.add(${property.sparqlGraphPattern({ dataFactoryVariable })})`,
+    );
   }
 
   return {
@@ -19,14 +31,19 @@ export function sparqlGraphPatternsClassDeclaration(
       {
         parameters: [
           {
-            name: "subject",
-            type: "sparqlBuilder.ResourceGraphPatterns.SubjectParameter",
+            name: `{ ${dataFactoryVariable}, ${subjectVariable} }`,
+            type: `{ ${dataFactoryVariable}: rdfjs.DataFactory, ${subjectVariable}: sparqlBuilder.ResourceGraphPatterns.SubjectParameter }`,
           },
         ],
         statements: constructorStatements,
       },
     ],
+    extends:
+      this.superObjectTypes.length > 0
+        ? this.superObjectTypes[0].sparqlGraphPatternsClassQualifiedName
+        : "sparqlBuilder.ResourceGraphPatterns",
+    isExported: true,
     kind: StructureKind.Class,
-    name: "SparqlGraphPatterns",
+    name: this.sparqlGraphPatternsClassUnqualifiedName,
   };
 }
