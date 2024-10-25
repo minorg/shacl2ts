@@ -2,21 +2,31 @@ import { Project, type SourceFile } from "ts-morph";
 import type * as ast from "../../ast";
 import * as types from "./types";
 
-export abstract class TsGenerator {
-  private readonly project: Project;
-  private readonly sourceFile: SourceFile;
+export class TsGenerator {
+  private readonly features: Set<TsGenerator.Feature>;
 
-  constructor(private readonly ast: ast.Ast) {
-    this.project = new Project({
-      useInMemoryFileSystem: true,
-    });
-    this.sourceFile = this.project.createSourceFile("generated.ts");
+  constructor(
+    private ast: ast.Ast,
+    options?: { features?: Set<TsGenerator.Feature> },
+  ) {
+    this.features = new Set<TsGenerator.Feature>(
+      options?.features ? [...options.features] : [],
+    );
+    if (this.features.size === 0) {
+      this.features.add("class");
+      this.features.add("equals");
+      this.features.add("fromRdf");
+      this.features.add("interface");
+      this.features.add("toRdf");
+    }
+    if (
+      this.features.has("class") ||
+      this.features.has("fromRdf") ||
+      this.features.has("toRdf")
+    ) {
+      this.features.add("interface");
+    }
   }
-
-  protected abstract generateSourceFile(
-    objectTypes: readonly types.ObjectType[],
-    sourceFile: SourceFile,
-  ): void;
 
   generate(): string {
     const astObjectTypes = this.ast.objectTypes.concat();
@@ -41,15 +51,60 @@ export abstract class TsGenerator {
       return left.name.tsName.localeCompare(right.name.tsName);
     });
 
+    const project = new Project({
+      useInMemoryFileSystem: true,
+    });
+    const sourceFile = project.createSourceFile("generated.ts");
+
     this.generateSourceFile(
       astObjectTypes.map(types.ObjectType.fromAstType),
-      this.sourceFile,
+      sourceFile,
     );
 
-    this.sourceFile.saveSync();
+    sourceFile.saveSync();
 
-    return this.project
-      .getFileSystem()
-      .readFileSync(this.sourceFile.getFilePath());
+    return project.getFileSystem().readFileSync(sourceFile.getFilePath());
   }
+
+  private addImportDeclarations(sourceFile: SourceFile) {
+    sourceFile.addImportDeclaration({
+      moduleSpecifier: "purify-ts",
+      namespaceImport: "purify",
+    });
+
+    sourceFile.addImportDeclaration({
+      isTypeOnly: true,
+      moduleSpecifier: "@rdfjs/types",
+      namespaceImport: "rdfjs",
+    });
+
+    if (this.features.has("equals")) {
+      sourceFile.addImportDeclaration({
+        moduleSpecifier: "purify-ts-helpers",
+        namespaceImport: "purifyHelpers",
+      });
+    }
+
+    if (this.features.has("fromRdf") || this.features.has("toRdf")) {
+      sourceFile.addImportDeclaration({
+        moduleSpecifier: "rdfjs-resource",
+        namespaceImport: "rdfjsResource",
+      });
+    }
+  }
+
+  private generateSourceFile(
+    objectTypes: readonly types.ObjectType[],
+    sourceFile: SourceFile,
+  ) {
+    this.addImportDeclarations(sourceFile);
+
+    for (const objectType of objectTypes) {
+      sourceFile.addModule(objectType.declaration(this.features));
+    }
+  }
+}
+
+export namespace TsGenerator {
+  export type Feature = "class" | "equals" | "interface" | "fromRdf" | "toRdf";
 }

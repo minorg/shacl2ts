@@ -96,9 +96,23 @@ function writeOutput(output: string, outputFilePath: string) {
 run(
   subcommands({
     cmds: {
-      "ast-json": command({
-        name: "ast-json",
-        description: "generate JSON for the SHACL Shapes Graph AST",
+      generate: command({
+        name: "generate",
+        description: "generate TypeScript for the SHACL Shapes Graph AST",
+        args: {
+          inputFilePaths,
+          outputFilePath,
+        },
+        handler: async ({ inputFilePaths, outputFilePath }) => {
+          writeOutput(
+            new generators.ts.TsGenerator(readInput(inputFilePaths)).generate(),
+            outputFilePath,
+          );
+        },
+      }),
+      "show-ast-json": command({
+        name: "show-ast-json",
+        description: "show AST JSON for the SHACL Shapes Graph AST",
         args: {
           inputFilePaths,
           outputFilePath,
@@ -106,39 +120,6 @@ run(
         handler: async ({ inputFilePaths, outputFilePath }) => {
           writeOutput(
             new generators.json.AstJsonGenerator(
-              readInput(inputFilePaths),
-            ).generate(),
-            outputFilePath,
-          );
-        },
-      }),
-      "class-ts": command({
-        name: "class-ts",
-        description: "generate class TypeScript for the SHACL Shapes Graph AST",
-        args: {
-          inputFilePaths,
-          outputFilePath,
-        },
-        handler: async ({ inputFilePaths, outputFilePath }) => {
-          writeOutput(
-            new generators.ts.ClassTsGenerator(
-              readInput(inputFilePaths),
-            ).generate(),
-            outputFilePath,
-          );
-        },
-      }),
-      "interface-ts": command({
-        name: "interface-ts",
-        description:
-          "generate interface TypeScript for the SHACL Shapes Graph AST",
-        args: {
-          inputFilePaths,
-          outputFilePath,
-        },
-        handler: async ({ inputFilePaths, outputFilePath }) => {
-          writeOutput(
-            new generators.ts.InterfaceTsGenerator(
               readInput(inputFilePaths),
             ).generate(),
             outputFilePath,
