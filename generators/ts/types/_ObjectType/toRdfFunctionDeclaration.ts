@@ -6,6 +6,8 @@ import type { ObjectType } from "../ObjectType";
 export function toRdfFunctionDeclaration(
   this: ObjectType,
 ): FunctionDeclarationStructure {
+  this.ensureAtMostOneSuperObjectType();
+
   const thisVariableName = camelCase(this.name("ast"));
 
   const statements: string[] = [];

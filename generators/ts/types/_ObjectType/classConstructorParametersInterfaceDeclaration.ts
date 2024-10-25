@@ -4,6 +4,7 @@ import type { ObjectType } from "../ObjectType.js";
 export function classConstructorParametersInterfaceDeclaration(
   this: ObjectType,
 ): InterfaceDeclarationStructure {
+  this.ensureAtMostOneSuperObjectType();
   return {
     extends:
       this.superObjectTypes.length > 0

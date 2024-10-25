@@ -37,6 +37,8 @@ export function classDeclaration(
   this: ObjectType,
   features: Set<TsGenerator.Feature>,
 ): ClassDeclarationStructure {
+  this.ensureAtMostOneSuperObjectType();
+
   const methods: OptionalKind<MethodDeclarationStructure>[] = [];
   if (features.has("equals")) {
     methods.push(equalsMethodDeclaration.bind(this)());

@@ -4,6 +4,8 @@ import type { ObjectType } from "../ObjectType";
 export function fromRdfFunctionDeclaration(
   this: ObjectType,
 ): FunctionDeclarationStructure {
+  this.ensureAtMostOneSuperObjectType();
+
   const dataFactoryVariable = "dataFactory";
   const resourceVariable = "resource";
 
