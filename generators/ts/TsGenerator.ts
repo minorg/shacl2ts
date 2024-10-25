@@ -18,6 +18,7 @@ export class TsGenerator {
       this.features.add("fromRdf");
       this.features.add("interface");
       this.features.add("toRdf");
+      this.features.add("sparql-graph-patterns");
     }
     if (
       this.features.has("class") ||
@@ -91,6 +92,13 @@ export class TsGenerator {
         namespaceImport: "rdfjsResource",
       });
     }
+
+    if (this.features.has("sparql-graph-patterns")) {
+      sourceFile.addImportDeclaration({
+        moduleSpecifier: "@kos-kit/sparql-builder",
+        namespaceImport: "sparqlBuilder",
+      });
+    }
   }
 
   private generateSourceFile(
@@ -106,5 +114,11 @@ export class TsGenerator {
 }
 
 export namespace TsGenerator {
-  export type Feature = "class" | "equals" | "interface" | "fromRdf" | "toRdf";
+  export type Feature =
+    | "class"
+    | "equals"
+    | "interface"
+    | "fromRdf"
+    | "toRdf"
+    | "sparql-graph-patterns";
 }
