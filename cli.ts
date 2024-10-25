@@ -105,9 +105,7 @@ run(
         },
         handler: async ({ inputFilePaths, outputFilePath }) => {
           writeOutput(
-            new generators.ts.ClassTsGenerator(
-              readInput(inputFilePaths),
-            ).generate(),
+            new generators.ts.TsGenerator(readInput(inputFilePaths)).generate(),
             outputFilePath,
           );
         },
