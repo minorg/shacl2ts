@@ -135,14 +135,12 @@ export namespace MachineLearningModel {
     const _isVariantOfEither = resource
       .value(dataFactory.namedNode("https://schema.org/isVariantOf"))
       .chain((value) =>
-        value
-          .toNamedResource()
-          .chain((resource) =>
-            MachineLearningModelFamily.fromRdf({
-              dataFactory: dataFactory,
-              resource,
-            }),
-          ),
+        value.toNamedResource().chain((resource) =>
+          MachineLearningModelFamily.fromRdf({
+            dataFactory: dataFactory,
+            resource,
+          }),
+        ),
       );
     if (_isVariantOfEither.isLeft()) {
       return _isVariantOfEither;
