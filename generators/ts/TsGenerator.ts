@@ -14,6 +14,7 @@ export class TsGenerator {
     );
     if (this.features.size === 0) {
       this.features.add("class");
+      this.features.add("equals");
       this.features.add("fromRdf");
       this.features.add("interface");
       this.features.add("toRdf");
@@ -77,12 +78,14 @@ export class TsGenerator {
       namespaceImport: "rdfjs",
     });
 
-    if (this.features.has("class")) {
+    if (this.features.has("equals")) {
       sourceFile.addImportDeclaration({
         moduleSpecifier: "purify-ts-helpers",
         namespaceImport: "purifyHelpers",
       });
+    }
 
+    if (this.features.has("fromRdf") || this.features.has("toRdf")) {
       sourceFile.addImportDeclaration({
         moduleSpecifier: "rdfjs-resource",
         namespaceImport: "rdfjsResource",
@@ -103,5 +106,5 @@ export class TsGenerator {
 }
 
 export namespace TsGenerator {
-  export type Feature = "class" | "interface" | "fromRdf" | "toRdf";
+  export type Feature = "class" | "equals" | "interface" | "fromRdf" | "toRdf";
 }

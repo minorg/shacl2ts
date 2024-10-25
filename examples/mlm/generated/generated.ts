@@ -44,20 +44,7 @@ export namespace MachineLearningModel {
     equals(
       other: MachineLearningModel.Interface,
     ): purifyHelpers.Equatable.EqualsResult {
-      return purifyHelpers.Equatable.objectEquals(this, other, {
-        description: (left, right) =>
-          purifyHelpers.Maybes.equals(
-            left,
-            right,
-            purifyHelpers.Equatable.booleanEquals,
-          ),
-        identifier: purifyHelpers.Equatable.booleanEquals,
-        isVariantOf: purifyHelpers.Equatable.equals,
-        localIdentifier: purifyHelpers.Equatable.strictEquals,
-        name: purifyHelpers.Equatable.booleanEquals,
-        trainingDataCutoff: (left, right) => left.equals(right),
-        url: (left, right) => left.equals(right),
-      });
+      return MachineLearningModel.equals(this, other);
     }
 
     static fromRdf(kwds: {
@@ -90,6 +77,26 @@ export namespace MachineLearningModel {
       readonly trainingDataCutoff?: purify.Maybe<string> | string;
       readonly url?: purify.Maybe<string> | string;
     }
+  }
+
+  export function equals(
+    left: MachineLearningModel.Interface,
+    right: MachineLearningModel.Interface,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      description: (left, right) =>
+        purifyHelpers.Maybes.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      isVariantOf: MachineLearningModelFamily.equals,
+      localIdentifier: purifyHelpers.Equatable.strictEquals,
+      name: purifyHelpers.Equatable.booleanEquals,
+      trainingDataCutoff: (left, right) => left.equals(right),
+      url: (left, right) => left.equals(right),
+    });
   }
 
   export function fromRdf({
@@ -265,14 +272,7 @@ export namespace LanguageModel {
     override equals(
       other: LanguageModel.Interface,
     ): purifyHelpers.Equatable.EqualsResult {
-      return super
-        .equals(other)
-        .chain(() =>
-          purifyHelpers.Equatable.objectEquals(this, other, {
-            contextWindow: purifyHelpers.Equatable.strictEquals,
-            maxTokenOutput: (left, right) => left.equals(right),
-          }),
-        );
+      return LanguageModel.equals(this, other);
     }
 
     static override fromRdf(kwds: {
@@ -297,6 +297,18 @@ export namespace LanguageModel {
       readonly contextWindow: number;
       readonly maxTokenOutput?: purify.Maybe<number> | number;
     }
+  }
+
+  export function equals(
+    left: LanguageModel.Interface,
+    right: LanguageModel.Interface,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return MachineLearningModel.equals(left, right).chain(() =>
+      purifyHelpers.Equatable.objectEquals(left, right, {
+        contextWindow: purifyHelpers.Equatable.strictEquals,
+        maxTokenOutput: (left, right) => left.equals(right),
+      }),
+    );
   }
 
   export function fromRdf({
@@ -433,18 +445,7 @@ export namespace MachineLearningModelFamily {
     equals(
       other: MachineLearningModelFamily.Interface,
     ): purifyHelpers.Equatable.EqualsResult {
-      return purifyHelpers.Equatable.objectEquals(this, other, {
-        description: (left, right) =>
-          purifyHelpers.Maybes.equals(
-            left,
-            right,
-            purifyHelpers.Equatable.booleanEquals,
-          ),
-        identifier: purifyHelpers.Equatable.booleanEquals,
-        manufacturer: purifyHelpers.Equatable.equals,
-        name: purifyHelpers.Equatable.booleanEquals,
-        url: (left, right) => left.equals(right),
-      });
+      return MachineLearningModelFamily.equals(this, other);
     }
 
     static fromRdf(kwds: {
@@ -475,6 +476,24 @@ export namespace MachineLearningModelFamily {
       readonly name: rdfjs.Literal;
       readonly url?: purify.Maybe<string> | string;
     }
+  }
+
+  export function equals(
+    left: MachineLearningModelFamily.Interface,
+    right: MachineLearningModelFamily.Interface,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      description: (left, right) =>
+        purifyHelpers.Maybes.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      manufacturer: Organization.equals,
+      name: purifyHelpers.Equatable.booleanEquals,
+      url: (left, right) => left.equals(right),
+    });
   }
 
   export function fromRdf({
@@ -610,10 +629,7 @@ export namespace Organization {
     equals(
       other: Organization.Interface,
     ): purifyHelpers.Equatable.EqualsResult {
-      return purifyHelpers.Equatable.objectEquals(this, other, {
-        identifier: purifyHelpers.Equatable.booleanEquals,
-        name: purifyHelpers.Equatable.booleanEquals,
-      });
+      return Organization.equals(this, other);
     }
 
     static fromRdf(kwds: {
@@ -638,6 +654,16 @@ export namespace Organization {
       readonly identifier: rdfjs.NamedNode;
       readonly name: rdfjs.Literal;
     }
+  }
+
+  export function equals(
+    left: Organization.Interface,
+    right: Organization.Interface,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      name: purifyHelpers.Equatable.booleanEquals,
+    });
   }
 
   export function fromRdf({

@@ -6,6 +6,7 @@ import {
   type StatementStructures,
   StructureKind,
 } from "ts-morph";
+import type { TsGenerator } from "../../TsGenerator";
 import type { ObjectType } from "../ObjectType.js";
 
 function constructorDeclaration(
@@ -32,7 +33,21 @@ function constructorDeclaration(
   };
 }
 
-export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
+export function classDeclaration(
+  this: ObjectType,
+  features: Set<TsGenerator.Feature>,
+): ClassDeclarationStructure {
+  const methods: OptionalKind<MethodDeclarationStructure>[] = [];
+  if (features.has("equals")) {
+    methods.push(equalsMethodDeclaration.bind(this)());
+  }
+  if (features.has("fromRdf")) {
+    methods.push(fromRdfMethodDeclaration.bind(this)());
+  }
+  if (features.has("toRdf")) {
+    methods.push(toRdfMethodDeclaration.bind(this)());
+  }
+
   return {
     ctors:
       this.properties.length > 0
@@ -45,11 +60,7 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
     implements: [this.name("interface")],
     kind: StructureKind.Class,
     isExported: true,
-    methods: [
-      equalsMethodDeclaration.bind(this)(),
-      fromRdfMethodDeclaration.bind(this)(),
-      toRdfMethodDeclaration.bind(this)(),
-    ],
+    methods,
     name: "Class",
     properties: this.properties.map(
       (property) => property.classPropertyDeclaration,
@@ -60,13 +71,6 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
 function equalsMethodDeclaration(
   this: ObjectType,
 ): OptionalKind<MethodDeclarationStructure> {
-  let expression = `purifyHelpers.Equatable.objectEquals(this, other, { ${this.properties
-    .map((property) => `${property.name}: ${property.equalsFunction}`)
-    .join()} })`;
-  if (this.superObjectTypes.length > 0) {
-    expression = `super.equals(other).chain(() => ${expression})`;
-  }
-
   return {
     hasOverrideKeyword: this.superObjectTypes.length > 0,
     name: "equals",
@@ -76,7 +80,7 @@ function equalsMethodDeclaration(
         type: this.name("interface"),
       },
     ],
-    statements: [`return ${expression};`],
+    statements: [`return ${this.name("module")}.equals(this, other);`],
     returnType: "purifyHelpers.Equatable.EqualsResult",
   };
 }

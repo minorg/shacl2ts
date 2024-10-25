@@ -12,12 +12,13 @@ import { IdentifierType } from "./IdentifierType.js";
 import { Property } from "./Property.js";
 import type { Type } from "./Type.js";
 import {
+  classConstructorParametersInterfaceDeclaration,
   classDeclaration,
+  equalsFunctionDeclaration,
   fromRdfFunctionDeclaration,
   interfaceDeclaration,
   toRdfFunctionDeclaration,
 } from "./_ObjectType";
-import { classConstructorParametersInterfaceDeclaration } from "./_ObjectType/classConstructorParametersInterfaceDeclaration";
 
 export class ObjectType implements Type {
   readonly ancestorObjectTypes: readonly ObjectType[];
@@ -105,7 +106,7 @@ export class ObjectType implements Type {
         );
       }
 
-      const classDeclaration_ = classDeclaration.bind(this)();
+      const classDeclaration_ = classDeclaration.bind(this)(features);
       statements.push(classDeclaration_);
 
       statements.push({
@@ -116,6 +117,10 @@ export class ObjectType implements Type {
           classConstructorParametersInterfaceDeclaration.bind(this)(),
         ],
       });
+    }
+
+    if (features.has("equals")) {
+      statements.push(equalsFunctionDeclaration.bind(this)());
     }
 
     if (features.has("fromRdf")) {
@@ -135,7 +140,7 @@ export class ObjectType implements Type {
   }
 
   equalsFunction(): string {
-    return "purifyHelpers.Equatable.equals";
+    return `${this.name("module")}.equals`;
   }
 
   name(type: Type.NameType | "ast" | "class" | "interface" | "module"): string {
