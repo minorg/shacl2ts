@@ -12,6 +12,13 @@ export abstract class RdfjsTermType implements Type {
 
   abstract name(_: Type.NameType): string;
 
+  sparqlGraphPatterns(
+    _parameters: Type.SparqlGraphPatternParameters,
+  ): readonly string[] {
+    // Don't add any additional graph patterns for terms
+    return [];
+  }
+
   abstract valueFromRdf(parameters: Type.ValueFromRdfParameters): string;
 
   valueToRdf({ propertyValueVariable }: Type.ValueToRdfParameters): string {

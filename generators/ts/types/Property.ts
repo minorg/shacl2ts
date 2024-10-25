@@ -1,4 +1,5 @@
 import type * as rdfjs from "@rdfjs/types";
+import { pascalCase } from "change-case";
 import type { Maybe } from "purify-ts";
 import type {
   OptionalKind,
@@ -151,6 +152,26 @@ export class Property {
       return `(typeof ${parameter} !== "undefined" ? ${parameter} : [])`;
     }
     return parameter;
+  }
+
+  sparqlGraphPattern({
+    dataFactoryVariable,
+  }: {
+    dataFactoryVariable: string;
+  }): string {
+    let sparqlGraphPattern = `sparqlBuilder.GraphPattern.basic(this.subject, ${dataFactoryVariable}.namedNode("${this.path.value}"), this.variable("${pascalCase(this.name)}")`;
+    const typeSparqlGraphPatterns = this.type.sparqlGraphPatterns({
+      inline: this.inline,
+      dataFactoryVariable,
+      subjectVariable: this.name,
+    });
+    if (typeSparqlGraphPatterns.length > 0) {
+      sparqlGraphPattern = `${sparqlGraphPattern}.chainObject(${this.name} => [${typeSparqlGraphPatterns.join(", ")}])`;
+    }
+    if (this.containerType === "Maybe") {
+      sparqlGraphPattern = `sparqlBuilder.GraphPattern.optional(${sparqlGraphPattern})`;
+    }
+    return sparqlGraphPattern;
   }
 
   valueFromRdf({

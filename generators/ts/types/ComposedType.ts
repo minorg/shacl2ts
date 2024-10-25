@@ -25,6 +25,16 @@ export abstract class ComposedType implements Type {
     return `(${this.types.map((type) => type.name(nameType)).join(` ${this.separator} `)})`;
   }
 
+  sparqlGraphPatterns(
+    _parameters: Type.SparqlGraphPatternParameters,
+  ): readonly string[] {
+    if (this.types.every((type) => type.kind === "Literal")) {
+      return [];
+    }
+
+    throw new Error("not implemented");
+  }
+
   valueFromRdf({ resourceValueVariable }: Type.ValueFromRdfParameters): string {
     if (this.types.every((type) => type.kind === "Literal")) {
       return `${resourceValueVariable}.toLiteral()`;

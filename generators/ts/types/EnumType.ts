@@ -16,6 +16,10 @@ export class EnumType implements Type {
     throw new Error("not implemented");
   }
 
+  sparqlGraphPatterns(_: Type.SparqlGraphPatternParameters): readonly string[] {
+    throw new Error("not implemented");
+  }
+
   valueFromRdf(_: Type.ValueFromRdfParameters): string {
     throw new Error("not implemented");
   }

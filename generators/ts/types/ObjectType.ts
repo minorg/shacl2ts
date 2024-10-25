@@ -17,6 +17,7 @@ import {
   equalsFunctionDeclaration,
   fromRdfFunctionDeclaration,
   interfaceDeclaration,
+  sparqlGraphPatternsClassDeclaration,
   toRdfFunctionDeclaration,
 } from "./_ObjectType";
 
@@ -100,12 +101,6 @@ export class ObjectType implements Type {
     }
 
     if (features.has("class")) {
-      if (this.superObjectTypes.length > 1) {
-        throw new RangeError(
-          `object type '${this.name("ast")}' has multiple super object types, can't use with classes`,
-        );
-      }
-
       const classDeclaration_ = classDeclaration.bind(this)(features);
       statements.push(classDeclaration_);
 
@@ -125,6 +120,16 @@ export class ObjectType implements Type {
 
     if (features.has("fromRdf")) {
       statements.push(fromRdfFunctionDeclaration.bind(this)());
+    }
+
+    if (features.has("sparql-graph-patterns")) {
+      if (this.superObjectTypes.length > 1) {
+        throw new RangeError(
+          `object type '${this.name("ast")}' has multiple super object types, can't use with SPARQL graph patterns`,
+        );
+      }
+
+      statements.push(sparqlGraphPatternsClassDeclaration.bind(this)());
     }
 
     if (features.has("toRdf")) {
@@ -176,6 +181,17 @@ export class ObjectType implements Type {
     };
   }
 
+  sparqlGraphPatterns({
+    dataFactoryVariable,
+    inline,
+    subjectVariable,
+  }: Type.SparqlGraphPatternParameters): readonly string[] {
+    if (!inline) {
+      // Don't add any additional graph patterns for terms
+      return []; // Don't
+    }
+  }
+
   valueFromRdf({
     dataFactoryVariable,
     inline,
@@ -195,5 +211,13 @@ export class ObjectType implements Type {
     return inline
       ? `${this.name("module")}.toRdf(${propertyValueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`
       : propertyValueVariable;
+  }
+
+  protected ensureAtMostOneSuperObjectType() {
+    if (this.superObjectTypes.length > 1) {
+      throw new RangeError(
+        `object type '${this.name("ast")}' has multiple super object types`,
+      );
+    }
   }
 }
