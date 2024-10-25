@@ -1,17 +1,17 @@
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import { camelCase } from "change-case";
-import type { FunctionDeclarationStructure, OptionalKind } from "ts-morph";
+import { type FunctionDeclarationStructure, StructureKind } from "ts-morph";
 import type { ObjectType } from "../ObjectType";
 
 export function toRdfFunctionDeclaration(
   this: ObjectType,
-): OptionalKind<FunctionDeclarationStructure> {
-  const thisVariableName = camelCase(this.name("inline"));
+): FunctionDeclarationStructure {
+  const thisVariableName = camelCase(this.name("ast"));
 
   const statements: string[] = [];
   if (this.superObjectTypes.length > 0) {
     statements.push(
-      "const resource = super.toRdf({ mutateGraph, resourceSet });",
+      `const resource = ${this.superObjectTypes[0].name("module")}.toRdf(${thisVariableName}, { mutateGraph, resourceSet });`,
     );
   } else if (this.identifierType.isNamedNodeKind) {
     statements.push(
@@ -46,11 +46,17 @@ export function toRdfFunctionDeclaration(
   statements.push("return resource;");
 
   return {
+    isExported: true,
+    kind: StructureKind.Function,
     name: "toRdf",
     parameters: [
       {
-        name: `{ ${thisVariableName}, mutateGraph, resourceSet }`,
-        type: `{ ${thisVariableName}: ${this.name("inline")}, mutateGraph: rdfjsResource.MutableResource.MutateGraph, resourceSet: rdfjsResource.MutableResourceSet }`,
+        name: thisVariableName,
+        type: this.name("interface"),
+      },
+      {
+        name: "{ mutateGraph, resourceSet }",
+        type: "{ mutateGraph: rdfjsResource.MutableResource.MutateGraph, resourceSet: rdfjsResource.MutableResourceSet }",
       },
     ],
     returnType: this.rdfjsResourceType({ mutable: true }).name,

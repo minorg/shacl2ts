@@ -12,6 +12,12 @@ export class TsGenerator {
     this.features = new Set<TsGenerator.Feature>(
       options?.features ? [...options.features] : [],
     );
+    if (this.features.size === 0) {
+      this.features.add("class");
+      this.features.add("fromRdf");
+      this.features.add("interface");
+      this.features.add("toRdf");
+    }
     if (
       this.features.has("class") ||
       this.features.has("fromRdf") ||
@@ -90,23 +96,8 @@ export class TsGenerator {
   ) {
     this.addImportDeclarations(sourceFile);
 
-    if (this.features.has("class")) {
-      for (const objectType of objectTypes) {
-        if (objectType.superObjectTypes.length > 1) {
-          throw new RangeError(
-            `object type '${objectType.name("inline")}' has multiple super object types, can't use with classes`,
-          );
-        }
-
-        sourceFile.addClass(objectType.classDeclaration());
-        // sourceFile.addModule(objectType.moduleDeclaration());
-      }
-    }
-
-    if (this.features.has("interface")) {
-      for (const objectType of objectTypes) {
-        sourceFile.addInterface(objectType.interfaceDeclaration);
-      }
+    for (const objectType of objectTypes) {
+      sourceFile.addModule(objectType.declaration(this.features));
     }
   }
 }

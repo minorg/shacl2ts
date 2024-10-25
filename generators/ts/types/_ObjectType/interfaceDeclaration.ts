@@ -1,15 +1,16 @@
-import type { InterfaceDeclarationStructure, OptionalKind } from "ts-morph";
+import { type InterfaceDeclarationStructure, StructureKind } from "ts-morph";
 import type { ObjectType } from "../ObjectType";
 
 export function interfaceDeclaration(
   this: ObjectType,
-): OptionalKind<InterfaceDeclarationStructure> {
+): InterfaceDeclarationStructure {
   return {
     extends: this.superObjectTypes.map((superObjectType) =>
-      superObjectType.name("inline"),
+      superObjectType.name("interface"),
     ),
     isExported: true,
-    name: this.name("inline"),
+    kind: StructureKind.Interface,
+    name: "Interface",
     properties: this.properties.map(
       (property) => property.interfacePropertySignature,
     ),

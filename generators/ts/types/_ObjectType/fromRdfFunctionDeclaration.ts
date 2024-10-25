@@ -1,9 +1,9 @@
-import type { FunctionDeclarationStructure, OptionalKind } from "ts-morph";
+import { type FunctionDeclarationStructure, StructureKind } from "ts-morph";
 import type { ObjectType } from "../ObjectType";
 
 export function fromRdfFunctionDeclaration(
   this: ObjectType,
-): OptionalKind<FunctionDeclarationStructure> {
+): FunctionDeclarationStructure {
   const dataFactoryVariable = "dataFactory";
   const resourceVariable = "resource";
 
@@ -24,7 +24,7 @@ export function fromRdfFunctionDeclaration(
     }
   }
   statements.push(
-    `return purify.Either.of(new ${this.name("inline")}({ ${this.properties
+    `return purify.Either.of({ ${this.properties
       .map((property) => property.name)
       .concat(
         this.ancestorObjectTypes.flatMap((ancestorObjectType) =>
@@ -34,16 +34,18 @@ export function fromRdfFunctionDeclaration(
         ),
       )
       .sort()
-      .join(", ")} }))`,
+      .join(", ")} })`,
   );
 
   if (this.superObjectTypes.length > 0) {
     statements = [
-      `return ${this.superObjectTypes[0].name("inline")}.fromRdf({ ${dataFactoryVariable}, ${resourceVariable} }).chain(_super => { ${statements.join("\n")} })`,
+      `return ${this.superObjectTypes[0].name("module")}.fromRdf({ ${dataFactoryVariable}, ${resourceVariable} }).chain(_super => { ${statements.join("\n")} })`,
     ];
   }
 
   return {
+    isExported: true,
+    kind: StructureKind.Function,
     name: "fromRdf",
     parameters: [
       {
@@ -51,7 +53,7 @@ export function fromRdfFunctionDeclaration(
         type: `{ dataFactory: rdfjs.DataFactory, resource: ${this.rdfjsResourceType().name} }`,
       },
     ],
-    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name("inline")}>`,
+    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name("interface")}>`,
     statements,
   };
 }

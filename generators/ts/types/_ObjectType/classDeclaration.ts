@@ -1,9 +1,10 @@
-import type {
-  ClassDeclarationStructure,
-  ConstructorDeclarationStructure,
-  MethodDeclarationStructure,
-  OptionalKind,
-  StatementStructures,
+import {
+  type ClassDeclarationStructure,
+  type ConstructorDeclarationStructure,
+  type MethodDeclarationStructure,
+  type OptionalKind,
+  type StatementStructures,
+  StructureKind,
 } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
 
@@ -24,16 +25,14 @@ function constructorDeclaration(
     parameters: [
       {
         name: "parameters",
-        type: `${this.name("inline")}.Parameters`,
+        type: `${this.name("class")}.Parameters`,
       },
     ],
     statements,
   };
 }
 
-export function classDeclaration(
-  this: ObjectType,
-): OptionalKind<ClassDeclarationStructure> {
+export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
   return {
     ctors:
       this.properties.length > 0
@@ -41,15 +40,17 @@ export function classDeclaration(
         : undefined,
     extends:
       this.superObjectTypes.length > 0
-        ? this.superObjectTypes[0].name("inline")
+        ? this.superObjectTypes[0].name("class")
         : undefined,
+    implements: [this.name("interface")],
+    kind: StructureKind.Class,
     isExported: true,
     methods: [
       equalsMethodDeclaration.bind(this)(),
       // this.fromRdfMethodDeclaration,
       // this.toRdfMethodDeclaration,
     ],
-    name: this.name("inline"),
+    name: "Class",
     properties: this.properties.map(
       (property) => property.classPropertyDeclaration,
     ),
@@ -72,7 +73,7 @@ function equalsMethodDeclaration(
     parameters: [
       {
         name: "other",
-        type: this.name("inline"),
+        type: this.name("interface"),
       },
     ],
     statements: [`return ${expression};`],
