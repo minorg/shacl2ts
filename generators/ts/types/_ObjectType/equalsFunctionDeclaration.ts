@@ -8,7 +8,7 @@ export function equalsFunctionDeclaration(
     .map((property) => `${property.name}: ${property.equalsFunction}`)
     .join()} })`;
   for (const superObjectType of this.superObjectTypes) {
-    expression = `${superObjectType.name("module")}.equals(left, right).chain(() => ${expression})`;
+    expression = `${superObjectType.moduleQualifiedName}.equals(left, right).chain(() => ${expression})`;
   }
 
   return {
@@ -18,11 +18,11 @@ export function equalsFunctionDeclaration(
     parameters: [
       {
         name: "left",
-        type: this.name("interface"),
+        type: this.interfaceQualifiedName,
       },
       {
         name: "right",
-        type: this.name("interface"),
+        type: this.interfaceQualifiedName,
       },
     ],
     statements: [`return ${expression};`],

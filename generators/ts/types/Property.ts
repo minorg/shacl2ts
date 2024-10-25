@@ -8,13 +8,13 @@ import type {
 } from "ts-morph";
 import { Memoize } from "typescript-memoize";
 import type * as ast from "../../../ast";
+import { IdentifierType } from "./IdentifierType";
 import type { Type } from "./Type.js";
 import { createTypeFromAstType } from "./createTypeFromAstType";
 
 type ContainerType = "Array" | "Maybe" | null;
 
 export class Property {
-  readonly inline: boolean;
   readonly name: string;
   readonly type: Type;
   private readonly maxCount: Maybe<number>;
@@ -22,21 +22,18 @@ export class Property {
   private readonly path: rdfjs.NamedNode;
 
   constructor({
-    inline,
     maxCount,
     minCount,
     name,
     path,
     type,
   }: {
-    inline: boolean;
     maxCount: Maybe<number>;
     minCount: number;
     name: string;
     path: rdfjs.NamedNode;
     type: Type;
   }) {
-    this.inline = inline;
     this.maxCount = maxCount;
     this.minCount = minCount;
     this.name = name;
@@ -51,7 +48,7 @@ export class Property {
     const maxCount = this.maxCount.extractNullable();
     if (this.minCount === 0) {
       if (maxCount === 1) {
-        typeNames.push(this.type.name(this.inline ? "inline" : "extern")); // Allow Maybe<string> | string | undefined
+        typeNames.push(this.type.name); // Allow Maybe<string> | string | undefined
       }
       hasQuestionToken = true; // Allow Maybe<string> | undefined
     }
@@ -109,14 +106,13 @@ export class Property {
   // biome-ignore lint/suspicious/useGetterReturn: <explanation>
   @Memoize()
   get interfaceTypeName(): string {
-    const type = this.type.name(this.inline ? "inline" : "extern");
     switch (this.containerType) {
       case "Array":
-        return `readonly (${type})[]`;
+        return `readonly (${this.type.name})[]`;
       case "Maybe":
-        return `purify.Maybe<${type}>`;
+        return `purify.Maybe<${this.type.name}>`;
       case null:
-        return type;
+        return this.type.name;
     }
   }
 
@@ -133,13 +129,22 @@ export class Property {
   }
 
   static fromAstProperty(astProperty: ast.Property): Property {
+    let type: Type;
+    if (astProperty.type.kind === "Object" && !astProperty.inline) {
+      // Non-inlined object type = its identifier
+      type = new IdentifierType({
+        nodeKinds: astProperty.type.nodeKinds,
+      });
+    } else {
+      type = createTypeFromAstType(astProperty.type);
+    }
+
     return new Property({
-      inline: astProperty.inline,
       maxCount: astProperty.maxCount,
       minCount: astProperty.minCount,
       name: astProperty.name.tsName,
       path: astProperty.path.iri,
-      type: createTypeFromAstType(astProperty.type),
+      type,
     });
   }
 
@@ -161,7 +166,6 @@ export class Property {
   }): string {
     let sparqlGraphPattern = `sparqlBuilder.GraphPattern.basic(this.subject, ${dataFactoryVariable}.namedNode("${this.path.value}"), this.variable("${pascalCase(this.name)}")`;
     const typeSparqlGraphPatterns = this.type.sparqlGraphPatterns({
-      inline: this.inline,
       dataFactoryVariable,
       subjectVariable: this.name,
     });
@@ -181,10 +185,10 @@ export class Property {
     const path = `${dataFactoryVariable}.namedNode("${this.path.value}")`;
     const resourceValueVariable = "value";
     if (this.containerType === "Array") {
-      return `const ${this.name} = ${resourceVariable}.values(${path}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.valueFromRdf({ dataFactoryVariable, inline: this.inline, resourceValueVariable })}).toMaybe().toList())).orDefault([]);`;
+      return `const ${this.name} = ${resourceVariable}.values(${path}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.valueFromRdf({ dataFactoryVariable, resourceValueVariable })}).toMaybe().toList())).orDefault([]);`;
     }
 
-    const valueFromRdf = `${resourceVariable}.value(${path}).chain(${resourceValueVariable} => ${this.type.valueFromRdf({ dataFactoryVariable, inline: this.inline, resourceValueVariable })})`;
+    const valueFromRdf = `${resourceVariable}.value(${path}).chain(${resourceValueVariable} => ${this.type.valueFromRdf({ dataFactoryVariable, resourceValueVariable })})`;
     switch (this.containerType) {
       case "Maybe":
         return `const ${this.name} = ${valueFromRdf}.toMaybe();`;
@@ -201,12 +205,11 @@ export class Property {
     const path = `${resourceSetVariable}.dataFactory.namedNode("${this.path.value}")`;
     switch (this.containerType) {
       case "Array":
-        return `${propertyValueVariable}.forEach((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ inline: this.inline, mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`;
+        return `${propertyValueVariable}.forEach((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`;
       case "Maybe":
-        return `${propertyValueVariable}.ifJust((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ inline: this.inline, mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`;
+        return `${propertyValueVariable}.ifJust((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`;
       case null:
         return `resource.add(${path}, ${this.type.valueToRdf({
-          inline: this.inline,
           mutateGraphVariable,
           resourceSetVariable,
           propertyValueVariable,

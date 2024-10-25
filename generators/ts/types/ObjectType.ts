@@ -23,12 +23,15 @@ import {
 
 export class ObjectType implements Type {
   readonly ancestorObjectTypes: readonly ObjectType[];
+  readonly classQualifiedName: string;
   readonly identifierType: IdentifierType;
+  readonly interfaceQualifiedName: string;
   readonly kind = "Object";
+  readonly moduleQualifiedName: string;
+  readonly name: string;
   readonly properties: readonly Property[];
   readonly rdfType: Maybe<NamedNode>;
   readonly superObjectTypes: readonly ObjectType[];
-  private readonly astName: string;
 
   constructor({
     ancestorObjectTypes,
@@ -46,8 +49,11 @@ export class ObjectType implements Type {
     superObjectTypes: readonly ObjectType[];
   }) {
     this.ancestorObjectTypes = ancestorObjectTypes;
+    this.classQualifiedName = `${name}.Class`;
     this.identifierType = identifierType;
-    this.astName = name;
+    this.interfaceQualifiedName = `${name}.Interface`;
+    this.moduleQualifiedName = name;
+    this.name = name;
     this.properties = properties
       .concat()
       .sort((left, right) => left.name.localeCompare(right.name));
@@ -71,7 +77,6 @@ export class ObjectType implements Type {
     if (astType.superObjectTypes.length === 0) {
       properties.push(
         new Property({
-          inline: true,
           maxCount: Maybe.of(1),
           minCount: 1,
           name: "identifier",
@@ -125,7 +130,7 @@ export class ObjectType implements Type {
     if (features.has("sparql-graph-patterns")) {
       if (this.superObjectTypes.length > 1) {
         throw new RangeError(
-          `object type '${this.name("ast")}' has multiple super object types, can't use with SPARQL graph patterns`,
+          `object type '${this.name}' has multiple super object types, can't use with SPARQL graph patterns`,
         );
       }
 
@@ -139,30 +144,13 @@ export class ObjectType implements Type {
     return {
       isExported: true,
       kind: StructureKind.Module,
-      name: this.name("module"),
+      name: this.name,
       statements: statements,
     };
   }
 
   equalsFunction(): string {
-    return `${this.name("module")}.equals`;
-  }
-
-  name(type: Type.NameType | "ast" | "class" | "interface" | "module"): string {
-    switch (type) {
-      case "ast":
-        return this.astName;
-      case "class":
-        return `${this.astName}.Class`;
-      case "extern":
-        return this.identifierType.name();
-      case "inline":
-        return this.name("interface");
-      case "interface":
-        return `${this.astName}.Interface`;
-      case "module":
-        return this.astName;
-    }
+    return `${this.moduleQualifiedName}.equals`;
   }
 
   rdfjsResourceType(options?: { mutable?: boolean }): {
@@ -181,42 +169,29 @@ export class ObjectType implements Type {
     };
   }
 
-  sparqlGraphPatterns({
-    dataFactoryVariable,
-    inline,
-    subjectVariable,
-  }: Type.SparqlGraphPatternParameters): readonly string[] {
-    if (!inline) {
-      // Don't add any additional graph patterns for terms
-      return []; // Don't
-    }
+  sparqlGraphPatterns(_: Type.SparqlGraphPatternParameters): readonly string[] {
+    throw new Error("not implemented");
   }
 
   valueFromRdf({
     dataFactoryVariable,
-    inline,
     resourceValueVariable,
   }: Type.ValueFromRdfParameters): string {
-    return inline
-      ? `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.astName}.fromRdf({ dataFactory: ${dataFactoryVariable}, resource }))`
-      : `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Iri" : "Identifier"}()`;
+    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf({ dataFactory: ${dataFactoryVariable}, resource }))`;
   }
 
   valueToRdf({
-    inline,
     mutateGraphVariable,
     resourceSetVariable,
     propertyValueVariable,
   }: Type.ValueToRdfParameters): string {
-    return inline
-      ? `${this.name("module")}.toRdf(${propertyValueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`
-      : propertyValueVariable;
+    return `${this.moduleQualifiedName}.toRdf(${propertyValueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
   }
 
   protected ensureAtMostOneSuperObjectType() {
     if (this.superObjectTypes.length > 1) {
       throw new RangeError(
-        `object type '${this.name("ast")}' has multiple super object types`,
+        `object type '${this.name}' has multiple super object types`,
       );
     }
   }

@@ -5,12 +5,11 @@ import type { Type } from "./Type.js";
  */
 export abstract class RdfjsTermType implements Type {
   abstract readonly kind: "Identifier" | "Literal";
+  abstract readonly name: string;
 
   equalsFunction(): string {
     return "purifyHelpers.Equatable.booleanEquals";
   }
-
-  abstract name(_: Type.NameType): string;
 
   sparqlGraphPatterns(
     _parameters: Type.SparqlGraphPatternParameters,

@@ -5,12 +5,12 @@ import type { Type } from "./Type";
 export class LiteralType extends RdfjsTermType {
   readonly kind = "Literal";
 
-  static fromAstType(_astType: ast.LiteralType): LiteralType {
-    return new LiteralType();
+  get name(): string {
+    return "rdfjs.Literal";
   }
 
-  name(): string {
-    return "rdfjs.Literal";
+  static fromAstType(_astType: ast.LiteralType): LiteralType {
+    return new LiteralType();
   }
 
   valueFromRdf({ resourceValueVariable }: Type.ValueFromRdfParameters): string {
