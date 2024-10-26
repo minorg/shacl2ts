@@ -4,6 +4,8 @@ import type { ObjectType } from "../ObjectType";
 export function fromRdfFunctionDeclaration(
   this: ObjectType,
 ): FunctionDeclarationStructure {
+  this.ensureAtMostOneSuperObjectType();
+
   const dataFactoryVariable = "dataFactory";
   const resourceVariable = "resource";
 
@@ -39,7 +41,7 @@ export function fromRdfFunctionDeclaration(
 
   if (this.superObjectTypes.length > 0) {
     statements = [
-      `return ${this.superObjectTypes[0].name("module")}.fromRdf({ ${dataFactoryVariable}, ${resourceVariable} }).chain(_super => { ${statements.join("\n")} })`,
+      `return ${this.superObjectTypes[0].moduleQualifiedName}.fromRdf({ ${dataFactoryVariable}, ${resourceVariable} }).chain(_super => { ${statements.join("\n")} })`,
     ];
   }
 
@@ -53,7 +55,7 @@ export function fromRdfFunctionDeclaration(
         type: `{ dataFactory: rdfjs.DataFactory, resource: ${this.rdfjsResourceType().name} }`,
       },
     ],
-    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name("interface")}>`,
+    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.interfaceQualifiedName}>`,
     statements,
   };
 }

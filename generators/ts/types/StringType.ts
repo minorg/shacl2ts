@@ -3,12 +3,12 @@ import { PrimitiveType } from "./PrimitiveType.js";
 import type { Type } from "./Type";
 
 export class StringType extends PrimitiveType {
-  static override fromAstType(_astType: ast.LiteralType): StringType {
-    return new StringType();
+  override get name(): string {
+    return "string";
   }
 
-  override name(): string {
-    return "string";
+  static override fromAstType(_astType: ast.LiteralType): StringType {
+    return new StringType();
   }
 
   override valueFromRdf({

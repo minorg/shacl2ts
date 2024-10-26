@@ -4,6 +4,10 @@ import type { Type } from "./Type.js";
 export class EnumType implements Type {
   readonly kind = "Enum";
 
+  get name(): string {
+    throw new Error("not implemented");
+  }
+
   static fromAstType(_astType: ast.EnumType): EnumType {
     throw new Error("not implemented");
   }
@@ -12,7 +16,7 @@ export class EnumType implements Type {
     throw new Error("not implemented.");
   }
 
-  name(_: Type.NameType): string {
+  sparqlGraphPatterns(_: Type.SparqlGraphPatternParameters): readonly string[] {
     throw new Error("not implemented");
   }
 

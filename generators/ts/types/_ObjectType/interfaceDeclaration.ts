@@ -5,12 +5,12 @@ export function interfaceDeclaration(
   this: ObjectType,
 ): InterfaceDeclarationStructure {
   return {
-    extends: this.superObjectTypes.map((superObjectType) =>
-      superObjectType.name("interface"),
+    extends: this.superObjectTypes.map(
+      (superObjectType) => superObjectType.interfaceQualifiedName,
     ),
     isExported: true,
     kind: StructureKind.Interface,
-    name: "Interface",
+    name: this.interfaceUnqualifiedName,
     properties: this.properties.map(
       (property) => property.interfacePropertySignature,
     ),

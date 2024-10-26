@@ -9,6 +9,14 @@ export abstract class ComposedType implements Type {
 
   constructor(private readonly types: readonly Type[]) {}
 
+  get name(): string {
+    if (this.types.every((type) => type.kind === "Literal")) {
+      return "rdfjs.Literal";
+    }
+
+    return `(${this.types.map((type) => type.name).join(` ${this.separator} `)})`;
+  }
+
   equalsFunction(_leftValue: string, _rightValue: string): string {
     if (this.types.every((type) => type.kind === "Literal")) {
       return "purifyHelpers.Equatable.booleanEquals";
@@ -17,12 +25,14 @@ export abstract class ComposedType implements Type {
     throw new Error("not implemented");
   }
 
-  name(nameType: Type.NameType): string {
+  sparqlGraphPatterns(
+    _parameters: Type.SparqlGraphPatternParameters,
+  ): readonly string[] {
     if (this.types.every((type) => type.kind === "Literal")) {
-      return "rdfjs.Literal";
+      return [];
     }
 
-    return `(${this.types.map((type) => type.name(nameType)).join(` ${this.separator} `)})`;
+    throw new Error("not implemented");
   }
 
   valueFromRdf({ resourceValueVariable }: Type.ValueFromRdfParameters): string {

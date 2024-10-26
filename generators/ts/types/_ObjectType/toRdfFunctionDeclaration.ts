@@ -6,12 +6,14 @@ import type { ObjectType } from "../ObjectType";
 export function toRdfFunctionDeclaration(
   this: ObjectType,
 ): FunctionDeclarationStructure {
-  const thisVariableName = camelCase(this.name("ast"));
+  this.ensureAtMostOneSuperObjectType();
+
+  const thisVariableName = camelCase(this.name);
 
   const statements: string[] = [];
   if (this.superObjectTypes.length > 0) {
     statements.push(
-      `const resource = ${this.superObjectTypes[0].name("module")}.toRdf(${thisVariableName}, { mutateGraph, resourceSet });`,
+      `const resource = ${this.superObjectTypes[0].moduleQualifiedName}.toRdf(${thisVariableName}, { mutateGraph, resourceSet });`,
     );
   } else if (this.identifierType.isNamedNodeKind) {
     statements.push(
@@ -52,7 +54,7 @@ export function toRdfFunctionDeclaration(
     parameters: [
       {
         name: thisVariableName,
-        type: this.name("interface"),
+        type: this.interfaceQualifiedName,
       },
       {
         name: "{ mutateGraph, resourceSet }",

@@ -26,7 +26,7 @@ function constructorDeclaration(
     parameters: [
       {
         name: "parameters",
-        type: `${this.name("class")}.Parameters`,
+        type: `${this.classQualifiedName}.Parameters`,
       },
     ],
     statements,
@@ -37,6 +37,8 @@ export function classDeclaration(
   this: ObjectType,
   features: Set<TsGenerator.Feature>,
 ): ClassDeclarationStructure {
+  this.ensureAtMostOneSuperObjectType();
+
   const methods: OptionalKind<MethodDeclarationStructure>[] = [];
   if (features.has("equals")) {
     methods.push(equalsMethodDeclaration.bind(this)());
@@ -55,13 +57,13 @@ export function classDeclaration(
         : undefined,
     extends:
       this.superObjectTypes.length > 0
-        ? this.superObjectTypes[0].name("class")
+        ? this.superObjectTypes[0].classQualifiedName
         : undefined,
-    implements: [this.name("interface")],
+    implements: [this.interfaceQualifiedName],
     kind: StructureKind.Class,
     isExported: true,
     methods,
-    name: "Class",
+    name: this.classUnqualifiedName,
     properties: this.properties.map(
       (property) => property.classPropertyDeclaration,
     ),
@@ -77,10 +79,10 @@ function equalsMethodDeclaration(
     parameters: [
       {
         name: "other",
-        type: this.name("interface"),
+        type: this.interfaceQualifiedName,
       },
     ],
-    statements: [`return ${this.name("module")}.equals(this, other);`],
+    statements: [`return ${this.moduleQualifiedName}.equals(this, other);`],
     returnType: "purifyHelpers.Equatable.EqualsResult",
   };
 }
@@ -98,9 +100,9 @@ function fromRdfMethodDeclaration(
         type: `{ dataFactory: rdfjs.DataFactory, resource: ${this.rdfjsResourceType().name} }`,
       },
     ],
-    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name("class")}>`,
+    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.classQualifiedName}>`,
     statements: [
-      `return ${this.name("module")}.fromRdf(kwds).map(properties => new ${this.name("class")}(properties));`,
+      `return ${this.moduleQualifiedName}.fromRdf(kwds).map(properties => new ${this.classQualifiedName}(properties));`,
     ],
   };
 }
@@ -118,6 +120,6 @@ function toRdfMethodDeclaration(
       },
     ],
     returnType: this.rdfjsResourceType({ mutable: true }).name,
-    statements: [`return ${this.name("module")}.toRdf(this, kwds);`],
+    statements: [`return ${this.moduleQualifiedName}.toRdf(this, kwds);`],
   };
 }
