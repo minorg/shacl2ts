@@ -4,21 +4,21 @@ import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
 import * as rdfjsResource from "rdfjs-resource";
 
-export namespace MachineLearningModel {
-  export interface Interface {
-    readonly description: purify.Maybe<rdfjs.Literal>;
-    readonly identifier: rdfjs.NamedNode;
-    readonly isVariantOf: MachineLearningModelFamily.Interface;
-    readonly localIdentifier: string;
-    readonly name: rdfjs.Literal;
-    readonly trainingDataCutoff: purify.Maybe<string>;
-    readonly url: purify.Maybe<string>;
-  }
+export interface MachineLearningModel {
+  readonly description: purify.Maybe<rdfjs.Literal>;
+  readonly identifier: rdfjs.NamedNode;
+  readonly isVariantOf: MachineLearningModelFamily;
+  readonly localIdentifier: string;
+  readonly name: rdfjs.Literal;
+  readonly trainingDataCutoff: purify.Maybe<string>;
+  readonly url: purify.Maybe<string>;
+}
 
-  export class Class implements MachineLearningModel.Interface {
+export namespace MachineLearningModel {
+  export class Class implements MachineLearningModel {
     readonly description: purify.Maybe<rdfjs.Literal>;
     readonly identifier: rdfjs.NamedNode;
-    readonly isVariantOf: MachineLearningModelFamily.Interface;
+    readonly isVariantOf: MachineLearningModelFamily;
     readonly localIdentifier: string;
     readonly name: rdfjs.Literal;
     readonly trainingDataCutoff: purify.Maybe<string>;
@@ -42,9 +42,7 @@ export namespace MachineLearningModel {
         : purify.Maybe.fromNullable(parameters.url);
     }
 
-    equals(
-      other: MachineLearningModel.Interface,
-    ): purifyHelpers.Equatable.EqualsResult {
+    equals(other: MachineLearningModel): purifyHelpers.Equatable.EqualsResult {
       return MachineLearningModel.equals(this, other);
     }
 
@@ -72,7 +70,7 @@ export namespace MachineLearningModel {
     export interface Parameters {
       readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
       readonly identifier: rdfjs.NamedNode;
-      readonly isVariantOf: MachineLearningModelFamily.Interface;
+      readonly isVariantOf: MachineLearningModelFamily;
       readonly localIdentifier: string;
       readonly name: rdfjs.Literal;
       readonly trainingDataCutoff?: purify.Maybe<string> | string;
@@ -81,8 +79,8 @@ export namespace MachineLearningModel {
   }
 
   export function equals(
-    left: MachineLearningModel.Interface,
-    right: MachineLearningModel.Interface,
+    left: MachineLearningModel,
+    right: MachineLearningModel,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       description: (left, right) =>
@@ -106,10 +104,7 @@ export namespace MachineLearningModel {
   }: {
     dataFactory: rdfjs.DataFactory;
     resource: rdfjsResource.Resource<rdfjs.NamedNode>;
-  }): purify.Either<
-    rdfjsResource.Resource.ValueError,
-    MachineLearningModel.Interface
-  > {
+  }): purify.Either<rdfjsResource.Resource.ValueError, MachineLearningModel> {
     if (
       !resource.isInstanceOf(
         dataFactory.namedNode(
@@ -262,7 +257,7 @@ export namespace MachineLearningModel {
   }
 
   export function toRdf(
-    machineLearningModelInterface: MachineLearningModel.Interface,
+    machineLearningModel: MachineLearningModel,
     {
       mutateGraph,
       resourceSet,
@@ -272,7 +267,7 @@ export namespace MachineLearningModel {
     },
   ): rdfjsResource.MutableResource<rdfjs.NamedNode> {
     const resource = resourceSet.mutableNamedResource({
-      identifier: machineLearningModelInterface.identifier,
+      identifier: machineLearningModel.identifier,
       mutateGraph,
     });
     resource.add(
@@ -283,7 +278,7 @@ export namespace MachineLearningModel {
         "http://purl.annotize.ai/ontology/mlm#MachineLearningModel",
       ),
     );
-    machineLearningModelInterface.description.ifJust((descriptionValue) => {
+    machineLearningModel.description.ifJust((descriptionValue) => {
       resource.add(
         resourceSet.dataFactory.namedNode("https://schema.org/description"),
         descriptionValue,
@@ -291,20 +286,20 @@ export namespace MachineLearningModel {
     });
     resource.add(
       resourceSet.dataFactory.namedNode("https://schema.org/isVariantOf"),
-      MachineLearningModelFamily.toRdf(
-        machineLearningModelInterface.isVariantOf,
-        { mutateGraph: mutateGraph, resourceSet: resourceSet },
-      ).identifier,
+      MachineLearningModelFamily.toRdf(machineLearningModel.isVariantOf, {
+        mutateGraph: mutateGraph,
+        resourceSet: resourceSet,
+      }).identifier,
     );
     resource.add(
       resourceSet.dataFactory.namedNode("https://schema.org/identifier"),
-      machineLearningModelInterface.localIdentifier,
+      machineLearningModel.localIdentifier,
     );
     resource.add(
       resourceSet.dataFactory.namedNode("https://schema.org/name"),
-      machineLearningModelInterface.name,
+      machineLearningModel.name,
     );
-    machineLearningModelInterface.trainingDataCutoff.ifJust(
+    machineLearningModel.trainingDataCutoff.ifJust(
       (trainingDataCutoffValue) => {
         resource.add(
           resourceSet.dataFactory.namedNode(
@@ -314,7 +309,7 @@ export namespace MachineLearningModel {
         );
       },
     );
-    machineLearningModelInterface.url.ifJust((urlValue) => {
+    machineLearningModel.url.ifJust((urlValue) => {
       resource.add(
         resourceSet.dataFactory.namedNode("https://schema.org/url"),
         urlValue,
@@ -324,15 +319,15 @@ export namespace MachineLearningModel {
   }
 }
 
-export namespace LanguageModel {
-  export interface Interface extends MachineLearningModel.Interface {
-    readonly contextWindow: number;
-    readonly maxTokenOutput: purify.Maybe<number>;
-  }
+export interface LanguageModel extends MachineLearningModel {
+  readonly contextWindow: number;
+  readonly maxTokenOutput: purify.Maybe<number>;
+}
 
+export namespace LanguageModel {
   export class Class
     extends MachineLearningModel.Class
-    implements LanguageModel.Interface
+    implements LanguageModel
   {
     readonly contextWindow: number;
     readonly maxTokenOutput: purify.Maybe<number>;
@@ -346,7 +341,7 @@ export namespace LanguageModel {
     }
 
     override equals(
-      other: LanguageModel.Interface,
+      other: LanguageModel,
     ): purifyHelpers.Equatable.EqualsResult {
       return LanguageModel.equals(this, other);
     }
@@ -376,8 +371,8 @@ export namespace LanguageModel {
   }
 
   export function equals(
-    left: LanguageModel.Interface,
-    right: LanguageModel.Interface,
+    left: LanguageModel,
+    right: LanguageModel,
   ): purifyHelpers.Equatable.EqualsResult {
     return MachineLearningModel.equals(left, right).chain(() =>
       purifyHelpers.Equatable.objectEquals(left, right, {
@@ -393,10 +388,7 @@ export namespace LanguageModel {
   }: {
     dataFactory: rdfjs.DataFactory;
     resource: rdfjsResource.Resource<rdfjs.NamedNode>;
-  }): purify.Either<
-    rdfjsResource.Resource.ValueError,
-    LanguageModel.Interface
-  > {
+  }): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel> {
     return MachineLearningModel.fromRdf({ dataFactory, resource }).chain(
       (_super) => {
         if (
@@ -483,7 +475,7 @@ export namespace LanguageModel {
   }
 
   export function toRdf(
-    languageModelInterface: LanguageModel.Interface,
+    languageModel: LanguageModel,
     {
       mutateGraph,
       resourceSet,
@@ -492,7 +484,7 @@ export namespace LanguageModel {
       resourceSet: rdfjsResource.MutableResourceSet;
     },
   ): rdfjsResource.MutableResource<rdfjs.NamedNode> {
-    const resource = MachineLearningModel.toRdf(languageModelInterface, {
+    const resource = MachineLearningModel.toRdf(languageModel, {
       mutateGraph,
       resourceSet,
     });
@@ -508,9 +500,9 @@ export namespace LanguageModel {
       resourceSet.dataFactory.namedNode(
         "http://purl.annotize.ai/ontology/mlm#contextWindow",
       ),
-      languageModelInterface.contextWindow,
+      languageModel.contextWindow,
     );
-    languageModelInterface.maxTokenOutput.ifJust((maxTokenOutputValue) => {
+    languageModel.maxTokenOutput.ifJust((maxTokenOutputValue) => {
       resource.add(
         resourceSet.dataFactory.namedNode(
           "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
@@ -522,19 +514,19 @@ export namespace LanguageModel {
   }
 }
 
-export namespace MachineLearningModelFamily {
-  export interface Interface {
-    readonly description: purify.Maybe<rdfjs.Literal>;
-    readonly identifier: rdfjs.NamedNode;
-    readonly manufacturer: Organization.Interface;
-    readonly name: rdfjs.Literal;
-    readonly url: purify.Maybe<string>;
-  }
+export interface MachineLearningModelFamily {
+  readonly description: purify.Maybe<rdfjs.Literal>;
+  readonly identifier: rdfjs.NamedNode;
+  readonly manufacturer: Organization;
+  readonly name: rdfjs.Literal;
+  readonly url: purify.Maybe<string>;
+}
 
-  export class Class implements MachineLearningModelFamily.Interface {
+export namespace MachineLearningModelFamily {
+  export class Class implements MachineLearningModelFamily {
     readonly description: purify.Maybe<rdfjs.Literal>;
     readonly identifier: rdfjs.NamedNode;
-    readonly manufacturer: Organization.Interface;
+    readonly manufacturer: Organization;
     readonly name: rdfjs.Literal;
     readonly url: purify.Maybe<string>;
 
@@ -551,7 +543,7 @@ export namespace MachineLearningModelFamily {
     }
 
     equals(
-      other: MachineLearningModelFamily.Interface,
+      other: MachineLearningModelFamily,
     ): purifyHelpers.Equatable.EqualsResult {
       return MachineLearningModelFamily.equals(this, other);
     }
@@ -580,15 +572,15 @@ export namespace MachineLearningModelFamily {
     export interface Parameters {
       readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
       readonly identifier: rdfjs.NamedNode;
-      readonly manufacturer: Organization.Interface;
+      readonly manufacturer: Organization;
       readonly name: rdfjs.Literal;
       readonly url?: purify.Maybe<string> | string;
     }
   }
 
   export function equals(
-    left: MachineLearningModelFamily.Interface,
-    right: MachineLearningModelFamily.Interface,
+    left: MachineLearningModelFamily,
+    right: MachineLearningModelFamily,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       description: (left, right) =>
@@ -612,7 +604,7 @@ export namespace MachineLearningModelFamily {
     resource: rdfjsResource.Resource<rdfjs.NamedNode>;
   }): purify.Either<
     rdfjsResource.Resource.ValueError,
-    MachineLearningModelFamily.Interface
+    MachineLearningModelFamily
   > {
     if (
       !resource.isInstanceOf(
@@ -729,7 +721,7 @@ export namespace MachineLearningModelFamily {
   }
 
   export function toRdf(
-    machineLearningModelFamilyInterface: MachineLearningModelFamily.Interface,
+    machineLearningModelFamily: MachineLearningModelFamily,
     {
       mutateGraph,
       resourceSet,
@@ -739,7 +731,7 @@ export namespace MachineLearningModelFamily {
     },
   ): rdfjsResource.MutableResource<rdfjs.NamedNode> {
     const resource = resourceSet.mutableNamedResource({
-      identifier: machineLearningModelFamilyInterface.identifier,
+      identifier: machineLearningModelFamily.identifier,
       mutateGraph,
     });
     resource.add(
@@ -750,26 +742,24 @@ export namespace MachineLearningModelFamily {
         "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily",
       ),
     );
-    machineLearningModelFamilyInterface.description.ifJust(
-      (descriptionValue) => {
-        resource.add(
-          resourceSet.dataFactory.namedNode("https://schema.org/description"),
-          descriptionValue,
-        );
-      },
-    );
+    machineLearningModelFamily.description.ifJust((descriptionValue) => {
+      resource.add(
+        resourceSet.dataFactory.namedNode("https://schema.org/description"),
+        descriptionValue,
+      );
+    });
     resource.add(
       resourceSet.dataFactory.namedNode("https://schema.org/manufacturer"),
-      Organization.toRdf(machineLearningModelFamilyInterface.manufacturer, {
+      Organization.toRdf(machineLearningModelFamily.manufacturer, {
         mutateGraph: mutateGraph,
         resourceSet: resourceSet,
       }).identifier,
     );
     resource.add(
       resourceSet.dataFactory.namedNode("https://schema.org/name"),
-      machineLearningModelFamilyInterface.name,
+      machineLearningModelFamily.name,
     );
-    machineLearningModelFamilyInterface.url.ifJust((urlValue) => {
+    machineLearningModelFamily.url.ifJust((urlValue) => {
       resource.add(
         resourceSet.dataFactory.namedNode("https://schema.org/url"),
         urlValue,
@@ -779,13 +769,13 @@ export namespace MachineLearningModelFamily {
   }
 }
 
-export namespace Organization {
-  export interface Interface {
-    readonly identifier: rdfjs.NamedNode;
-    readonly name: rdfjs.Literal;
-  }
+export interface Organization {
+  readonly identifier: rdfjs.NamedNode;
+  readonly name: rdfjs.Literal;
+}
 
-  export class Class implements Organization.Interface {
+export namespace Organization {
+  export class Class implements Organization {
     readonly identifier: rdfjs.NamedNode;
     readonly name: rdfjs.Literal;
 
@@ -794,9 +784,7 @@ export namespace Organization {
       this.name = parameters.name;
     }
 
-    equals(
-      other: Organization.Interface,
-    ): purifyHelpers.Equatable.EqualsResult {
+    equals(other: Organization): purifyHelpers.Equatable.EqualsResult {
       return Organization.equals(this, other);
     }
 
@@ -825,8 +813,8 @@ export namespace Organization {
   }
 
   export function equals(
-    left: Organization.Interface,
-    right: Organization.Interface,
+    left: Organization,
+    right: Organization,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
@@ -840,7 +828,7 @@ export namespace Organization {
   }: {
     dataFactory: rdfjs.DataFactory;
     resource: rdfjsResource.Resource<rdfjs.NamedNode>;
-  }): purify.Either<rdfjsResource.Resource.ValueError, Organization.Interface> {
+  }): purify.Either<rdfjsResource.Resource.ValueError, Organization> {
     if (
       !resource.isInstanceOf(
         dataFactory.namedNode(
@@ -899,7 +887,7 @@ export namespace Organization {
   }
 
   export function toRdf(
-    organizationInterface: Organization.Interface,
+    organization: Organization,
     {
       mutateGraph,
       resourceSet,
@@ -909,7 +897,7 @@ export namespace Organization {
     },
   ): rdfjsResource.MutableResource<rdfjs.NamedNode> {
     const resource = resourceSet.mutableNamedResource({
-      identifier: organizationInterface.identifier,
+      identifier: organization.identifier,
       mutateGraph,
     });
     resource.add(
@@ -922,7 +910,7 @@ export namespace Organization {
     );
     resource.add(
       resourceSet.dataFactory.namedNode("https://schema.org/name"),
-      organizationInterface.name,
+      organization.name,
     );
     return resource;
   }

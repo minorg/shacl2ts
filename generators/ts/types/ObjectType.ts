@@ -1,43 +1,31 @@
 import type { NamedNode } from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
-import {
-  type ModuleDeclarationStructure,
-  type StatementStructures,
-  StructureKind,
-} from "ts-morph";
 import type * as ast from "../../../ast";
-import type { TsGenerator } from "../TsGenerator.js";
 import { shorthandProperty } from "../shorthandProperty.js";
 import { IdentifierType } from "./IdentifierType.js";
 import { Property } from "./Property.js";
 import type { Type } from "./Type.js";
-import {
-  classConstructorParametersInterfaceDeclaration,
-  classDeclaration,
-  equalsFunctionDeclaration,
-  fromRdfFunctionDeclaration,
-  interfaceDeclaration,
-  sparqlGraphPatternsClassDeclaration,
-  toRdfFunctionDeclaration,
-} from "./_ObjectType";
+import { interfaceDeclaration, moduleDeclaration } from "./_ObjectType";
 
 export class ObjectType implements Type {
   readonly ancestorObjectTypes: readonly ObjectType[];
+  readonly astName: string;
   readonly classQualifiedName: string;
   readonly identifierType: IdentifierType;
+  interfaceDeclaration = interfaceDeclaration;
   readonly interfaceQualifiedName: string;
   readonly kind = "Object";
+  moduleDeclaration = moduleDeclaration;
   readonly moduleQualifiedName: string;
   readonly properties: readonly Property[];
   readonly rdfType: Maybe<NamedNode>;
   readonly sparqlGraphPatternsClassQualifiedName: string;
   readonly superObjectTypes: readonly ObjectType[];
   protected readonly classUnqualifiedName: string = "Class";
-  protected readonly interfaceUnqualifiedName: string = "Interface";
+  protected readonly interfaceUnqualifiedName: string;
   protected readonly sparqlGraphPatternsClassUnqualifiedName: string =
     "SparqlGraphPatterns";
-  private readonly astName: string;
 
   constructor({
     ancestorObjectTypes,
@@ -69,9 +57,10 @@ export class ObjectType implements Type {
     this.superObjectTypes = superObjectTypes;
 
     this.astName = astName;
+    this.interfaceUnqualifiedName = astName;
     this.moduleQualifiedName = astName;
     this.classQualifiedName = `${this.moduleQualifiedName}.${this.classUnqualifiedName}`;
-    this.interfaceQualifiedName = `${this.moduleQualifiedName}.${this.interfaceUnqualifiedName}`;
+    this.interfaceQualifiedName = this.interfaceUnqualifiedName;
     this.sparqlGraphPatternsClassQualifiedName = `${astName}.${this.sparqlGraphPatternsClassUnqualifiedName}`;
   }
 
@@ -108,57 +97,6 @@ export class ObjectType implements Type {
       rdfType: astType.rdfType,
       superObjectTypes: astType.superObjectTypes.map(ObjectType.fromAstType),
     });
-  }
-
-  declaration(features: Set<TsGenerator.Feature>): ModuleDeclarationStructure {
-    const statements: StatementStructures[] = [];
-
-    if (features.has("interface")) {
-      statements.push(interfaceDeclaration.bind(this)());
-    }
-
-    if (features.has("class")) {
-      const classDeclaration_ = classDeclaration.bind(this)(features);
-      statements.push(classDeclaration_);
-
-      statements.push({
-        isExported: true,
-        kind: StructureKind.Module,
-        name: classDeclaration_.name!,
-        statements: [
-          classConstructorParametersInterfaceDeclaration.bind(this)(),
-        ],
-      });
-    }
-
-    if (features.has("equals")) {
-      statements.push(equalsFunctionDeclaration.bind(this)());
-    }
-
-    if (features.has("fromRdf")) {
-      statements.push(fromRdfFunctionDeclaration.bind(this)());
-    }
-
-    if (features.has("sparql-graph-patterns")) {
-      if (this.superObjectTypes.length > 1) {
-        throw new RangeError(
-          `object type '${this.astName}' has multiple super object types, can't use with SPARQL graph patterns`,
-        );
-      }
-
-      statements.push(sparqlGraphPatternsClassDeclaration.bind(this)());
-    }
-
-    if (features.has("toRdf")) {
-      statements.push(toRdfFunctionDeclaration.bind(this)());
-    }
-
-    return {
-      isExported: true,
-      kind: StructureKind.Module,
-      name: this.astName,
-      statements: statements,
-    };
   }
 
   equalsFunction(): string {
