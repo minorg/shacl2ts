@@ -40,7 +40,7 @@ describe("TsGenerator", () => {
   });
 
   it("should generate valid TypeScript interfaces", ({ expect }) => {
-    const mlm: generated.LanguageModel.Interface = {
+    const mlm: generated.LanguageModel = {
       contextWindow: 1,
       description: Maybe.of(dataFactory.literal("Test description")),
       identifier: dataFactory.namedNode("http://example.com/mlm"),

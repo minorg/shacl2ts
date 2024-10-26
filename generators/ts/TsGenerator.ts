@@ -16,16 +16,8 @@ export class TsGenerator {
       this.features.add("class");
       this.features.add("equals");
       this.features.add("fromRdf");
-      this.features.add("interface");
       this.features.add("toRdf");
       this.features.add("sparql-graph-patterns");
-    }
-    if (
-      this.features.has("class") ||
-      this.features.has("fromRdf") ||
-      this.features.has("toRdf")
-    ) {
-      this.features.add("interface");
     }
   }
 
@@ -108,7 +100,8 @@ export class TsGenerator {
     this.addImportDeclarations(sourceFile);
 
     for (const objectType of objectTypes) {
-      sourceFile.addModule(objectType.declaration(this.features));
+      sourceFile.addInterface(objectType.interfaceDeclaration());
+      sourceFile.addModule(objectType.moduleDeclaration(this.features));
     }
   }
 }
@@ -117,7 +110,6 @@ export namespace TsGenerator {
   export type Feature =
     | "class"
     | "equals"
-    | "interface"
     | "fromRdf"
     | "toRdf"
     | "sparql-graph-patterns";
