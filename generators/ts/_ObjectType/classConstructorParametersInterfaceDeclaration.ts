@@ -7,9 +7,9 @@ export function classConstructorParametersInterfaceDeclaration(
   this.ensureAtMostOneSuperObjectType();
   return {
     extends:
-      this.superObjectTypes.length > 0
+      this.parentObjectTypes.length > 0
         ? [
-            `${this.superObjectTypes[0].classQualifiedName}.ConstructorParameters`,
+            `${this.parentObjectTypes[0].classQualifiedName}.ConstructorParameters`,
           ]
         : undefined,
     isExported: true,

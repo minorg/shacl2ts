@@ -39,9 +39,9 @@ export function fromRdfFunctionDeclaration(
       .join(", ")} })`,
   );
 
-  if (this.superObjectTypes.length > 0) {
+  if (this.parentObjectTypes.length > 0) {
     statements = [
-      `return ${this.superObjectTypes[0].moduleQualifiedName}.fromRdf({ ${dataFactoryVariable}, ${resourceVariable} }).chain(_super => { ${statements.join("\n")} })`,
+      `return ${this.parentObjectTypes[0].moduleQualifiedName}.fromRdf({ ${dataFactoryVariable}, ${resourceVariable} }).chain(_super => { ${statements.join("\n")} })`,
     ];
   }
 

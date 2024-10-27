@@ -11,9 +11,9 @@ export function toRdfFunctionDeclaration(
   const thisVariableName = camelCase(this.name);
 
   const statements: string[] = [];
-  if (this.superObjectTypes.length > 0) {
+  if (this.parentObjectTypes.length > 0) {
     statements.push(
-      `const resource = ${this.superObjectTypes[0].moduleQualifiedName}.toRdf(${thisVariableName}, { mutateGraph, resourceSet });`,
+      `const resource = ${this.parentObjectTypes[0].moduleQualifiedName}.toRdf(${thisVariableName}, { mutateGraph, resourceSet });`,
     );
   } else if (this.identifierType.isNamedNodeKind) {
     statements.push(

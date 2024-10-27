@@ -95,7 +95,7 @@ function typeToJson(type: ast.Type): AstJson.Type {
       return {
         kind: type.kind,
         name: nameToJson(type.name),
-        superObjectTypes: type.superObjectTypes.map(typeToJson),
+        parentObjectTypes: type.parentObjectTypes.map(typeToJson),
         nodeKinds: [...type.nodeKinds].map(nodeKindToJson),
       };
   }

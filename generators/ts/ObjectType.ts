@@ -18,10 +18,10 @@ export class ObjectType extends Type {
   readonly kind = "Object";
   moduleDeclaration = moduleDeclaration;
   readonly moduleQualifiedName: string;
+  readonly parentObjectTypes: readonly ObjectType[];
   readonly properties: readonly Property[];
   readonly rdfType: Maybe<NamedNode>;
   readonly sparqlGraphPatternsClassQualifiedName: string;
-  readonly superObjectTypes: readonly ObjectType[];
   protected readonly classUnqualifiedName: string = "Class";
   protected readonly interfaceUnqualifiedName: string;
   protected readonly sparqlGraphPatternsClassUnqualifiedName: string =
@@ -33,7 +33,7 @@ export class ObjectType extends Type {
     identifierType,
     properties,
     rdfType,
-    superObjectTypes,
+    parentObjectTypes,
     ...superParameters
   }: {
     ancestorObjectTypes: readonly ObjectType[];
@@ -41,7 +41,7 @@ export class ObjectType extends Type {
     identifierType: IdentifierType;
     properties: readonly Property[];
     rdfType: Maybe<NamedNode>;
-    superObjectTypes: readonly ObjectType[];
+    parentObjectTypes: readonly ObjectType[];
   } & Type.ConstructorParameters) {
     super(superParameters);
     this.ancestorObjectTypes = ancestorObjectTypes;
@@ -56,7 +56,7 @@ export class ObjectType extends Type {
       }
     }
     this.rdfType = rdfType;
-    this.superObjectTypes = superObjectTypes;
+    this.parentObjectTypes = parentObjectTypes;
 
     this.astName = astName;
     this.interfaceUnqualifiedName = astName;
@@ -85,7 +85,7 @@ export class ObjectType extends Type {
       Property.fromAstProperty({ astProperty, configuration }),
     );
 
-    if (astType.superObjectTypes.length === 0) {
+    if (astType.parentObjectTypes.length === 0) {
       properties.push(
         new Property({
           maxCount: Maybe.of(1),
@@ -106,7 +106,7 @@ export class ObjectType extends Type {
       identifierType,
       properties: properties,
       rdfType: astType.rdfType,
-      superObjectTypes: astType.superObjectTypes.map((astType) =>
+      parentObjectTypes: astType.parentObjectTypes.map((astType) =>
         ObjectType.fromAstType({ astType, configuration }),
       ),
     });
@@ -121,8 +121,8 @@ export class ObjectType extends Type {
     readonly name: string;
     readonly named: boolean;
   } {
-    if (this.superObjectTypes.length > 0) {
-      return this.superObjectTypes[0].rdfjsResourceType(options);
+    if (this.parentObjectTypes.length > 0) {
+      return this.parentObjectTypes[0].rdfjsResourceType(options);
     }
 
     return {
@@ -157,7 +157,7 @@ export class ObjectType extends Type {
   }
 
   protected ensureAtMostOneSuperObjectType() {
-    if (this.superObjectTypes.length > 1) {
+    if (this.parentObjectTypes.length > 1) {
       throw new RangeError(
         `object type '${this.astName}' has multiple super object types`,
       );

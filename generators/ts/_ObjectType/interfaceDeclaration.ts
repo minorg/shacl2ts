@@ -22,8 +22,8 @@ export function interfaceDeclaration(
   );
 
   return {
-    extends: this.superObjectTypes.map(
-      (superObjectType) => superObjectType.interfaceQualifiedName,
+    extends: this.parentObjectTypes.map(
+      (parentObjectType) => parentObjectType.interfaceQualifiedName,
     ),
     isExported: true,
     kind: StructureKind.Interface,

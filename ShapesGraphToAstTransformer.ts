@@ -18,13 +18,13 @@ function ancestorClassIris(
   const ancestorClassIris = new TermSet<rdfjs.NamedNode>();
 
   function ancestorClassIrisRecursive(classResource: Resource): void {
-    for (const superClassValue of classResource.values(rdfs.subClassOf)) {
-      superClassValue.toNamedResource().ifRight((superClassResource) => {
-        if (ancestorClassIris.has(superClassResource.identifier)) {
+    for (const parentClassValue of classResource.values(rdfs.subClassOf)) {
+      parentClassValue.toNamedResource().ifRight((parentClassResource) => {
+        if (ancestorClassIris.has(parentClassResource.identifier)) {
           return;
         }
-        ancestorClassIris.add(superClassResource.identifier);
-        ancestorClassIrisRecursive(superClassResource);
+        ancestorClassIris.add(parentClassResource.identifier);
+        ancestorClassIrisRecursive(parentClassResource);
       });
     }
   }
@@ -56,16 +56,16 @@ function shacl2tsName(shape: shaclAst.Shape): Maybe<string> {
     .toMaybe();
 }
 
-function superClassIris(classResource: Resource): readonly rdfjs.NamedNode[] {
-  const superClassIris = new TermSet<rdfjs.NamedNode>();
+function parentClassIris(classResource: Resource): readonly rdfjs.NamedNode[] {
+  const parentClassIris = new TermSet<rdfjs.NamedNode>();
 
-  for (const superClassValue of classResource.values(rdfs.subClassOf)) {
-    superClassValue
+  for (const parentClassValue of classResource.values(rdfs.subClassOf)) {
+    parentClassValue
       .toIri()
-      .ifRight((superClassIri) => superClassIris.add(superClassIri));
+      .ifRight((parentClassIri) => parentClassIris.add(parentClassIri));
   }
 
-  return [...superClassIris];
+  return [...parentClassIris];
 }
 
 // Adapted from https://github.com/sindresorhus/to-valid-identifier , MIT license
@@ -364,30 +364,30 @@ export class ShapesGraphToAstTransformer {
       ),
       properties: [], // This is mutable, we'll populate it below.
       rdfType,
-      superObjectTypes: [], // This is mutable, we'll populate it below
+      parentObjectTypes: [], // This is mutable, we'll populate it below
     };
     this.objectTypesByIdentifier.set(nodeShape.resource.identifier, objectType);
 
-    const resolveSuperObjectTypes = (
-      superClassIris: readonly rdfjs.NamedNode[],
+    const resolveParentObjectTypes = (
+      parentClassIris: readonly rdfjs.NamedNode[],
     ): readonly ast.ObjectType[] => {
       const subTypeOf: ast.ObjectType[] = [];
-      for (const superClassIri of superClassIris) {
+      for (const parentClassIri of parentClassIris) {
         if (
-          superClassIri.equals(owl.Class) ||
-          superClassIri.equals(owl.Thing) ||
-          superClassIri.equals(rdfs.Class)
+          parentClassIri.equals(owl.Class) ||
+          parentClassIri.equals(owl.Thing) ||
+          parentClassIri.equals(rdfs.Class)
         ) {
           continue;
         }
         const superNodeShape = this.shapesGraph
-          .nodeShapeByNode(superClassIri)
+          .nodeShapeByNode(parentClassIri)
           .extractNullable();
         if (superNodeShape === null) {
           logger.debug(
             "node shape %s ancestor/super class %s does not correspond to a node shape",
             nodeShape.resource.identifier.value,
-            superClassIri.value,
+            parentClassIri.value,
           );
           continue;
         }
@@ -399,16 +399,16 @@ export class ShapesGraphToAstTransformer {
               superNodeShape.resource.identifier.value,
             );
           })
-          .ifRight((superObjectType) => subTypeOf.push(superObjectType));
+          .ifRight((parentObjectType) => subTypeOf.push(parentObjectType));
       }
       return subTypeOf;
     };
 
     objectType.ancestorObjectTypes.push(
-      ...resolveSuperObjectTypes(ancestorClassIris(nodeShape.resource)),
+      ...resolveParentObjectTypes(ancestorClassIris(nodeShape.resource)),
     );
-    objectType.superObjectTypes.push(
-      ...resolveSuperObjectTypes(superClassIris(nodeShape.resource)),
+    objectType.parentObjectTypes.push(
+      ...resolveParentObjectTypes(parentClassIris(nodeShape.resource)),
     );
 
     const propertiesByTsName: Record<string, ast.Property> = {};

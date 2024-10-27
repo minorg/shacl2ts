@@ -39,7 +39,7 @@ export function moduleDeclaration(
   }
 
   if (this.configuration.features.has("sparql-graph-patterns")) {
-    if (this.superObjectTypes.length > 1) {
+    if (this.parentObjectTypes.length > 1) {
       throw new RangeError(
         `object type '${this.astName}' has multiple super object types, can't use with SPARQL graph patterns`,
       );

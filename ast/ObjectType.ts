@@ -8,7 +8,7 @@ export interface ObjectType {
   readonly kind: "Object";
   readonly name: Name;
   readonly nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
+  readonly parentObjectTypes: ObjectType[]; // This is mutable to support cycle-handling logic in the transformer.
   readonly properties: Property[]; // This is mutable to support cycle-handling logic in the transformer.
   readonly rdfType: Maybe<NamedNode>;
-  readonly superObjectTypes: ObjectType[]; // This is mutable to support cycle-handling logic in the transformer.
 }

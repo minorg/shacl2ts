@@ -12,7 +12,7 @@ export function sparqlGraphPatternsClassDeclaration(
 
   const constructorStatements: string[] = [];
 
-  if (this.superObjectTypes.length > 0) {
+  if (this.parentObjectTypes.length > 0) {
     constructorStatements.push(
       `super({ ${shorthandProperty("dataFactory", dataFactoryVariable)}, ${shorthandProperty("subject", subjectVariable)} });`,
     );
@@ -39,8 +39,8 @@ export function sparqlGraphPatternsClassDeclaration(
       },
     ],
     extends:
-      this.superObjectTypes.length > 0
-        ? this.superObjectTypes[0].sparqlGraphPatternsClassQualifiedName
+      this.parentObjectTypes.length > 0
+        ? this.parentObjectTypes[0].sparqlGraphPatternsClassQualifiedName
         : "sparqlBuilder.ResourceGraphPatterns",
     isExported: true,
     kind: StructureKind.Class,
