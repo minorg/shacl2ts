@@ -9,11 +9,13 @@ type Feature =
 
 export class Configuration {
   readonly features: Set<Feature>;
-  readonly typeDiscriminatorPropertyName: Maybe<string>;
+  readonly objectTypeDiscriminatorPropertyName: Maybe<string>;
+  readonly objectTypeIdentifierPropertyName: string;
 
   constructor(parameters?: {
     features?: Set<Feature>;
-    typeDiscriminatorPropertyName?: string;
+    objectTypeIdentifierPropertyName?: string;
+    objectTypeDiscriminatorPropertyName?: string;
   }) {
     this.features = new Set<Feature>(
       parameters?.features ? [...parameters.features] : [],
@@ -25,8 +27,10 @@ export class Configuration {
       this.features.add("toRdf");
       this.features.add("sparql-graph-patterns");
     }
-    this.typeDiscriminatorPropertyName = Maybe.fromNullable(
-      parameters?.typeDiscriminatorPropertyName,
+    this.objectTypeIdentifierPropertyName =
+      parameters?.objectTypeIdentifierPropertyName ?? "identifier";
+    this.objectTypeDiscriminatorPropertyName = Maybe.fromNullable(
+      parameters?.objectTypeDiscriminatorPropertyName,
     );
   }
 }

@@ -72,17 +72,17 @@ export class ObjectType extends Type {
 
   static fromAstType({
     astType,
-    ...parameters
+    configuration,
   }: {
     astType: ast.ObjectType;
   } & Type.ConstructorParameters): ObjectType {
     const identifierType = IdentifierType.fromNodeKinds({
+      configuration,
       nodeKinds: astType.nodeKinds,
-      ...parameters,
     });
 
     const properties: Property[] = astType.properties.map((astProperty) =>
-      Property.fromAstProperty({ astProperty, ...parameters }),
+      Property.fromAstProperty({ astProperty, configuration }),
     );
 
     if (astType.superObjectTypes.length === 0) {
@@ -90,7 +90,7 @@ export class ObjectType extends Type {
         new Property({
           maxCount: Maybe.of(1),
           minCount: 1,
-          name: "identifier",
+          name: configuration.objectTypeIdentifierPropertyName,
           path: rdf.subject,
           type: identifierType,
         }),
@@ -99,16 +99,16 @@ export class ObjectType extends Type {
 
     return new ObjectType({
       ancestorObjectTypes: astType.ancestorObjectTypes.map((astType) =>
-        ObjectType.fromAstType({ astType, ...parameters }),
+        ObjectType.fromAstType({ astType, configuration }),
       ),
       astName: astType.name.tsName,
+      configuration,
       identifierType,
       properties: properties,
       rdfType: astType.rdfType,
       superObjectTypes: astType.superObjectTypes.map((astType) =>
-        ObjectType.fromAstType({ astType, ...parameters }),
+        ObjectType.fromAstType({ astType, configuration }),
       ),
-      ...parameters,
     });
   }
 

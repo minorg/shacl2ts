@@ -3,6 +3,8 @@ import {
   type ConstructorDeclarationStructure,
   type MethodDeclarationStructure,
   type OptionalKind,
+  type PropertyDeclarationStructure,
+  type PropertySignatureStructure,
   type StatementStructures,
   StructureKind,
 } from "ts-morph";
@@ -46,6 +48,18 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
     methods.push(toRdfMethodDeclaration.bind(this)());
   }
 
+  const properties: OptionalKind<PropertyDeclarationStructure>[] =
+    this.properties.map((property) => property.classPropertyDeclaration);
+  this.configuration.objectTypeDiscriminatorPropertyName.ifJust(
+    (typeDiscriminatorPropertyName) => {
+      properties.push({
+        isReadonly: true,
+        initializer: `"${this.name}"`,
+        name: typeDiscriminatorPropertyName,
+      });
+    },
+  );
+
   return {
     ctors:
       this.properties.length > 0
@@ -60,9 +74,7 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
     isExported: true,
     methods,
     name: this.classUnqualifiedName,
-    properties: this.properties.map(
-      (property) => property.classPropertyDeclaration,
-    ),
+    properties,
   };
 }
 

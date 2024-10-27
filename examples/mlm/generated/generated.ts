@@ -12,6 +12,7 @@ export interface MachineLearningModel {
   readonly name: rdfjs.Literal;
   readonly trainingDataCutoff: purify.Maybe<string>;
   readonly url: purify.Maybe<string>;
+  readonly type: "MachineLearningModel";
 }
 
 export namespace MachineLearningModel {
@@ -23,8 +24,9 @@ export namespace MachineLearningModel {
     readonly name: rdfjs.Literal;
     readonly trainingDataCutoff: purify.Maybe<string>;
     readonly url: purify.Maybe<string>;
+    readonly type = "MachineLearningModel";
 
-    constructor(parameters: MachineLearningModel.Class.Parameters) {
+    constructor(parameters: MachineLearningModel.Class.ConstructorParameters) {
       this.description = purify.Maybe.isMaybe(parameters.description)
         ? parameters.description
         : purify.Maybe.fromNullable(parameters.description);
@@ -67,7 +69,7 @@ export namespace MachineLearningModel {
   }
 
   export namespace Class {
-    export interface Parameters {
+    export interface ConstructorParameters {
       readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
       readonly identifier: rdfjs.NamedNode;
       readonly isVariantOf: MachineLearningModelFamily;
@@ -322,6 +324,7 @@ export namespace MachineLearningModel {
 export interface LanguageModel extends MachineLearningModel {
   readonly contextWindow: number;
   readonly maxTokenOutput: purify.Maybe<number>;
+  readonly type: "LanguageModel";
 }
 
 export namespace LanguageModel {
@@ -331,8 +334,9 @@ export namespace LanguageModel {
   {
     readonly contextWindow: number;
     readonly maxTokenOutput: purify.Maybe<number>;
+    readonly type = "LanguageModel";
 
-    constructor(parameters: LanguageModel.Class.Parameters) {
+    constructor(parameters: LanguageModel.Class.ConstructorParameters) {
       super(parameters);
       this.contextWindow = parameters.contextWindow;
       this.maxTokenOutput = purify.Maybe.isMaybe(parameters.maxTokenOutput)
@@ -364,7 +368,8 @@ export namespace LanguageModel {
   }
 
   export namespace Class {
-    export interface Parameters extends MachineLearningModel.Class.Parameters {
+    export interface ConstructorParameters
+      extends MachineLearningModel.Class.ConstructorParameters {
       readonly contextWindow: number;
       readonly maxTokenOutput?: purify.Maybe<number> | number;
     }
@@ -520,6 +525,7 @@ export interface MachineLearningModelFamily {
   readonly manufacturer: Organization;
   readonly name: rdfjs.Literal;
   readonly url: purify.Maybe<string>;
+  readonly type: "MachineLearningModelFamily";
 }
 
 export namespace MachineLearningModelFamily {
@@ -529,8 +535,11 @@ export namespace MachineLearningModelFamily {
     readonly manufacturer: Organization;
     readonly name: rdfjs.Literal;
     readonly url: purify.Maybe<string>;
+    readonly type = "MachineLearningModelFamily";
 
-    constructor(parameters: MachineLearningModelFamily.Class.Parameters) {
+    constructor(
+      parameters: MachineLearningModelFamily.Class.ConstructorParameters,
+    ) {
       this.description = purify.Maybe.isMaybe(parameters.description)
         ? parameters.description
         : purify.Maybe.fromNullable(parameters.description);
@@ -569,7 +578,7 @@ export namespace MachineLearningModelFamily {
   }
 
   export namespace Class {
-    export interface Parameters {
+    export interface ConstructorParameters {
       readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
       readonly identifier: rdfjs.NamedNode;
       readonly manufacturer: Organization;
@@ -772,14 +781,16 @@ export namespace MachineLearningModelFamily {
 export interface Organization {
   readonly identifier: rdfjs.NamedNode;
   readonly name: rdfjs.Literal;
+  readonly type: "Organization";
 }
 
 export namespace Organization {
   export class Class implements Organization {
     readonly identifier: rdfjs.NamedNode;
     readonly name: rdfjs.Literal;
+    readonly type = "Organization";
 
-    constructor(parameters: Organization.Class.Parameters) {
+    constructor(parameters: Organization.Class.ConstructorParameters) {
       this.identifier = parameters.identifier;
       this.name = parameters.name;
     }
@@ -806,7 +817,7 @@ export namespace Organization {
   }
 
   export namespace Class {
-    export interface Parameters {
+    export interface ConstructorParameters {
       readonly identifier: rdfjs.NamedNode;
       readonly name: rdfjs.Literal;
     }
