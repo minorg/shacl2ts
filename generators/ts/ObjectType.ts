@@ -12,6 +12,7 @@ export class ObjectType extends Type {
   readonly ancestorObjectTypes: readonly ObjectType[];
   readonly astName: string;
   readonly classQualifiedName: string;
+  readonly descendantObjectTypes: readonly ObjectType[];
   readonly identifierType: IdentifierType;
   interfaceDeclaration = interfaceDeclaration;
   readonly interfaceQualifiedName: string;
@@ -30,6 +31,7 @@ export class ObjectType extends Type {
   constructor({
     ancestorObjectTypes,
     astName,
+    descendantObjectTypes,
     identifierType,
     properties,
     rdfType,
@@ -38,6 +40,7 @@ export class ObjectType extends Type {
   }: {
     ancestorObjectTypes: readonly ObjectType[];
     astName: string;
+    descendantObjectTypes: readonly ObjectType[];
     identifierType: IdentifierType;
     properties: readonly Property[];
     rdfType: Maybe<NamedNode>;
@@ -45,6 +48,7 @@ export class ObjectType extends Type {
   } & Type.ConstructorParameters) {
     super(superParameters);
     this.ancestorObjectTypes = ancestorObjectTypes;
+    this.descendantObjectTypes = descendantObjectTypes;
     this.identifierType = identifierType;
     this.properties = properties
       .concat()
@@ -97,12 +101,19 @@ export class ObjectType extends Type {
       );
     }
 
+    for (const descendantObjectType of astType.descendantObjectTypes) {
+      console.info(astType.name.tsName, descendantObjectType.name.tsName);
+    }
+
     return new ObjectType({
       ancestorObjectTypes: astType.ancestorObjectTypes.map((astType) =>
         ObjectType.fromAstType({ astType, configuration }),
       ),
       astName: astType.name.tsName,
       configuration,
+      descendantObjectTypes: astType.descendantObjectTypes.map((astType) =>
+        ObjectType.fromAstType({ astType, configuration }),
+      ),
       identifierType,
       properties: properties,
       rdfType: astType.rdfType,

@@ -14,29 +14,58 @@ import { shacl2ts } from "./vocabularies/";
 
 function ancestorClassIris(
   classResource: Resource,
+  maxDepth: number,
 ): readonly rdfjs.NamedNode[] {
   const ancestorClassIris = new TermSet<rdfjs.NamedNode>();
 
-  function ancestorClassIrisRecursive(classResource: Resource): void {
+  function ancestorClassIrisRecursive(
+    classResource: Resource,
+    depth: number,
+  ): void {
     for (const parentClassValue of classResource.values(rdfs.subClassOf)) {
       parentClassValue.toNamedResource().ifRight((parentClassResource) => {
         if (ancestorClassIris.has(parentClassResource.identifier)) {
           return;
         }
         ancestorClassIris.add(parentClassResource.identifier);
-        ancestorClassIrisRecursive(parentClassResource);
+        if (depth < maxDepth) {
+          ancestorClassIrisRecursive(parentClassResource, depth + 1);
+        }
       });
     }
   }
 
-  ancestorClassIrisRecursive(classResource);
+  ancestorClassIrisRecursive(classResource, 1);
 
   return [...ancestorClassIris];
 }
+function descendantClassIris(
+  classResource: Resource,
+  maxDepth: number,
+): readonly rdfjs.NamedNode[] {
+  const descendantClassIris = new TermSet<rdfjs.NamedNode>();
 
-const reservedTsIdentifiers = reservedTsIdentifiers_({
-  includeGlobalProperties: true,
-});
+  function descendantClassIrisRecursive(
+    classResource: Resource,
+    depth: number,
+  ): void {
+    for (const childClassValue of classResource.valuesOf(rdfs.subClassOf)) {
+      childClassValue.toNamedResource().ifRight((childClassResource) => {
+        if (descendantClassIris.has(childClassResource.identifier)) {
+          return;
+        }
+        descendantClassIris.add(childClassResource.identifier);
+        if (depth < maxDepth) {
+          descendantClassIrisRecursive(childClassResource, depth + 1);
+        }
+      });
+    }
+  }
+
+  descendantClassIrisRecursive(classResource, 1);
+
+  return [...descendantClassIris];
+}
 
 function rdfIdentifierToString(
   identifier: rdfjs.BlankNode | rdfjs.NamedNode,
@@ -49,23 +78,15 @@ function rdfIdentifierToString(
   }
 }
 
+const reservedTsIdentifiers = reservedTsIdentifiers_({
+  includeGlobalProperties: true,
+});
+
 function shacl2tsName(shape: shaclAst.Shape): Maybe<string> {
   return shape.resource
     .value(shacl2ts.name)
     .chain((value) => value.toString())
     .toMaybe();
-}
-
-function parentClassIris(classResource: Resource): readonly rdfjs.NamedNode[] {
-  const parentClassIris = new TermSet<rdfjs.NamedNode>();
-
-  for (const parentClassValue of classResource.values(rdfs.subClassOf)) {
-    parentClassValue
-      .toIri()
-      .ifRight((parentClassIri) => parentClassIris.add(parentClassIri));
-  }
-
-  return [...parentClassIris];
 }
 
 // Adapted from https://github.com/sindresorhus/to-valid-identifier , MIT license
@@ -118,33 +139,32 @@ export class ShapesGraphToAstTransformer {
     }));
   }
 
-  private classNodeShapes(
-    class_: rdfjs.NamedNode,
-  ): readonly shaclAst.NodeShape[] {
-    const classNodeShapes: shaclAst.NodeShape[] = [];
-
-    // Is the class itself a node shape?
-    const classNodeShape = this.shapesGraph
-      .nodeShapeByNode(class_)
-      .extractNullable();
-    if (classNodeShape !== null) {
-      classNodeShapes.push(classNodeShape);
+  private resolveClassObjectType(
+    classIri: rdfjs.NamedNode,
+  ): Either<Error, ast.ObjectType> {
+    let nodeShape: Maybe<shaclAst.NodeShape>;
+    if (
+      classIri.equals(owl.Class) ||
+      classIri.equals(owl.Thing) ||
+      classIri.equals(rdfs.Class)
+    ) {
+      nodeShape = Maybe.empty();
+    } else {
+      nodeShape = this.shapesGraph.nodeShapeByNode(classIri);
     }
 
-    // Get the node shapes of any of the class's superclasses
-    for (const quad of this.shapesGraph.dataset.match(
-      class_,
-      rdfs.subClassOf,
-      null,
-      this.shapesGraph.node,
-    )) {
-      if (quad.object.termType !== "NamedNode") {
-        continue;
-      }
-      classNodeShapes.push(...this.classNodeShapes(quad.object));
-    }
-
-    return classNodeShapes;
+    return nodeShape
+      .toEither(
+        new Error(`${classIri.value} does not correspond to a node shape`),
+      )
+      .chain((nodeShape) => this.transformNodeShape(nodeShape))
+      .ifLeft((error) => {
+        logger.debug(
+          "class %s did not resolve to an object type: %s",
+          classIri.value,
+          error.message,
+        );
+      });
   }
 
   private shapeName(shape: shaclAst.Shape): ast.Name {
@@ -236,36 +256,21 @@ export class ShapesGraphToAstTransformer {
 
     // Treat any shape with sh:class as an object type
     if (shape.constraints.classes.length > 0) {
-      const nodeShapes: shaclAst.NodeShape[] = [];
-      for (const class_ of shape.constraints.classes) {
-        const classNodeShapes = this.classNodeShapes(class_);
-        if (classNodeShapes.length === 0) {
-          logger.warn(
-            "%s sh:class %s does not correspond to any node shapes",
-            shape,
-            class_.value,
-          );
-          continue;
-        }
-        nodeShapes.push(...classNodeShapes);
-      }
-      if (nodeShapes.length === 0) {
-        return Left(
-          new Error(
-            `${shape} has sh:class(se) but none of them correspond to a node shape`,
-          ),
-        );
-      }
-      return Either.sequence(
-        nodeShapes.map((nodeShape) => this.transformNodeShape(nodeShape)),
-      ).chain((types) =>
-        types.length === 1
-          ? Either.of(types[0] as ast.Type)
-          : Either.of({
-              kind: "And",
-              types,
-            }),
+      const classObjectTypeEithers = shape.constraints.classes.map((classIri) =>
+        this.resolveClassObjectType(classIri),
       );
+      const classObjectTypes = Either.rights(classObjectTypeEithers);
+      switch (classObjectTypes.length) {
+        case 0:
+          return classObjectTypeEithers[0];
+        case 1:
+          return Either.of(classObjectTypes[0]);
+        default:
+          return Either.of({
+            kind: "And",
+            types: classObjectTypes,
+          });
+      }
     }
 
     // Treat any shape with sh:in as an enum type
@@ -355,6 +360,8 @@ export class ShapesGraphToAstTransformer {
     // we'll return this placeholder.
     const objectType: ast.ObjectType = {
       ancestorObjectTypes: [],
+      childObjectTypes: [],
+      descendantObjectTypes: [],
       kind: "Object",
       name: this.shapeName(nodeShape),
       nodeKinds: new Set<shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI>(
@@ -368,49 +375,42 @@ export class ShapesGraphToAstTransformer {
     };
     this.objectTypesByIdentifier.set(nodeShape.resource.identifier, objectType);
 
-    const resolveParentObjectTypes = (
-      parentClassIris: readonly rdfjs.NamedNode[],
-    ): readonly ast.ObjectType[] => {
-      const subTypeOf: ast.ObjectType[] = [];
-      for (const parentClassIri of parentClassIris) {
-        if (
-          parentClassIri.equals(owl.Class) ||
-          parentClassIri.equals(owl.Thing) ||
-          parentClassIri.equals(rdfs.Class)
-        ) {
-          continue;
-        }
-        const superNodeShape = this.shapesGraph
-          .nodeShapeByNode(parentClassIri)
-          .extractNullable();
-        if (superNodeShape === null) {
-          logger.debug(
-            "node shape %s ancestor/super class %s does not correspond to a node shape",
-            nodeShape.resource.identifier.value,
-            parentClassIri.value,
-          );
-          continue;
-        }
-        this.transformNodeShape(superNodeShape)
-          .ifLeft(() => {
-            logger.info(
-              "error transforming node shape %s ancestor node shape %s",
-              nodeShape.resource.identifier.value,
-              superNodeShape.resource.identifier.value,
-            );
-          })
-          .ifRight((parentObjectType) => subTypeOf.push(parentObjectType));
-      }
-      return subTypeOf;
-    };
+    // Populate ancestor and descendant object types
+    // Ancestors
+    for (const classIri of ancestorClassIris(
+      nodeShape.resource,
+      Number.MAX_SAFE_INTEGER,
+    )) {
+      this.resolveClassObjectType(classIri).ifRight((ancestorObjectType) =>
+        objectType.ancestorObjectTypes.push(ancestorObjectType),
+      );
+    }
 
-    objectType.ancestorObjectTypes.push(
-      ...resolveParentObjectTypes(ancestorClassIris(nodeShape.resource)),
-    );
-    objectType.parentObjectTypes.push(
-      ...resolveParentObjectTypes(parentClassIris(nodeShape.resource)),
-    );
+    // Parents
+    for (const classIri of ancestorClassIris(nodeShape.resource, 1)) {
+      this.resolveClassObjectType(classIri).ifRight((parentObjectType) =>
+        objectType.parentObjectTypes.push(parentObjectType),
+      );
+    }
 
+    // Descendants
+    for (const classIri of descendantClassIris(
+      nodeShape.resource,
+      Number.MAX_SAFE_INTEGER,
+    )) {
+      this.resolveClassObjectType(classIri).ifRight((descendantObjectType) =>
+        objectType.descendantObjectTypes.push(descendantObjectType),
+      );
+    }
+
+    // Children
+    for (const classIri of descendantClassIris(nodeShape.resource, 1)) {
+      this.resolveClassObjectType(classIri).ifRight((childObjectType) =>
+        objectType.childObjectTypes.push(childObjectType),
+      );
+    }
+
+    // Populate properties
     const propertiesByTsName: Record<string, ast.Property> = {};
     for (const propertyShape of nodeShape.constraints.properties) {
       const propertyEither = this.transformPropertyShape(propertyShape);

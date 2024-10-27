@@ -16,7 +16,16 @@ export function interfaceDeclaration(
       properties.push({
         isReadonly: true,
         name: typeDiscriminatorPropertyName,
-        type: `"${this.name}"`,
+        type: [
+          ...new Set(
+            [this.name].concat(
+              this.descendantObjectTypes.map((objectType) => objectType.name),
+            ),
+          ),
+        ]
+          .sort()
+          .map((name) => `"${name}"`)
+          .join("|"),
       });
     },
   );
