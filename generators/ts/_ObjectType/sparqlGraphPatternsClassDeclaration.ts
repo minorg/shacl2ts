@@ -1,6 +1,6 @@
 import { type ClassDeclarationStructure, StructureKind } from "ts-morph";
-import { shorthandProperty } from "../../shorthandProperty.js";
 import type { ObjectType } from "../ObjectType.js";
+import { shorthandProperty } from "../shorthandProperty.js";
 
 export function sparqlGraphPatternsClassDeclaration(
   this: ObjectType,

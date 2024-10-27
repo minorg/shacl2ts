@@ -1,14 +1,14 @@
 import type { NamedNode } from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
-import type * as ast from "../../../ast";
-import { shorthandProperty } from "../shorthandProperty.js";
+import type * as ast from "../../ast";
 import { IdentifierType } from "./IdentifierType.js";
 import { Property } from "./Property.js";
-import type { Type } from "./Type.js";
+import { Type } from "./Type.js";
 import { interfaceDeclaration, moduleDeclaration } from "./_ObjectType";
+import { shorthandProperty } from "./shorthandProperty.js";
 
-export class ObjectType implements Type {
+export class ObjectType extends Type {
   readonly ancestorObjectTypes: readonly ObjectType[];
   readonly astName: string;
   readonly classQualifiedName: string;
@@ -34,6 +34,7 @@ export class ObjectType implements Type {
     properties,
     rdfType,
     superObjectTypes,
+    ...superParameters
   }: {
     ancestorObjectTypes: readonly ObjectType[];
     astName: string;
@@ -41,7 +42,8 @@ export class ObjectType implements Type {
     properties: readonly Property[];
     rdfType: Maybe<NamedNode>;
     superObjectTypes: readonly ObjectType[];
-  }) {
+  } & Type.ConstructorParameters) {
+    super(superParameters);
     this.ancestorObjectTypes = ancestorObjectTypes;
     this.identifierType = identifierType;
     this.properties = properties
@@ -68,11 +70,19 @@ export class ObjectType implements Type {
     return this.interfaceQualifiedName;
   }
 
-  static fromAstType(astType: ast.ObjectType): ObjectType {
-    const identifierType = IdentifierType.fromNodeKinds(astType.nodeKinds);
+  static fromAstType({
+    astType,
+    ...parameters
+  }: {
+    astType: ast.ObjectType;
+  } & Type.ConstructorParameters): ObjectType {
+    const identifierType = IdentifierType.fromNodeKinds({
+      nodeKinds: astType.nodeKinds,
+      ...parameters,
+    });
 
-    const properties: Property[] = astType.properties.map(
-      Property.fromAstProperty,
+    const properties: Property[] = astType.properties.map((astProperty) =>
+      Property.fromAstProperty({ astProperty, ...parameters }),
     );
 
     if (astType.superObjectTypes.length === 0) {
@@ -88,14 +98,17 @@ export class ObjectType implements Type {
     }
 
     return new ObjectType({
-      ancestorObjectTypes: astType.ancestorObjectTypes.map(
-        ObjectType.fromAstType,
+      ancestorObjectTypes: astType.ancestorObjectTypes.map((astType) =>
+        ObjectType.fromAstType({ astType, ...parameters }),
       ),
       astName: astType.name.tsName,
       identifierType,
       properties: properties,
       rdfType: astType.rdfType,
-      superObjectTypes: astType.superObjectTypes.map(ObjectType.fromAstType),
+      superObjectTypes: astType.superObjectTypes.map((astType) =>
+        ObjectType.fromAstType({ astType, ...parameters }),
+      ),
+      ...parameters,
     });
   }
 

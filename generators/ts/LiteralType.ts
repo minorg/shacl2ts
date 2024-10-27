@@ -1,4 +1,4 @@
-import type * as ast from "../../../ast";
+import type * as ast from "../../ast";
 import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type";
 
@@ -9,8 +9,11 @@ export class LiteralType extends RdfjsTermType {
     return "rdfjs.Literal";
   }
 
-  static fromAstType(_astType: ast.LiteralType): LiteralType {
-    return new LiteralType();
+  static fromAstType({
+    astType,
+    ...parameters
+  }: { astType: ast.LiteralType } & Type.ConstructorParameters): LiteralType {
+    return new LiteralType(parameters);
   }
 
   valueFromRdf({ resourceValueVariable }: Type.ValueFromRdfParameters): string {

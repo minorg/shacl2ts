@@ -1,11 +1,10 @@
-import type { Type } from "./Type.js";
+import { Type } from "./Type.js";
 
 /**
  * Abstract base class for IdentifierType and LiteralType.
  */
-export abstract class RdfjsTermType implements Type {
-  abstract readonly kind: "Identifier" | "Literal";
-  abstract readonly name: string;
+export abstract class RdfjsTermType extends Type {
+  abstract override readonly kind: "Identifier" | "Literal";
 
   equalsFunction(): string {
     return "purifyHelpers.Equatable.booleanEquals";
@@ -17,8 +16,6 @@ export abstract class RdfjsTermType implements Type {
     // Don't add any additional graph patterns for terms
     return [];
   }
-
-  abstract valueFromRdf(parameters: Type.ValueFromRdfParameters): string;
 
   valueToRdf({ propertyValueVariable }: Type.ValueToRdfParameters): string {
     return propertyValueVariable;

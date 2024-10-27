@@ -7,7 +7,8 @@ import type {
   PropertySignatureStructure,
 } from "ts-morph";
 import { Memoize } from "typescript-memoize";
-import type * as ast from "../../../ast";
+import type * as ast from "../../ast";
+import type { Configuration } from "./Configuration";
 import { IdentifierType } from "./IdentifierType";
 import type { Type } from "./Type.js";
 import { createTypeFromAstType } from "./createTypeFromAstType";
@@ -128,15 +129,25 @@ export class Property {
     return "Array";
   }
 
-  static fromAstProperty(astProperty: ast.Property): Property {
+  static fromAstProperty({
+    astProperty,
+    configuration,
+  }: {
+    astProperty: ast.Property;
+    configuration: Configuration;
+  }): Property {
     let type: Type;
     if (astProperty.type.kind === "Object" && !astProperty.inline) {
       // Non-inlined object type = its identifier
       type = new IdentifierType({
+        configuration,
         nodeKinds: astProperty.type.nodeKinds,
       });
     } else {
-      type = createTypeFromAstType(astProperty.type);
+      type = createTypeFromAstType({
+        astType: astProperty.type,
+        configuration,
+      });
     }
 
     return new Property({

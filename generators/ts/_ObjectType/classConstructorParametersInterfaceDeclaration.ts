@@ -8,13 +8,15 @@ export function classConstructorParametersInterfaceDeclaration(
   return {
     extends:
       this.superObjectTypes.length > 0
-        ? [`${this.superObjectTypes[0].classQualifiedName}.Parameters`]
+        ? [
+            `${this.superObjectTypes[0].classQualifiedName}.ConstructorParameters`,
+          ]
         : undefined,
     isExported: true,
     kind: StructureKind.Interface,
     properties: this.properties.map(
       (property) => property.classConstructorParametersPropertySignature,
     ),
-    name: "Parameters",
+    name: "ConstructorParameters",
   };
 }

@@ -1,4 +1,4 @@
-import type * as ast from "../../../ast/index";
+import type * as ast from "../../ast";
 import { PrimitiveType } from "./PrimitiveType.js";
 import type { Type } from "./Type";
 
@@ -7,8 +7,11 @@ export class StringType extends PrimitiveType {
     return "string";
   }
 
-  static override fromAstType(_astType: ast.LiteralType): StringType {
-    return new StringType();
+  static override fromAstType({
+    astType,
+    ...parameters
+  }: { astType: ast.LiteralType } & Type.ConstructorParameters): StringType {
+    return new StringType(parameters);
   }
 
   override valueFromRdf({

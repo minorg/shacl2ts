@@ -6,7 +6,6 @@ import {
   type StatementStructures,
   StructureKind,
 } from "ts-morph";
-import type { TsGenerator } from "../../TsGenerator";
 import type { ObjectType } from "../ObjectType.js";
 
 function constructorDeclaration(
@@ -26,27 +25,24 @@ function constructorDeclaration(
     parameters: [
       {
         name: "parameters",
-        type: `${this.classQualifiedName}.Parameters`,
+        type: `${this.classQualifiedName}.ConstructorParameters`,
       },
     ],
     statements,
   };
 }
 
-export function classDeclaration(
-  this: ObjectType,
-  features: Set<TsGenerator.Feature>,
-): ClassDeclarationStructure {
+export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
   this.ensureAtMostOneSuperObjectType();
 
   const methods: OptionalKind<MethodDeclarationStructure>[] = [];
-  if (features.has("equals")) {
+  if (this.configuration.features.has("equals")) {
     methods.push(equalsMethodDeclaration.bind(this)());
   }
-  if (features.has("fromRdf")) {
+  if (this.configuration.features.has("fromRdf")) {
     methods.push(fromRdfMethodDeclaration.bind(this)());
   }
-  if (features.has("toRdf")) {
+  if (this.configuration.features.has("toRdf")) {
     methods.push(toRdfMethodDeclaration.bind(this)());
   }
 
