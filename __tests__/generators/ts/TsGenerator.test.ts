@@ -50,14 +50,17 @@ describe("TsGenerator", () => {
         manufacturer: {
           identifier: dataFactory.namedNode("http://examhple.com/organization"),
           name: dataFactory.literal("name"),
+          type: "Organization",
         },
         name: dataFactory.literal("name"),
+        type: "MachineLearningModelFamily",
         url: Maybe.of("http://example.com/family"),
       },
       localIdentifier: "testidentifier",
       maxTokenOutput: Maybe.of(1),
       name: dataFactory.literal("Test name"),
       trainingDataCutoff: Maybe.of("cutoff"),
+      type: "LanguageModel",
       url: Maybe.of("http://example.com/mlm"),
     };
     expect(mlm.name.value).toStrictEqual("Test name");

@@ -11,24 +11,13 @@ export function interfaceDeclaration(
 ): InterfaceDeclarationStructure {
   const properties: OptionalKind<PropertySignatureStructure>[] =
     this.properties.map((property) => property.interfacePropertySignature);
-  this.configuration.objectTypeDiscriminatorPropertyName.ifJust(
-    (typeDiscriminatorPropertyName) => {
-      properties.push({
-        isReadonly: true,
-        name: typeDiscriminatorPropertyName,
-        type: [
-          ...new Set(
-            [this.name].concat(
-              this.descendantObjectTypes.map((objectType) => objectType.name),
-            ),
-          ),
-        ]
-          .sort()
-          .map((name) => `"${name}"`)
-          .join("|"),
-      });
-    },
-  );
+  this.typeDiscriminatorProperty.ifJust((typeDiscriminatorProperty) => {
+    properties.push({
+      isReadonly: true,
+      name: typeDiscriminatorProperty.name,
+      type: typeDiscriminatorProperty.type.name,
+    });
+  });
 
   return {
     extends: this.parentObjectTypes.map(

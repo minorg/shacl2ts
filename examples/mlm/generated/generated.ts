@@ -24,7 +24,8 @@ export namespace MachineLearningModel {
     readonly name: rdfjs.Literal;
     readonly trainingDataCutoff: purify.Maybe<string>;
     readonly url: purify.Maybe<string>;
-    readonly type = "MachineLearningModel";
+    readonly type: "LanguageModel" | "MachineLearningModel" =
+      "MachineLearningModel";
 
     constructor(parameters: MachineLearningModel.Class.ConstructorParameters) {
       this.description = purify.Maybe.isMaybe(parameters.description)
@@ -176,6 +177,7 @@ export namespace MachineLearningModel {
       localIdentifier,
       name,
       trainingDataCutoff,
+      type: "MachineLearningModel",
       url,
     });
   }
@@ -334,7 +336,7 @@ export namespace LanguageModel {
   {
     readonly contextWindow: number;
     readonly maxTokenOutput: purify.Maybe<number>;
-    readonly type = "LanguageModel";
+    override readonly type = "LanguageModel" as const;
 
     constructor(parameters: LanguageModel.Class.ConstructorParameters) {
       super(parameters);
@@ -441,6 +443,7 @@ export namespace LanguageModel {
           maxTokenOutput,
           name: _super.name,
           trainingDataCutoff: _super.trainingDataCutoff,
+          type: "LanguageModel",
           url: _super.url,
         });
       },
@@ -535,7 +538,7 @@ export namespace MachineLearningModelFamily {
     readonly manufacturer: Organization;
     readonly name: rdfjs.Literal;
     readonly url: purify.Maybe<string>;
-    readonly type = "MachineLearningModelFamily";
+    readonly type = "MachineLearningModelFamily" as const;
 
     constructor(
       parameters: MachineLearningModelFamily.Class.ConstructorParameters,
@@ -665,6 +668,7 @@ export namespace MachineLearningModelFamily {
       identifier,
       manufacturer,
       name,
+      type: "MachineLearningModelFamily",
       url,
     });
   }
@@ -788,7 +792,7 @@ export namespace Organization {
   export class Class implements Organization {
     readonly identifier: rdfjs.NamedNode;
     readonly name: rdfjs.Literal;
-    readonly type = "Organization";
+    readonly type = "Organization" as const;
 
     constructor(parameters: Organization.Class.ConstructorParameters) {
       this.identifier = parameters.identifier;
@@ -866,7 +870,7 @@ export namespace Organization {
       return _nameEither;
     }
     const name = _nameEither.unsafeCoerce();
-    return purify.Either.of({ identifier, name });
+    return purify.Either.of({ identifier, name, type: "Organization" });
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {

@@ -35,6 +35,14 @@ export function fromRdfFunctionDeclaration(
           ),
         ),
       )
+      .concat(
+        this.typeDiscriminatorProperty
+          .map(
+            (typeDiscriminatorProperty) =>
+              `${typeDiscriminatorProperty.name}: "${typeDiscriminatorProperty.value}"`,
+          )
+          .toList(),
+      )
       .sort()
       .join(", ")} })`,
   );

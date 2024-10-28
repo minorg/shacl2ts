@@ -49,15 +49,15 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
 
   const properties: OptionalKind<PropertyDeclarationStructure>[] =
     this.properties.map((property) => property.classPropertyDeclaration);
-  this.configuration.objectTypeDiscriminatorPropertyName.ifJust(
-    (typeDiscriminatorPropertyName) => {
-      properties.push({
-        isReadonly: true,
-        initializer: `"${this.name}"`,
-        name: typeDiscriminatorPropertyName,
-      });
-    },
-  );
+  this.typeDiscriminatorProperty.ifJust((typeDiscriminatorProperty) => {
+    properties.push({
+      hasOverrideKeyword: this.parentObjectTypes.length > 0,
+      isReadonly: true,
+      initializer: `"${typeDiscriminatorProperty.value}"`,
+      type: typeDiscriminatorProperty.type.name,
+      name: typeDiscriminatorProperty.name,
+    });
+  });
 
   return {
     ctors:

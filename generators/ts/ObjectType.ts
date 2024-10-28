@@ -95,6 +95,33 @@ export class ObjectType extends Type {
     return properties;
   }
 
+  get typeDiscriminatorProperty(): Maybe<{
+    readonly name: string;
+    readonly type: {
+      readonly name: string;
+    };
+    readonly value: string;
+  }> {
+    return this.configuration.objectTypeDiscriminatorPropertyName.map(
+      (typeDiscriminatorPropertyName) => ({
+        name: typeDiscriminatorPropertyName,
+        type: {
+          name: [
+            ...new Set(
+              [this.name].concat(
+                this.descendantObjectTypes.map((objectType) => objectType.name),
+              ),
+            ),
+          ]
+            .sort()
+            .map((name) => `"${name}"`)
+            .join("|"),
+        },
+        value: this.name,
+      }),
+    );
+  }
+
   equalsFunction(): string {
     return `${this.moduleQualifiedName}.equals`;
   }
