@@ -201,15 +201,6 @@ export namespace MachineLearningModel {
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject",
-          ),
-          this.variable("Identifier"),
-        ),
-      );
-      this.add(
         sparqlBuilder.GraphPattern.group(
           sparqlBuilder.GraphPattern.basic(
             this.subject,
@@ -692,15 +683,6 @@ export namespace MachineLearningModelFamily {
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject",
-          ),
-          this.variable("Identifier"),
-        ),
-      );
-      this.add(
         sparqlBuilder.GraphPattern.group(
           sparqlBuilder.GraphPattern.basic(
             this.subject,
@@ -882,15 +864,6 @@ export namespace Organization {
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter;
     }) {
       super(subject);
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject",
-          ),
-          this.variable("Identifier"),
-        ),
-      );
       this.add(
         sparqlBuilder.GraphPattern.basic(
           this.subject,

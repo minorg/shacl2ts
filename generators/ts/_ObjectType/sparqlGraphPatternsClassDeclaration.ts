@@ -21,9 +21,11 @@ export function sparqlGraphPatternsClassDeclaration(
   }
 
   for (const property of this.properties) {
-    constructorStatements.push(
-      `this.add(${property.sparqlGraphPattern({ dataFactoryVariable })})`,
-    );
+    property
+      .sparqlGraphPattern({ dataFactoryVariable })
+      .ifJust((sparqlGraphPattern) =>
+        constructorStatements.push(`this.add(${sparqlGraphPattern})`),
+      );
   }
 
   return {

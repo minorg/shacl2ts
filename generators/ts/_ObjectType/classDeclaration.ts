@@ -17,9 +17,13 @@ function constructorDeclaration(
     statements.push("super(parameters);");
   }
   for (const property of this.properties) {
-    statements.push(
-      `this.${property.name} = ${property.classConstructorInitializer({ parameter: `parameters.${property.name}` })};`,
-    );
+    property
+      .classConstructorInitializer({ parameter: `parameters.${property.name}` })
+      .ifJust((classConstructorInitializer) =>
+        statements.push(
+          `this.${property.name} = ${classConstructorInitializer};`,
+        ),
+      );
   }
 
   return {

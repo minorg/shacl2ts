@@ -17,11 +17,11 @@ export function toRdfFunctionDeclaration(
     );
   } else if (this.identifierType.isNamedNodeKind) {
     statements.push(
-      `const resource = resourceSet.mutableNamedResource({ identifier: ${thisVariableName}.identifier, mutateGraph });`,
+      `const resource = resourceSet.mutableNamedResource({ identifier: ${thisVariableName}.${this.configuration.objectTypeIdentifierPropertyName}, mutateGraph });`,
     );
   } else {
     statements.push(
-      `const resource = resourceSet.mutableResource({ identifier: ${thisVariableName}.identifier, mutateGraph });`,
+      `const resource = resourceSet.mutableResource({ identifier: ${thisVariableName}.${this.configuration.objectTypeIdentifierPropertyName}, mutateGraph });`,
     );
   }
 
@@ -32,17 +32,13 @@ export function toRdfFunctionDeclaration(
   });
 
   for (const property of this.properties) {
-    if (property.name === "identifier") {
-      continue;
-    }
-
-    statements.push(
-      property.valueToRdf({
+    property
+      .valueToRdf({
         mutateGraphVariable: "mutateGraph",
         propertyValueVariable: `${thisVariableName}.${property.name}`,
         resourceSetVariable: "resourceSet",
-      }),
-    );
+      })
+      .ifJust((statement) => statements.push(statement));
   }
 
   statements.push("return resource;");

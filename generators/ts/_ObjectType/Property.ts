@@ -1,3 +1,4 @@
+import type { Maybe } from "purify-ts";
 import type {
   OptionalKind,
   PropertyDeclarationStructure,
@@ -10,7 +11,6 @@ export abstract class Property {
   abstract readonly classPropertyDeclaration: OptionalKind<PropertyDeclarationStructure>;
   abstract readonly equalsFunction: string;
   abstract readonly interfacePropertySignature: OptionalKind<PropertySignatureStructure>;
-  abstract readonly interfaceTypeName: string;
   readonly name: string;
   abstract readonly type: Type;
 
@@ -24,15 +24,17 @@ export abstract class Property {
 
   abstract classConstructorInitializer(
     parameters: Property.ClassConstructorInitializerParameters,
-  ): string;
+  ): Maybe<string>;
 
   abstract sparqlGraphPattern(
     parameters: Property.SparqlGraphPatternParameters,
-  ): string;
+  ): Maybe<string>;
 
-  abstract valueFromRdf(parameters: Property.ValueFromRdfParameters): string;
+  abstract valueFromRdf(
+    parameters: Property.ValueFromRdfParameters,
+  ): Maybe<string>;
 
-  abstract valueToRdf(parameters: Property.ValueToRdfParameters): string;
+  abstract valueToRdf(parameters: Property.ValueToRdfParameters): Maybe<string>;
 }
 
 export namespace Property {

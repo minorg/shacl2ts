@@ -17,14 +17,11 @@ export function fromRdfFunctionDeclaration(
   });
 
   for (const property of this.properties) {
-    if (property.name === "identifier") {
-      statements.push(`const identifier = ${resourceVariable}.identifier`);
-    } else {
-      statements.push(
-        property.valueFromRdf({ dataFactoryVariable, resourceVariable }),
-      );
-    }
+    property
+      .valueFromRdf({ dataFactoryVariable, resourceVariable })
+      .ifJust((statement) => statements.push(statement));
   }
+
   statements.push(
     `return purify.Either.of({ ${this.properties
       .map((property) => property.name)

@@ -1,7 +1,6 @@
 import TermMap from "@rdfjs/term-map";
 import type { BlankNode, NamedNode } from "@rdfjs/types";
-import { rdf, xsd } from "@tpluscode/rdf-ns-builders";
-import { Maybe } from "purify-ts";
+import { xsd } from "@tpluscode/rdf-ns-builders";
 import type * as ast from "../../ast";
 import { AndType } from "./AndType.js";
 import type { Configuration } from "./Configuration";
@@ -67,15 +66,12 @@ export class TypeFactory {
 
         if (astType.parentObjectTypes.length === 0) {
           properties.push(
-            new ObjectType.ShaclProperty({
-              maxCount: Maybe.of(1),
-              minCount: 1,
+            new ObjectType.IdentifierProperty({
               name: this.configuration.objectTypeIdentifierPropertyName,
-              path: rdf.subject,
               type: identifierType,
             }),
           );
-        }
+        } // Else parent will have the identifier property
 
         return properties;
       },
