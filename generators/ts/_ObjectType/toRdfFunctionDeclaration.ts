@@ -32,10 +32,6 @@ export function toRdfFunctionDeclaration(
   });
 
   for (const property of this.properties) {
-    if (property.name === "identifier") {
-      continue;
-    }
-
     statements.push(
       property.valueToRdf({
         mutateGraphVariable: "mutateGraph",

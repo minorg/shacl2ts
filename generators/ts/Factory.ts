@@ -1,7 +1,6 @@
 import TermMap from "@rdfjs/term-map";
 import type { BlankNode, NamedNode } from "@rdfjs/types";
-import { rdf, xsd } from "@tpluscode/rdf-ns-builders";
-import { Maybe } from "purify-ts";
+import { xsd } from "@tpluscode/rdf-ns-builders";
 import type * as ast from "../../ast";
 import { AndType } from "./AndType.js";
 import type { Configuration } from "./Configuration";
@@ -60,25 +59,10 @@ export class Factory {
         astType.parentObjectTypes.map((astType) =>
           this.createObjectTypeFromAstType(astType),
         ),
-      lazyProperties: () => {
-        const properties: Property[] = astType.properties.map((astProperty) =>
+      lazyProperties: () =>
+        astType.properties.map((astProperty) =>
           this.createPropertyFromAstProperty(astProperty),
-        );
-
-        if (astType.parentObjectTypes.length === 0) {
-          properties.push(
-            new Property({
-              maxCount: Maybe.of(1),
-              minCount: 1,
-              name: this.configuration.objectTypeIdentifierPropertyName,
-              path: rdf.subject,
-              type: identifierType,
-            }),
-          );
-        }
-
-        return properties;
-      },
+        ),
       rdfType: astType.rdfType,
     });
     this.cachedObjectTypesByIdentifier.set(astType.name.identifier, objectType);
