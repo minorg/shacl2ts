@@ -6,7 +6,7 @@ export abstract class Type {
   abstract readonly name: string;
   protected readonly configuration: Configuration;
 
-  protected constructor({ configuration }: Type.ConstructorParameters) {
+  constructor({ configuration }: Type.ConstructorParameters) {
     this.configuration = configuration;
   }
 

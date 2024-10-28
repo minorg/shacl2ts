@@ -1,9 +1,7 @@
 import type { NamedNode } from "@rdfjs/types";
-import { rdf } from "@tpluscode/rdf-ns-builders";
-import { Maybe } from "purify-ts";
-import type * as ast from "../../ast";
-import { IdentifierType } from "./IdentifierType.js";
-import { Property } from "./Property.js";
+import type { Maybe } from "purify-ts";
+import type { IdentifierType } from "./IdentifierType.js";
+import type { Property } from "./Property.js";
 import { Type } from "./Type.js";
 import { interfaceDeclaration, moduleDeclaration } from "./_ObjectType";
 import { shorthandProperty } from "./shorthandProperty.js";
@@ -72,55 +70,6 @@ export class ObjectType extends Type {
 
   get name(): string {
     return this.interfaceQualifiedName;
-  }
-
-  static fromAstType({
-    astType,
-    configuration,
-  }: {
-    astType: ast.ObjectType;
-  } & Type.ConstructorParameters): ObjectType {
-    const identifierType = IdentifierType.fromNodeKinds({
-      configuration,
-      nodeKinds: astType.nodeKinds,
-    });
-
-    const properties: Property[] = astType.properties.map((astProperty) =>
-      Property.fromAstProperty({ astProperty, configuration }),
-    );
-
-    if (astType.parentObjectTypes.length === 0) {
-      properties.push(
-        new Property({
-          maxCount: Maybe.of(1),
-          minCount: 1,
-          name: configuration.objectTypeIdentifierPropertyName,
-          path: rdf.subject,
-          type: identifierType,
-        }),
-      );
-    }
-
-    for (const descendantObjectType of astType.descendantObjectTypes) {
-      console.info(astType.name.tsName, descendantObjectType.name.tsName);
-    }
-
-    return new ObjectType({
-      ancestorObjectTypes: astType.ancestorObjectTypes.map((astType) =>
-        ObjectType.fromAstType({ astType, configuration }),
-      ),
-      astName: astType.name.tsName,
-      configuration,
-      descendantObjectTypes: astType.descendantObjectTypes.map((astType) =>
-        ObjectType.fromAstType({ astType, configuration }),
-      ),
-      identifierType,
-      properties: properties,
-      rdfType: astType.rdfType,
-      parentObjectTypes: astType.parentObjectTypes.map((astType) =>
-        ObjectType.fromAstType({ astType, configuration }),
-      ),
-    });
   }
 
   equalsFunction(): string {

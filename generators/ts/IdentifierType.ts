@@ -1,6 +1,5 @@
 import { NodeKind } from "shacl-ast";
 import { Memoize } from "typescript-memoize";
-import type * as ast from "../../ast";
 import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type";
 
@@ -32,18 +31,6 @@ export class IdentifierType extends RdfjsTermType {
       names.push("rdfjs.NamedNode");
     }
     return names.join(" | ");
-  }
-
-  static fromAstType({
-    astType,
-    ...parameters
-  }: {
-    astType: ast.IdentifierType;
-  } & Type.ConstructorParameters): IdentifierType {
-    return IdentifierType.fromNodeKinds({
-      nodeKinds: astType.nodeKinds,
-      ...parameters,
-    });
   }
 
   static fromNodeKinds({

@@ -1,7 +1,8 @@
 import { Project, type SourceFile } from "ts-morph";
 import type * as ast from "../../ast";
 import { Configuration } from "./Configuration.js";
-import { ObjectType } from "./ObjectType.js";
+import { Factory } from "./Factory";
+import type { ObjectType } from "./ObjectType.js";
 
 export class TsGenerator {
   private readonly configuration: Configuration;
@@ -41,12 +42,11 @@ export class TsGenerator {
     });
     const sourceFile = project.createSourceFile("generated.ts");
 
+    const factory = new Factory({ configuration: this.configuration });
+
     this.generateSourceFile(
       astObjectTypes.map((astObjectType) =>
-        ObjectType.fromAstType({
-          astType: astObjectType,
-          configuration: this.configuration,
-        }),
+        factory.createObjectTypeFromAstType(astObjectType),
       ),
       sourceFile,
     );
