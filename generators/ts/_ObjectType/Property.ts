@@ -7,7 +7,7 @@ import type {
   PropertySignatureStructure,
 } from "ts-morph";
 import { Memoize } from "typescript-memoize";
-import type { Type } from "./Type.js";
+import type { Type } from "../Type.js";
 
 type ContainerType = "Array" | "Maybe" | null;
 

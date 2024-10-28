@@ -1,7 +1,8 @@
 import type { NamedNode } from "@rdfjs/types";
 import type { Maybe } from "purify-ts";
 import type { NodeKind } from "shacl-ast";
-import type { Name, Property } from ".";
+import type { PredicatePath } from "shacl-ast";
+import type { Name, Type } from ".";
 
 export interface ObjectType {
   /**
@@ -51,7 +52,7 @@ export interface ObjectType {
    *
    * Mutable to support cycle-handling logic in the transformer.
    */
-  readonly properties: Property[];
+  readonly properties: ObjectType.Property[];
 
   /**
    * The expected rdf:type of instances of this ObjectType.
@@ -60,4 +61,15 @@ export interface ObjectType {
    * class targets).
    */
   readonly rdfType: Maybe<NamedNode>;
+}
+
+export namespace ObjectType {
+  export interface Property {
+    readonly inline: boolean;
+    readonly maxCount: Maybe<number>;
+    readonly minCount: number;
+    readonly name: Name;
+    readonly path: PredicatePath;
+    readonly type: Type;
+  }
 }

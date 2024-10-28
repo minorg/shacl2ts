@@ -103,15 +103,15 @@ function toValidTsIdentifier(value: string): string {
 }
 
 export class ShapesGraphToAstTransformer {
-  private readonly iriPrefixMap: PrefixMap;
-  private readonly objectTypesByIdentifier: TermMap<
+  private readonly astObjectTypePropertiesByIdentifier: TermMap<
+    rdfjs.BlankNode | rdfjs.NamedNode,
+    ast.ObjectType.Property
+  > = new TermMap();
+  private readonly astObjectTypesByIdentifier: TermMap<
     rdfjs.BlankNode | rdfjs.NamedNode,
     ast.ObjectType
   > = new TermMap();
-  private readonly propertiesByIdentifier: TermMap<
-    rdfjs.BlankNode | rdfjs.NamedNode,
-    ast.Property
-  > = new TermMap();
+  private readonly iriPrefixMap: PrefixMap;
   private readonly shapesGraph: shaclAst.ShapesGraph;
 
   constructor({
@@ -332,7 +332,7 @@ export class ShapesGraphToAstTransformer {
     nodeShape: shaclAst.NodeShape,
   ): Either<Error, ast.ObjectType> {
     {
-      const objectType = this.objectTypesByIdentifier.get(
+      const objectType = this.astObjectTypesByIdentifier.get(
         nodeShape.resource.identifier,
       );
       if (objectType) {
@@ -373,7 +373,10 @@ export class ShapesGraphToAstTransformer {
       rdfType,
       parentObjectTypes: [], // This is mutable, we'll populate it below
     };
-    this.objectTypesByIdentifier.set(nodeShape.resource.identifier, objectType);
+    this.astObjectTypesByIdentifier.set(
+      nodeShape.resource.identifier,
+      objectType,
+    );
 
     // Populate ancestor and descendant object types
     // Ancestors
@@ -411,7 +414,7 @@ export class ShapesGraphToAstTransformer {
     }
 
     // Populate properties
-    const propertiesByTsName: Record<string, ast.Property> = {};
+    const propertiesByTsName: Record<string, ast.ObjectType.Property> = {};
     for (const propertyShape of nodeShape.constraints.properties) {
       const propertyEither = this.transformPropertyShape(propertyShape);
       if (propertyEither.isLeft()) {
@@ -424,7 +427,7 @@ export class ShapesGraphToAstTransformer {
         continue;
         // return property;
       }
-      const property = propertyEither.extract() as ast.Property;
+      const property = propertyEither.unsafeCoerce();
       if (propertiesByTsName[property.name.tsName]) {
         logger.warn(
           "error transforming %s %s: duplicate property TypeScript name %s",
@@ -442,9 +445,9 @@ export class ShapesGraphToAstTransformer {
 
   private transformPropertyShape(
     propertyShape: shaclAst.PropertyShape,
-  ): Either<Error, ast.Property> {
+  ): Either<Error, ast.ObjectType.Property> {
     {
-      const property = this.propertiesByIdentifier.get(
+      const property = this.astObjectTypePropertiesByIdentifier.get(
         propertyShape.resource.identifier,
       );
       if (property) {
@@ -468,7 +471,7 @@ export class ShapesGraphToAstTransformer {
       .filter((minCount) => minCount >= 0)
       .orDefault(0);
 
-    const property: ast.Property = {
+    const property: ast.ObjectType.Property = {
       inline: propertyShape.resource
         .value(shacl2ts.inline)
         .chain((value) => value.toBoolean())
@@ -492,7 +495,7 @@ export class ShapesGraphToAstTransformer {
       path,
       type: type.extract() as ast.Type,
     };
-    this.propertiesByIdentifier.set(
+    this.astObjectTypePropertiesByIdentifier.set(
       propertyShape.resource.identifier,
       property,
     );

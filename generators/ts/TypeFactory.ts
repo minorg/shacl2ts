@@ -10,18 +10,17 @@ import { LiteralType } from "./LiteralType.js";
 import { NumberType } from "./NumberType.js";
 import { ObjectType } from "./ObjectType.js";
 import { OrType } from "./OrType.js";
-import { Property } from "./Property.js";
 import { StringType } from "./StringType.js";
 import type { Type } from "./Type.js";
 
-export class Factory {
+export class TypeFactory {
+  private cachedObjectTypePropertiesByIdentifier: TermMap<
+    BlankNode | NamedNode,
+    ObjectType.Property
+  > = new TermMap();
   private cachedObjectTypesByIdentifier: TermMap<
     BlankNode | NamedNode,
     ObjectType
-  > = new TermMap();
-  private cachedPropertiesByIdentifier: TermMap<
-    BlankNode | NamedNode,
-    Property
   > = new TermMap();
   private readonly configuration: Configuration;
 
@@ -61,13 +60,14 @@ export class Factory {
           this.createObjectTypeFromAstType(astType),
         ),
       lazyProperties: () => {
-        const properties: Property[] = astType.properties.map((astProperty) =>
-          this.createPropertyFromAstProperty(astProperty),
+        const properties: ObjectType.Property[] = astType.properties.map(
+          (astProperty) =>
+            this.createObjectTypePropertyFromAstProperty(astProperty),
         );
 
         if (astType.parentObjectTypes.length === 0) {
           properties.push(
-            new Property({
+            new ObjectType.Property({
               maxCount: Maybe.of(1),
               minCount: 1,
               name: this.configuration.objectTypeIdentifierPropertyName,
@@ -83,41 +83,6 @@ export class Factory {
     });
     this.cachedObjectTypesByIdentifier.set(astType.name.identifier, objectType);
     return objectType;
-  }
-
-  createPropertyFromAstProperty(astProperty: ast.Property): Property {
-    {
-      const cachedProperty = this.cachedPropertiesByIdentifier.get(
-        astProperty.name.identifier,
-      );
-      if (cachedProperty) {
-        return cachedProperty;
-      }
-    }
-
-    let type: Type;
-    if (astProperty.type.kind === "Object" && !astProperty.inline) {
-      // Non-inlined object type = its identifier
-      type = new IdentifierType({
-        configuration: this.configuration,
-        nodeKinds: astProperty.type.nodeKinds,
-      });
-    } else {
-      type = this.createTypeFromAstType(astProperty.type);
-    }
-
-    const property = new Property({
-      maxCount: astProperty.maxCount,
-      minCount: astProperty.minCount,
-      name: astProperty.name.tsName,
-      path: astProperty.path.iri,
-      type,
-    });
-    this.cachedPropertiesByIdentifier.set(
-      astProperty.name.identifier,
-      property,
-    );
-    return property;
   }
 
   createTypeFromAstType(astType: ast.Type): Type {
@@ -157,5 +122,45 @@ export class Factory {
           ),
         });
     }
+  }
+
+  private createObjectTypePropertyFromAstProperty(
+    astObjectTypeProperty: ast.ObjectType.Property,
+  ): ObjectType.Property {
+    {
+      const cachedProperty = this.cachedObjectTypePropertiesByIdentifier.get(
+        astObjectTypeProperty.name.identifier,
+      );
+      if (cachedProperty) {
+        return cachedProperty;
+      }
+    }
+
+    let type: Type;
+    if (
+      astObjectTypeProperty.type.kind === "Object" &&
+      !astObjectTypeProperty.inline
+    ) {
+      // Non-inlined object type = its identifier
+      type = new IdentifierType({
+        configuration: this.configuration,
+        nodeKinds: astObjectTypeProperty.type.nodeKinds,
+      });
+    } else {
+      type = this.createTypeFromAstType(astObjectTypeProperty.type);
+    }
+
+    const property = new ObjectType.Property({
+      maxCount: astObjectTypeProperty.maxCount,
+      minCount: astObjectTypeProperty.minCount,
+      name: astObjectTypeProperty.name.tsName,
+      path: astObjectTypeProperty.path.iri,
+      type,
+    });
+    this.cachedObjectTypePropertiesByIdentifier.set(
+      astObjectTypeProperty.name.identifier,
+      property,
+    );
+    return property;
   }
 }

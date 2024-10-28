@@ -2,19 +2,18 @@ import type { NamedNode } from "@rdfjs/types";
 import type { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import type { IdentifierType } from "./IdentifierType.js";
-import type { Property } from "./Property.js";
 import { Type } from "./Type.js";
-import { interfaceDeclaration, moduleDeclaration } from "./_ObjectType";
+import * as _ObjectType from "./_ObjectType";
 import { shorthandProperty } from "./shorthandProperty.js";
 
 export class ObjectType extends Type {
   readonly astName: string;
   readonly classQualifiedName: string;
   readonly identifierType: IdentifierType;
-  interfaceDeclaration = interfaceDeclaration;
+  interfaceDeclaration = _ObjectType.interfaceDeclaration;
   readonly interfaceQualifiedName: string;
   readonly kind = "Object";
-  moduleDeclaration = moduleDeclaration;
+  moduleDeclaration = _ObjectType.moduleDeclaration;
   readonly moduleQualifiedName: string;
   readonly rdfType: Maybe<NamedNode>;
   readonly sparqlGraphPatternsClassQualifiedName: string;
@@ -25,7 +24,7 @@ export class ObjectType extends Type {
   private readonly lazyAncestorObjectTypes: () => readonly ObjectType[];
   private readonly lazyDescendantObjectTypes: () => readonly ObjectType[];
   private readonly lazyParentObjectTypes: () => readonly ObjectType[];
-  private readonly lazyProperties: () => readonly Property[];
+  private readonly lazyProperties: () => readonly ObjectType.Property[];
 
   constructor({
     astName,
@@ -42,7 +41,7 @@ export class ObjectType extends Type {
     lazyAncestorObjectTypes: () => readonly ObjectType[];
     lazyDescendantObjectTypes: () => readonly ObjectType[];
     lazyParentObjectTypes: () => readonly ObjectType[];
-    lazyProperties: () => readonly Property[];
+    lazyProperties: () => readonly ObjectType.Property[];
     rdfType: Maybe<NamedNode>;
   } & Type.ConstructorParameters) {
     super(superParameters);
@@ -82,7 +81,7 @@ export class ObjectType extends Type {
   }
 
   @Memoize()
-  get properties(): readonly Property[] {
+  get properties(): readonly ObjectType.Property[] {
     const properties = this.lazyProperties()
       .concat()
       .sort((left, right) => left.name.localeCompare(right.name));
@@ -173,4 +172,9 @@ export class ObjectType extends Type {
       );
     }
   }
+}
+
+export namespace ObjectType {
+  export const Property = _ObjectType.Property;
+  export type Property = _ObjectType.Property;
 }
