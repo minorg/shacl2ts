@@ -177,4 +177,6 @@ export class ObjectType extends Type {
 export namespace ObjectType {
   export const Property = _ObjectType.Property;
   export type Property = _ObjectType.Property;
+  export const ShaclProperty = _ObjectType.ShaclProperty;
+  export type ShaclProperty = _ObjectType.ShaclProperty;
 }

@@ -18,7 +18,7 @@ function constructorDeclaration(
   }
   for (const property of this.properties) {
     statements.push(
-      `this.${property.name} = ${property.classConstructorInitializer(`parameters.${property.name}`)};`,
+      `this.${property.name} = ${property.classConstructorInitializer({ parameter: `parameters.${property.name}` })};`,
     );
   }
 

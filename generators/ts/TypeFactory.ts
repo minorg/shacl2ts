@@ -67,7 +67,7 @@ export class TypeFactory {
 
         if (astType.parentObjectTypes.length === 0) {
           properties.push(
-            new ObjectType.Property({
+            new ObjectType.ShaclProperty({
               maxCount: Maybe.of(1),
               minCount: 1,
               name: this.configuration.objectTypeIdentifierPropertyName,
@@ -150,7 +150,7 @@ export class TypeFactory {
       type = this.createTypeFromAstType(astObjectTypeProperty.type);
     }
 
-    const property = new ObjectType.Property({
+    const property = new ObjectType.ShaclProperty({
       maxCount: astObjectTypeProperty.maxCount,
       minCount: astObjectTypeProperty.minCount,
       name: astObjectTypeProperty.name.tsName,
