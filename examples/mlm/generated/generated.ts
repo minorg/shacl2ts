@@ -6,6 +6,7 @@ import * as rdfjsResource from "rdfjs-resource";
 
 export interface MachineLearningModel {
   readonly description: purify.Maybe<rdfjs.Literal>;
+  readonly identifier: rdfjs.NamedNode;
   readonly isVariantOf: MachineLearningModelFamily;
   readonly localIdentifier: string;
   readonly name: rdfjs.Literal;
@@ -17,6 +18,7 @@ export interface MachineLearningModel {
 export namespace MachineLearningModel {
   export class Class implements MachineLearningModel {
     readonly description: purify.Maybe<rdfjs.Literal>;
+    readonly identifier: rdfjs.NamedNode;
     readonly isVariantOf: MachineLearningModelFamily;
     readonly localIdentifier: string;
     readonly name: rdfjs.Literal;
@@ -29,6 +31,7 @@ export namespace MachineLearningModel {
       this.description = purify.Maybe.isMaybe(parameters.description)
         ? parameters.description
         : purify.Maybe.fromNullable(parameters.description);
+      this.identifier = parameters.identifier;
       this.isVariantOf = parameters.isVariantOf;
       this.localIdentifier = parameters.localIdentifier;
       this.name = parameters.name;
@@ -69,6 +72,7 @@ export namespace MachineLearningModel {
   export namespace Class {
     export interface ConstructorParameters {
       readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
+      readonly identifier: rdfjs.NamedNode;
       readonly isVariantOf: MachineLearningModelFamily;
       readonly localIdentifier: string;
       readonly name: rdfjs.Literal;
@@ -88,6 +92,7 @@ export namespace MachineLearningModel {
           right,
           purifyHelpers.Equatable.booleanEquals,
         ),
+      identifier: purifyHelpers.Equatable.booleanEquals,
       isVariantOf: MachineLearningModelFamily.equals,
       localIdentifier: purifyHelpers.Equatable.strictEquals,
       name: purifyHelpers.Equatable.booleanEquals,
@@ -125,6 +130,7 @@ export namespace MachineLearningModel {
       .value(dataFactory.namedNode("https://schema.org/description"))
       .chain((value) => value.toLiteral())
       .toMaybe();
+    const identifier = resource.identifier;
     const _isVariantOfEither = resource
       .value(dataFactory.namedNode("https://schema.org/isVariantOf"))
       .chain((value) =>
@@ -166,6 +172,7 @@ export namespace MachineLearningModel {
       .toMaybe();
     return purify.Either.of({
       description,
+      identifier,
       isVariantOf,
       localIdentifier,
       name,
@@ -191,6 +198,15 @@ export namespace MachineLearningModel {
             dataFactory.namedNode("https://schema.org/description"),
             this.variable("Description"),
           ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject",
+          ),
+          this.variable("Identifier"),
         ),
       );
       this.add(
@@ -399,7 +415,6 @@ export namespace LanguageModel {
             }),
           );
         }
-        const identifier = resource.identifier;
         const _contextWindowEither = resource
           .value(
             dataFactory.namedNode(
@@ -422,6 +437,7 @@ export namespace LanguageModel {
         return purify.Either.of({
           contextWindow,
           description: _super.description,
+          identifier: _super.identifier,
           isVariantOf: _super.isVariantOf,
           localIdentifier: _super.localIdentifier,
           maxTokenOutput,
@@ -508,6 +524,7 @@ export namespace LanguageModel {
 
 export interface MachineLearningModelFamily {
   readonly description: purify.Maybe<rdfjs.Literal>;
+  readonly identifier: rdfjs.NamedNode;
   readonly manufacturer: Organization;
   readonly name: rdfjs.Literal;
   readonly url: purify.Maybe<string>;
@@ -517,6 +534,7 @@ export interface MachineLearningModelFamily {
 export namespace MachineLearningModelFamily {
   export class Class implements MachineLearningModelFamily {
     readonly description: purify.Maybe<rdfjs.Literal>;
+    readonly identifier: rdfjs.NamedNode;
     readonly manufacturer: Organization;
     readonly name: rdfjs.Literal;
     readonly url: purify.Maybe<string>;
@@ -528,6 +546,7 @@ export namespace MachineLearningModelFamily {
       this.description = purify.Maybe.isMaybe(parameters.description)
         ? parameters.description
         : purify.Maybe.fromNullable(parameters.description);
+      this.identifier = parameters.identifier;
       this.manufacturer = parameters.manufacturer;
       this.name = parameters.name;
       this.url = purify.Maybe.isMaybe(parameters.url)
@@ -564,6 +583,7 @@ export namespace MachineLearningModelFamily {
   export namespace Class {
     export interface ConstructorParameters {
       readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
+      readonly identifier: rdfjs.NamedNode;
       readonly manufacturer: Organization;
       readonly name: rdfjs.Literal;
       readonly url?: purify.Maybe<string> | string;
@@ -581,6 +601,7 @@ export namespace MachineLearningModelFamily {
           right,
           purifyHelpers.Equatable.booleanEquals,
         ),
+      identifier: purifyHelpers.Equatable.booleanEquals,
       manufacturer: Organization.equals,
       name: purifyHelpers.Equatable.booleanEquals,
       url: (left, right) => left.equals(right),
@@ -619,6 +640,7 @@ export namespace MachineLearningModelFamily {
       .value(dataFactory.namedNode("https://schema.org/description"))
       .chain((value) => value.toLiteral())
       .toMaybe();
+    const identifier = resource.identifier;
     const _manufacturerEither = resource
       .value(dataFactory.namedNode("https://schema.org/manufacturer"))
       .chain((value) =>
@@ -643,6 +665,7 @@ export namespace MachineLearningModelFamily {
       .toMaybe();
     return purify.Either.of({
       description,
+      identifier,
       manufacturer,
       name,
       type: "MachineLearningModelFamily",
@@ -666,6 +689,15 @@ export namespace MachineLearningModelFamily {
             dataFactory.namedNode("https://schema.org/description"),
             this.variable("Description"),
           ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject",
+          ),
+          this.variable("Identifier"),
         ),
       );
       this.add(
@@ -751,16 +783,19 @@ export namespace MachineLearningModelFamily {
 }
 
 export interface Organization {
+  readonly identifier: rdfjs.NamedNode;
   readonly name: rdfjs.Literal;
   readonly type: "Organization";
 }
 
 export namespace Organization {
   export class Class implements Organization {
+    readonly identifier: rdfjs.NamedNode;
     readonly name: rdfjs.Literal;
     readonly type = "Organization" as const;
 
     constructor(parameters: Organization.Class.ConstructorParameters) {
+      this.identifier = parameters.identifier;
       this.name = parameters.name;
     }
 
@@ -787,6 +822,7 @@ export namespace Organization {
 
   export namespace Class {
     export interface ConstructorParameters {
+      readonly identifier: rdfjs.NamedNode;
       readonly name: rdfjs.Literal;
     }
   }
@@ -796,6 +832,7 @@ export namespace Organization {
     right: Organization,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
       name: purifyHelpers.Equatable.booleanEquals,
     });
   }
@@ -825,6 +862,7 @@ export namespace Organization {
       );
     }
 
+    const identifier = resource.identifier;
     const _nameEither = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
       .chain((value) => value.toLiteral());
@@ -832,7 +870,7 @@ export namespace Organization {
       return _nameEither;
     }
     const name = _nameEither.unsafeCoerce();
-    return purify.Either.of({ name, type: "Organization" });
+    return purify.Either.of({ identifier, name, type: "Organization" });
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -844,6 +882,15 @@ export namespace Organization {
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter;
     }) {
       super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject",
+          ),
+          this.variable("Identifier"),
+        ),
+      );
       this.add(
         sparqlBuilder.GraphPattern.basic(
           this.subject,

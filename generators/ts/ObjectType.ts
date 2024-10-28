@@ -1,5 +1,5 @@
 import type { NamedNode } from "@rdfjs/types";
-import { Maybe } from "purify-ts";
+import type { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import type { IdentifierType } from "./IdentifierType.js";
 import type { Property } from "./Property.js";
@@ -10,6 +10,7 @@ import { shorthandProperty } from "./shorthandProperty.js";
 export class ObjectType extends Type {
   readonly astName: string;
   readonly classQualifiedName: string;
+  readonly identifierType: IdentifierType;
   interfaceDeclaration = interfaceDeclaration;
   readonly interfaceQualifiedName: string;
   readonly kind = "Object";
@@ -18,7 +19,6 @@ export class ObjectType extends Type {
   readonly rdfType: Maybe<NamedNode>;
   readonly sparqlGraphPatternsClassQualifiedName: string;
   protected readonly classUnqualifiedName: string = "Class";
-  protected readonly identifierType: IdentifierType;
   protected readonly interfaceUnqualifiedName: string;
   protected readonly sparqlGraphPatternsClassUnqualifiedName: string =
     "SparqlGraphPatterns";
@@ -72,20 +72,6 @@ export class ObjectType extends Type {
     return this.lazyDescendantObjectTypes();
   }
 
-  @Memoize()
-  get identifierProperty(): Maybe<{
-    readonly name: string;
-    readonly type: IdentifierType;
-  }> {
-    if (this.parentObjectTypes.length === 0) {
-      return Maybe.empty();
-    }
-    return Maybe.of({
-      name: this.configuration.objectTypeIdentifierPropertyName,
-      type: this.identifierType,
-    });
-  }
-
   get name(): string {
     return this.interfaceQualifiedName;
   }
@@ -109,7 +95,6 @@ export class ObjectType extends Type {
     return properties;
   }
 
-  @Memoize()
   get typeDiscriminatorProperty(): Maybe<{
     readonly name: string;
     readonly type: {

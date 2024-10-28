@@ -16,17 +16,15 @@ export function fromRdfFunctionDeclaration(
     );
   });
 
-  this.identifierProperty.ifJust((identifierProperty) =>
-    statements.push(
-      `const ${identifierProperty.name} = ${resourceVariable}.identifier`,
-    ),
-  );
   for (const property of this.properties) {
-    statements.push(
-      property.valueFromRdf({ dataFactoryVariable, resourceVariable }),
-    );
+    if (property.name === "identifier") {
+      statements.push(`const identifier = ${resourceVariable}.identifier`);
+    } else {
+      statements.push(
+        property.valueFromRdf({ dataFactoryVariable, resourceVariable }),
+      );
+    }
   }
-
   statements.push(
     `return purify.Either.of({ ${this.properties
       .map((property) => property.name)
