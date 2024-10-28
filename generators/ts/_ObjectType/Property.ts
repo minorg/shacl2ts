@@ -7,12 +7,13 @@ import type {
 import type { Type } from "../Type.js";
 
 export abstract class Property {
-  abstract readonly classConstructorParametersPropertySignature: OptionalKind<PropertySignatureStructure>;
+  abstract readonly classConstructorParametersPropertySignature: Maybe<
+    OptionalKind<PropertySignatureStructure>
+  >;
   abstract readonly classPropertyDeclaration: OptionalKind<PropertyDeclarationStructure>;
   abstract readonly equalsFunction: string;
   abstract readonly interfacePropertySignature: OptionalKind<PropertySignatureStructure>;
   readonly name: string;
-  abstract readonly type: Type;
 
   protected constructor({
     name,

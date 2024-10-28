@@ -11,13 +11,6 @@ export function interfaceDeclaration(
 ): InterfaceDeclarationStructure {
   const properties: OptionalKind<PropertySignatureStructure>[] =
     this.properties.map((property) => property.interfacePropertySignature);
-  this.typeDiscriminatorProperty.ifJust((typeDiscriminatorProperty) => {
-    properties.push({
-      isReadonly: true,
-      name: typeDiscriminatorProperty.name,
-      type: typeDiscriminatorProperty.type.name,
-    });
-  });
 
   return {
     extends: this.parentObjectTypes.map(

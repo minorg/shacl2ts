@@ -9,39 +9,30 @@ export function fromRdfFunctionDeclaration(
   const dataFactoryVariable = "dataFactory";
   const resourceVariable = "resource";
 
+  const propertyInitializers: string[] = [];
   let statements: string[] = [];
+
   this.rdfType.ifJust((rdfType) => {
     statements.push(
       `if (!${resourceVariable}.isInstanceOf(${dataFactoryVariable}.namedNode("${rdfType.value}"))) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${resourceVariable}, message: \`\${rdfjsResource.Resource.Identifier.toString(${resourceVariable}.identifier)} has unexpected RDF type\`, predicate: ${dataFactoryVariable}.namedNode("${rdfType.value}") })); }`,
     );
   });
 
+  if (this.parentObjectTypes.length > 0) {
+    propertyInitializers.push("..._super");
+  }
+
   for (const property of this.properties) {
     property
       .valueFromRdf({ dataFactoryVariable, resourceVariable })
-      .ifJust((statement) => statements.push(statement));
+      .ifJust((statement) => {
+        propertyInitializers.push(property.name);
+        statements.push(statement);
+      });
   }
 
   statements.push(
-    `return purify.Either.of({ ${this.properties
-      .map((property) => property.name)
-      .concat(
-        this.ancestorObjectTypes.flatMap((ancestorObjectType) =>
-          ancestorObjectType.properties.map(
-            (property) => `${property.name}: _super.${property.name}`,
-          ),
-        ),
-      )
-      .concat(
-        this.typeDiscriminatorProperty
-          .map(
-            (typeDiscriminatorProperty) =>
-              `${typeDiscriminatorProperty.name}: "${typeDiscriminatorProperty.value}"`,
-          )
-          .toList(),
-      )
-      .sort()
-      .join(", ")} })`,
+    `return purify.Either.of({ ${propertyInitializers.join(", ")} })`,
   );
 
   if (this.parentObjectTypes.length > 0) {

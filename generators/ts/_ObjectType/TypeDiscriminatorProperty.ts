@@ -4,36 +4,43 @@ import type {
   PropertyDeclarationStructure,
   PropertySignatureStructure,
 } from "ts-morph";
-import type { IdentifierType } from "../IdentifierType.js";
 import { Property } from "./Property.js";
 
-export class IdentifierProperty extends Property {
-  readonly equalsFunction = "purifyHelpers.Equatable.booleanEquals";
-  readonly type: IdentifierType;
+export class TypeDiscriminatorProperty extends Property {
+  readonly equalsFunction = "purifyHelpers.Equatable.strictEquals";
+  readonly type: {
+    readonly name: string;
+  };
+  readonly value: string;
+  private readonly override: boolean;
 
   constructor({
     name,
+    override,
     type,
+    value,
   }: {
     name: string;
-    type: IdentifierType;
+    override: boolean;
+    type: TypeDiscriminatorProperty["type"];
+    value: string;
   }) {
     super({ name });
+    this.override = override;
     this.type = type;
+    this.value = value;
   }
 
   get classConstructorParametersPropertySignature(): Maybe<
     OptionalKind<PropertySignatureStructure>
   > {
-    return Maybe.of({
-      isReadonly: true,
-      name: this.name,
-      type: this.type.name,
-    });
+    return Maybe.empty();
   }
 
   get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
     return {
+      hasOverrideKeyword: this.override,
+      initializer: `"${this.value}"`,
       isReadonly: true,
       name: this.name,
       type: this.type.name,
@@ -48,10 +55,10 @@ export class IdentifierProperty extends Property {
     };
   }
 
-  classConstructorInitializer({
-    parameter,
-  }: Property.ClassConstructorInitializerParameters): Maybe<string> {
-    return Maybe.of(parameter);
+  classConstructorInitializer(
+    _parameters: Property.ClassConstructorInitializerParameters,
+  ): Maybe<string> {
+    return Maybe.empty();
   }
 
   sparqlGraphPattern(
@@ -60,10 +67,8 @@ export class IdentifierProperty extends Property {
     return Maybe.empty();
   }
 
-  valueFromRdf({
-    resourceVariable,
-  }: Property.ValueFromRdfParameters): Maybe<string> {
-    return Maybe.of(`const ${this.name} = ${resourceVariable}.identifier`);
+  valueFromRdf(_parameters: Property.ValueFromRdfParameters): Maybe<string> {
+    return Maybe.of(`const ${this.name} = "${this.value}" as const`);
   }
 
   valueToRdf(_parameters: Property.ValueToRdfParameters): Maybe<string> {

@@ -14,8 +14,8 @@ export function classConstructorParametersInterfaceDeclaration(
         : undefined,
     isExported: true,
     kind: StructureKind.Interface,
-    properties: this.properties.map(
-      (property) => property.classConstructorParametersPropertySignature,
+    properties: this.properties.flatMap((property) =>
+      property.classConstructorParametersPropertySignature.toList(),
     ),
     name: "ConstructorParameters",
   };

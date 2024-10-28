@@ -9,3 +9,4 @@ export * from "./moduleDeclaration.js";
 export * from "./ShaclProperty.js";
 export * from "./sparqlGraphPatternsClassDeclaration.js";
 export * from "./toRdfFunctionDeclaration.js";
+export * from "./TypeDiscriminatorProperty.js";

@@ -53,15 +53,6 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
 
   const properties: OptionalKind<PropertyDeclarationStructure>[] =
     this.properties.map((property) => property.classPropertyDeclaration);
-  this.typeDiscriminatorProperty.ifJust((typeDiscriminatorProperty) => {
-    properties.push({
-      hasOverrideKeyword: this.parentObjectTypes.length > 0,
-      isReadonly: true,
-      initializer: `"${typeDiscriminatorProperty.value}"`,
-      type: typeDiscriminatorProperty.type.name,
-      name: typeDiscriminatorProperty.name,
-    });
-  });
 
   return {
     ctors:

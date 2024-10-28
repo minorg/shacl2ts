@@ -94,33 +94,6 @@ export class ObjectType extends Type {
     return properties;
   }
 
-  get typeDiscriminatorProperty(): Maybe<{
-    readonly name: string;
-    readonly type: {
-      readonly name: string;
-    };
-    readonly value: string;
-  }> {
-    return this.configuration.objectTypeDiscriminatorPropertyName.map(
-      (typeDiscriminatorPropertyName) => ({
-        name: typeDiscriminatorPropertyName,
-        type: {
-          name: [
-            ...new Set(
-              [this.name].concat(
-                this.descendantObjectTypes.map((objectType) => objectType.name),
-              ),
-            ),
-          ]
-            .sort()
-            .map((name) => `"${name}"`)
-            .join("|"),
-        },
-        value: this.name,
-      }),
-    );
-  }
-
   equalsFunction(): string {
     return `${this.moduleQualifiedName}.equals`;
   }
@@ -181,4 +154,7 @@ export namespace ObjectType {
   export type Property = _ObjectType.Property;
   export const ShaclProperty = _ObjectType.ShaclProperty;
   export type ShaclProperty = _ObjectType.ShaclProperty;
+  export const TypeDiscriminatorProperty =
+    _ObjectType.TypeDiscriminatorProperty;
+  export type TypeDiscriminatorProperty = _ObjectType.TypeDiscriminatorProperty;
 }

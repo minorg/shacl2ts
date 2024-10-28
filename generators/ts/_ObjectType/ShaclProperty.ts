@@ -38,7 +38,9 @@ export class ShaclProperty extends Property {
     this.type = type;
   }
 
-  get classConstructorParametersPropertySignature(): OptionalKind<PropertySignatureStructure> {
+  get classConstructorParametersPropertySignature(): Maybe<
+    OptionalKind<PropertySignatureStructure>
+  > {
     // If the interface type name is Maybe<string>
     let hasQuestionToken = false;
     const typeNames: string[] = [this.interfaceTypeName];
@@ -50,12 +52,12 @@ export class ShaclProperty extends Property {
       hasQuestionToken = true; // Allow Maybe<string> | undefined
     }
 
-    return {
+    return Maybe.of({
       hasQuestionToken,
       isReadonly: true,
       name: this.name,
       type: typeNames.join(" | "),
-    };
+    });
   }
 
   get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {

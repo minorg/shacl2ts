@@ -11,8 +11,8 @@ export interface MachineLearningModel {
   readonly localIdentifier: string;
   readonly name: rdfjs.Literal;
   readonly trainingDataCutoff: purify.Maybe<string>;
-  readonly url: purify.Maybe<string>;
   readonly type: "LanguageModel" | "MachineLearningModel";
+  readonly url: purify.Maybe<string>;
 }
 
 export namespace MachineLearningModel {
@@ -23,9 +23,9 @@ export namespace MachineLearningModel {
     readonly localIdentifier: string;
     readonly name: rdfjs.Literal;
     readonly trainingDataCutoff: purify.Maybe<string>;
-    readonly url: purify.Maybe<string>;
     readonly type: "LanguageModel" | "MachineLearningModel" =
       "MachineLearningModel";
+    readonly url: purify.Maybe<string>;
 
     constructor(parameters: MachineLearningModel.Class.ConstructorParameters) {
       this.description = purify.Maybe.isMaybe(parameters.description)
@@ -97,6 +97,7 @@ export namespace MachineLearningModel {
       localIdentifier: purifyHelpers.Equatable.strictEquals,
       name: purifyHelpers.Equatable.booleanEquals,
       trainingDataCutoff: (left, right) => left.equals(right),
+      type: purifyHelpers.Equatable.strictEquals,
       url: (left, right) => left.equals(right),
     });
   }
@@ -166,6 +167,7 @@ export namespace MachineLearningModel {
       )
       .chain((value) => value.toString())
       .toMaybe();
+    const type = "MachineLearningModel" as const;
     const url = resource
       .value(dataFactory.namedNode("https://schema.org/url"))
       .chain((value) => value.toString())
@@ -177,7 +179,7 @@ export namespace MachineLearningModel {
       localIdentifier,
       name,
       trainingDataCutoff,
-      type: "MachineLearningModel",
+      type,
       url,
     });
   }
@@ -376,6 +378,7 @@ export namespace LanguageModel {
       purifyHelpers.Equatable.objectEquals(left, right, {
         contextWindow: purifyHelpers.Equatable.strictEquals,
         maxTokenOutput: (left, right) => left.equals(right),
+        type: purifyHelpers.Equatable.strictEquals,
       }),
     );
   }
@@ -425,17 +428,12 @@ export namespace LanguageModel {
           )
           .chain((value) => value.toNumber())
           .toMaybe();
+        const type = "LanguageModel" as const;
         return purify.Either.of({
+          ..._super,
           contextWindow,
-          description: _super.description,
-          identifier: _super.identifier,
-          isVariantOf: _super.isVariantOf,
-          localIdentifier: _super.localIdentifier,
           maxTokenOutput,
-          name: _super.name,
-          trainingDataCutoff: _super.trainingDataCutoff,
-          type: "LanguageModel",
-          url: _super.url,
+          type,
         });
       },
     );
@@ -518,8 +516,8 @@ export interface MachineLearningModelFamily {
   readonly identifier: rdfjs.NamedNode;
   readonly manufacturer: Organization;
   readonly name: rdfjs.Literal;
-  readonly url: purify.Maybe<string>;
   readonly type: "MachineLearningModelFamily";
+  readonly url: purify.Maybe<string>;
 }
 
 export namespace MachineLearningModelFamily {
@@ -528,8 +526,8 @@ export namespace MachineLearningModelFamily {
     readonly identifier: rdfjs.NamedNode;
     readonly manufacturer: Organization;
     readonly name: rdfjs.Literal;
-    readonly url: purify.Maybe<string>;
     readonly type = "MachineLearningModelFamily" as const;
+    readonly url: purify.Maybe<string>;
 
     constructor(
       parameters: MachineLearningModelFamily.Class.ConstructorParameters,
@@ -595,6 +593,7 @@ export namespace MachineLearningModelFamily {
       identifier: purifyHelpers.Equatable.booleanEquals,
       manufacturer: Organization.equals,
       name: purifyHelpers.Equatable.booleanEquals,
+      type: purifyHelpers.Equatable.strictEquals,
       url: (left, right) => left.equals(right),
     });
   }
@@ -650,6 +649,7 @@ export namespace MachineLearningModelFamily {
       return _nameEither;
     }
     const name = _nameEither.unsafeCoerce();
+    const type = "MachineLearningModelFamily" as const;
     const url = resource
       .value(dataFactory.namedNode("https://schema.org/url"))
       .chain((value) => value.toString())
@@ -659,7 +659,7 @@ export namespace MachineLearningModelFamily {
       identifier,
       manufacturer,
       name,
-      type: "MachineLearningModelFamily",
+      type,
       url,
     });
   }
@@ -816,6 +816,7 @@ export namespace Organization {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       name: purifyHelpers.Equatable.booleanEquals,
+      type: purifyHelpers.Equatable.strictEquals,
     });
   }
 
@@ -852,7 +853,8 @@ export namespace Organization {
       return _nameEither;
     }
     const name = _nameEither.unsafeCoerce();
-    return purify.Either.of({ identifier, name, type: "Organization" });
+    const type = "Organization" as const;
+    return purify.Either.of({ identifier, name, type });
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {

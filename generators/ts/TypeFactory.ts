@@ -73,6 +73,31 @@ export class TypeFactory {
           );
         } // Else parent will have the identifier property
 
+        this.configuration.objectTypeDiscriminatorPropertyName.ifJust(
+          (typeDiscriminatorPropertyName) =>
+            properties.push(
+              new ObjectType.TypeDiscriminatorProperty({
+                name: typeDiscriminatorPropertyName,
+                override: objectType.parentObjectTypes.length > 0,
+                type: {
+                  name: [
+                    ...new Set(
+                      [objectType.name].concat(
+                        objectType.descendantObjectTypes.map(
+                          (objectType) => objectType.name,
+                        ),
+                      ),
+                    ),
+                  ]
+                    .sort()
+                    .map((name) => `"${name}"`)
+                    .join("|"),
+                },
+                value: objectType.name,
+              }),
+            ),
+        );
+
         return properties;
       },
       rdfType: astType.rdfType,
