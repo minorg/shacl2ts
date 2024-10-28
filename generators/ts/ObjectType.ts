@@ -1,5 +1,6 @@
 import type { NamedNode } from "@rdfjs/types";
 import type { Maybe } from "purify-ts";
+import { Memoize } from "typescript-memoize";
 import type { IdentifierType } from "./IdentifierType.js";
 import type { Property } from "./Property.js";
 import { Type } from "./Type.js";
@@ -7,58 +8,51 @@ import { interfaceDeclaration, moduleDeclaration } from "./_ObjectType";
 import { shorthandProperty } from "./shorthandProperty.js";
 
 export class ObjectType extends Type {
-  readonly ancestorObjectTypes: readonly ObjectType[];
   readonly astName: string;
   readonly classQualifiedName: string;
-  readonly descendantObjectTypes: readonly ObjectType[];
   readonly identifierType: IdentifierType;
   interfaceDeclaration = interfaceDeclaration;
   readonly interfaceQualifiedName: string;
   readonly kind = "Object";
   moduleDeclaration = moduleDeclaration;
   readonly moduleQualifiedName: string;
-  readonly parentObjectTypes: readonly ObjectType[];
-  readonly properties: readonly Property[];
   readonly rdfType: Maybe<NamedNode>;
   readonly sparqlGraphPatternsClassQualifiedName: string;
   protected readonly classUnqualifiedName: string = "Class";
   protected readonly interfaceUnqualifiedName: string;
   protected readonly sparqlGraphPatternsClassUnqualifiedName: string =
     "SparqlGraphPatterns";
+  private readonly lazyAncestorObjectTypes: () => readonly ObjectType[];
+  private readonly lazyDescendantObjectTypes: () => readonly ObjectType[];
+  private readonly lazyParentObjectTypes: () => readonly ObjectType[];
+  private readonly lazyProperties: () => readonly Property[];
 
   constructor({
-    ancestorObjectTypes,
     astName,
-    descendantObjectTypes,
     identifierType,
-    properties,
+    lazyAncestorObjectTypes,
+    lazyDescendantObjectTypes,
+    lazyParentObjectTypes,
+    lazyProperties,
     rdfType,
-    parentObjectTypes,
     ...superParameters
   }: {
-    ancestorObjectTypes: readonly ObjectType[];
     astName: string;
-    descendantObjectTypes: readonly ObjectType[];
     identifierType: IdentifierType;
-    properties: readonly Property[];
+    lazyAncestorObjectTypes: () => readonly ObjectType[];
+    lazyDescendantObjectTypes: () => readonly ObjectType[];
+    lazyParentObjectTypes: () => readonly ObjectType[];
+    lazyProperties: () => readonly Property[];
     rdfType: Maybe<NamedNode>;
-    parentObjectTypes: readonly ObjectType[];
   } & Type.ConstructorParameters) {
     super(superParameters);
-    this.ancestorObjectTypes = ancestorObjectTypes;
-    this.descendantObjectTypes = descendantObjectTypes;
+    // Lazily initialize some members in getters to avoid recursive construction
+    this.lazyAncestorObjectTypes = lazyAncestorObjectTypes;
+    this.lazyDescendantObjectTypes = lazyDescendantObjectTypes;
+    this.lazyParentObjectTypes = lazyParentObjectTypes;
+    this.lazyProperties = lazyProperties;
     this.identifierType = identifierType;
-    this.properties = properties
-      .concat()
-      .sort((left, right) => left.name.localeCompare(right.name));
-    const propertyNames = new Set<string>();
-    for (const property of this.properties) {
-      if (propertyNames.has(property.name)) {
-        throw new Error(`duplicate property '${property.name}'`);
-      }
-    }
     this.rdfType = rdfType;
-    this.parentObjectTypes = parentObjectTypes;
 
     this.astName = astName;
     this.interfaceUnqualifiedName = astName;
@@ -68,8 +62,37 @@ export class ObjectType extends Type {
     this.sparqlGraphPatternsClassQualifiedName = `${astName}.${this.sparqlGraphPatternsClassUnqualifiedName}`;
   }
 
+  @Memoize()
+  get ancestorObjectTypes(): readonly ObjectType[] {
+    return this.lazyAncestorObjectTypes();
+  }
+
+  @Memoize()
+  get descendantObjectTypes(): readonly ObjectType[] {
+    return this.lazyDescendantObjectTypes();
+  }
+
   get name(): string {
     return this.interfaceQualifiedName;
+  }
+
+  @Memoize()
+  get parentObjectTypes(): readonly ObjectType[] {
+    return this.lazyParentObjectTypes();
+  }
+
+  @Memoize()
+  get properties(): readonly Property[] {
+    const properties = this.lazyProperties()
+      .concat()
+      .sort((left, right) => left.name.localeCompare(right.name));
+    const propertyNames = new Set<string>();
+    for (const property of properties) {
+      if (propertyNames.has(property.name)) {
+        throw new Error(`duplicate property '${property.name}'`);
+      }
+    }
+    return properties;
   }
 
   equalsFunction(): string {

@@ -1,3 +1,5 @@
+import TermMap from "@rdfjs/term-map";
+import type { BlankNode, NamedNode } from "@rdfjs/types";
 import { rdf, xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import type * as ast from "../../ast";
@@ -13,6 +15,14 @@ import { StringType } from "./StringType.js";
 import type { Type } from "./Type.js";
 
 export class Factory {
+  private cachedObjectTypesByIdentifier: TermMap<
+    BlankNode | NamedNode,
+    ObjectType
+  > = new TermMap();
+  private cachedPropertiesByIdentifier: TermMap<
+    BlankNode | NamedNode,
+    Property
+  > = new TermMap();
   private readonly configuration: Configuration;
 
   constructor({ configuration }: { configuration: Configuration }) {
@@ -20,46 +30,71 @@ export class Factory {
   }
 
   createObjectTypeFromAstType(astType: ast.ObjectType): ObjectType {
+    {
+      const cachedObjectType = this.cachedObjectTypesByIdentifier.get(
+        astType.name.identifier,
+      );
+      if (cachedObjectType) {
+        return cachedObjectType;
+      }
+    }
+
     const identifierType = IdentifierType.fromNodeKinds({
       configuration: this.configuration,
       nodeKinds: astType.nodeKinds,
     });
 
-    const properties: Property[] = astType.properties.map((astProperty) =>
-      this.createPropertyFromAstProperty(astProperty),
-    );
-
-    if (astType.parentObjectTypes.length === 0) {
-      properties.push(
-        new Property({
-          maxCount: Maybe.of(1),
-          minCount: 1,
-          name: this.configuration.objectTypeIdentifierPropertyName,
-          path: rdf.subject,
-          type: identifierType,
-        }),
-      );
-    }
-
-    return new ObjectType({
-      ancestorObjectTypes: astType.ancestorObjectTypes.map((astType) =>
-        this.createObjectTypeFromAstType(astType),
-      ),
+    const objectType = new ObjectType({
       astName: astType.name.tsName,
       configuration: this.configuration,
-      descendantObjectTypes: astType.descendantObjectTypes.map((astType) =>
-        this.createObjectTypeFromAstType(astType),
-      ),
       identifierType,
-      properties: properties,
+      lazyAncestorObjectTypes: () =>
+        astType.ancestorObjectTypes.map((astType) =>
+          this.createObjectTypeFromAstType(astType),
+        ),
+      lazyDescendantObjectTypes: () =>
+        astType.descendantObjectTypes.map((astType) =>
+          this.createObjectTypeFromAstType(astType),
+        ),
+      lazyParentObjectTypes: () =>
+        astType.parentObjectTypes.map((astType) =>
+          this.createObjectTypeFromAstType(astType),
+        ),
+      lazyProperties: () => {
+        const properties: Property[] = astType.properties.map((astProperty) =>
+          this.createPropertyFromAstProperty(astProperty),
+        );
+
+        if (astType.parentObjectTypes.length === 0) {
+          properties.push(
+            new Property({
+              maxCount: Maybe.of(1),
+              minCount: 1,
+              name: this.configuration.objectTypeIdentifierPropertyName,
+              path: rdf.subject,
+              type: identifierType,
+            }),
+          );
+        }
+
+        return properties;
+      },
       rdfType: astType.rdfType,
-      parentObjectTypes: astType.parentObjectTypes.map((astType) =>
-        this.createObjectTypeFromAstType(astType),
-      ),
     });
+    this.cachedObjectTypesByIdentifier.set(astType.name.identifier, objectType);
+    return objectType;
   }
 
   createPropertyFromAstProperty(astProperty: ast.Property): Property {
+    {
+      const cachedProperty = this.cachedPropertiesByIdentifier.get(
+        astProperty.name.identifier,
+      );
+      if (cachedProperty) {
+        return cachedProperty;
+      }
+    }
+
     let type: Type;
     if (astProperty.type.kind === "Object" && !astProperty.inline) {
       // Non-inlined object type = its identifier
@@ -71,13 +106,18 @@ export class Factory {
       type = this.createTypeFromAstType(astProperty.type);
     }
 
-    return new Property({
+    const property = new Property({
       maxCount: astProperty.maxCount,
       minCount: astProperty.minCount,
       name: astProperty.name.tsName,
       path: astProperty.path.iri,
       type,
     });
+    this.cachedPropertiesByIdentifier.set(
+      astProperty.name.identifier,
+      property,
+    );
+    return property;
   }
 
   createTypeFromAstType(astType: ast.Type): Type {
