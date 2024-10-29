@@ -3,45 +3,50 @@ import { camelCase } from "change-case";
 import { type FunctionDeclarationStructure, StructureKind } from "ts-morph";
 import type { ObjectType } from "../ObjectType";
 
+const ignoreRdfTypeVariable = "ignoreRdfType";
+const mutateGraphVariable = "mutateGraph";
+const resourceVariable = "resource";
+const resourceSetVariable = "resourceSet";
+
 export function toRdfFunctionDeclaration(
   this: ObjectType,
 ): FunctionDeclarationStructure {
   this.ensureAtMostOneSuperObjectType();
 
-  const thisVariableName = camelCase(this.name);
+  const thisVariable = camelCase(this.name);
 
   const statements: string[] = [];
   if (this.parentObjectTypes.length > 0) {
     statements.push(
-      `const resource = ${this.parentObjectTypes[0].moduleQualifiedName}.toRdf(${thisVariableName}, { mutateGraph, resourceSet });`,
+      `const ${resourceVariable} = ${this.parentObjectTypes[0].moduleQualifiedName}.toRdf(${thisVariable}, { ${mutateGraphVariable}, ${ignoreRdfTypeVariable}: true, ${resourceSetVariable} });`,
     );
   } else if (this.identifierType.isNamedNodeKind) {
     statements.push(
-      `const resource = resourceSet.mutableNamedResource({ identifier: ${thisVariableName}.${this.configuration.objectTypeIdentifierPropertyName}, mutateGraph });`,
+      `const ${resourceVariable} = ${resourceSetVariable}.mutableNamedResource({ identifier: ${thisVariable}.${this.configuration.objectTypeIdentifierPropertyName}, ${mutateGraphVariable} });`,
     );
   } else {
     statements.push(
-      `const resource = resourceSet.mutableResource({ identifier: ${thisVariableName}.${this.configuration.objectTypeIdentifierPropertyName}, mutateGraph });`,
+      `const ${resourceVariable} = ${resourceSetVariable}.mutableResource({ identifier: ${thisVariable}.${this.configuration.objectTypeIdentifierPropertyName}, ${mutateGraphVariable} });`,
     );
   }
 
   this.rdfType.ifJust((rdfType) => {
     statements.push(
-      `resource.add(resource.dataFactory.namedNode("${rdf.type.value}"), resource.dataFactory.namedNode("${rdfType.value}"));`,
+      `if (!${ignoreRdfTypeVariable}) { ${resourceVariable}.add(${resourceVariable}.dataFactory.namedNode("${rdf.type.value}"), ${resourceVariable}.dataFactory.namedNode("${rdfType.value}")); }`,
     );
   });
 
   for (const property of this.properties) {
     property
       .valueToRdf({
-        mutateGraphVariable: "mutateGraph",
-        propertyValueVariable: `${thisVariableName}.${property.name}`,
-        resourceSetVariable: "resourceSet",
+        mutateGraphVariable,
+        propertyValueVariable: `${thisVariable}.${property.name}`,
+        resourceSetVariable,
       })
       .ifJust((statement) => statements.push(statement));
   }
 
-  statements.push("return resource;");
+  statements.push(`return ${resourceVariable};`);
 
   return {
     isExported: true,
@@ -49,12 +54,12 @@ export function toRdfFunctionDeclaration(
     name: "toRdf",
     parameters: [
       {
-        name: thisVariableName,
+        name: thisVariable,
         type: this.interfaceQualifiedName,
       },
       {
-        name: "{ mutateGraph, resourceSet }",
-        type: "{ mutateGraph: rdfjsResource.MutableResource.MutateGraph, resourceSet: rdfjsResource.MutableResourceSet }",
+        name: `{ ${ignoreRdfTypeVariable}, ${mutateGraphVariable}, ${resourceSetVariable} }`,
+        type: `{ ${ignoreRdfTypeVariable}?: boolean; ${mutateGraphVariable}: rdfjsResource.MutableResource.MutateGraph, ${resourceSetVariable}: rdfjsResource.MutableResourceSet }`,
       },
     ],
     returnType: this.rdfjsResourceType({ mutable: true }).name,

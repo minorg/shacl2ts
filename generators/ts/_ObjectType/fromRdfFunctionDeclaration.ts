@@ -1,20 +1,21 @@
 import { type FunctionDeclarationStructure, StructureKind } from "ts-morph";
 import type { ObjectType } from "../ObjectType";
 
+const dataFactoryVariable = "dataFactory";
+const ignoreRdfTypeVariable = "ignoreRdfType";
+const resourceVariable = "resource";
+
 export function fromRdfFunctionDeclaration(
   this: ObjectType,
 ): FunctionDeclarationStructure {
   this.ensureAtMostOneSuperObjectType();
-
-  const dataFactoryVariable = "dataFactory";
-  const resourceVariable = "resource";
 
   const propertyInitializers: string[] = [];
   let statements: string[] = [];
 
   this.rdfType.ifJust((rdfType) => {
     statements.push(
-      `if (!${resourceVariable}.isInstanceOf(${dataFactoryVariable}.namedNode("${rdfType.value}"))) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${resourceVariable}, message: \`\${rdfjsResource.Resource.Identifier.toString(${resourceVariable}.identifier)} has unexpected RDF type\`, predicate: ${dataFactoryVariable}.namedNode("${rdfType.value}") })); }`,
+      `if (!${ignoreRdfTypeVariable} && !${resourceVariable}.isInstanceOf(${dataFactoryVariable}.namedNode("${rdfType.value}"))) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${resourceVariable}, message: \`\${rdfjsResource.Resource.Identifier.toString(${resourceVariable}.identifier)} has unexpected RDF type\`, predicate: ${dataFactoryVariable}.namedNode("${rdfType.value}") })); }`,
     );
   });
 
@@ -37,7 +38,7 @@ export function fromRdfFunctionDeclaration(
 
   if (this.parentObjectTypes.length > 0) {
     statements = [
-      `return ${this.parentObjectTypes[0].moduleQualifiedName}.fromRdf({ ${dataFactoryVariable}, ${resourceVariable} }).chain(_super => { ${statements.join("\n")} })`,
+      `return ${this.parentObjectTypes[0].moduleQualifiedName}.fromRdf({ ${dataFactoryVariable}, ${ignoreRdfTypeVariable}: true, ${resourceVariable} }).chain(_super => { ${statements.join("\n")} })`,
     ];
   }
 
@@ -47,8 +48,8 @@ export function fromRdfFunctionDeclaration(
     name: "fromRdf",
     parameters: [
       {
-        name: "{ dataFactory, resource }",
-        type: `{ dataFactory: rdfjs.DataFactory, resource: ${this.rdfjsResourceType().name} }`,
+        name: `{ ${dataFactoryVariable}, ${ignoreRdfTypeVariable}, ${resourceVariable} }`,
+        type: `{ ${dataFactoryVariable}: rdfjs.DataFactory, ${ignoreRdfTypeVariable}?: boolean, ${resourceVariable}: ${this.rdfjsResourceType().name} }`,
       },
     ],
     returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.interfaceQualifiedName}>`,
