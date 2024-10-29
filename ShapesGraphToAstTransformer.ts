@@ -8,6 +8,7 @@ import { Either, Left, Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import reservedTsIdentifiers_ from "reserved-identifiers";
 import * as shaclAst from "shacl-ast";
+import { invariant } from "ts-invariant";
 import type * as ast from "./ast";
 import { logger } from "./logger.js";
 import { shacl2ts } from "./vocabularies/";
@@ -312,16 +313,42 @@ export class ShapesGraphToAstTransformer {
     }
 
     // Treat any shape with sh:nodeKind blank node or IRI as an identifier type
+    const hasIdentifierValue = hasValue.filter(
+      (value) => value.termType !== "Literal",
+    );
     if (
-      shape.constraints.nodeKinds.size > 0 &&
-      shape.constraints.nodeKinds.size <= 2 &&
-      !shape.constraints.nodeKinds.has(shaclAst.NodeKind.LITERAL)
+      hasIdentifierValue.isJust() ||
+      (shape.constraints.nodeKinds.size > 0 &&
+        shape.constraints.nodeKinds.size <= 2 &&
+        !shape.constraints.nodeKinds.has(shaclAst.NodeKind.LITERAL))
     ) {
+      const nodeKinds = hasIdentifierValue
+        .map((value) => {
+          const nodeKinds = new Set<
+            shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
+          >();
+          switch (value.termType) {
+            case "BlankNode":
+              nodeKinds.add(shaclAst.NodeKind.BLANK_NODE);
+              break;
+            case "NamedNode":
+              nodeKinds.add(shaclAst.NodeKind.IRI);
+              break;
+          }
+          return nodeKinds;
+        })
+        .orDefaultLazy(
+          () =>
+            shape.constraints.nodeKinds as Set<
+              shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
+            >,
+        );
+      invariant(nodeKinds.size > 0);
+
       return Either.of({
+        hasValue: hasIdentifierValue,
         kind: "Identifier",
-        nodeKinds: shape.constraints.nodeKinds as Set<
-          shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
-        >,
+        nodeKinds,
       });
     }
 
@@ -355,6 +382,17 @@ export class ShapesGraphToAstTransformer {
       }
     }
 
+    const nodeKinds = new Set<
+      shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
+    >(
+      [...nodeShape.constraints.nodeKinds].filter(
+        (nodeKind) => nodeKind !== shaclAst.NodeKind.LITERAL,
+      ),
+    );
+    if (nodeKinds.size === 0) {
+      return Left(new Error(`${nodeShape} has no non-Literal node kinds`));
+    }
+
     // Put a placeholder in the cache to deal with cyclic references
     // If this node shape's properties (directly or indirectly) refer to the node shape itself,
     // we'll return this placeholder.
@@ -364,11 +402,7 @@ export class ShapesGraphToAstTransformer {
       descendantObjectTypes: [],
       kind: "Object",
       name: this.shapeName(nodeShape),
-      nodeKinds: new Set<shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI>(
-        [...nodeShape.constraints.nodeKinds].filter(
-          (nodeKind) => nodeKind !== shaclAst.NodeKind.LITERAL,
-        ),
-      ),
+      nodeKinds,
       properties: [], // This is mutable, we'll populate it below.
       rdfType,
       parentObjectTypes: [], // This is mutable, we'll populate it below

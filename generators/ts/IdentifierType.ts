@@ -1,4 +1,5 @@
 import { NodeKind } from "shacl-ast";
+import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
 import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type";
@@ -15,6 +16,7 @@ export class IdentifierType extends RdfjsTermType {
   } & Type.ConstructorParameters) {
     super(superParameters);
     this.nodeKinds = new Set([...nodeKinds]);
+    invariant(this.nodeKinds.size > 0);
   }
 
   get isNamedNodeKind(): boolean {
