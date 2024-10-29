@@ -130,7 +130,7 @@ export class ObjectType extends Type {
   valueInstanceOfExpression({
     propertyValueVariable,
   }: Type.ValueInstanceOfParameters): string {
-    return `(typeof ${propertyValueVariable} === "object" && ${propertyValueVariable}.hasOwnProperty("${this.configuration.objectTypeDiscriminatorPropertyName}") && ${propertyValueVariable}["${this.configuration.objectTypeDiscriminatorPropertyName}"] === "${this.name}")`;
+    return `(typeof ${propertyValueVariable} === "object" && ${propertyValueVariable}.hasOwn("${this.configuration.objectTypeDiscriminatorPropertyName}") && ${propertyValueVariable}["${this.configuration.objectTypeDiscriminatorPropertyName}"] === "${this.name}")`;
   }
 
   valueToRdfExpression({

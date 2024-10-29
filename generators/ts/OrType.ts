@@ -43,6 +43,14 @@ if (${type.valueInstanceOfExpression({ propertyValueVariable: "left" })} && ${ty
   }
 
   valueToRdfExpression(parameters: Type.ValueToRdfParameters): string {
-    throw new Error("Method not implemented.");
+    let expression = "";
+    for (const type of this.types.concat().reverse()) {
+      if (expression.length === 0) {
+        expression = type.valueToRdfExpression(parameters);
+      } else {
+        expression = `${type.valueInstanceOfExpression(parameters)} ? ${type.valueToRdfExpression(parameters)} : ${expression}`;
+      }
+    }
+    return expression;
   }
 }

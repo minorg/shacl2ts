@@ -70,7 +70,7 @@ export class IdentifierType extends RdfjsTermType {
 
     andExpressions.push(`typeof ${propertyValueVariable} === "object"`);
 
-    andExpressions.push(`${propertyValueVariable}.hasOwnProperty("termType")`);
+    andExpressions.push(`${propertyValueVariable}.hasOwn("termType")`);
 
     const orTermTypeExpressions: string[] = [];
     for (const nodeKind of this.nodeKinds) {
