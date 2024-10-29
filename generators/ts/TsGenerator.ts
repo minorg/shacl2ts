@@ -1,24 +1,17 @@
 import { Project, type SourceFile } from "ts-morph";
 import type * as ast from "../../ast";
-import * as types from "./types";
+import { Configuration } from "./Configuration.js";
+import type { ObjectType } from "./ObjectType.js";
+import { TypeFactory } from "./TypeFactory.js";
 
 export class TsGenerator {
-  private readonly features: Set<TsGenerator.Feature>;
+  private readonly configuration: Configuration;
 
   constructor(
     private ast: ast.Ast,
-    options?: { features?: Set<TsGenerator.Feature> },
+    configuration?: Configuration,
   ) {
-    this.features = new Set<TsGenerator.Feature>(
-      options?.features ? [...options.features] : [],
-    );
-    if (this.features.size === 0) {
-      this.features.add("class");
-      this.features.add("equals");
-      this.features.add("fromRdf");
-      this.features.add("toRdf");
-      this.features.add("sparql-graph-patterns");
-    }
+    this.configuration = configuration ?? new Configuration();
   }
 
   generate(): string {
@@ -49,8 +42,12 @@ export class TsGenerator {
     });
     const sourceFile = project.createSourceFile("generated.ts");
 
+    const typeFactory = new TypeFactory({ configuration: this.configuration });
+
     this.generateSourceFile(
-      astObjectTypes.map(types.ObjectType.fromAstType),
+      astObjectTypes.map((astObjectType) =>
+        typeFactory.createObjectTypeFromAstType(astObjectType),
+      ),
       sourceFile,
     );
 
@@ -71,21 +68,24 @@ export class TsGenerator {
       namespaceImport: "rdfjs",
     });
 
-    if (this.features.has("equals")) {
+    if (this.configuration.features.has("equals")) {
       sourceFile.addImportDeclaration({
         moduleSpecifier: "purify-ts-helpers",
         namespaceImport: "purifyHelpers",
       });
     }
 
-    if (this.features.has("fromRdf") || this.features.has("toRdf")) {
+    if (
+      this.configuration.features.has("fromRdf") ||
+      this.configuration.features.has("toRdf")
+    ) {
       sourceFile.addImportDeclaration({
         moduleSpecifier: "rdfjs-resource",
         namespaceImport: "rdfjsResource",
       });
     }
 
-    if (this.features.has("sparql-graph-patterns")) {
+    if (this.configuration.features.has("sparql-graph-patterns")) {
       sourceFile.addImportDeclaration({
         moduleSpecifier: "@kos-kit/sparql-builder",
         namespaceImport: "sparqlBuilder",
@@ -94,23 +94,14 @@ export class TsGenerator {
   }
 
   private generateSourceFile(
-    objectTypes: readonly types.ObjectType[],
+    objectTypes: readonly ObjectType[],
     sourceFile: SourceFile,
   ) {
     this.addImportDeclarations(sourceFile);
 
     for (const objectType of objectTypes) {
       sourceFile.addInterface(objectType.interfaceDeclaration());
-      sourceFile.addModule(objectType.moduleDeclaration(this.features));
+      sourceFile.addModule(objectType.moduleDeclaration());
     }
   }
-}
-
-export namespace TsGenerator {
-  export type Feature =
-    | "class"
-    | "equals"
-    | "fromRdf"
-    | "toRdf"
-    | "sparql-graph-patterns";
 }

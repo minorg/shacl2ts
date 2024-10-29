@@ -1,14 +1,9 @@
-import type * as ast from "../../../ast";
-import type { Type } from "./Type.js";
+import { Type } from "./Type.js";
 
-export class EnumType implements Type {
+export class EnumType extends Type {
   readonly kind = "Enum";
 
   get name(): string {
-    throw new Error("not implemented");
-  }
-
-  static fromAstType(_astType: ast.EnumType): EnumType {
     throw new Error("not implemented");
   }
 

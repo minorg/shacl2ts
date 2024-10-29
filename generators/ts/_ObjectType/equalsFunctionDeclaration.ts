@@ -7,8 +7,8 @@ export function equalsFunctionDeclaration(
   let expression = `purifyHelpers.Equatable.objectEquals(left, right, { ${this.properties
     .map((property) => `${property.name}: ${property.equalsFunction}`)
     .join()} })`;
-  for (const superObjectType of this.superObjectTypes) {
-    expression = `${superObjectType.moduleQualifiedName}.equals(left, right).chain(() => ${expression})`;
+  for (const parentObjectType of this.parentObjectTypes) {
+    expression = `${parentObjectType.moduleQualifiedName}.equals(left, right).chain(() => ${expression})`;
   }
 
   return {

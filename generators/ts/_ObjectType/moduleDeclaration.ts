@@ -11,17 +11,15 @@ import {
   sparqlGraphPatternsClassDeclaration,
   toRdfFunctionDeclaration,
 } from ".";
-import type { TsGenerator } from "../../TsGenerator.js";
 import type { ObjectType } from "../ObjectType.js";
 
 export function moduleDeclaration(
   this: ObjectType,
-  features: Set<TsGenerator.Feature>,
 ): ModuleDeclarationStructure {
   const statements: StatementStructures[] = [];
 
-  if (features.has("class")) {
-    const classDeclaration_ = classDeclaration.bind(this)(features);
+  if (this.configuration.features.has("class")) {
+    const classDeclaration_ = classDeclaration.bind(this)();
     statements.push(classDeclaration_);
 
     statements.push({
@@ -32,16 +30,16 @@ export function moduleDeclaration(
     });
   }
 
-  if (features.has("equals")) {
+  if (this.configuration.features.has("equals")) {
     statements.push(equalsFunctionDeclaration.bind(this)());
   }
 
-  if (features.has("fromRdf")) {
+  if (this.configuration.features.has("fromRdf")) {
     statements.push(fromRdfFunctionDeclaration.bind(this)());
   }
 
-  if (features.has("sparql-graph-patterns")) {
-    if (this.superObjectTypes.length > 1) {
+  if (this.configuration.features.has("sparql-graph-patterns")) {
+    if (this.parentObjectTypes.length > 1) {
       throw new RangeError(
         `object type '${this.astName}' has multiple super object types, can't use with SPARQL graph patterns`,
       );
@@ -50,7 +48,7 @@ export function moduleDeclaration(
     statements.push(sparqlGraphPatternsClassDeclaration.bind(this)());
   }
 
-  if (features.has("toRdf")) {
+  if (this.configuration.features.has("toRdf")) {
     statements.push(toRdfFunctionDeclaration.bind(this)());
   }
 

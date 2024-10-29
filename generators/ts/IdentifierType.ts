@@ -1,6 +1,5 @@
 import { NodeKind } from "shacl-ast";
 import { Memoize } from "typescript-memoize";
-import type * as ast from "../../../ast";
 import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type";
 
@@ -10,8 +9,11 @@ export class IdentifierType extends RdfjsTermType {
 
   constructor({
     nodeKinds,
-  }: { nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI> }) {
-    super();
+    ...superParameters
+  }: {
+    nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
+  } & Type.ConstructorParameters) {
+    super(superParameters);
     this.nodeKinds = new Set([...nodeKinds]);
   }
 
@@ -31,14 +33,13 @@ export class IdentifierType extends RdfjsTermType {
     return names.join(" | ");
   }
 
-  static fromAstType(astType: ast.IdentifierType): IdentifierType {
-    return IdentifierType.fromNodeKinds(astType.nodeKinds);
-  }
-
-  static fromNodeKinds(
-    nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>,
-  ): IdentifierType {
-    return new IdentifierType({ nodeKinds });
+  static fromNodeKinds({
+    nodeKinds,
+    ...parameters
+  }: {
+    nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
+  } & Type.ConstructorParameters): IdentifierType {
+    return new IdentifierType({ nodeKinds, ...parameters });
   }
 
   valueFromRdf({ resourceValueVariable }: Type.ValueFromRdfParameters): string {

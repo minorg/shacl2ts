@@ -1,21 +1,18 @@
 import type * as rdfjs from "@rdfjs/types";
 import { pascalCase } from "change-case";
-import type { Maybe } from "purify-ts";
+import { Maybe } from "purify-ts";
 import type {
   OptionalKind,
   PropertyDeclarationStructure,
   PropertySignatureStructure,
 } from "ts-morph";
 import { Memoize } from "typescript-memoize";
-import type * as ast from "../../../ast";
-import { IdentifierType } from "./IdentifierType";
-import type { Type } from "./Type.js";
-import { createTypeFromAstType } from "./createTypeFromAstType";
+import type { Type } from "../Type.js";
+import { Property } from "./Property.js";
 
 type ContainerType = "Array" | "Maybe" | null;
 
-export class Property {
-  readonly name: string;
+export class ShaclProperty extends Property {
   readonly type: Type;
   private readonly maxCount: Maybe<number>;
   private readonly minCount: number;
@@ -34,14 +31,16 @@ export class Property {
     path: rdfjs.NamedNode;
     type: Type;
   }) {
+    super({ name });
     this.maxCount = maxCount;
     this.minCount = minCount;
-    this.name = name;
     this.path = path;
     this.type = type;
   }
 
-  get classConstructorParametersPropertySignature(): OptionalKind<PropertySignatureStructure> {
+  get classConstructorParametersPropertySignature(): Maybe<
+    OptionalKind<PropertySignatureStructure>
+  > {
     // If the interface type name is Maybe<string>
     let hasQuestionToken = false;
     const typeNames: string[] = [this.interfaceTypeName];
@@ -53,12 +52,12 @@ export class Property {
       hasQuestionToken = true; // Allow Maybe<string> | undefined
     }
 
-    return {
+    return Maybe.of({
       hasQuestionToken,
       isReadonly: true,
       name: this.name,
       type: typeNames.join(" | "),
-    };
+    });
   }
 
   get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
@@ -128,42 +127,26 @@ export class Property {
     return "Array";
   }
 
-  static fromAstProperty(astProperty: ast.Property): Property {
-    let type: Type;
-    if (astProperty.type.kind === "Object" && !astProperty.inline) {
-      // Non-inlined object type = its identifier
-      type = new IdentifierType({
-        nodeKinds: astProperty.type.nodeKinds,
-      });
-    } else {
-      type = createTypeFromAstType(astProperty.type);
-    }
-
-    return new Property({
-      maxCount: astProperty.maxCount,
-      minCount: astProperty.minCount,
-      name: astProperty.name.tsName,
-      path: astProperty.path.iri,
-      type,
-    });
-  }
-
-  classConstructorInitializer(parameter: string): string {
+  classConstructorInitializer({
+    parameter,
+  }: Property.ClassConstructorInitializerParameters): Maybe<string> {
     const maxCount = this.maxCount.extractNullable();
     if (this.minCount === 0) {
       if (maxCount === 1) {
-        return `purify.Maybe.isMaybe(${parameter}) ? ${parameter} : purify.Maybe.fromNullable(${parameter})`;
+        return Maybe.of(
+          `purify.Maybe.isMaybe(${parameter}) ? ${parameter} : purify.Maybe.fromNullable(${parameter})`,
+        );
       }
-      return `(typeof ${parameter} !== "undefined" ? ${parameter} : [])`;
+      return Maybe.of(
+        `(typeof ${parameter} !== "undefined" ? ${parameter} : [])`,
+      );
     }
-    return parameter;
+    return Maybe.of(parameter);
   }
 
   sparqlGraphPattern({
     dataFactoryVariable,
-  }: {
-    dataFactoryVariable: string;
-  }): string {
+  }: Property.SparqlGraphPatternParameters): Maybe<string> {
     let sparqlGraphPattern = `sparqlBuilder.GraphPattern.basic(this.subject, ${dataFactoryVariable}.namedNode("${this.path.value}"), this.variable("${pascalCase(this.name)}"))`;
     const typeSparqlGraphPatterns = this.type.sparqlGraphPatterns({
       dataFactoryVariable,
@@ -175,25 +158,29 @@ export class Property {
     if (this.containerType === "Maybe") {
       sparqlGraphPattern = `sparqlBuilder.GraphPattern.optional(${sparqlGraphPattern})`;
     }
-    return sparqlGraphPattern;
+    return Maybe.of(sparqlGraphPattern);
   }
 
   valueFromRdf({
     dataFactoryVariable,
     resourceVariable,
-  }: { dataFactoryVariable: string; resourceVariable: string }): string {
+  }: Property.ValueFromRdfParameters): Maybe<string> {
     const path = `${dataFactoryVariable}.namedNode("${this.path.value}")`;
     const resourceValueVariable = "value";
     if (this.containerType === "Array") {
-      return `const ${this.name} = ${resourceVariable}.values(${path}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.valueFromRdf({ dataFactoryVariable, resourceValueVariable })}).toMaybe().toList())).orDefault([]);`;
+      return Maybe.of(
+        `const ${this.name} = ${resourceVariable}.values(${path}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.valueFromRdf({ dataFactoryVariable, resourceValueVariable })}).toMaybe().toList())).orDefault([]);`,
+      );
     }
 
     const valueFromRdf = `${resourceVariable}.value(${path}).chain(${resourceValueVariable} => ${this.type.valueFromRdf({ dataFactoryVariable, resourceValueVariable })})`;
     switch (this.containerType) {
       case "Maybe":
-        return `const ${this.name} = ${valueFromRdf}.toMaybe();`;
+        return Maybe.of(`const ${this.name} = ${valueFromRdf}.toMaybe();`);
       case null:
-        return `const _${this.name}Either = ${valueFromRdf}; if (_${this.name}Either.isLeft()) { return _${this.name}Either; } const ${this.name} = _${this.name}Either.unsafeCoerce();`;
+        return Maybe.of(
+          `const _${this.name}Either = ${valueFromRdf}; if (_${this.name}Either.isLeft()) { return _${this.name}Either; } const ${this.name} = _${this.name}Either.unsafeCoerce();`,
+        );
     }
   }
 
@@ -201,19 +188,25 @@ export class Property {
     mutateGraphVariable,
     propertyValueVariable,
     resourceSetVariable,
-  }: Omit<Type.ValueToRdfParameters, "inline">): string {
+  }: Property.ValueToRdfParameters): Maybe<string> {
     const path = `${resourceSetVariable}.dataFactory.namedNode("${this.path.value}")`;
     switch (this.containerType) {
       case "Array":
-        return `${propertyValueVariable}.forEach((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`;
+        return Maybe.of(
+          `${propertyValueVariable}.forEach((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`,
+        );
       case "Maybe":
-        return `${propertyValueVariable}.ifJust((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`;
+        return Maybe.of(
+          `${propertyValueVariable}.ifJust((${this.name}Value) => { resource.add(${path}, ${this.type.valueToRdf({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`,
+        );
       case null:
-        return `resource.add(${path}, ${this.type.valueToRdf({
-          mutateGraphVariable,
-          resourceSetVariable,
-          propertyValueVariable,
-        })});`;
+        return Maybe.of(
+          `resource.add(${path}, ${this.type.valueToRdf({
+            mutateGraphVariable,
+            resourceSetVariable,
+            propertyValueVariable,
+          })});`,
+        );
     }
   }
 }

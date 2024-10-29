@@ -14,29 +14,58 @@ import { shacl2ts } from "./vocabularies/";
 
 function ancestorClassIris(
   classResource: Resource,
+  maxDepth: number,
 ): readonly rdfjs.NamedNode[] {
   const ancestorClassIris = new TermSet<rdfjs.NamedNode>();
 
-  function ancestorClassIrisRecursive(classResource: Resource): void {
-    for (const superClassValue of classResource.values(rdfs.subClassOf)) {
-      superClassValue.toNamedResource().ifRight((superClassResource) => {
-        if (ancestorClassIris.has(superClassResource.identifier)) {
+  function ancestorClassIrisRecursive(
+    classResource: Resource,
+    depth: number,
+  ): void {
+    for (const parentClassValue of classResource.values(rdfs.subClassOf)) {
+      parentClassValue.toNamedResource().ifRight((parentClassResource) => {
+        if (ancestorClassIris.has(parentClassResource.identifier)) {
           return;
         }
-        ancestorClassIris.add(superClassResource.identifier);
-        ancestorClassIrisRecursive(superClassResource);
+        ancestorClassIris.add(parentClassResource.identifier);
+        if (depth < maxDepth) {
+          ancestorClassIrisRecursive(parentClassResource, depth + 1);
+        }
       });
     }
   }
 
-  ancestorClassIrisRecursive(classResource);
+  ancestorClassIrisRecursive(classResource, 1);
 
   return [...ancestorClassIris];
 }
+function descendantClassIris(
+  classResource: Resource,
+  maxDepth: number,
+): readonly rdfjs.NamedNode[] {
+  const descendantClassIris = new TermSet<rdfjs.NamedNode>();
 
-const reservedTsIdentifiers = reservedTsIdentifiers_({
-  includeGlobalProperties: true,
-});
+  function descendantClassIrisRecursive(
+    classResource: Resource,
+    depth: number,
+  ): void {
+    for (const childClassValue of classResource.valuesOf(rdfs.subClassOf)) {
+      childClassValue.toNamedResource().ifRight((childClassResource) => {
+        if (descendantClassIris.has(childClassResource.identifier)) {
+          return;
+        }
+        descendantClassIris.add(childClassResource.identifier);
+        if (depth < maxDepth) {
+          descendantClassIrisRecursive(childClassResource, depth + 1);
+        }
+      });
+    }
+  }
+
+  descendantClassIrisRecursive(classResource, 1);
+
+  return [...descendantClassIris];
+}
 
 function rdfIdentifierToString(
   identifier: rdfjs.BlankNode | rdfjs.NamedNode,
@@ -49,23 +78,15 @@ function rdfIdentifierToString(
   }
 }
 
+const reservedTsIdentifiers = reservedTsIdentifiers_({
+  includeGlobalProperties: true,
+});
+
 function shacl2tsName(shape: shaclAst.Shape): Maybe<string> {
   return shape.resource
     .value(shacl2ts.name)
     .chain((value) => value.toString())
     .toMaybe();
-}
-
-function superClassIris(classResource: Resource): readonly rdfjs.NamedNode[] {
-  const superClassIris = new TermSet<rdfjs.NamedNode>();
-
-  for (const superClassValue of classResource.values(rdfs.subClassOf)) {
-    superClassValue
-      .toIri()
-      .ifRight((superClassIri) => superClassIris.add(superClassIri));
-  }
-
-  return [...superClassIris];
 }
 
 // Adapted from https://github.com/sindresorhus/to-valid-identifier , MIT license
@@ -82,15 +103,15 @@ function toValidTsIdentifier(value: string): string {
 }
 
 export class ShapesGraphToAstTransformer {
-  private readonly iriPrefixMap: PrefixMap;
-  private readonly objectTypesByIdentifier: TermMap<
+  private readonly astObjectTypePropertiesByIdentifier: TermMap<
+    rdfjs.BlankNode | rdfjs.NamedNode,
+    ast.ObjectType.Property
+  > = new TermMap();
+  private readonly astObjectTypesByIdentifier: TermMap<
     rdfjs.BlankNode | rdfjs.NamedNode,
     ast.ObjectType
   > = new TermMap();
-  private readonly propertiesByIdentifier: TermMap<
-    rdfjs.BlankNode | rdfjs.NamedNode,
-    ast.Property
-  > = new TermMap();
+  private readonly iriPrefixMap: PrefixMap;
   private readonly shapesGraph: shaclAst.ShapesGraph;
 
   constructor({
@@ -118,33 +139,32 @@ export class ShapesGraphToAstTransformer {
     }));
   }
 
-  private classNodeShapes(
-    class_: rdfjs.NamedNode,
-  ): readonly shaclAst.NodeShape[] {
-    const classNodeShapes: shaclAst.NodeShape[] = [];
-
-    // Is the class itself a node shape?
-    const classNodeShape = this.shapesGraph
-      .nodeShapeByNode(class_)
-      .extractNullable();
-    if (classNodeShape !== null) {
-      classNodeShapes.push(classNodeShape);
+  private resolveClassObjectType(
+    classIri: rdfjs.NamedNode,
+  ): Either<Error, ast.ObjectType> {
+    let nodeShape: Maybe<shaclAst.NodeShape>;
+    if (
+      classIri.equals(owl.Class) ||
+      classIri.equals(owl.Thing) ||
+      classIri.equals(rdfs.Class)
+    ) {
+      nodeShape = Maybe.empty();
+    } else {
+      nodeShape = this.shapesGraph.nodeShapeByNode(classIri);
     }
 
-    // Get the node shapes of any of the class's superclasses
-    for (const quad of this.shapesGraph.dataset.match(
-      class_,
-      rdfs.subClassOf,
-      null,
-      this.shapesGraph.node,
-    )) {
-      if (quad.object.termType !== "NamedNode") {
-        continue;
-      }
-      classNodeShapes.push(...this.classNodeShapes(quad.object));
-    }
-
-    return classNodeShapes;
+    return nodeShape
+      .toEither(
+        new Error(`${classIri.value} does not correspond to a node shape`),
+      )
+      .chain((nodeShape) => this.transformNodeShape(nodeShape))
+      .ifLeft((error) => {
+        logger.debug(
+          "class %s did not resolve to an object type: %s",
+          classIri.value,
+          error.message,
+        );
+      });
   }
 
   private shapeName(shape: shaclAst.Shape): ast.Name {
@@ -236,36 +256,21 @@ export class ShapesGraphToAstTransformer {
 
     // Treat any shape with sh:class as an object type
     if (shape.constraints.classes.length > 0) {
-      const nodeShapes: shaclAst.NodeShape[] = [];
-      for (const class_ of shape.constraints.classes) {
-        const classNodeShapes = this.classNodeShapes(class_);
-        if (classNodeShapes.length === 0) {
-          logger.warn(
-            "%s sh:class %s does not correspond to any node shapes",
-            shape,
-            class_.value,
-          );
-          continue;
-        }
-        nodeShapes.push(...classNodeShapes);
-      }
-      if (nodeShapes.length === 0) {
-        return Left(
-          new Error(
-            `${shape} has sh:class(se) but none of them correspond to a node shape`,
-          ),
-        );
-      }
-      return Either.sequence(
-        nodeShapes.map((nodeShape) => this.transformNodeShape(nodeShape)),
-      ).chain((types) =>
-        types.length === 1
-          ? Either.of(types[0] as ast.Type)
-          : Either.of({
-              kind: "And",
-              types,
-            }),
+      const classObjectTypeEithers = shape.constraints.classes.map((classIri) =>
+        this.resolveClassObjectType(classIri),
       );
+      const classObjectTypes = Either.rights(classObjectTypeEithers);
+      switch (classObjectTypes.length) {
+        case 0:
+          return classObjectTypeEithers[0];
+        case 1:
+          return Either.of(classObjectTypes[0]);
+        default:
+          return Either.of({
+            kind: "And",
+            types: classObjectTypes,
+          });
+      }
     }
 
     // Treat any shape with sh:in as an enum type
@@ -327,7 +332,7 @@ export class ShapesGraphToAstTransformer {
     nodeShape: shaclAst.NodeShape,
   ): Either<Error, ast.ObjectType> {
     {
-      const objectType = this.objectTypesByIdentifier.get(
+      const objectType = this.astObjectTypesByIdentifier.get(
         nodeShape.resource.identifier,
       );
       if (objectType) {
@@ -355,6 +360,8 @@ export class ShapesGraphToAstTransformer {
     // we'll return this placeholder.
     const objectType: ast.ObjectType = {
       ancestorObjectTypes: [],
+      childObjectTypes: [],
+      descendantObjectTypes: [],
       kind: "Object",
       name: this.shapeName(nodeShape),
       nodeKinds: new Set<shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI>(
@@ -364,54 +371,50 @@ export class ShapesGraphToAstTransformer {
       ),
       properties: [], // This is mutable, we'll populate it below.
       rdfType,
-      superObjectTypes: [], // This is mutable, we'll populate it below
+      parentObjectTypes: [], // This is mutable, we'll populate it below
     };
-    this.objectTypesByIdentifier.set(nodeShape.resource.identifier, objectType);
-
-    const resolveSuperObjectTypes = (
-      superClassIris: readonly rdfjs.NamedNode[],
-    ): readonly ast.ObjectType[] => {
-      const subTypeOf: ast.ObjectType[] = [];
-      for (const superClassIri of superClassIris) {
-        if (
-          superClassIri.equals(owl.Class) ||
-          superClassIri.equals(owl.Thing) ||
-          superClassIri.equals(rdfs.Class)
-        ) {
-          continue;
-        }
-        const superNodeShape = this.shapesGraph
-          .nodeShapeByNode(superClassIri)
-          .extractNullable();
-        if (superNodeShape === null) {
-          logger.debug(
-            "node shape %s ancestor/super class %s does not correspond to a node shape",
-            nodeShape.resource.identifier.value,
-            superClassIri.value,
-          );
-          continue;
-        }
-        this.transformNodeShape(superNodeShape)
-          .ifLeft(() => {
-            logger.info(
-              "error transforming node shape %s ancestor node shape %s",
-              nodeShape.resource.identifier.value,
-              superNodeShape.resource.identifier.value,
-            );
-          })
-          .ifRight((superObjectType) => subTypeOf.push(superObjectType));
-      }
-      return subTypeOf;
-    };
-
-    objectType.ancestorObjectTypes.push(
-      ...resolveSuperObjectTypes(ancestorClassIris(nodeShape.resource)),
-    );
-    objectType.superObjectTypes.push(
-      ...resolveSuperObjectTypes(superClassIris(nodeShape.resource)),
+    this.astObjectTypesByIdentifier.set(
+      nodeShape.resource.identifier,
+      objectType,
     );
 
-    const propertiesByTsName: Record<string, ast.Property> = {};
+    // Populate ancestor and descendant object types
+    // Ancestors
+    for (const classIri of ancestorClassIris(
+      nodeShape.resource,
+      Number.MAX_SAFE_INTEGER,
+    )) {
+      this.resolveClassObjectType(classIri).ifRight((ancestorObjectType) =>
+        objectType.ancestorObjectTypes.push(ancestorObjectType),
+      );
+    }
+
+    // Parents
+    for (const classIri of ancestorClassIris(nodeShape.resource, 1)) {
+      this.resolveClassObjectType(classIri).ifRight((parentObjectType) =>
+        objectType.parentObjectTypes.push(parentObjectType),
+      );
+    }
+
+    // Descendants
+    for (const classIri of descendantClassIris(
+      nodeShape.resource,
+      Number.MAX_SAFE_INTEGER,
+    )) {
+      this.resolveClassObjectType(classIri).ifRight((descendantObjectType) =>
+        objectType.descendantObjectTypes.push(descendantObjectType),
+      );
+    }
+
+    // Children
+    for (const classIri of descendantClassIris(nodeShape.resource, 1)) {
+      this.resolveClassObjectType(classIri).ifRight((childObjectType) =>
+        objectType.childObjectTypes.push(childObjectType),
+      );
+    }
+
+    // Populate properties
+    const propertiesByTsName: Record<string, ast.ObjectType.Property> = {};
     for (const propertyShape of nodeShape.constraints.properties) {
       const propertyEither = this.transformPropertyShape(propertyShape);
       if (propertyEither.isLeft()) {
@@ -424,7 +427,7 @@ export class ShapesGraphToAstTransformer {
         continue;
         // return property;
       }
-      const property = propertyEither.extract() as ast.Property;
+      const property = propertyEither.unsafeCoerce();
       if (propertiesByTsName[property.name.tsName]) {
         logger.warn(
           "error transforming %s %s: duplicate property TypeScript name %s",
@@ -442,9 +445,9 @@ export class ShapesGraphToAstTransformer {
 
   private transformPropertyShape(
     propertyShape: shaclAst.PropertyShape,
-  ): Either<Error, ast.Property> {
+  ): Either<Error, ast.ObjectType.Property> {
     {
-      const property = this.propertiesByIdentifier.get(
+      const property = this.astObjectTypePropertiesByIdentifier.get(
         propertyShape.resource.identifier,
       );
       if (property) {
@@ -468,7 +471,7 @@ export class ShapesGraphToAstTransformer {
       .filter((minCount) => minCount >= 0)
       .orDefault(0);
 
-    const property: ast.Property = {
+    const property: ast.ObjectType.Property = {
       inline: propertyShape.resource
         .value(shacl2ts.inline)
         .chain((value) => value.toBoolean())
@@ -492,7 +495,7 @@ export class ShapesGraphToAstTransformer {
       path,
       type: type.extract() as ast.Type,
     };
-    this.propertiesByIdentifier.set(
+    this.astObjectTypePropertiesByIdentifier.set(
       propertyShape.resource.identifier,
       property,
     );

@@ -7,14 +7,16 @@ export function classConstructorParametersInterfaceDeclaration(
   this.ensureAtMostOneSuperObjectType();
   return {
     extends:
-      this.superObjectTypes.length > 0
-        ? [`${this.superObjectTypes[0].classQualifiedName}.Parameters`]
+      this.parentObjectTypes.length > 0
+        ? [
+            `${this.parentObjectTypes[0].classQualifiedName}.ConstructorParameters`,
+          ]
         : undefined,
     isExported: true,
     kind: StructureKind.Interface,
-    properties: this.properties.map(
-      (property) => property.classConstructorParametersPropertySignature,
+    properties: this.properties.flatMap((property) =>
+      property.classConstructorParametersPropertySignature.toList(),
     ),
-    name: "Parameters",
+    name: "ConstructorParameters",
   };
 }

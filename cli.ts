@@ -1,7 +1,10 @@
 import * as fs from "node:fs";
 import PrefixMap, { type PrefixMapInit } from "@rdfjs/prefix-map/PrefixMap";
 import {
+  array,
   command,
+  multioption,
+  oneOf,
   option,
   restPositionals,
   run,
@@ -14,6 +17,7 @@ import { ShapesGraph } from "shacl-ast";
 import { ShapesGraphToAstTransformer } from "./ShapesGraphToAstTransformer.js";
 import type { Ast } from "./ast";
 import * as generators from "./generators";
+import { Configuration } from "./generators/ts/Configuration";
 import { logger } from "./logger.js";
 import { dashDataset } from "./vocabularies/dashDataset";
 
@@ -100,12 +104,58 @@ run(
         name: "generate",
         description: "generate TypeScript for the SHACL Shapes Graph AST",
         args: {
+          features: multioption({
+            description: "generator features to enable",
+            long: "feature",
+            type: array(
+              oneOf([
+                "class",
+                "equals",
+                "fromRdf",
+                "toRdf",
+                "sparql-graph-patterns",
+              ]),
+            ),
+          }),
           inputFilePaths,
           outputFilePath,
+          objectTypeDiscriminatorPropertyName: option({
+            defaultValue: () => "",
+            description:
+              "name of a property to add to generated object types to discriminate them with a string enum",
+            long: "object-type-discriminator-property-name",
+            type: string,
+          }),
+          objectTypeIdentifierPropertyName: option({
+            defaultValue: () => "",
+            description:
+              "name of a property to add to generated object types to discriminate them with a string enum",
+            long: "object-type-discriminator-property-name",
+            type: string,
+          }),
         },
-        handler: async ({ inputFilePaths, outputFilePath }) => {
+        handler: async ({
+          features,
+          inputFilePaths,
+          objectTypeIdentifierPropertyName,
+          objectTypeDiscriminatorPropertyName,
+          outputFilePath,
+        }) => {
           writeOutput(
-            new generators.ts.TsGenerator(readInput(inputFilePaths)).generate(),
+            new generators.ts.TsGenerator(
+              readInput(inputFilePaths),
+              new Configuration({
+                features: new Set(features) as Configuration["features"],
+                objectTypeIdentifierPropertyName:
+                  objectTypeIdentifierPropertyName?.length > 0
+                    ? objectTypeIdentifierPropertyName
+                    : undefined,
+                objectTypeDiscriminatorPropertyName:
+                  objectTypeDiscriminatorPropertyName?.length > 0
+                    ? objectTypeDiscriminatorPropertyName
+                    : undefined,
+              }),
+            ).generate(),
             outputFilePath,
           );
         },

@@ -3,52 +3,56 @@ import {
   type ConstructorDeclarationStructure,
   type MethodDeclarationStructure,
   type OptionalKind,
+  type PropertyDeclarationStructure,
   type StatementStructures,
   StructureKind,
 } from "ts-morph";
-import type { TsGenerator } from "../../TsGenerator";
 import type { ObjectType } from "../ObjectType.js";
 
 function constructorDeclaration(
   this: ObjectType,
 ): OptionalKind<ConstructorDeclarationStructure> {
   const statements: (string | StatementStructures)[] = [];
-  if (this.superObjectTypes.length > 0) {
+  if (this.parentObjectTypes.length > 0) {
     statements.push("super(parameters);");
   }
   for (const property of this.properties) {
-    statements.push(
-      `this.${property.name} = ${property.classConstructorInitializer(`parameters.${property.name}`)};`,
-    );
+    property
+      .classConstructorInitializer({ parameter: `parameters.${property.name}` })
+      .ifJust((classConstructorInitializer) =>
+        statements.push(
+          `this.${property.name} = ${classConstructorInitializer};`,
+        ),
+      );
   }
 
   return {
     parameters: [
       {
         name: "parameters",
-        type: `${this.classQualifiedName}.Parameters`,
+        type: `${this.classQualifiedName}.ConstructorParameters`,
       },
     ],
     statements,
   };
 }
 
-export function classDeclaration(
-  this: ObjectType,
-  features: Set<TsGenerator.Feature>,
-): ClassDeclarationStructure {
+export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
   this.ensureAtMostOneSuperObjectType();
 
   const methods: OptionalKind<MethodDeclarationStructure>[] = [];
-  if (features.has("equals")) {
+  if (this.configuration.features.has("equals")) {
     methods.push(equalsMethodDeclaration.bind(this)());
   }
-  if (features.has("fromRdf")) {
+  if (this.configuration.features.has("fromRdf")) {
     methods.push(fromRdfMethodDeclaration.bind(this)());
   }
-  if (features.has("toRdf")) {
+  if (this.configuration.features.has("toRdf")) {
     methods.push(toRdfMethodDeclaration.bind(this)());
   }
+
+  const properties: OptionalKind<PropertyDeclarationStructure>[] =
+    this.properties.map((property) => property.classPropertyDeclaration);
 
   return {
     ctors:
@@ -56,17 +60,15 @@ export function classDeclaration(
         ? [constructorDeclaration.bind(this)()]
         : undefined,
     extends:
-      this.superObjectTypes.length > 0
-        ? this.superObjectTypes[0].classQualifiedName
+      this.parentObjectTypes.length > 0
+        ? this.parentObjectTypes[0].classQualifiedName
         : undefined,
     implements: [this.interfaceQualifiedName],
     kind: StructureKind.Class,
     isExported: true,
     methods,
     name: this.classUnqualifiedName,
-    properties: this.properties.map(
-      (property) => property.classPropertyDeclaration,
-    ),
+    properties,
   };
 }
 
@@ -74,7 +76,7 @@ function equalsMethodDeclaration(
   this: ObjectType,
 ): OptionalKind<MethodDeclarationStructure> {
   return {
-    hasOverrideKeyword: this.superObjectTypes.length > 0,
+    hasOverrideKeyword: this.parentObjectTypes.length > 0,
     name: "equals",
     parameters: [
       {
@@ -91,7 +93,7 @@ function fromRdfMethodDeclaration(
   this: ObjectType,
 ): OptionalKind<MethodDeclarationStructure> {
   return {
-    hasOverrideKeyword: this.superObjectTypes.length > 0,
+    hasOverrideKeyword: this.parentObjectTypes.length > 0,
     isStatic: true,
     name: "fromRdf",
     parameters: [
@@ -111,7 +113,7 @@ function toRdfMethodDeclaration(
   this: ObjectType,
 ): OptionalKind<MethodDeclarationStructure> {
   return {
-    hasOverrideKeyword: this.superObjectTypes.length > 0,
+    hasOverrideKeyword: this.parentObjectTypes.length > 0,
     name: "toRdf",
     parameters: [
       {
