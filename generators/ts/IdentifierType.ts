@@ -56,7 +56,7 @@ export class IdentifierType extends RdfjsTermType {
         throw new Error(`not implemented: ${this.name}`);
     }
     this.hasValue.ifJust((hasValue) => {
-      expression = `${expression}.filter(_identifier => _identifier.equals(${this.configuration.dataFactoryVariable}.${hasValue.termType === "BlankNode" ? "blankNode" : "namedNode"}(${hasValue.value}))`;
+      expression = `${expression}.filter(_identifier => _identifier.equals(${this.rdfJsTermExpression(hasValue)}))`;
     });
     return expression;
   }
@@ -89,7 +89,7 @@ export class IdentifierType extends RdfjsTermType {
 
     this.hasValue.ifJust((hasValue) => {
       andExpressions.push(
-        `${this.configuration.dataFactoryVariable}.${hasValue.termType === "BlankNode" ? "blankNode" : "namedNode"}(${hasValue.value})`,
+        `${propertyValueVariable}.equals(${this.rdfJsTermExpression(hasValue)})`,
       );
     });
 

@@ -15,7 +15,7 @@ export function fromRdfFunctionDeclaration(
 
   this.rdfType.ifJust((rdfType) => {
     statements.push(
-      `if (!${optionsVariable}?.${ignoreRdfTypeVariable} && !${resourceVariable}.isInstanceOf(${this.configuration.dataFactoryVariable}.namedNode("${rdfType.value}"))) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${resourceVariable}, message: \`\${rdfjsResource.Resource.Identifier.toString(${resourceVariable}.identifier)} has unexpected RDF type\`, predicate: ${this.configuration.dataFactoryVariable}.namedNode("${rdfType.value}") })); }`,
+      `if (!${optionsVariable}?.${ignoreRdfTypeVariable} && !${resourceVariable}.isInstanceOf(${this.rdfJsTermExpression(rdfType)})) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${resourceVariable}, message: \`\${rdfjsResource.Resource.Identifier.toString(${resourceVariable}.identifier)} has unexpected RDF type\`, predicate: ${this.rdfJsTermExpression(rdfType)} })); }`,
     );
   });
 

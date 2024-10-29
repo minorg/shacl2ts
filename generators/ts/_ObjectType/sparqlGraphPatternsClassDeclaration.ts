@@ -22,7 +22,7 @@ export function sparqlGraphPatternsClassDeclaration(
 
   this.rdfType.ifJust((rdfType) =>
     constructorStatements.push(
-      `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${this.configuration.dataFactoryVariable}.namedNode("${rdfType.value}"))); }`,
+      `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${this.rdfJsTermExpression(rdfType)})); }`,
     ),
   );
 
