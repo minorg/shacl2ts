@@ -11,19 +11,23 @@ export class EnumType extends Type {
     throw new Error("not implemented.");
   }
 
-  sparqlGraphPatterns(_: Type.SparqlGraphPatternParameters): readonly string[] {
+  sparqlGraphPatternExpressions(
+    _: Type.SparqlGraphPatternParameters,
+  ): readonly string[] {
     throw new Error("not implemented");
   }
 
-  valueFromRdf(_: Type.ValueFromRdfParameters): string {
+  valueFromRdfExpression(_: Type.ValueFromRdfParameters): string {
     throw new Error("not implemented");
   }
 
-  override valueInstanceOf(_: Type.ValueInstanceOfParameters): string {
+  override valueInstanceOfExpression(
+    _: Type.ValueInstanceOfParameters,
+  ): string {
     throw new Error("not implemented");
   }
 
-  valueToRdf(_: Type.ValueToRdfParameters): string {
+  valueToRdfExpression(_: Type.ValueToRdfParameters): string {
     throw new Error("not implemented");
   }
 }

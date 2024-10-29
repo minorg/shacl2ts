@@ -9,23 +9,27 @@ export class AndType extends ComposedType {
     throw new Error("Method not implemented.");
   }
 
-  override sparqlGraphPatterns(
+  override sparqlGraphPatternExpressions(
     _parameters: Type.SparqlGraphPatternParameters,
   ): readonly string[] {
     throw new Error("Method not implemented.");
   }
 
-  override valueFromRdf(_parameters: Type.ValueFromRdfParameters): string {
+  override valueFromRdfExpression(
+    _parameters: Type.ValueFromRdfParameters,
+  ): string {
     throw new Error("Method not implemented.");
   }
 
-  override valueInstanceOf(
+  override valueInstanceOfExpression(
     _parameters: Type.ValueInstanceOfParameters,
   ): string {
     throw new Error("Method not implemented.");
   }
 
-  override valueToRdf(_parameters: Type.ValueToRdfParameters): string {
+  override valueToRdfExpression(
+    _parameters: Type.ValueToRdfParameters,
+  ): string {
     throw new Error("Method not implemented.");
   }
 }

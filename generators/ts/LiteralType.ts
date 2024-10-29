@@ -8,11 +8,13 @@ export class LiteralType extends RdfjsTermType {
     return "rdfjs.Literal";
   }
 
-  valueFromRdf({ resourceValueVariable }: Type.ValueFromRdfParameters): string {
+  valueFromRdfExpression({
+    resourceValueVariable,
+  }: Type.ValueFromRdfParameters): string {
     return `${resourceValueVariable}.toLiteral()`;
   }
 
-  valueInstanceOf({
+  valueInstanceOfExpression({
     propertyValueVariable,
   }: Type.ValueInstanceOfParameters): string {
     return `(typeof ${propertyValueVariable} === "object" && ${propertyValueVariable}.hasOwnProperty("termType") && ${propertyValueVariable}["termType"] === "Literal")`;

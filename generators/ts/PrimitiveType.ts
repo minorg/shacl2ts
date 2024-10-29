@@ -6,7 +6,7 @@ export abstract class PrimitiveType extends LiteralType {
     return "purifyHelpers.Equatable.strictEquals";
   }
 
-  abstract override valueInstanceOf(
+  abstract override valueInstanceOfExpression(
     parameters: Type.ValueInstanceOfParameters,
   ): string;
 }

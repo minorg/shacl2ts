@@ -1,3 +1,4 @@
+import { invariant } from "ts-invariant";
 import { Type } from "./Type.js";
 
 /**
@@ -13,6 +14,7 @@ export abstract class ComposedType extends Type {
     ...superParameters
   }: { types: readonly Type[] } & Type.ConstructorParameters) {
     super(superParameters);
+    invariant(types.length >= 2);
     this.types = types;
   }
 

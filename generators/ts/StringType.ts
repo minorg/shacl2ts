@@ -6,13 +6,13 @@ export class StringType extends PrimitiveType {
     return "string";
   }
 
-  override valueFromRdf({
+  override valueFromRdfExpression({
     resourceValueVariable,
   }: Type.ValueFromRdfParameters): string {
     return `${resourceValueVariable}.toString()`;
   }
 
-  override valueInstanceOf({
+  override valueInstanceOfExpression({
     propertyValueVariable,
   }: Type.ValueInstanceOfParameters): string {
     return `(typeof ${propertyValueVariable} === "string")`;

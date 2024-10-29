@@ -41,7 +41,9 @@ export class IdentifierType extends RdfjsTermType {
     return names.join(" | ");
   }
 
-  valueFromRdf({ resourceValueVariable }: Type.ValueFromRdfParameters): string {
+  valueFromRdfExpression({
+    resourceValueVariable,
+  }: Type.ValueFromRdfParameters): string {
     let expression: string;
     switch (this.name) {
       case "rdfjs.BlankNode":
@@ -61,7 +63,7 @@ export class IdentifierType extends RdfjsTermType {
     return expression;
   }
 
-  override valueInstanceOf({
+  override valueInstanceOfExpression({
     propertyValueVariable,
   }: Type.ValueInstanceOfParameters): string {
     const andExpressions: string[] = [];

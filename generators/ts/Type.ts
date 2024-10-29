@@ -20,25 +20,29 @@ export abstract class Type {
   /**
    * Zero or more sparqlBuilder.GraphPattern constructions.
    */
-  abstract sparqlGraphPatterns(
+  abstract sparqlGraphPatternExpressions(
     parameters: Type.SparqlGraphPatternParameters,
   ): readonly string[];
 
   /**
    * An expression that converts a rdfjsResource.Resource.Value to a value of this type.
    */
-  abstract valueFromRdf(parameters: Type.ValueFromRdfParameters): string;
+  abstract valueFromRdfExpression(
+    parameters: Type.ValueFromRdfParameters,
+  ): string;
 
   /**
    * An expression that return true if a given value is of this type, otherwise false.
    */
-  abstract valueInstanceOf(parameters: Type.ValueInstanceOfParameters): string;
+  abstract valueInstanceOfExpression(
+    parameters: Type.ValueInstanceOfParameters,
+  ): string;
 
   /**
    * An expression that converts a value of this type to an rdfjs.TermType that can be added to
    * an rdfjsResource.Resource.
    */
-  abstract valueToRdf(parameters: Type.ValueToRdfParameters): string;
+  abstract valueToRdfExpression(parameters: Type.ValueToRdfParameters): string;
 
   protected rdfJsTermExpression(
     rdfjsTerm: BlankNode | Literal | NamedNode,

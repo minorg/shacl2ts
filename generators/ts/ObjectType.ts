@@ -113,7 +113,7 @@ export class ObjectType extends Type {
     };
   }
 
-  sparqlGraphPatterns({
+  sparqlGraphPatternExpressions({
     subjectVariable,
   }: Type.SparqlGraphPatternParameters): readonly string[] {
     return [
@@ -121,17 +121,19 @@ export class ObjectType extends Type {
     ];
   }
 
-  valueFromRdf({ resourceValueVariable }: Type.ValueFromRdfParameters): string {
+  valueFromRdfExpression({
+    resourceValueVariable,
+  }: Type.ValueFromRdfParameters): string {
     return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf(resource))`;
   }
 
-  valueInstanceOf({
+  valueInstanceOfExpression({
     propertyValueVariable,
   }: Type.ValueInstanceOfParameters): string {
     return `(typeof ${propertyValueVariable} === "object" && ${propertyValueVariable}.hasOwnProperty("${this.configuration.objectTypeDiscriminatorPropertyName}") && ${propertyValueVariable}["${this.configuration.objectTypeDiscriminatorPropertyName}"] === "${this.name}")`;
   }
 
-  valueToRdf({
+  valueToRdfExpression({
     mutateGraphVariable,
     resourceSetVariable,
     propertyValueVariable,

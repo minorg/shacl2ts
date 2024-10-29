@@ -149,7 +149,7 @@ export class ShaclProperty extends Property {
 
   sparqlGraphPattern(): Maybe<string> {
     let sparqlGraphPattern = `sparqlBuilder.GraphPattern.basic(this.subject, ${this.pathExpression}, this.variable("${pascalCase(this.name)}"))`;
-    const typeSparqlGraphPatterns = this.type.sparqlGraphPatterns({
+    const typeSparqlGraphPatterns = this.type.sparqlGraphPatternExpressions({
       subjectVariable: this.name,
     });
     if (typeSparqlGraphPatterns.length > 0) {
@@ -167,11 +167,11 @@ export class ShaclProperty extends Property {
     const resourceValueVariable = "value";
     if (this.containerType === "Array") {
       return Maybe.of(
-        `const ${this.name} = ${resourceVariable}.values(${this.pathExpression}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.valueFromRdf({ resourceValueVariable })}).toMaybe().toList())).orDefault([]);`,
+        `const ${this.name} = ${resourceVariable}.values(${this.pathExpression}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.valueFromRdfExpression({ resourceValueVariable })}).toMaybe().toList())).orDefault([]);`,
       );
     }
 
-    const valueFromRdf = `${resourceVariable}.value(${this.pathExpression}).chain(${resourceValueVariable} => ${this.type.valueFromRdf({ resourceValueVariable })})`;
+    const valueFromRdf = `${resourceVariable}.value(${this.pathExpression}).chain(${resourceValueVariable} => ${this.type.valueFromRdfExpression({ resourceValueVariable })})`;
     switch (this.containerType) {
       case "Maybe":
         return Maybe.of(`const ${this.name} = ${valueFromRdf}.toMaybe();`);
@@ -190,19 +190,21 @@ export class ShaclProperty extends Property {
     switch (this.containerType) {
       case "Array":
         return Maybe.of(
-          `${propertyValueVariable}.forEach((${this.name}Value) => { resource.add(${this.pathExpression}, ${this.type.valueToRdf({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`,
+          `${propertyValueVariable}.forEach((${this.name}Value) => { resource.add(${this.pathExpression}, ${this.type.valueToRdfExpression({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`,
         );
       case "Maybe":
         return Maybe.of(
-          `${propertyValueVariable}.ifJust((${this.name}Value) => { resource.add(${this.pathExpression}, ${this.type.valueToRdf({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`,
+          `${propertyValueVariable}.ifJust((${this.name}Value) => { resource.add(${this.pathExpression}, ${this.type.valueToRdfExpression({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`,
         );
       case null:
         return Maybe.of(
-          `resource.add(${this.pathExpression}, ${this.type.valueToRdf({
-            mutateGraphVariable,
-            resourceSetVariable,
-            propertyValueVariable,
-          })});`,
+          `resource.add(${this.pathExpression}, ${this.type.valueToRdfExpression(
+            {
+              mutateGraphVariable,
+              resourceSetVariable,
+              propertyValueVariable,
+            },
+          )});`,
         );
     }
   }

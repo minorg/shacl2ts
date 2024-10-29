@@ -11,7 +11,7 @@ export class OrType extends ComposedType {
 ${this.types
   .map(
     (type) => `
-if (${type.valueInstanceOf({ propertyValueVariable: "left" })} && ${type.valueInstanceOf({ propertyValueVariable: "right" })}) {
+if (${type.valueInstanceOfExpression({ propertyValueVariable: "left" })} && ${type.valueInstanceOfExpression({ propertyValueVariable: "right" })}) {
   return ${type.equalsFunction()}(left, right);
 }`,
   )
@@ -20,23 +20,29 @@ if (${type.valueInstanceOf({ propertyValueVariable: "left" })} && ${type.valueIn
 }`;
   }
 
-  override sparqlGraphPatterns({
+  sparqlGraphPatternExpressions({
     subjectVariable,
   }: Type.SparqlGraphPatternParameters): readonly string[] {
     return [
-      `sparqlBuilder.GraphPattern.union(${this.types.map((type) => `sparqlBuilder.GraphPattern.group(${type.sparqlGraphPatterns({ subjectVariable }).join(", ")})`)})`,
+      `sparqlBuilder.GraphPattern.union(${this.types.map((type) => `sparqlBuilder.GraphPattern.group(${type.sparqlGraphPatternExpressions({ subjectVariable }).join(", ")})`)})`,
     ];
   }
 
-  override valueFromRdf(_parameters: Type.ValueFromRdfParameters): string {
-    throw new Error("Method not implemented.");
+  valueFromRdfExpression(parameters: Type.ValueFromRdfParameters): string {
+    let expression = this.types[0].valueFromRdfExpression(parameters);
+    for (const typeN of this.types.slice(1)) {
+      expression = `${expression}.altLazy(() => ${typeN.valueFromRdfExpression(parameters)})`;
+    }
+    return expression;
   }
 
-  override valueInstanceOf(parameters: Type.ValueInstanceOfParameters): string {
-    return `(${this.types.map((type) => type.valueInstanceOf(parameters)).join(" || ")})`;
+  valueInstanceOfExpression(
+    parameters: Type.ValueInstanceOfParameters,
+  ): string {
+    return `(${this.types.map((type) => type.valueInstanceOfExpression(parameters)).join(" || ")})`;
   }
 
-  override valueToRdf(_parameters: Type.ValueToRdfParameters): string {
+  valueToRdfExpression(parameters: Type.ValueToRdfParameters): string {
     throw new Error("Method not implemented.");
   }
 }
