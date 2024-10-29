@@ -15,17 +15,16 @@ export class TypeDiscriminatorProperty extends Property {
   private readonly override: boolean;
 
   constructor({
-    name,
     override,
     type,
     value,
+    ...superParameters
   }: {
-    name: string;
     override: boolean;
     type: TypeDiscriminatorProperty["type"];
     value: string;
-  }) {
-    super({ name });
+  } & Property.ConstructorParameters) {
+    super(superParameters);
     this.override = override;
     this.type = type;
     this.value = value;
@@ -61,9 +60,7 @@ export class TypeDiscriminatorProperty extends Property {
     return Maybe.empty();
   }
 
-  sparqlGraphPattern(
-    _parameters: Property.SparqlGraphPatternParameters,
-  ): Maybe<string> {
+  sparqlGraphPattern(): Maybe<string> {
     return Maybe.empty();
   }
 

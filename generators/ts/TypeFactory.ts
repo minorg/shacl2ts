@@ -69,35 +69,35 @@ export class TypeFactory {
         if (astType.parentObjectTypes.length === 0) {
           properties.push(
             new ObjectType.IdentifierProperty({
+              configuration: this.configuration,
               name: this.configuration.objectTypeIdentifierPropertyName,
               type: identifierType,
             }),
           );
         } // Else parent will have the identifier property
 
-        this.configuration.objectTypeDiscriminatorPropertyName.ifJust(
-          (typeDiscriminatorPropertyName) =>
-            properties.push(
-              new ObjectType.TypeDiscriminatorProperty({
-                name: typeDiscriminatorPropertyName,
-                override: objectType.parentObjectTypes.length > 0,
-                type: {
-                  name: [
-                    ...new Set(
-                      [objectType.name].concat(
-                        objectType.descendantObjectTypes.map(
-                          (objectType) => objectType.name,
-                        ),
-                      ),
+        // Type discriminator property
+        properties.push(
+          new ObjectType.TypeDiscriminatorProperty({
+            configuration: this.configuration,
+            name: this.configuration.objectTypeDiscriminatorPropertyName,
+            override: objectType.parentObjectTypes.length > 0,
+            type: {
+              name: [
+                ...new Set(
+                  [objectType.name].concat(
+                    objectType.descendantObjectTypes.map(
+                      (objectType) => objectType.name,
                     ),
-                  ]
-                    .sort()
-                    .map((name) => `"${name}"`)
-                    .join("|"),
-                },
-                value: objectType.name,
-              }),
-            ),
+                  ),
+                ),
+              ]
+                .sort()
+                .map((name) => `"${name}"`)
+                .join("|"),
+            },
+            value: objectType.name,
+          }),
         );
 
         return properties;
@@ -189,6 +189,7 @@ export class TypeFactory {
     }
 
     const property = new ObjectType.ShaclProperty({
+      configuration: this.configuration,
       maxCount: astObjectTypeProperty.maxCount,
       minCount: astObjectTypeProperty.minCount,
       name: astObjectTypeProperty.name.tsName,

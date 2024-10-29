@@ -7,7 +7,7 @@ export class EnumType extends Type {
     throw new Error("not implemented");
   }
 
-  equalsFunction(_leftValue: string, _rightValue: string): string {
+  equalsFunction(): string {
     throw new Error("not implemented.");
   }
 

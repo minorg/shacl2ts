@@ -12,13 +12,12 @@ export class IdentifierProperty extends Property {
   readonly type: IdentifierType;
 
   constructor({
-    name,
     type,
+    ...superParameters
   }: {
-    name: string;
     type: IdentifierType;
-  }) {
-    super({ name });
+  } & Property.ConstructorParameters) {
+    super(superParameters);
     this.type = type;
   }
 
@@ -54,9 +53,7 @@ export class IdentifierProperty extends Property {
     return Maybe.of(parameter);
   }
 
-  sparqlGraphPattern(
-    _parameters: Property.SparqlGraphPatternParameters,
-  ): Maybe<string> {
+  sparqlGraphPattern(): Maybe<string> {
     return Maybe.empty();
   }
 

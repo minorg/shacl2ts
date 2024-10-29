@@ -68,6 +68,8 @@ export class TsGenerator {
       namespaceImport: "rdfjs",
     });
 
+    sourceFile.addStatements(this.configuration.dataFactoryImport);
+
     if (this.configuration.features.has("equals")) {
       sourceFile.addImportDeclaration({
         moduleSpecifier: "purify-ts-helpers",

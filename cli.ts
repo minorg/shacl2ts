@@ -104,6 +104,18 @@ run(
         name: "generate",
         description: "generate TypeScript for the SHACL Shapes Graph AST",
         args: {
+          dataFactoryImport: option({
+            defaultValue: () => Configuration.Defaults.dataFactoryImport,
+            description: "import line to get an RDF/JS DataFactory",
+            long: "data-factory-import",
+            type: string,
+          }),
+          dataFactoryVariable: option({
+            defaultValue: () => Configuration.Defaults.dataFactoryVariable,
+            description: "variable of the RDF/JS DataFactory that was imported",
+            long: "data-factory-variable",
+            type: string,
+          }),
           features: multioption({
             description: "generator features to enable",
             long: "feature",
@@ -120,14 +132,16 @@ run(
           inputFilePaths,
           outputFilePath,
           objectTypeDiscriminatorPropertyName: option({
-            defaultValue: () => "",
+            defaultValue: () =>
+              Configuration.Defaults.objectTypeDiscriminatorPropertyName,
             description:
               "name of a property to add to generated object types to discriminate them with a string enum",
             long: "object-type-discriminator-property-name",
             type: string,
           }),
           objectTypeIdentifierPropertyName: option({
-            defaultValue: () => "",
+            defaultValue: () =>
+              Configuration.Defaults.objectTypeIdentifierPropertyName,
             description:
               "name of a property to add to generated object types to discriminate them with a string enum",
             long: "object-type-discriminator-property-name",
@@ -135,25 +149,23 @@ run(
           }),
         },
         handler: async ({
+          dataFactoryImport,
+          dataFactoryVariable,
           features,
           inputFilePaths,
-          objectTypeIdentifierPropertyName,
           objectTypeDiscriminatorPropertyName,
+          objectTypeIdentifierPropertyName,
           outputFilePath,
         }) => {
           writeOutput(
             new generators.ts.TsGenerator(
               readInput(inputFilePaths),
               new Configuration({
+                dataFactoryImport,
+                dataFactoryVariable,
                 features: new Set(features) as Configuration["features"],
-                objectTypeIdentifierPropertyName:
-                  objectTypeIdentifierPropertyName?.length > 0
-                    ? objectTypeIdentifierPropertyName
-                    : undefined,
-                objectTypeDiscriminatorPropertyName:
-                  objectTypeDiscriminatorPropertyName?.length > 0
-                    ? objectTypeDiscriminatorPropertyName
-                    : undefined,
+                objectTypeDiscriminatorPropertyName,
+                objectTypeIdentifierPropertyName,
               }),
             ).generate(),
             outputFilePath,

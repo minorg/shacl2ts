@@ -13,7 +13,7 @@ export abstract class Type {
   /**
    * A function (reference or declaration) that conforms to purifyHelpers.Equatable.Equatable.
    */
-  abstract equalsFunction(leftValue: string, rightValue: string): string;
+  abstract equalsFunction(): string;
 
   /**
    * Zero or more sparqlBuilder.GraphPattern constructions.
@@ -45,12 +45,10 @@ export namespace Type {
   }
 
   export interface SparqlGraphPatternParameters {
-    dataFactoryVariable: string;
     subjectVariable: string;
   }
 
   export interface ValueFromRdfParameters {
-    dataFactoryVariable: string;
     resourceValueVariable: string;
   }
 

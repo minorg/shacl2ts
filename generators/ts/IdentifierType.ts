@@ -41,10 +41,7 @@ export class IdentifierType extends RdfjsTermType {
     return names.join(" | ");
   }
 
-  valueFromRdf({
-    dataFactoryVariable,
-    resourceValueVariable,
-  }: Type.ValueFromRdfParameters): string {
+  valueFromRdf({ resourceValueVariable }: Type.ValueFromRdfParameters): string {
     let expression: string;
     switch (this.name) {
       case "rdfjs.BlankNode":
@@ -59,7 +56,7 @@ export class IdentifierType extends RdfjsTermType {
         throw new Error(`not implemented: ${this.name}`);
     }
     this.hasValue.ifJust((hasValue) => {
-      expression = `${expression}.filter(_identifier => _identifier.equals(${dataFactoryVariable}.${hasValue.termType === "BlankNode" ? "blankNode" : "namedNode"}(${hasValue.value}))`;
+      expression = `${expression}.filter(_identifier => _identifier.equals(${this.configuration.dataFactoryVariable}.${hasValue.termType === "BlankNode" ? "blankNode" : "namedNode"}(${hasValue.value}))`;
     });
     return expression;
   }
@@ -67,21 +64,35 @@ export class IdentifierType extends RdfjsTermType {
   override valueInstanceOf({
     propertyValueVariable,
   }: Type.ValueInstanceOfParameters): string {
-    const termTypeChecks: string[] = [];
+    const andExpressions: string[] = [];
+
+    andExpressions.push(`typeof ${propertyValueVariable} === "object"`);
+
+    andExpressions.push(`${propertyValueVariable}.hasOwnProperty("termType")`);
+
+    const orTermTypeExpressions: string[] = [];
     for (const nodeKind of this.nodeKinds) {
       switch (nodeKind) {
         case NodeKind.BLANK_NODE:
-          termTypeChecks.push(
+          orTermTypeExpressions.push(
             `${propertyValueVariable}["termType"] === "BlankNode"`,
           );
           break;
         case NodeKind.IRI:
-          termTypeChecks.push(
+          orTermTypeExpressions.push(
             `${propertyValueVariable}["termType"] === "NamedNode"`,
           );
           break;
       }
     }
-    return `(typeof ${propertyValueVariable} === "object" && ${propertyValueVariable}.hasOwnProperty("termType") && (${termTypeChecks.join(" || ")}))`;
+    andExpressions.push(`(${orTermTypeExpressions.join(" || ")})`);
+
+    this.hasValue.ifJust((hasValue) => {
+      andExpressions.push(
+        `${this.configuration.dataFactoryVariable}.${hasValue.termType === "BlankNode" ? "blankNode" : "namedNode"}(${hasValue.value})`,
+      );
+    });
+
+    return `(${andExpressions.join(" && ")})`;
   }
 }

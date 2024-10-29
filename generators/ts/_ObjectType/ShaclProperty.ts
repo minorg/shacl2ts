@@ -21,17 +21,16 @@ export class ShaclProperty extends Property {
   constructor({
     maxCount,
     minCount,
-    name,
     path,
     type,
+    ...superParameters
   }: {
     maxCount: Maybe<number>;
     minCount: number;
-    name: string;
     path: rdfjs.NamedNode;
     type: Type;
-  }) {
-    super({ name });
+  } & Property.ConstructorParameters) {
+    super(superParameters);
     this.maxCount = maxCount;
     this.minCount = minCount;
     this.path = path;
@@ -70,8 +69,7 @@ export class ShaclProperty extends Property {
 
   // biome-ignore lint/suspicious/useGetterReturn: <explanation>
   get equalsFunction(): string {
-    const typeEqualsFunction = this.type.equalsFunction("left", "right");
-    // const signature = `(left: ${this.interfaceTypeName}, right: ${this.interfaceTypeName})`;
+    const typeEqualsFunction = this.type.equalsFunction();
     const signature = "(left, right)";
     switch (this.containerType) {
       case "Array": {
@@ -144,12 +142,9 @@ export class ShaclProperty extends Property {
     return Maybe.of(parameter);
   }
 
-  sparqlGraphPattern({
-    dataFactoryVariable,
-  }: Property.SparqlGraphPatternParameters): Maybe<string> {
-    let sparqlGraphPattern = `sparqlBuilder.GraphPattern.basic(this.subject, ${dataFactoryVariable}.namedNode("${this.path.value}"), this.variable("${pascalCase(this.name)}"))`;
+  sparqlGraphPattern(): Maybe<string> {
+    let sparqlGraphPattern = `sparqlBuilder.GraphPattern.basic(this.subject, ${this.configuration.dataFactoryVariable}.namedNode("${this.path.value}"), this.variable("${pascalCase(this.name)}"))`;
     const typeSparqlGraphPatterns = this.type.sparqlGraphPatterns({
-      dataFactoryVariable,
       subjectVariable: this.name,
     });
     if (typeSparqlGraphPatterns.length > 0) {
@@ -162,18 +157,17 @@ export class ShaclProperty extends Property {
   }
 
   valueFromRdf({
-    dataFactoryVariable,
     resourceVariable,
   }: Property.ValueFromRdfParameters): Maybe<string> {
-    const path = `${dataFactoryVariable}.namedNode("${this.path.value}")`;
+    const path = `${this.configuration.dataFactoryVariable}.namedNode("${this.path.value}")`;
     const resourceValueVariable = "value";
     if (this.containerType === "Array") {
       return Maybe.of(
-        `const ${this.name} = ${resourceVariable}.values(${path}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.valueFromRdf({ dataFactoryVariable, resourceValueVariable })}).toMaybe().toList())).orDefault([]);`,
+        `const ${this.name} = ${resourceVariable}.values(${path}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.valueFromRdf({ resourceValueVariable })}).toMaybe().toList())).orDefault([]);`,
       );
     }
 
-    const valueFromRdf = `${resourceVariable}.value(${path}).chain(${resourceValueVariable} => ${this.type.valueFromRdf({ dataFactoryVariable, resourceValueVariable })})`;
+    const valueFromRdf = `${resourceVariable}.value(${path}).chain(${resourceValueVariable} => ${this.type.valueFromRdf({ resourceValueVariable })})`;
     switch (this.containerType) {
       case "Maybe":
         return Maybe.of(`const ${this.name} = ${valueFromRdf}.toMaybe();`);
@@ -189,7 +183,7 @@ export class ShaclProperty extends Property {
     propertyValueVariable,
     resourceSetVariable,
   }: Property.ValueToRdfParameters): Maybe<string> {
-    const path = `${resourceSetVariable}.dataFactory.namedNode("${this.path.value}")`;
+    const path = `${this.configuration.dataFactoryVariable}.namedNode("${this.path.value}")`;
     switch (this.containerType) {
       case "Array":
         return Maybe.of(

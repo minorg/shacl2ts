@@ -1,4 +1,4 @@
-import type { DataFactory, NamedNode } from "@rdfjs/types";
+import type { NamedNode } from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import N3, { DataFactory as dataFactory } from "n3";
 import { type Either, Maybe } from "purify-ts";
@@ -107,10 +107,9 @@ describe("TsGenerator", () => {
     model,
   }: {
     expect: ExpectStatic;
-    modelFromRdf: (kwds: {
-      dataFactory: DataFactory;
-      resource: Resource<NamedNode>;
-    }) => Either<Resource.ValueError, ModelT>;
+    modelFromRdf: (
+      resource: Resource<NamedNode>,
+    ) => Either<Resource.ValueError, ModelT>;
     model: ModelT;
   }) {
     const dataset = new N3.Store();
@@ -119,7 +118,7 @@ describe("TsGenerator", () => {
       mutateGraph: dataFactory.defaultGraph(),
       resourceSet,
     });
-    const fromRdfModel = modelFromRdf({ dataFactory, resource }).unsafeCoerce();
+    const fromRdfModel = modelFromRdf(resource).unsafeCoerce();
     expect(fromRdfModel.equals(model).extract()).toStrictEqual(true);
   }
 

@@ -1,5 +1,6 @@
 import * as sparqlBuilder from "@kos-kit/sparql-builder";
 import type * as rdfjs from "@rdfjs/types";
+import { DataFactory as dataFactory } from "n3";
 import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
 import * as rdfjsResource from "rdfjs-resource";
@@ -49,14 +50,13 @@ export namespace MachineLearningModel {
       return MachineLearningModel.equals(this, other);
     }
 
-    static fromRdf(kwds: {
-      dataFactory: rdfjs.DataFactory;
-      resource: rdfjsResource.Resource<rdfjs.NamedNode>;
-    }): purify.Either<
+    static fromRdf(
+      resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    ): purify.Either<
       rdfjsResource.Resource.ValueError,
       MachineLearningModel.Class
     > {
-      return MachineLearningModel.fromRdf(kwds).map(
+      return MachineLearningModel.fromRdf(resource).map(
         (properties) => new MachineLearningModel.Class(properties),
       );
     }
@@ -102,17 +102,12 @@ export namespace MachineLearningModel {
     });
   }
 
-  export function fromRdf({
-    dataFactory,
-    ignoreRdfType,
-    resource,
-  }: {
-    dataFactory: rdfjs.DataFactory;
-    ignoreRdfType?: boolean;
-    resource: rdfjsResource.Resource<rdfjs.NamedNode>;
-  }): purify.Either<rdfjsResource.Resource.ValueError, MachineLearningModel> {
+  export function fromRdf(
+    resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<rdfjsResource.Resource.ValueError, MachineLearningModel> {
     if (
-      !ignoreRdfType &&
+      !_options?.ignoreRdfType &&
       !resource.isInstanceOf(
         dataFactory.namedNode(
           "http://purl.annotize.ai/ontology/mlm#MachineLearningModel",
@@ -140,9 +135,7 @@ export namespace MachineLearningModel {
       .chain((value) =>
         value
           .toNamedResource()
-          .chain((resource) =>
-            MachineLearningModelFamily.fromRdf({ dataFactory, resource }),
-          ),
+          .chain((resource) => MachineLearningModelFamily.fromRdf(resource)),
       );
     if (_isVariantOfEither.isLeft()) {
       return _isVariantOfEither;
@@ -188,17 +181,12 @@ export namespace MachineLearningModel {
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
-    constructor({
-      dataFactory,
-      ignoreRdfType,
-      subject,
-    }: {
-      dataFactory: rdfjs.DataFactory;
-      ignoreRdfType?: boolean;
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter;
-    }) {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
       super(subject);
-      if (!ignoreRdfType) {
+      if (!_options?.ignoreRdfType) {
         this.add(
           ...new sparqlBuilder.RdfTypeGraphPatterns(
             subject,
@@ -225,10 +213,7 @@ export namespace MachineLearningModel {
             dataFactory.namedNode("https://schema.org/isVariantOf"),
             this.variable("IsVariantOf"),
           ).chainObject((isVariantOf) => [
-            ...new MachineLearningModelFamily.SparqlGraphPatterns({
-              dataFactory,
-              subject: isVariantOf,
-            }),
+            ...new MachineLearningModelFamily.SparqlGraphPatterns(isVariantOf),
           ]),
         ),
       );
@@ -298,29 +283,29 @@ export namespace MachineLearningModel {
 
     machineLearningModel.description.ifJust((descriptionValue) => {
       resource.add(
-        resourceSet.dataFactory.namedNode("https://schema.org/description"),
+        dataFactory.namedNode("https://schema.org/description"),
         descriptionValue,
       );
     });
     resource.add(
-      resourceSet.dataFactory.namedNode("https://schema.org/isVariantOf"),
+      dataFactory.namedNode("https://schema.org/isVariantOf"),
       MachineLearningModelFamily.toRdf(machineLearningModel.isVariantOf, {
         mutateGraph: mutateGraph,
         resourceSet: resourceSet,
       }).identifier,
     );
     resource.add(
-      resourceSet.dataFactory.namedNode("https://schema.org/identifier"),
+      dataFactory.namedNode("https://schema.org/identifier"),
       machineLearningModel.localIdentifier,
     );
     resource.add(
-      resourceSet.dataFactory.namedNode("https://schema.org/name"),
+      dataFactory.namedNode("https://schema.org/name"),
       machineLearningModel.name,
     );
     machineLearningModel.trainingDataCutoff.ifJust(
       (trainingDataCutoffValue) => {
         resource.add(
-          resourceSet.dataFactory.namedNode(
+          dataFactory.namedNode(
             "http://purl.annotize.ai/ontology/mlm#trainingDataCutoff",
           ),
           trainingDataCutoffValue,
@@ -328,10 +313,7 @@ export namespace MachineLearningModel {
       },
     );
     machineLearningModel.url.ifJust((urlValue) => {
-      resource.add(
-        resourceSet.dataFactory.namedNode("https://schema.org/url"),
-        urlValue,
-      );
+      resource.add(dataFactory.namedNode("https://schema.org/url"), urlValue);
     });
     return resource;
   }
@@ -366,11 +348,10 @@ export namespace LanguageModel {
       return LanguageModel.equals(this, other);
     }
 
-    static override fromRdf(kwds: {
-      dataFactory: rdfjs.DataFactory;
-      resource: rdfjsResource.Resource<rdfjs.NamedNode>;
-    }): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel.Class> {
-      return LanguageModel.fromRdf(kwds).map(
+    static override fromRdf(
+      resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    ): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel.Class> {
+      return LanguageModel.fromRdf(resource).map(
         (properties) => new LanguageModel.Class(properties),
       );
     }
@@ -404,22 +385,15 @@ export namespace LanguageModel {
     );
   }
 
-  export function fromRdf({
-    dataFactory,
-    ignoreRdfType,
-    resource,
-  }: {
-    dataFactory: rdfjs.DataFactory;
-    ignoreRdfType?: boolean;
-    resource: rdfjsResource.Resource<rdfjs.NamedNode>;
-  }): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel> {
-    return MachineLearningModel.fromRdf({
-      dataFactory,
+  export function fromRdf(
+    resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel> {
+    return MachineLearningModel.fromRdf(resource, {
       ignoreRdfType: true,
-      resource,
     }).chain((_super) => {
       if (
-        !ignoreRdfType &&
+        !_options?.ignoreRdfType &&
         !resource.isInstanceOf(
           dataFactory.namedNode(
             "http://purl.annotize.ai/ontology/mlm#LanguageModel",
@@ -466,17 +440,12 @@ export namespace LanguageModel {
   }
 
   export class SparqlGraphPatterns extends MachineLearningModel.SparqlGraphPatterns {
-    constructor({
-      dataFactory,
-      ignoreRdfType,
-      subject,
-    }: {
-      dataFactory: rdfjs.DataFactory;
-      ignoreRdfType?: boolean;
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter;
-    }) {
-      super({ dataFactory, ignoreRdfType: true, subject });
-      if (!ignoreRdfType) {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject, { ignoreRdfType: true });
+      if (!_options?.ignoreRdfType) {
         this.add(
           ...new sparqlBuilder.RdfTypeGraphPatterns(
             subject,
@@ -539,14 +508,14 @@ export namespace LanguageModel {
     }
 
     resource.add(
-      resourceSet.dataFactory.namedNode(
+      dataFactory.namedNode(
         "http://purl.annotize.ai/ontology/mlm#contextWindow",
       ),
       languageModel.contextWindow,
     );
     languageModel.maxTokenOutput.ifJust((maxTokenOutputValue) => {
       resource.add(
-        resourceSet.dataFactory.namedNode(
+        dataFactory.namedNode(
           "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
         ),
         maxTokenOutputValue,
@@ -594,14 +563,13 @@ export namespace MachineLearningModelFamily {
       return MachineLearningModelFamily.equals(this, other);
     }
 
-    static fromRdf(kwds: {
-      dataFactory: rdfjs.DataFactory;
-      resource: rdfjsResource.Resource<rdfjs.NamedNode>;
-    }): purify.Either<
+    static fromRdf(
+      resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    ): purify.Either<
       rdfjsResource.Resource.ValueError,
       MachineLearningModelFamily.Class
     > {
-      return MachineLearningModelFamily.fromRdf(kwds).map(
+      return MachineLearningModelFamily.fromRdf(resource).map(
         (properties) => new MachineLearningModelFamily.Class(properties),
       );
     }
@@ -643,20 +611,15 @@ export namespace MachineLearningModelFamily {
     });
   }
 
-  export function fromRdf({
-    dataFactory,
-    ignoreRdfType,
-    resource,
-  }: {
-    dataFactory: rdfjs.DataFactory;
-    ignoreRdfType?: boolean;
-    resource: rdfjsResource.Resource<rdfjs.NamedNode>;
-  }): purify.Either<
+  export function fromRdf(
+    resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
     rdfjsResource.Resource.ValueError,
     MachineLearningModelFamily
   > {
     if (
-      !ignoreRdfType &&
+      !_options?.ignoreRdfType &&
       !resource.isInstanceOf(
         dataFactory.namedNode(
           "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily",
@@ -684,7 +647,7 @@ export namespace MachineLearningModelFamily {
       .chain((value) =>
         value
           .toNamedResource()
-          .chain((resource) => Organization.fromRdf({ dataFactory, resource })),
+          .chain((resource) => Organization.fromRdf(resource)),
       );
     if (_manufacturerEither.isLeft()) {
       return _manufacturerEither;
@@ -713,17 +676,12 @@ export namespace MachineLearningModelFamily {
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
-    constructor({
-      dataFactory,
-      ignoreRdfType,
-      subject,
-    }: {
-      dataFactory: rdfjs.DataFactory;
-      ignoreRdfType?: boolean;
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter;
-    }) {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
       super(subject);
-      if (!ignoreRdfType) {
+      if (!_options?.ignoreRdfType) {
         this.add(
           ...new sparqlBuilder.RdfTypeGraphPatterns(
             subject,
@@ -750,10 +708,7 @@ export namespace MachineLearningModelFamily {
             dataFactory.namedNode("https://schema.org/manufacturer"),
             this.variable("Manufacturer"),
           ).chainObject((manufacturer) => [
-            ...new Organization.SparqlGraphPatterns({
-              dataFactory,
-              subject: manufacturer,
-            }),
+            ...new Organization.SparqlGraphPatterns(manufacturer),
           ]),
         ),
       );
@@ -805,26 +760,23 @@ export namespace MachineLearningModelFamily {
 
     machineLearningModelFamily.description.ifJust((descriptionValue) => {
       resource.add(
-        resourceSet.dataFactory.namedNode("https://schema.org/description"),
+        dataFactory.namedNode("https://schema.org/description"),
         descriptionValue,
       );
     });
     resource.add(
-      resourceSet.dataFactory.namedNode("https://schema.org/manufacturer"),
+      dataFactory.namedNode("https://schema.org/manufacturer"),
       Organization.toRdf(machineLearningModelFamily.manufacturer, {
         mutateGraph: mutateGraph,
         resourceSet: resourceSet,
       }).identifier,
     );
     resource.add(
-      resourceSet.dataFactory.namedNode("https://schema.org/name"),
+      dataFactory.namedNode("https://schema.org/name"),
       machineLearningModelFamily.name,
     );
     machineLearningModelFamily.url.ifJust((urlValue) => {
-      resource.add(
-        resourceSet.dataFactory.namedNode("https://schema.org/url"),
-        urlValue,
-      );
+      resource.add(dataFactory.namedNode("https://schema.org/url"), urlValue);
     });
     return resource;
   }
@@ -851,11 +803,10 @@ export namespace Organization {
       return Organization.equals(this, other);
     }
 
-    static fromRdf(kwds: {
-      dataFactory: rdfjs.DataFactory;
-      resource: rdfjsResource.Resource<rdfjs.NamedNode>;
-    }): purify.Either<rdfjsResource.Resource.ValueError, Organization.Class> {
-      return Organization.fromRdf(kwds).map(
+    static fromRdf(
+      resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    ): purify.Either<rdfjsResource.Resource.ValueError, Organization.Class> {
+      return Organization.fromRdf(resource).map(
         (properties) => new Organization.Class(properties),
       );
     }
@@ -886,17 +837,12 @@ export namespace Organization {
     });
   }
 
-  export function fromRdf({
-    dataFactory,
-    ignoreRdfType,
-    resource,
-  }: {
-    dataFactory: rdfjs.DataFactory;
-    ignoreRdfType?: boolean;
-    resource: rdfjsResource.Resource<rdfjs.NamedNode>;
-  }): purify.Either<rdfjsResource.Resource.ValueError, Organization> {
+  export function fromRdf(
+    resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<rdfjsResource.Resource.ValueError, Organization> {
     if (
-      !ignoreRdfType &&
+      !_options?.ignoreRdfType &&
       !resource.isInstanceOf(
         dataFactory.namedNode(
           "http://purl.annotize.ai/ontology/mlm#Organization",
@@ -927,17 +873,12 @@ export namespace Organization {
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
-    constructor({
-      dataFactory,
-      ignoreRdfType,
-      subject,
-    }: {
-      dataFactory: rdfjs.DataFactory;
-      ignoreRdfType?: boolean;
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter;
-    }) {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
       super(subject);
-      if (!ignoreRdfType) {
+      if (!_options?.ignoreRdfType) {
         this.add(
           ...new sparqlBuilder.RdfTypeGraphPatterns(
             subject,
@@ -986,7 +927,7 @@ export namespace Organization {
     }
 
     resource.add(
-      resourceSet.dataFactory.namedNode("https://schema.org/name"),
+      dataFactory.namedNode("https://schema.org/name"),
       organization.name,
     );
     return resource;

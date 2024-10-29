@@ -4,7 +4,6 @@ import { Memoize } from "typescript-memoize";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType";
-import { shorthandProperty } from "./shorthandProperty.js";
 
 export class ObjectType extends Type {
   readonly astName: string;
@@ -115,19 +114,21 @@ export class ObjectType extends Type {
   }
 
   sparqlGraphPatterns({
-    dataFactoryVariable,
     subjectVariable,
   }: Type.SparqlGraphPatternParameters): readonly string[] {
     return [
-      `...new ${this.moduleQualifiedName}.SparqlGraphPatterns({ ${shorthandProperty("dataFactory", dataFactoryVariable)}, ${shorthandProperty("subject", subjectVariable)} })`,
+      `...new ${this.moduleQualifiedName}.SparqlGraphPatterns(${subjectVariable})`,
     ];
   }
 
-  valueFromRdf({
-    dataFactoryVariable,
-    resourceValueVariable,
-  }: Type.ValueFromRdfParameters): string {
-    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf({ ${shorthandProperty("dataFactory", dataFactoryVariable)}, resource }))`;
+  valueFromRdf({ resourceValueVariable }: Type.ValueFromRdfParameters): string {
+    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf(resource))`;
+  }
+
+  valueInstanceOf({
+    propertyValueVariable,
+  }: Type.ValueInstanceOfParameters): string {
+    return `(typeof ${propertyValueVariable} === "object" && ${propertyValueVariable}.hasOwnProperty("${this.configuration.objectTypeDiscriminatorPropertyName}") && ${propertyValueVariable}["${this.configuration.objectTypeDiscriminatorPropertyName}"] === "${this.name}")`;
   }
 
   valueToRdf({
