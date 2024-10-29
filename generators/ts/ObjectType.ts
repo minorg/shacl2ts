@@ -1,5 +1,5 @@
 import type { NamedNode } from "@rdfjs/types";
-import type { Maybe } from "purify-ts";
+import { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
@@ -70,6 +70,14 @@ export class ObjectType extends Type {
     return this.lazyDescendantObjectTypes();
   }
 
+  override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
+    return Maybe.of({
+      name: this.configuration.objectTypeDiscriminatorPropertyName,
+      type: "string" as const,
+      values: [this.name],
+    });
+  }
+
   get name(): string {
     return this.interfaceQualifiedName;
   }
@@ -125,12 +133,6 @@ export class ObjectType extends Type {
     resourceValueVariable,
   }: Type.ValueFromRdfParameters): string {
     return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf(resource))`;
-  }
-
-  valueInstanceOfExpression({
-    propertyValueVariable,
-  }: Type.ValueInstanceOfParameters): string {
-    return `(typeof ${propertyValueVariable} === "object" && ${propertyValueVariable}.hasOwn("${this.configuration.objectTypeDiscriminatorPropertyName}") && ${propertyValueVariable}["${this.configuration.objectTypeDiscriminatorPropertyName}"] === "${this.name}")`;
   }
 
   valueToRdfExpression({

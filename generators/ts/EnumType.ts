@@ -21,12 +21,6 @@ export class EnumType extends Type {
     throw new Error("not implemented");
   }
 
-  override valueInstanceOfExpression(
-    _: Type.ValueInstanceOfParameters,
-  ): string {
-    throw new Error("not implemented");
-  }
-
   valueToRdfExpression(_: Type.ValueToRdfParameters): string {
     throw new Error("not implemented");
   }

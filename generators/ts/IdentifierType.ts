@@ -1,5 +1,5 @@
 import type { BlankNode, NamedNode } from "@rdfjs/types";
-import type { Maybe } from "purify-ts";
+import { Maybe } from "purify-ts";
 import { NodeKind } from "shacl-ast";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
@@ -23,6 +23,21 @@ export class IdentifierType extends RdfjsTermType {
     this.hasValue = hasValue;
     this.nodeKinds = new Set([...nodeKinds]);
     invariant(this.nodeKinds.size > 0);
+  }
+
+  override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
+    return Maybe.of({
+      name: "termType",
+      type: "string" as const,
+      values: [...this.nodeKinds].map((nodeKind) => {
+        switch (nodeKind) {
+          case NodeKind.BLANK_NODE:
+            return "BlankNode" satisfies BlankNode["termType"];
+          case NodeKind.IRI:
+            return "NamedNode" satisfies NamedNode["termType"];
+        }
+      }),
+    });
   }
 
   get isNamedNodeKind(): boolean {
@@ -61,40 +76,5 @@ export class IdentifierType extends RdfjsTermType {
       expression = `${expression}.filter(_identifier => _identifier.equals(${this.rdfJsTermExpression(hasValue)}))`;
     });
     return expression;
-  }
-
-  override valueInstanceOfExpression({
-    propertyValueVariable,
-  }: Type.ValueInstanceOfParameters): string {
-    const andExpressions: string[] = [];
-
-    andExpressions.push(`typeof ${propertyValueVariable} === "object"`);
-
-    andExpressions.push(`${propertyValueVariable}.hasOwn("termType")`);
-
-    const orTermTypeExpressions: string[] = [];
-    for (const nodeKind of this.nodeKinds) {
-      switch (nodeKind) {
-        case NodeKind.BLANK_NODE:
-          orTermTypeExpressions.push(
-            `${propertyValueVariable}["termType"] === "BlankNode"`,
-          );
-          break;
-        case NodeKind.IRI:
-          orTermTypeExpressions.push(
-            `${propertyValueVariable}["termType"] === "NamedNode"`,
-          );
-          break;
-      }
-    }
-    andExpressions.push(`(${orTermTypeExpressions.join(" || ")})`);
-
-    this.hasValue.ifJust((hasValue) => {
-      andExpressions.push(
-        `${propertyValueVariable}.equals(${this.rdfJsTermExpression(hasValue)})`,
-      );
-    });
-
-    return `(${andExpressions.join(" && ")})`;
   }
 }

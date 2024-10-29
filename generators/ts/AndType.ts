@@ -3,7 +3,10 @@ import type { Type } from "./Type.js";
 
 export class AndType extends ComposedType {
   readonly kind = "And";
-  protected readonly nameSeparator = "&";
+
+  get name(): string {
+    return `(${this.types.map((type) => type.name).join(" & ")})`;
+  }
 
   override equalsFunction(): string {
     throw new Error("Method not implemented.");
@@ -17,12 +20,6 @@ export class AndType extends ComposedType {
 
   override valueFromRdfExpression(
     _parameters: Type.ValueFromRdfParameters,
-  ): string {
-    throw new Error("Method not implemented.");
-  }
-
-  override valueInstanceOfExpression(
-    _parameters: Type.ValueInstanceOfParameters,
   ): string {
     throw new Error("Method not implemented.");
   }

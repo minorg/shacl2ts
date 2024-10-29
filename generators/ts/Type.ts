@@ -1,5 +1,6 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { xsd } from "@tpluscode/rdf-ns-builders";
+import { Maybe } from "purify-ts";
 import type * as ast from "../../ast";
 import type { Configuration } from "./Configuration.js";
 
@@ -10,6 +11,10 @@ export abstract class Type {
 
   constructor({ configuration }: Type.ConstructorParameters) {
     this.configuration = configuration;
+  }
+
+  get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
+    return Maybe.empty();
   }
 
   /**
@@ -29,13 +34,6 @@ export abstract class Type {
    */
   abstract valueFromRdfExpression(
     parameters: Type.ValueFromRdfParameters,
-  ): string;
-
-  /**
-   * An expression that return true if a given value is of this type, otherwise false.
-   */
-  abstract valueInstanceOfExpression(
-    parameters: Type.ValueInstanceOfParameters,
   ): string;
 
   /**
@@ -66,16 +64,18 @@ export namespace Type {
     configuration: Configuration;
   }
 
+  export interface DiscriminatorProperty {
+    readonly name: string;
+    readonly type: "string";
+    readonly values: readonly string[];
+  }
+
   export interface SparqlGraphPatternParameters {
     subjectVariable: string;
   }
 
   export interface ValueFromRdfParameters {
     resourceValueVariable: string;
-  }
-
-  export interface ValueInstanceOfParameters {
-    propertyValueVariable: string;
   }
 
   export interface ValueToRdfParameters {

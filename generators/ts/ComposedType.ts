@@ -6,23 +6,20 @@ import { Type } from "./Type.js";
  */
 export abstract class ComposedType extends Type {
   abstract override readonly kind: "And" | "Or";
-  protected abstract readonly nameSeparator: string;
   protected readonly types: readonly Type[];
 
   constructor({
     types,
     ...superParameters
-  }: { types: readonly Type[] } & Type.ConstructorParameters) {
+  }: ComposedType.ConstructorParameters) {
     super(superParameters);
     invariant(types.length >= 2);
     this.types = types;
   }
+}
 
-  get name(): string {
-    if (this.types.every((type) => type.kind === "Literal")) {
-      return "rdfjs.Literal";
-    }
-
-    return `(${this.types.map((type) => type.name).join(` ${this.nameSeparator} `)})`;
+export namespace ComposedType {
+  export interface ConstructorParameters extends Type.ConstructorParameters {
+    types: readonly Type[];
   }
 }

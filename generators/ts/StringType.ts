@@ -11,10 +11,4 @@ export class StringType extends PrimitiveType {
   }: Type.ValueFromRdfParameters): string {
     return `${resourceValueVariable}.toString()`;
   }
-
-  override valueInstanceOfExpression({
-    propertyValueVariable,
-  }: Type.ValueInstanceOfParameters): string {
-    return `(typeof ${propertyValueVariable} === "string")`;
-  }
 }
