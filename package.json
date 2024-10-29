@@ -22,6 +22,7 @@
     "rdfjs-resource": "1.0.7",
     "reserved-identifiers": "^1.0.0",
     "shacl-ast": "2.0.6",
+    "ts-invariant": "^0.10.3",
     "ts-morph": "^24.0.0",
     "typescript-memoize": "^1.1.1"
   },
@@ -36,7 +37,12 @@
     "typescript": "~5.6",
     "vitest": "^2.0.3"
   },
-  "files": ["*.d.ts", "*.d.ts.map", "*.js", "*.js.map"],
+  "files": [
+    "*.d.ts",
+    "*.d.ts.map",
+    "*.js",
+    "*.js.map"
+  ],
   "license": "Apache-2.0",
   "main": "index.js",
   "name": "shacl2ts",
