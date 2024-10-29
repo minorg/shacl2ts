@@ -11,4 +11,10 @@ export class NumberType extends PrimitiveType {
   }: Type.ValueFromRdfParameters): string {
     return `${resourceValueVariable}.toNumber()`;
   }
+
+  override valueInstanceOf({
+    propertyValueVariable,
+  }: Type.ValueInstanceOfParameters): string {
+    return `(typeof ${propertyValueVariable} === "number")`;
+  }
 }

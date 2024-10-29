@@ -19,6 +19,10 @@ export class EnumType extends Type {
     throw new Error("not implemented");
   }
 
+  override valueInstanceOf(_: Type.ValueInstanceOfParameters): string {
+    throw new Error("not implemented");
+  }
+
   valueToRdf(_: Type.ValueToRdfParameters): string {
     throw new Error("not implemented");
   }
