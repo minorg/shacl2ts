@@ -25,7 +25,7 @@ export class OrType extends ComposedType {
       return `(${this.types.map((type) => type.name).join(" | ")})`;
     }
 
-    return `(${this.types.map((type, typeIndex) => `{ orTypeIndex: ${typeIndex.toString()}, value: ${type.name} }`).join(" | ")})`;
+    return `(${this.types.map((type, typeIndex) => `{ orTypeIndex: "${typeIndex.toString()}", value: ${type.name} }`).join(" | ")})`;
   }
 
   @Memoize()
@@ -66,24 +66,28 @@ export class OrType extends ComposedType {
   equalsFunction(): string {
     return `
 (left: ${this.name}, right: ${this.name}) => {
-${this.types.flatMap((type, typeIndex) =>
-  this.typesSharedDiscriminatorProperty
-    .map((typesSharedDiscriminatorProperty) => {
-      // Types share a discriminator property already, use it
-      return typesSharedDiscriminatorProperty.values.map(
-        (value) => `
-if (left.${typesSharedDiscriminatorProperty} === "${value}" && right.${typesSharedDiscriminatorProperty} === "${value}") {
+${this.types
+  .flatMap((type, typeIndex) =>
+    this.typesSharedDiscriminatorProperty
+      .map((typesSharedDiscriminatorProperty) => {
+        // Types share a discriminator property already, use it
+        return typesSharedDiscriminatorProperty.values.map(
+          (
+            value,
+          ) => `if (left.${typesSharedDiscriminatorProperty} === "${value}" && right.${typesSharedDiscriminatorProperty} === "${value}") {
   return ${type.equalsFunction()}(left, right);
 }`,
-      );
-    })
-    .orDefaultLazy(() => [
-      // Types don't share a discriminator property, have to use the one we synthesized
-      `if (left.orTypeIndex === "${typeIndex}" && right.orTypeIndex === "${typeIndex}") {
+        );
+      })
+      .orDefaultLazy(() => [
+        // Types don't share a discriminator property, have to use the one we synthesized
+        `if (left.orTypeIndex === "${typeIndex}" && right.orTypeIndex === "${typeIndex}") {
   return ${type.equalsFunction()}(left.value, right.value);
 }`,
-    ]),
-)}).join("\n")}
+      ]),
+  )
+  .join("\n")}
+
   return purify.Left({ left, right, propertyName: "type", propertyValuesUnequal: { left: typeof left, right: typeof right, type: "BooleanEquals" }, type: "Property" });
 }`;
   }
@@ -104,16 +108,41 @@ if (left.${typesSharedDiscriminatorProperty} === "${value}" && right.${typesShar
     return expression;
   }
 
-  valueToRdfExpression(_parameters: Type.ValueToRdfParameters): string {
-    throw new Error("not implemented");
-    // let expression = "";
-    // for (const type of this.types.concat().reverse()) {
-    //   if (expression.length === 0) {
-    //     expression = type.valueToRdfExpression(parameters);
-    //   } else {
-    //     expression = `${type.valueInstanceOfExpression(parameters)} ? ${type.valueToRdfExpression(parameters)} : ${expression}`;
-    //   }
-    // }
-    // return expression;
+  valueToRdfExpression({
+    propertyValueVariable,
+    ...otherParameters
+  }: Type.ValueToRdfParameters): string {
+    let expression = "";
+    this.types.forEach((type, typeIndex) => {
+      if (this.typesSharedDiscriminatorProperty.isJust()) {
+        if (expression.length === 0) {
+          expression = type.valueToRdfExpression({
+            propertyValueVariable,
+            ...otherParameters,
+          });
+        } else {
+          expression = `(${type.discriminatorProperty
+            .unsafeCoerce()
+            .values.map(
+              (value) =>
+                `${propertyValueVariable}.${this.typesSharedDiscriminatorProperty.unsafeCoerce().name} === "${value}"`,
+            )
+            .join(
+              " || ",
+            )}) ? ${type.valueToRdfExpression({ propertyValueVariable, ...otherParameters })} : ${expression}`;
+        }
+      } else {
+        if (expression.length === 0) {
+          expression = type.valueToRdfExpression({
+            propertyValueVariable: `${propertyValueVariable}.value`,
+            ...otherParameters,
+          });
+        } else {
+          // No shared type discriminator between the types, use the one we synthesized
+          expression = `(${propertyValueVariable}.orTypeIndex === "${typeIndex}") ? (${type.valueToRdfExpression({ propertyValueVariable: `${propertyValueVariable}.value`, ...otherParameters })}) : (${expression})`;
+        }
+      }
+    });
+    return expression;
   }
 }
