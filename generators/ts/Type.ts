@@ -66,7 +66,6 @@ export namespace Type {
 
   export interface DiscriminatorProperty {
     readonly name: string;
-    readonly type: "string";
     readonly values: readonly string[];
   }
 

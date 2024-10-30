@@ -4,6 +4,15 @@ import { Memoize } from "typescript-memoize";
 import { ComposedType } from "./ComposedType.js";
 import type { Type } from "./Type.js";
 
+const syntheticTypeDiscriminatorPropertyName = "type";
+
+function syntheticTypeDiscriminatorValue({
+  type,
+  typeIndex,
+}: { type: Type; typeIndex: number }): string {
+  return `${typeIndex}-${type.name}`;
+}
+
 export class OrType extends ComposedType {
   readonly kind = "Or";
 
@@ -11,8 +20,7 @@ export class OrType extends ComposedType {
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
     return this.typesSharedDiscriminatorProperty.altLazy(() =>
       Maybe.of({
-        name: "orTypeIndex",
-        type: "string",
+        name: syntheticTypeDiscriminatorPropertyName,
         values: this.types.map((_, typeIndex) => typeIndex.toString()),
       }),
     );
@@ -26,7 +34,7 @@ export class OrType extends ComposedType {
       return `(${this.types.map((type) => type.name).join(" | ")})`;
     }
 
-    return `(${this.types.map((type, typeIndex) => `{ orTypeIndex: "${typeIndex.toString()}", value: ${type.name} }`).join(" | ")})`;
+    return `(${this.types.map((type, typeIndex) => `{ ${syntheticTypeDiscriminatorPropertyName}: "${syntheticTypeDiscriminatorValue({ type, typeIndex })}", value: ${type.name} }`).join(" | ")})`;
   }
 
   @Memoize()
@@ -45,13 +53,10 @@ export class OrType extends ComposedType {
       if (!typesSharedDiscriminatorProperty) {
         typesSharedDiscriminatorProperty = {
           name: typeDiscriminatorProperty.name,
-          type: typeDiscriminatorProperty.type,
           values: typeDiscriminatorProperty.values.concat(),
         };
       } else if (
-        typeDiscriminatorProperty.name ===
-          typesSharedDiscriminatorProperty.name &&
-        typeDiscriminatorProperty.type === typesSharedDiscriminatorProperty.type
+        typeDiscriminatorProperty.name === typesSharedDiscriminatorProperty.name
       ) {
         typesSharedDiscriminatorProperty.values =
           typesSharedDiscriminatorProperty.values.concat(
@@ -82,7 +87,7 @@ ${this.types
       })
       .orDefaultLazy(() => [
         // Types don't share a discriminator property, have to use the one we synthesized
-        `if (left.orTypeIndex === "${typeIndex}" && right.orTypeIndex === "${typeIndex}") {
+        `if (left.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}" && right.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") {
   return ${type.equalsFunction()}(left.value, right.value);
 }`,
       ]),
@@ -122,7 +127,7 @@ ${this.types
     this.types.forEach((type, typeIndex) => {
       let typeExpression = type.valueFromRdfExpression(parameters);
       if (!this.typesSharedDiscriminatorProperty.isJust()) {
-        typeExpression = `${typeExpression}.map(value => ({ orTypeIndex: "${typeIndex}" as const, value }) as (${this.name}))`;
+        typeExpression = `${typeExpression}.map(value => ({ type: "${typeIndex}-${type.name}" as const, value }) as (${this.name}))`;
       }
       expression =
         expression.length > 0
@@ -163,7 +168,7 @@ ${this.types
           });
         } else {
           // No shared type discriminator between the types, use the one we synthesized
-          expression = `(${propertyValueVariable}.orTypeIndex === "${typeIndex}") ? (${type.valueToRdfExpression({ propertyValueVariable: `${propertyValueVariable}.value`, ...otherParameters })}) : (${expression})`;
+          expression = `(${propertyValueVariable}.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") ? (${type.valueToRdfExpression({ propertyValueVariable: `${propertyValueVariable}.value`, ...otherParameters })}) : (${expression})`;
         }
       }
     });
