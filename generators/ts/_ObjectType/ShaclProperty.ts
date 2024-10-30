@@ -167,11 +167,11 @@ export class ShaclProperty extends Property {
     const resourceValueVariable = "value";
     if (this.containerType === "Array") {
       return Maybe.of(
-        `const ${this.name} = ${resourceVariable}.values(${this.pathExpression}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.valueFromRdfExpression({ resourceValueVariable })}).toMaybe().toList())).orDefault([]);`,
+        `const ${this.name} = ${resourceVariable}.values(${this.pathExpression}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.valueFromRdfExpression({ predicate: this.path, resourceVariable, resourceValueVariable })}).toMaybe().toList())).orDefault([]);`,
       );
     }
 
-    const valueFromRdf = `${resourceVariable}.value(${this.pathExpression}).chain(${resourceValueVariable} => ${this.type.valueFromRdfExpression({ resourceValueVariable })})`;
+    const valueFromRdf = `${resourceVariable}.value(${this.pathExpression}).chain(${resourceValueVariable} => ${this.type.valueFromRdfExpression({ predicate: this.path, resourceVariable, resourceValueVariable })})`;
     switch (this.containerType) {
       case "Maybe":
         return Maybe.of(`const ${this.name} = ${valueFromRdf}.toMaybe();`);

@@ -57,6 +57,8 @@ export class IdentifierType extends RdfjsTermType {
   }
 
   valueFromRdfExpression({
+    predicate,
+    resourceVariable,
     resourceValueVariable,
   }: Type.ValueFromRdfParameters): string {
     let expression: string;
@@ -73,7 +75,7 @@ export class IdentifierType extends RdfjsTermType {
         throw new Error(`not implemented: ${this.name}`);
     }
     this.hasValue.ifJust((hasValue) => {
-      expression = `${expression}.filter(_identifier => _identifier.equals(${this.rdfJsTermExpression(hasValue)}))`;
+      expression = `${expression}.chain(_identifier => _identifier.equals(${this.rdfJsTermExpression(hasValue)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${resourceVariable}, predicate: ${this.rdfJsTermExpression(predicate)} })))`;
     });
     return expression;
   }

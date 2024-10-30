@@ -75,7 +75,9 @@ export namespace Type {
   }
 
   export interface ValueFromRdfParameters {
+    predicate: NamedNode;
     resourceValueVariable: string;
+    resourceVariable: string;
   }
 
   export interface ValueToRdfParameters {
