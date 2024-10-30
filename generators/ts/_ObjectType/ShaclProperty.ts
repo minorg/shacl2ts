@@ -177,7 +177,7 @@ export class ShaclProperty extends Property {
         return Maybe.of(`const ${this.name} = ${valueFromRdf}.toMaybe();`);
       case null:
         return Maybe.of(
-          `const _${this.name}Either = ${valueFromRdf}; if (_${this.name}Either.isLeft()) { return _${this.name}Either; } const ${this.name} = _${this.name}Either.unsafeCoerce();`,
+          `const _${this.name}Either: purify.Either<rdfjsResource.Resource.ValueError, ${this.type.name}> = ${valueFromRdf}; if (_${this.name}Either.isLeft()) { return _${this.name}Either; } const ${this.name} = _${this.name}Either.unsafeCoerce();`,
         );
     }
   }

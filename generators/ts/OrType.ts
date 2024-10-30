@@ -101,10 +101,17 @@ ${this.types
   }
 
   valueFromRdfExpression(parameters: Type.ValueFromRdfParameters): string {
-    let expression = this.types[0].valueFromRdfExpression(parameters);
-    for (const typeN of this.types.slice(1)) {
-      expression = `${expression}.altLazy(() => ${typeN.valueFromRdfExpression(parameters)})`;
-    }
+    let expression = "";
+    this.types.forEach((type, typeIndex) => {
+      let typeExpression = type.valueFromRdfExpression(parameters);
+      if (!this.typesSharedDiscriminatorProperty.isJust()) {
+        typeExpression = `${typeExpression}.map(value => ({ orTypeIndex: "${typeIndex}" as const, value }) as (${this.name}))`;
+      }
+      expression =
+        expression.length > 0
+          ? `${expression}.altLazy(() => ${typeExpression})`
+          : typeExpression;
+    });
     return expression;
   }
 
