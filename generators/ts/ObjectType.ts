@@ -123,10 +123,11 @@ export class ObjectType extends Type {
 
   sparqlGraphPatternExpression({
     subjectVariable,
-  }: Type.SparqlGraphPatternParameters): Maybe<string> {
-    return Maybe.of(
-      `sparqlBuilder.GraphPattern.group(new ${this.moduleQualifiedName}.SparqlGraphPatterns(${subjectVariable}))`,
-    );
+  }: Type.SparqlGraphPatternParameters): Maybe<Type.SparqlGraphPatternExpression> {
+    return Maybe.of({
+      type: "GraphPatterns",
+      value: `new ${this.moduleQualifiedName}.SparqlGraphPatterns(${subjectVariable})`,
+    });
   }
 
   valueFromRdfExpression({

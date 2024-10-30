@@ -153,8 +153,15 @@ export class ShaclProperty extends Property {
       .sparqlGraphPatternExpression({
         subjectVariable: this.name,
       })
-      .ifJust((typeSparqlGraphPattern) => {
-        sparqlGraphPattern = `sparqlBuilder.GraphPattern.group(${sparqlGraphPattern}.chainObject(${this.name} => [${typeSparqlGraphPattern}]))`;
+      .ifJust((typeSparqlGraphPatternExpression) => {
+        switch (typeSparqlGraphPatternExpression.type) {
+          case "GraphPattern":
+            sparqlGraphPattern = `sparqlBuilder.GraphPattern.group(${sparqlGraphPattern}.chainObject(${this.name} => [${typeSparqlGraphPatternExpression.value}]))`;
+            break;
+          case "GraphPatterns":
+            sparqlGraphPattern = `sparqlBuilder.GraphPattern.group(${sparqlGraphPattern}.chainObject(${this.name} => ${typeSparqlGraphPatternExpression.value}))`;
+            break;
+        }
       });
     if (this.containerType === "Maybe") {
       sparqlGraphPattern = `sparqlBuilder.GraphPattern.optional(${sparqlGraphPattern})`;

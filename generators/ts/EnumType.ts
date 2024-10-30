@@ -14,7 +14,7 @@ export class EnumType extends Type {
 
   sparqlGraphPatternExpression(
     _: Type.SparqlGraphPatternParameters,
-  ): Maybe<string> {
+  ): Maybe<Type.SparqlGraphPatternExpression> {
     throw new Error("not implemented");
   }
 

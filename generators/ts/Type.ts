@@ -27,7 +27,7 @@ export abstract class Type {
    */
   abstract sparqlGraphPatternExpression(
     parameters: Type.SparqlGraphPatternParameters,
-  ): Maybe<string>;
+  ): Maybe<Type.SparqlGraphPatternExpression>;
 
   /**
    * An expression that converts a rdfjsResource.Resource.Value to a value of this type.
@@ -72,6 +72,10 @@ export namespace Type {
   export interface SparqlGraphPatternParameters {
     subjectVariable: string;
   }
+
+  export type SparqlGraphPatternExpression =
+    | { type: "GraphPattern"; value: string }
+    | { type: "GraphPatterns"; value: string };
 
   export interface ValueFromRdfParameters {
     predicate: NamedNode;

@@ -15,7 +15,7 @@ export class AndType extends ComposedType {
 
   override sparqlGraphPatternExpression(
     _parameters: Type.SparqlGraphPatternParameters,
-  ): Maybe<string> {
+  ): Maybe<Type.SparqlGraphPatternExpression> {
     throw new Error("Method not implemented.");
   }
 

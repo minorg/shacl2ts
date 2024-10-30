@@ -13,7 +13,7 @@ export abstract class RdfjsTermType extends Type {
 
   sparqlGraphPatternExpression(
     _parameters: Type.SparqlGraphPatternParameters,
-  ): Maybe<string> {
+  ): Maybe<Type.SparqlGraphPatternExpression> {
     // Don't add any additional graph patterns for terms
     return Maybe.empty();
   }

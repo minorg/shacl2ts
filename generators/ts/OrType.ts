@@ -100,25 +100,47 @@ ${this.types
 
   sparqlGraphPatternExpression({
     subjectVariable,
-  }: Type.SparqlGraphPatternParameters): Maybe<string> {
+  }: Type.SparqlGraphPatternParameters): Maybe<Type.SparqlGraphPatternExpression> {
     const typeSparqlGraphPatternExpressions = this.types.flatMap((type) =>
       type.sparqlGraphPatternExpression({ subjectVariable }).toList(),
     );
     switch (typeSparqlGraphPatternExpressions.length) {
       case 0:
         return Maybe.empty();
-      case 1:
-        return Maybe.of(
-          `sparqlBuilder.GraphPattern.optional(${typeSparqlGraphPatternExpressions[0]})`,
-        );
+      case 1: {
+        switch (typeSparqlGraphPatternExpressions[0].type) {
+          case "GraphPattern":
+            return Maybe.of({
+              type: "GraphPattern",
+              value: `sparqlBuilder.GraphPattern.optional(${typeSparqlGraphPatternExpressions[0].value})`,
+            });
+          case "GraphPatterns":
+            return Maybe.of({
+              type: "GraphPattern",
+              value: `sparqlBuilder.GraphPattern.optional(sparqlBuilder.GraphPattern.group(${typeSparqlGraphPatternExpressions[0].value}))`,
+            });
+        }
+        // @ts-expect-error This is actually unreachable code but the compiler has a bug that complains about the switch if this is not present.
+        break;
+      }
       default:
         invariant(
           typeSparqlGraphPatternExpressions.length === this.types.length,
           "all types must be represented in the SPARQL UNION",
         );
-        return Maybe.of(
-          `sparqlBuilder.GraphPattern.union(${typeSparqlGraphPatternExpressions.join(", ")})`,
-        );
+        return Maybe.of({
+          type: "GraphPattern",
+          value: `sparqlBuilder.GraphPattern.union(${typeSparqlGraphPatternExpressions
+            .map((typeSparqlGraphPatternExpression) => {
+              switch (typeSparqlGraphPatternExpression.type) {
+                case "GraphPattern":
+                  return typeSparqlGraphPatternExpression.value;
+                case "GraphPatterns":
+                  return `sparqlBuilder.GraphPattern.group(${typeSparqlGraphPatternExpression.value})`;
+              }
+            })
+            .join(", ")}})`,
+        });
     }
   }
 
