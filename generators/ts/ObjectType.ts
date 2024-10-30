@@ -1,10 +1,9 @@
 import type { NamedNode } from "@rdfjs/types";
-import type { Maybe } from "purify-ts";
+import { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType";
-import { shorthandProperty } from "./shorthandProperty.js";
 
 export class ObjectType extends Type {
   readonly astName: string;
@@ -71,6 +70,14 @@ export class ObjectType extends Type {
     return this.lazyDescendantObjectTypes();
   }
 
+  override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
+    return Maybe.of({
+      name: this.configuration.objectTypeDiscriminatorPropertyName,
+      type: "string" as const,
+      values: [this.name],
+    });
+  }
+
   get name(): string {
     return this.interfaceQualifiedName;
   }
@@ -114,23 +121,22 @@ export class ObjectType extends Type {
     };
   }
 
-  sparqlGraphPatterns({
-    dataFactoryVariable,
+  sparqlGraphPatternExpression({
     subjectVariable,
-  }: Type.SparqlGraphPatternParameters): readonly string[] {
-    return [
-      `...new ${this.moduleQualifiedName}.SparqlGraphPatterns({ ${shorthandProperty("dataFactory", dataFactoryVariable)}, ${shorthandProperty("subject", subjectVariable)} })`,
-    ];
+  }: Type.SparqlGraphPatternParameters): Maybe<Type.SparqlGraphPatternExpression> {
+    return Maybe.of({
+      type: "GraphPatterns",
+      value: `new ${this.moduleQualifiedName}.SparqlGraphPatterns(${subjectVariable})`,
+    });
   }
 
-  valueFromRdf({
-    dataFactoryVariable,
+  valueFromRdfExpression({
     resourceValueVariable,
   }: Type.ValueFromRdfParameters): string {
-    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf({ ${shorthandProperty("dataFactory", dataFactoryVariable)}, resource }))`;
+    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf(resource))`;
   }
 
-  valueToRdf({
+  valueToRdfExpression({
     mutateGraphVariable,
     resourceSetVariable,
     propertyValueVariable,

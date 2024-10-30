@@ -98,13 +98,13 @@ function fromRdfMethodDeclaration(
     name: "fromRdf",
     parameters: [
       {
-        name: "kwds",
-        type: `{ dataFactory: rdfjs.DataFactory, resource: ${this.rdfjsResourceType().name} }`,
+        name: "resource",
+        type: this.rdfjsResourceType().name,
       },
     ],
     returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.classQualifiedName}>`,
     statements: [
-      `return ${this.moduleQualifiedName}.fromRdf(kwds).map(properties => new ${this.classQualifiedName}(properties));`,
+      `return ${this.moduleQualifiedName}.fromRdf(resource).map(properties => new ${this.classQualifiedName}(properties));`,
     ],
   };
 }

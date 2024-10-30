@@ -1,6 +1,7 @@
 import TermMap from "@rdfjs/term-map";
 import type { BlankNode, NamedNode } from "@rdfjs/types";
 import { xsd } from "@tpluscode/rdf-ns-builders";
+import { Maybe } from "purify-ts";
 import type * as ast from "../../ast";
 import { AndType } from "./AndType.js";
 import type { Configuration } from "./Configuration";
@@ -37,8 +38,9 @@ export class TypeFactory {
       }
     }
 
-    const identifierType = IdentifierType.fromNodeKinds({
+    const identifierType = new IdentifierType({
       configuration: this.configuration,
+      hasValue: Maybe.empty(),
       nodeKinds: astType.nodeKinds,
     });
 
@@ -67,35 +69,35 @@ export class TypeFactory {
         if (astType.parentObjectTypes.length === 0) {
           properties.push(
             new ObjectType.IdentifierProperty({
+              configuration: this.configuration,
               name: this.configuration.objectTypeIdentifierPropertyName,
               type: identifierType,
             }),
           );
         } // Else parent will have the identifier property
 
-        this.configuration.objectTypeDiscriminatorPropertyName.ifJust(
-          (typeDiscriminatorPropertyName) =>
-            properties.push(
-              new ObjectType.TypeDiscriminatorProperty({
-                name: typeDiscriminatorPropertyName,
-                override: objectType.parentObjectTypes.length > 0,
-                type: {
-                  name: [
-                    ...new Set(
-                      [objectType.name].concat(
-                        objectType.descendantObjectTypes.map(
-                          (objectType) => objectType.name,
-                        ),
-                      ),
+        // Type discriminator property
+        properties.push(
+          new ObjectType.TypeDiscriminatorProperty({
+            configuration: this.configuration,
+            name: this.configuration.objectTypeDiscriminatorPropertyName,
+            override: objectType.parentObjectTypes.length > 0,
+            type: {
+              name: [
+                ...new Set(
+                  [objectType.name].concat(
+                    objectType.descendantObjectTypes.map(
+                      (objectType) => objectType.name,
                     ),
-                  ]
-                    .sort()
-                    .map((name) => `"${name}"`)
-                    .join("|"),
-                },
-                value: objectType.name,
-              }),
-            ),
+                  ),
+                ),
+              ]
+                .sort()
+                .map((name) => `"${name}"`)
+                .join("|"),
+            },
+            value: objectType.name,
+          }),
         );
 
         return properties;
@@ -108,8 +110,28 @@ export class TypeFactory {
 
   createTypeFromAstType(astType: ast.Type): Type {
     switch (astType.kind) {
-      case "And": {
-        return new AndType({
+      case "And":
+      case "Or": {
+        if (
+          astType.types.every((composedType) => composedType.kind === "Literal")
+        ) {
+          // Special case: all the composed types are Literals,
+          // like dash:StringOrLangString
+          return new LiteralType({
+            configuration: this.configuration,
+          });
+        }
+
+        if (astType.kind === "And") {
+          return new AndType({
+            configuration: this.configuration,
+            types: astType.types.map((astType) =>
+              this.createTypeFromAstType(astType),
+            ),
+          });
+        }
+
+        return new OrType({
           configuration: this.configuration,
           types: astType.types.map((astType) =>
             this.createTypeFromAstType(astType),
@@ -119,8 +141,9 @@ export class TypeFactory {
       case "Enum":
         throw new Error("not implemented");
       case "Identifier":
-        return IdentifierType.fromNodeKinds({
+        return new IdentifierType({
           configuration: this.configuration,
+          hasValue: astType.hasValue,
           nodeKinds: astType.nodeKinds,
         });
       case "Literal": {
@@ -135,13 +158,6 @@ export class TypeFactory {
       }
       case "Object":
         return this.createObjectTypeFromAstType(astType);
-      case "Or":
-        return new OrType({
-          configuration: this.configuration,
-          types: astType.types.map((astType) =>
-            this.createTypeFromAstType(astType),
-          ),
-        });
     }
   }
 
@@ -165,6 +181,7 @@ export class TypeFactory {
       // Non-inlined object type = its identifier
       type = new IdentifierType({
         configuration: this.configuration,
+        hasValue: Maybe.empty(),
         nodeKinds: astObjectTypeProperty.type.nodeKinds,
       });
     } else {
@@ -172,6 +189,7 @@ export class TypeFactory {
     }
 
     const property = new ObjectType.ShaclProperty({
+      configuration: this.configuration,
       maxCount: astObjectTypeProperty.maxCount,
       minCount: astObjectTypeProperty.minCount,
       name: astObjectTypeProperty.name.tsName,

@@ -1,20 +1,43 @@
+import type { BlankNode, NamedNode } from "@rdfjs/types";
+import { Maybe } from "purify-ts";
 import { NodeKind } from "shacl-ast";
+import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
 import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type";
 
 export class IdentifierType extends RdfjsTermType {
   readonly kind = "Identifier";
+  private readonly hasValue: Maybe<BlankNode | NamedNode>;
   private readonly nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
 
   constructor({
+    hasValue,
     nodeKinds,
     ...superParameters
   }: {
+    hasValue: Maybe<BlankNode | NamedNode>;
     nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
   } & Type.ConstructorParameters) {
     super(superParameters);
+    this.hasValue = hasValue;
     this.nodeKinds = new Set([...nodeKinds]);
+    invariant(this.nodeKinds.size > 0);
+  }
+
+  override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
+    return Maybe.of({
+      name: "termType",
+      type: "string" as const,
+      values: [...this.nodeKinds].map((nodeKind) => {
+        switch (nodeKind) {
+          case NodeKind.BLANK_NODE:
+            return "BlankNode" satisfies BlankNode["termType"];
+          case NodeKind.IRI:
+            return "NamedNode" satisfies NamedNode["termType"];
+        }
+      }),
+    });
   }
 
   get isNamedNodeKind(): boolean {
@@ -33,25 +56,27 @@ export class IdentifierType extends RdfjsTermType {
     return names.join(" | ");
   }
 
-  static fromNodeKinds({
-    nodeKinds,
-    ...parameters
-  }: {
-    nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
-  } & Type.ConstructorParameters): IdentifierType {
-    return new IdentifierType({ nodeKinds, ...parameters });
-  }
-
-  valueFromRdf({ resourceValueVariable }: Type.ValueFromRdfParameters): string {
+  valueFromRdfExpression({
+    predicate,
+    resourceVariable,
+    resourceValueVariable,
+  }: Type.ValueFromRdfParameters): string {
+    let expression: string;
     switch (this.name) {
       case "rdfjs.BlankNode":
         throw new Error("not implemented");
       case "rdfjs.NamedNode":
-        return `${resourceValueVariable}.toIri()`;
+        expression = `${resourceValueVariable}.toIri()`;
+        break;
       case "rdfjs.BlankNode | rdfjs.NamedNode":
-        return `${resourceValueVariable}.toIdentifier()`;
+        expression = `${resourceValueVariable}.toIdentifier()`;
+        break;
       default:
         throw new Error(`not implemented: ${this.name}`);
     }
+    this.hasValue.ifJust((hasValue) => {
+      expression = `${expression}.chain<rdfjsResource.Resource.ValueError, ${this.name}>(_identifier => _identifier.equals(${this.rdfJsTermExpression(hasValue)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${resourceVariable}, predicate: ${this.rdfJsTermExpression(predicate)} })))`;
+    });
+    return expression;
   }
 }

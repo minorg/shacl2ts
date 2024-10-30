@@ -1,3 +1,6 @@
+import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
+import { xsd } from "@tpluscode/rdf-ns-builders";
+import { Maybe } from "purify-ts";
 import type * as ast from "../../ast";
 import type { Configuration } from "./Configuration.js";
 
@@ -10,15 +13,50 @@ export abstract class Type {
     this.configuration = configuration;
   }
 
-  abstract equalsFunction(leftValue: string, rightValue: string): string;
+  get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
+    return Maybe.empty();
+  }
 
-  abstract sparqlGraphPatterns(
+  /**
+   * A function (reference or declaration) that conforms to purifyHelpers.Equatable.Equatable.
+   */
+  abstract equalsFunction(): string;
+
+  /**
+   * An optional sparqlBuilder.GraphPattern to chain to the basic pattern for a property.
+   */
+  abstract sparqlGraphPatternExpression(
     parameters: Type.SparqlGraphPatternParameters,
-  ): readonly string[];
+  ): Maybe<Type.SparqlGraphPatternExpression>;
 
-  abstract valueFromRdf(parameters: Type.ValueFromRdfParameters): string;
+  /**
+   * An expression that converts a rdfjsResource.Resource.Value to a value of this type.
+   */
+  abstract valueFromRdfExpression(
+    parameters: Type.ValueFromRdfParameters,
+  ): string;
 
-  abstract valueToRdf(parameters: Type.ValueToRdfParameters): string;
+  /**
+   * An expression that converts a value of this type to an rdfjs.TermType that can be added to
+   * an rdfjsResource.Resource.
+   */
+  abstract valueToRdfExpression(parameters: Type.ValueToRdfParameters): string;
+
+  protected rdfJsTermExpression(
+    rdfjsTerm: BlankNode | Literal | NamedNode,
+  ): string {
+    switch (rdfjsTerm.termType) {
+      case "BlankNode":
+        return `${this.configuration.dataFactoryVariable}.blankNode("${rdfjsTerm.value}")`;
+      case "Literal":
+        if (rdfjsTerm.datatype.equals(xsd.string)) {
+          return `${this.configuration.dataFactoryVariable}.literal("${rdfjsTerm.value}", "${rdfjsTerm.language}")`;
+        }
+        return `${this.configuration.dataFactoryVariable}.literal("${rdfjsTerm.value}", ${this.configuration.dataFactoryVariable}.namedNode("${rdfjsTerm.datatype.value}"))`;
+      case "NamedNode":
+        return `${this.configuration.dataFactoryVariable}.namedNode("${rdfjsTerm.value}")`;
+    }
+  }
 }
 
 export namespace Type {
@@ -26,14 +64,23 @@ export namespace Type {
     configuration: Configuration;
   }
 
+  export interface DiscriminatorProperty {
+    readonly name: string;
+    readonly values: readonly string[];
+  }
+
   export interface SparqlGraphPatternParameters {
-    dataFactoryVariable: string;
     subjectVariable: string;
   }
 
+  export type SparqlGraphPatternExpression =
+    | { type: "GraphPattern"; value: string }
+    | { type: "GraphPatterns"; value: string };
+
   export interface ValueFromRdfParameters {
-    dataFactoryVariable: string;
+    predicate: NamedNode;
     resourceValueVariable: string;
+    resourceVariable: string;
   }
 
   export interface ValueToRdfParameters {

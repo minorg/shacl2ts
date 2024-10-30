@@ -1,8 +1,8 @@
 import { type FunctionDeclarationStructure, StructureKind } from "ts-morph";
 import type { ObjectType } from "../ObjectType";
 
-const dataFactoryVariable = "dataFactory";
 const ignoreRdfTypeVariable = "ignoreRdfType";
+const optionsVariable = "_options";
 const resourceVariable = "resource";
 
 export function fromRdfFunctionDeclaration(
@@ -15,7 +15,7 @@ export function fromRdfFunctionDeclaration(
 
   this.rdfType.ifJust((rdfType) => {
     statements.push(
-      `if (!${ignoreRdfTypeVariable} && !${resourceVariable}.isInstanceOf(${dataFactoryVariable}.namedNode("${rdfType.value}"))) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${resourceVariable}, message: \`\${rdfjsResource.Resource.Identifier.toString(${resourceVariable}.identifier)} has unexpected RDF type\`, predicate: ${dataFactoryVariable}.namedNode("${rdfType.value}") })); }`,
+      `if (!${optionsVariable}?.${ignoreRdfTypeVariable} && !${resourceVariable}.isInstanceOf(${this.rdfJsTermExpression(rdfType)})) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${resourceVariable}, message: \`\${rdfjsResource.Resource.Identifier.toString(${resourceVariable}.identifier)} has unexpected RDF type\`, predicate: ${this.rdfJsTermExpression(rdfType)} })); }`,
     );
   });
 
@@ -24,12 +24,10 @@ export function fromRdfFunctionDeclaration(
   }
 
   for (const property of this.properties) {
-    property
-      .valueFromRdf({ dataFactoryVariable, resourceVariable })
-      .ifJust((statement) => {
-        propertyInitializers.push(property.name);
-        statements.push(statement);
-      });
+    property.valueFromRdfStatement({ resourceVariable }).ifJust((statement) => {
+      propertyInitializers.push(property.name);
+      statements.push(statement);
+    });
   }
 
   statements.push(
@@ -38,7 +36,7 @@ export function fromRdfFunctionDeclaration(
 
   if (this.parentObjectTypes.length > 0) {
     statements = [
-      `return ${this.parentObjectTypes[0].moduleQualifiedName}.fromRdf({ ${dataFactoryVariable}, ${ignoreRdfTypeVariable}: true, ${resourceVariable} }).chain(_super => { ${statements.join("\n")} })`,
+      `return ${this.parentObjectTypes[0].moduleQualifiedName}.fromRdf(${resourceVariable}, { ${ignoreRdfTypeVariable}: true }).chain(_super => { ${statements.join("\n")} })`,
     ];
   }
 
@@ -48,8 +46,13 @@ export function fromRdfFunctionDeclaration(
     name: "fromRdf",
     parameters: [
       {
-        name: `{ ${dataFactoryVariable}, ${ignoreRdfTypeVariable}, ${resourceVariable} }`,
-        type: `{ ${dataFactoryVariable}: rdfjs.DataFactory, ${ignoreRdfTypeVariable}?: boolean, ${resourceVariable}: ${this.rdfjsResourceType().name} }`,
+        name: resourceVariable,
+        type: this.rdfjsResourceType().name,
+      },
+      {
+        hasQuestionToken: true,
+        name: optionsVariable,
+        type: `{ ${ignoreRdfTypeVariable}?: boolean }`,
       },
     ],
     returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.interfaceQualifiedName}>`,

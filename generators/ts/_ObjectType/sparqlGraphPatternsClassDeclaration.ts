@@ -1,9 +1,8 @@
 import { type ClassDeclarationStructure, StructureKind } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
-import { shorthandProperty } from "../shorthandProperty.js";
 
-const dataFactoryVariable = "dataFactory";
 const ignoreRdfTypeVariable = "ignoreRdfType";
+const optionsVariable = "_options";
 const subjectVariable = "subject";
 
 export function sparqlGraphPatternsClassDeclaration(
@@ -15,7 +14,7 @@ export function sparqlGraphPatternsClassDeclaration(
 
   if (this.parentObjectTypes.length > 0) {
     constructorStatements.push(
-      `super({ ${shorthandProperty("dataFactory", dataFactoryVariable)}, ignoreRdfType: true, ${shorthandProperty("subject", subjectVariable)} });`,
+      `super(${subjectVariable}, { ignoreRdfType: true });`,
     );
   } else {
     constructorStatements.push(`super(${subjectVariable});`);
@@ -23,13 +22,13 @@ export function sparqlGraphPatternsClassDeclaration(
 
   this.rdfType.ifJust((rdfType) =>
     constructorStatements.push(
-      `if (!${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${dataFactoryVariable}.namedNode("${rdfType.value}"))); }`,
+      `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${this.rdfJsTermExpression(rdfType)})); }`,
     ),
   );
 
   for (const property of this.properties) {
     property
-      .sparqlGraphPattern({ dataFactoryVariable })
+      .sparqlGraphPatternExpression()
       .ifJust((sparqlGraphPattern) =>
         constructorStatements.push(`this.add(${sparqlGraphPattern})`),
       );
@@ -40,8 +39,13 @@ export function sparqlGraphPatternsClassDeclaration(
       {
         parameters: [
           {
-            name: `{ ${dataFactoryVariable}, ${ignoreRdfTypeVariable}, ${subjectVariable} }`,
-            type: `{ ${dataFactoryVariable}: rdfjs.DataFactory, ${ignoreRdfTypeVariable}?: boolean, ${subjectVariable}: sparqlBuilder.ResourceGraphPatterns.SubjectParameter }`,
+            name: subjectVariable,
+            type: "sparqlBuilder.ResourceGraphPatterns.SubjectParameter",
+          },
+          {
+            hasQuestionToken: true,
+            name: optionsVariable,
+            type: `{ ${ignoreRdfTypeVariable}?: boolean }`,
           },
         ],
         statements: constructorStatements,

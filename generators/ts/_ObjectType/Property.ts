@@ -4,6 +4,7 @@ import type {
   PropertyDeclarationStructure,
   PropertySignatureStructure,
 } from "ts-morph";
+import type { Configuration } from "../Configuration.js";
 import type { Type } from "../Type.js";
 
 export abstract class Property {
@@ -14,12 +15,13 @@ export abstract class Property {
   abstract readonly equalsFunction: string;
   abstract readonly interfacePropertySignature: OptionalKind<PropertySignatureStructure>;
   readonly name: string;
+  protected readonly configuration: Configuration;
 
   protected constructor({
+    configuration,
     name,
-  }: {
-    name: string;
-  }) {
+  }: Property.ConstructorParameters) {
+    this.configuration = configuration;
     this.name = name;
   }
 
@@ -27,28 +29,28 @@ export abstract class Property {
     parameters: Property.ClassConstructorInitializerParameters,
   ): Maybe<string>;
 
-  abstract sparqlGraphPattern(
-    parameters: Property.SparqlGraphPatternParameters,
-  ): Maybe<string>;
+  abstract sparqlGraphPatternExpression(): Maybe<string>;
 
-  abstract valueFromRdf(
+  abstract valueFromRdfStatement(
     parameters: Property.ValueFromRdfParameters,
   ): Maybe<string>;
 
-  abstract valueToRdf(parameters: Property.ValueToRdfParameters): Maybe<string>;
+  abstract valueToRdfStatement(
+    parameters: Property.ValueToRdfParameters,
+  ): Maybe<string>;
 }
 
 export namespace Property {
+  export interface ConstructorParameters {
+    configuration: Configuration;
+    name: string;
+  }
+
   export interface ClassConstructorInitializerParameters {
     parameter: string;
   }
 
-  export interface SparqlGraphPatternParameters {
-    dataFactoryVariable: string;
-  }
-
   export interface ValueFromRdfParameters {
-    dataFactoryVariable: string;
     resourceVariable: string;
   }
 

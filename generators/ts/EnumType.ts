@@ -1,3 +1,4 @@
+import type { Maybe } from "purify-ts";
 import { Type } from "./Type.js";
 
 export class EnumType extends Type {
@@ -7,19 +8,21 @@ export class EnumType extends Type {
     throw new Error("not implemented");
   }
 
-  equalsFunction(_leftValue: string, _rightValue: string): string {
+  equalsFunction(): string {
     throw new Error("not implemented.");
   }
 
-  sparqlGraphPatterns(_: Type.SparqlGraphPatternParameters): readonly string[] {
+  sparqlGraphPatternExpression(
+    _: Type.SparqlGraphPatternParameters,
+  ): Maybe<Type.SparqlGraphPatternExpression> {
     throw new Error("not implemented");
   }
 
-  valueFromRdf(_: Type.ValueFromRdfParameters): string {
+  valueFromRdfExpression(_: Type.ValueFromRdfParameters): string {
     throw new Error("not implemented");
   }
 
-  valueToRdf(_: Type.ValueToRdfParameters): string {
+  valueToRdfExpression(_: Type.ValueToRdfParameters): string {
     throw new Error("not implemented");
   }
 }
