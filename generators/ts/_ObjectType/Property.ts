@@ -29,13 +29,15 @@ export abstract class Property {
     parameters: Property.ClassConstructorInitializerParameters,
   ): Maybe<string>;
 
-  abstract sparqlGraphPattern(): Maybe<string>;
+  abstract sparqlGraphPatternExpression(): Maybe<string>;
 
-  abstract valueFromRdf(
+  abstract valueFromRdfStatement(
     parameters: Property.ValueFromRdfParameters,
   ): Maybe<string>;
 
-  abstract valueToRdf(parameters: Property.ValueToRdfParameters): Maybe<string>;
+  abstract valueToRdfStatement(
+    parameters: Property.ValueToRdfParameters,
+  ): Maybe<string>;
 }
 
 export namespace Property {

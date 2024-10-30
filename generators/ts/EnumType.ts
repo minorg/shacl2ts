@@ -1,3 +1,4 @@
+import type { Maybe } from "purify-ts";
 import { Type } from "./Type.js";
 
 export class EnumType extends Type {
@@ -11,9 +12,9 @@ export class EnumType extends Type {
     throw new Error("not implemented.");
   }
 
-  sparqlGraphPatternExpressions(
+  sparqlGraphPatternExpression(
     _: Type.SparqlGraphPatternParameters,
-  ): readonly string[] {
+  ): Maybe<string> {
     throw new Error("not implemented");
   }
 

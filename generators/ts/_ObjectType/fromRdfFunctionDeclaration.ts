@@ -24,7 +24,7 @@ export function fromRdfFunctionDeclaration(
   }
 
   for (const property of this.properties) {
-    property.valueFromRdf({ resourceVariable }).ifJust((statement) => {
+    property.valueFromRdfStatement({ resourceVariable }).ifJust((statement) => {
       propertyInitializers.push(property.name);
       statements.push(statement);
     });

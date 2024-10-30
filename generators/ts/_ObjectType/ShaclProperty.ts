@@ -147,21 +147,22 @@ export class ShaclProperty extends Property {
     return Maybe.of(parameter);
   }
 
-  sparqlGraphPattern(): Maybe<string> {
+  sparqlGraphPatternExpression(): Maybe<string> {
     let sparqlGraphPattern = `sparqlBuilder.GraphPattern.basic(this.subject, ${this.pathExpression}, this.variable("${pascalCase(this.name)}"))`;
-    const typeSparqlGraphPatterns = this.type.sparqlGraphPatternExpressions({
-      subjectVariable: this.name,
-    });
-    if (typeSparqlGraphPatterns.length > 0) {
-      sparqlGraphPattern = `sparqlBuilder.GraphPattern.group(${sparqlGraphPattern}.chainObject(${this.name} => [${typeSparqlGraphPatterns.join(", ")}]))`;
-    }
+    this.type
+      .sparqlGraphPatternExpression({
+        subjectVariable: this.name,
+      })
+      .ifJust((typeSparqlGraphPattern) => {
+        sparqlGraphPattern = `sparqlBuilder.GraphPattern.group(${sparqlGraphPattern}.chainObject(${this.name} => [${typeSparqlGraphPattern}]))`;
+      });
     if (this.containerType === "Maybe") {
       sparqlGraphPattern = `sparqlBuilder.GraphPattern.optional(${sparqlGraphPattern})`;
     }
     return Maybe.of(sparqlGraphPattern);
   }
 
-  valueFromRdf({
+  valueFromRdfStatement({
     resourceVariable,
   }: Property.ValueFromRdfParameters): Maybe<string> {
     const resourceValueVariable = "value";
@@ -182,7 +183,7 @@ export class ShaclProperty extends Property {
     }
   }
 
-  valueToRdf({
+  valueToRdfStatement({
     mutateGraphVariable,
     propertyValueVariable,
     resourceSetVariable,

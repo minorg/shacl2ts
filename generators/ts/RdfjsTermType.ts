@@ -1,3 +1,4 @@
+import { Maybe } from "purify-ts";
 import { Type } from "./Type.js";
 
 /**
@@ -10,11 +11,11 @@ export abstract class RdfjsTermType extends Type {
     return "purifyHelpers.Equatable.booleanEquals";
   }
 
-  sparqlGraphPatternExpressions(
+  sparqlGraphPatternExpression(
     _parameters: Type.SparqlGraphPatternParameters,
-  ): readonly string[] {
+  ): Maybe<string> {
     // Don't add any additional graph patterns for terms
-    return [];
+    return Maybe.empty();
   }
 
   valueToRdfExpression({

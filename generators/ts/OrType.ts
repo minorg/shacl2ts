@@ -1,4 +1,5 @@
 import { Maybe } from "purify-ts";
+import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
 import { ComposedType } from "./ComposedType.js";
 import type { Type } from "./Type.js";
@@ -92,12 +93,28 @@ ${this.types
 }`;
   }
 
-  sparqlGraphPatternExpressions({
+  sparqlGraphPatternExpression({
     subjectVariable,
-  }: Type.SparqlGraphPatternParameters): readonly string[] {
-    return [
-      `sparqlBuilder.GraphPattern.union(${this.types.map((type) => `sparqlBuilder.GraphPattern.group(${type.sparqlGraphPatternExpressions({ subjectVariable }).join(", ")})`)})`,
-    ];
+  }: Type.SparqlGraphPatternParameters): Maybe<string> {
+    const typeSparqlGraphPatternExpressions = this.types.flatMap((type) =>
+      type.sparqlGraphPatternExpression({ subjectVariable }).toList(),
+    );
+    switch (typeSparqlGraphPatternExpressions.length) {
+      case 0:
+        return Maybe.empty();
+      case 1:
+        return Maybe.of(
+          `sparqlBuilder.GraphPattern.optional(${typeSparqlGraphPatternExpressions[0]})`,
+        );
+      default:
+        invariant(
+          typeSparqlGraphPatternExpressions.length === this.types.length,
+          "all types must be represented in the SPARQL UNION",
+        );
+        return Maybe.of(
+          `sparqlBuilder.GraphPattern.union(${typeSparqlGraphPatternExpressions.join(", ")})`,
+        );
+    }
   }
 
   valueFromRdfExpression(parameters: Type.ValueFromRdfParameters): string {

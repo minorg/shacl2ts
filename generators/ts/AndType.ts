@@ -1,3 +1,4 @@
+import type { Maybe } from "purify-ts";
 import { ComposedType } from "./ComposedType.js";
 import type { Type } from "./Type.js";
 
@@ -12,9 +13,9 @@ export class AndType extends ComposedType {
     throw new Error("Method not implemented.");
   }
 
-  override sparqlGraphPatternExpressions(
+  override sparqlGraphPatternExpression(
     _parameters: Type.SparqlGraphPatternParameters,
-  ): readonly string[] {
+  ): Maybe<string> {
     throw new Error("Method not implemented.");
   }
 

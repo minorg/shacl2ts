@@ -23,11 +23,11 @@ export abstract class Type {
   abstract equalsFunction(): string;
 
   /**
-   * Zero or more sparqlBuilder.GraphPattern constructions.
+   * An optional sparqlBuilder.GraphPattern to chain to the basic pattern for a property.
    */
-  abstract sparqlGraphPatternExpressions(
+  abstract sparqlGraphPatternExpression(
     parameters: Type.SparqlGraphPatternParameters,
-  ): readonly string[];
+  ): Maybe<string>;
 
   /**
    * An expression that converts a rdfjsResource.Resource.Value to a value of this type.

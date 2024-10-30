@@ -60,15 +60,19 @@ export class TypeDiscriminatorProperty extends Property {
     return Maybe.empty();
   }
 
-  sparqlGraphPattern(): Maybe<string> {
+  sparqlGraphPatternExpression(): Maybe<string> {
     return Maybe.empty();
   }
 
-  valueFromRdf(_parameters: Property.ValueFromRdfParameters): Maybe<string> {
+  valueFromRdfStatement(
+    _parameters: Property.ValueFromRdfParameters,
+  ): Maybe<string> {
     return Maybe.of(`const ${this.name} = "${this.value}" as const`);
   }
 
-  valueToRdf(_parameters: Property.ValueToRdfParameters): Maybe<string> {
+  valueToRdfStatement(
+    _parameters: Property.ValueToRdfParameters,
+  ): Maybe<string> {
     return Maybe.empty();
   }
 }

@@ -121,12 +121,12 @@ export class ObjectType extends Type {
     };
   }
 
-  sparqlGraphPatternExpressions({
+  sparqlGraphPatternExpression({
     subjectVariable,
-  }: Type.SparqlGraphPatternParameters): readonly string[] {
-    return [
-      `...new ${this.moduleQualifiedName}.SparqlGraphPatterns(${subjectVariable})`,
-    ];
+  }: Type.SparqlGraphPatternParameters): Maybe<string> {
+    return Maybe.of(
+      `sparqlBuilder.GraphPattern.group(new ${this.moduleQualifiedName}.SparqlGraphPatterns(${subjectVariable}))`,
+    );
   }
 
   valueFromRdfExpression({

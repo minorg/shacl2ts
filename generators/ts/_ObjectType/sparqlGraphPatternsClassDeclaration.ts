@@ -28,7 +28,7 @@ export function sparqlGraphPatternsClassDeclaration(
 
   for (const property of this.properties) {
     property
-      .sparqlGraphPattern()
+      .sparqlGraphPatternExpression()
       .ifJust((sparqlGraphPattern) =>
         constructorStatements.push(`this.add(${sparqlGraphPattern})`),
       );
