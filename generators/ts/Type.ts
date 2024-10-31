@@ -25,7 +25,9 @@ export abstract class Type {
   /**
    * An expression that converts a rdfjsResource.Resource.Value to a value of this type.
    */
-  abstract fromRdfExpression(parameters: Type.FromRdfExpressionParameters): string;
+  abstract fromRdfExpression(
+    parameters: Type.FromRdfExpressionParameters,
+  ): string;
 
   /**
    * An optional sparqlBuilder.GraphPattern to chain to the basic pattern for a property.

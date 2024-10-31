@@ -13,7 +13,9 @@ export class AndType extends ComposedType {
     throw new Error("Method not implemented.");
   }
 
-  override fromRdfExpression(_parameters: Type.FromRdfExpressionParameters): string {
+  override fromRdfExpression(
+    _parameters: Type.FromRdfExpressionParameters,
+  ): string {
     throw new Error("Method not implemented.");
   }
 
@@ -23,7 +25,9 @@ export class AndType extends ComposedType {
     throw new Error("Method not implemented.");
   }
 
-  override toRdfExpression(_parameters: Type.ToRdfExpressionParameters): string {
+  override toRdfExpression(
+    _parameters: Type.ToRdfExpressionParameters,
+  ): string {
     throw new Error("Method not implemented.");
   }
 }

@@ -18,7 +18,9 @@ export abstract class RdfjsTermType extends Type {
     return Maybe.empty();
   }
 
-  toRdfExpression({ propertyValueVariable }: Type.ToRdfExpressionParameters): string {
+  toRdfExpression({
+    propertyValueVariable,
+  }: Type.ToRdfExpressionParameters): string {
     return propertyValueVariable;
   }
 }

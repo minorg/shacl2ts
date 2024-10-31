@@ -105,7 +105,9 @@ export class ObjectType extends Type {
     return `${this.moduleQualifiedName}.equals`;
   }
 
-  fromRdfExpression({ resourceValueVariable }: Type.FromRdfExpressionParameters): string {
+  fromRdfExpression({
+    resourceValueVariable,
+  }: Type.FromRdfExpressionParameters): string {
     return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf(resource))`;
   }
 
