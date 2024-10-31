@@ -130,7 +130,10 @@ export namespace MachineLearningModel {
       .chain((value) => value.toLiteral())
       .toMaybe();
     const identifier = resource.identifier;
-    const _isVariantOfEither = resource
+    const _isVariantOfEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      MachineLearningModelFamily
+    > = resource
       .value(dataFactory.namedNode("https://schema.org/isVariantOf"))
       .chain((value) =>
         value
@@ -141,14 +144,20 @@ export namespace MachineLearningModel {
       return _isVariantOfEither;
     }
     const isVariantOf = _isVariantOfEither.unsafeCoerce();
-    const _localIdentifierEither = resource
+    const _localIdentifierEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = resource
       .value(dataFactory.namedNode("https://schema.org/identifier"))
       .chain((value) => value.toString());
     if (_localIdentifierEither.isLeft()) {
       return _localIdentifierEither;
     }
     const localIdentifier = _localIdentifierEither.unsafeCoerce();
-    const _nameEither = resource
+    const _nameEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      rdfjs.Literal
+    > = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
       .chain((value) => value.toLiteral());
     if (_nameEither.isLeft()) {
@@ -212,9 +221,10 @@ export namespace MachineLearningModel {
             this.subject,
             dataFactory.namedNode("https://schema.org/isVariantOf"),
             this.variable("IsVariantOf"),
-          ).chainObject((isVariantOf) => [
-            ...new MachineLearningModelFamily.SparqlGraphPatterns(isVariantOf),
-          ]),
+          ).chainObject(
+            (isVariantOf) =>
+              new MachineLearningModelFamily.SparqlGraphPatterns(isVariantOf),
+          ),
         ),
       );
       this.add(
@@ -410,7 +420,10 @@ export namespace LanguageModel {
           }),
         );
       }
-      const _contextWindowEither = resource
+      const _contextWindowEither: purify.Either<
+        rdfjsResource.Resource.ValueError,
+        number
+      > = resource
         .value(
           dataFactory.namedNode(
             "http://purl.annotize.ai/ontology/mlm#contextWindow",
@@ -642,7 +655,10 @@ export namespace MachineLearningModelFamily {
       .chain((value) => value.toLiteral())
       .toMaybe();
     const identifier = resource.identifier;
-    const _manufacturerEither = resource
+    const _manufacturerEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      Organization
+    > = resource
       .value(dataFactory.namedNode("https://schema.org/manufacturer"))
       .chain((value) =>
         value
@@ -653,7 +669,10 @@ export namespace MachineLearningModelFamily {
       return _manufacturerEither;
     }
     const manufacturer = _manufacturerEither.unsafeCoerce();
-    const _nameEither = resource
+    const _nameEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      rdfjs.Literal
+    > = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
       .chain((value) => value.toLiteral());
     if (_nameEither.isLeft()) {
@@ -707,9 +726,10 @@ export namespace MachineLearningModelFamily {
             this.subject,
             dataFactory.namedNode("https://schema.org/manufacturer"),
             this.variable("Manufacturer"),
-          ).chainObject((manufacturer) => [
-            ...new Organization.SparqlGraphPatterns(manufacturer),
-          ]),
+          ).chainObject(
+            (manufacturer) =>
+              new Organization.SparqlGraphPatterns(manufacturer),
+          ),
         ),
       );
       this.add(
@@ -861,7 +881,10 @@ export namespace Organization {
     }
 
     const identifier = resource.identifier;
-    const _nameEither = resource
+    const _nameEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      rdfjs.Literal
+    > = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
       .chain((value) => value.toLiteral());
     if (_nameEither.isLeft()) {
