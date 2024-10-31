@@ -30,13 +30,13 @@ export class TypeDiscriminatorProperty extends Property {
     this.value = value;
   }
 
-  get classConstructorParametersPropertySignature(): Maybe<
+  override get classConstructorParametersPropertySignature(): Maybe<
     OptionalKind<PropertySignatureStructure>
   > {
     return Maybe.empty();
   }
 
-  get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
+  override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
     return {
       hasOverrideKeyword: this.override,
       initializer: `"${this.value}"`,
@@ -46,7 +46,7 @@ export class TypeDiscriminatorProperty extends Property {
     };
   }
 
-  get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {
+  override get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {
     return {
       isReadonly: true,
       name: this.name,
@@ -54,19 +54,23 @@ export class TypeDiscriminatorProperty extends Property {
     };
   }
 
-  classConstructorInitializer(): Maybe<string> {
+  override classConstructorInitializer(): Maybe<string> {
     return Maybe.empty();
   }
 
-  fromRdfStatement(): Maybe<string> {
-    return Maybe.of(`const ${this.name} = "${this.value}" as const`);
+  override fromRdfStatements(): readonly string[] {
+    return [`const ${this.name} = "${this.value}" as const`];
   }
 
-  sparqlGraphPatternExpression(): Maybe<string> {
+  override hashStatements(): readonly string[] {
+    return [];
+  }
+
+  override sparqlGraphPatternExpression(): Maybe<string> {
     return Maybe.empty();
   }
 
-  toRdfStatement(): Maybe<string> {
-    return Maybe.empty();
+  override toRdfStatements(): readonly string[] {
+    return [];
   }
 }

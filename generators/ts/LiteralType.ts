@@ -14,13 +14,20 @@ export class LiteralType extends RdfjsTermType {
     });
   }
 
-  get name(): string {
+  override get name(): string {
     return "rdfjs.Literal";
   }
 
-  fromRdfExpression({
+  override fromRdfExpression({
     resourceValueVariable,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
     return `${resourceValueVariable}.toLiteral()`;
+  }
+
+  override hashStatements({
+    hasherVariable,
+    propertyValueVariable,
+  }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
+    return [`${hasherVariable}.update(${propertyValueVariable}.value);`];
   }
 }

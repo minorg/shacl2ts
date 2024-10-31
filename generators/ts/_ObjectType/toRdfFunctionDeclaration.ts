@@ -37,13 +37,13 @@ export function toRdfFunctionDeclaration(
   });
 
   for (const property of this.properties) {
-    property
-      .toRdfStatement({
+    statements.push(
+      ...property.toRdfStatements({
         mutateGraphVariable,
         propertyValueVariable: `${thisVariable}.${property.name}`,
         resourceSetVariable,
-      })
-      .ifJust((statement) => statements.push(statement));
+      }),
+    );
   }
 
   statements.push(`return ${resourceVariable};`);

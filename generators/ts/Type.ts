@@ -35,6 +35,11 @@ export abstract class Type {
     resourceVariable: string;
   }): string;
 
+  abstract hashStatements(parameters: {
+    hasherVariable: string;
+    propertyValueVariable: string;
+  }): readonly string[];
+
   /**
    * An optional sparqlBuilder.GraphPattern to chain to the basic pattern for a property.
    */

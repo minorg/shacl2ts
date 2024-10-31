@@ -5,7 +5,7 @@ import type { Type } from "./Type.js";
 export class AndType extends ComposedType {
   readonly kind = "And";
 
-  get name(): string {
+  override get name(): string {
     return `(${this.types.map((type) => type.name).join(" & ")})`;
   }
 
@@ -14,6 +14,10 @@ export class AndType extends ComposedType {
   }
 
   override fromRdfExpression(): string {
+    throw new Error("Method not implemented.");
+  }
+
+  override hashStatements(): readonly string[] {
     throw new Error("Method not implemented.");
   }
 

@@ -2,6 +2,7 @@ import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
 import { ComposedType } from "./ComposedType.js";
+import type { RdfjsTermType } from "./RdfjsTermType";
 import type { Type } from "./Type.js";
 
 const syntheticTypeDiscriminatorPropertyName = "type";
@@ -27,7 +28,7 @@ export class OrType extends ComposedType {
   }
 
   @Memoize()
-  get name(): string {
+  override get name(): string {
     if (this.typesSharedDiscriminatorProperty.isJust()) {
       // If every type shares a discriminator (e.g., RDF/JS "termType" or generated ObjectType "type"),
       // just join their names with "|"
@@ -69,7 +70,7 @@ export class OrType extends ComposedType {
     return Maybe.fromNullable(typesSharedDiscriminatorProperty);
   }
 
-  equalsFunction(): string {
+  override equalsFunction(): string {
     return `
 (left: ${this.name}, right: ${this.name}) => {
 ${this.types
@@ -98,7 +99,7 @@ ${this.types
 }`;
   }
 
-  fromRdfExpression(
+  override fromRdfExpression(
     parameters: Parameters<Type["fromRdfExpression"]>[0],
   ): string {
     let expression = "";
@@ -115,7 +116,14 @@ ${this.types
     return expression;
   }
 
-  sparqlGraphPatternExpression({
+  override hashStatements({
+    hasherVariable,
+    propertyValueVariable,
+  }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
+    return [`${hasherVariable}.update(${propertyValueVariable}.value);`];
+  }
+
+  override sparqlGraphPatternExpression({
     subjectVariable,
   }: Parameters<
     Type["sparqlGraphPatternExpression"]
@@ -163,7 +171,7 @@ ${this.types
     }
   }
 
-  toRdfExpression({
+  override toRdfExpression({
     propertyValueVariable,
     ...otherParameters
   }: Parameters<Type["toRdfExpression"]>[0]): string {

@@ -2,6 +2,7 @@ import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import type { IdentifierType } from "./IdentifierType.js";
+import type { RdfjsTermType } from "./RdfjsTermType";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType";
 
@@ -78,7 +79,7 @@ export class ObjectType extends Type {
     });
   }
 
-  get name(): string {
+  override get name(): string {
     return this.interfaceQualifiedName;
   }
 
@@ -101,14 +102,21 @@ export class ObjectType extends Type {
     return properties;
   }
 
-  equalsFunction(): string {
+  override equalsFunction(): string {
     return `${this.moduleQualifiedName}.equals`;
   }
 
-  fromRdfExpression({
+  override fromRdfExpression({
     resourceValueVariable,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
     return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf(resource))`;
+  }
+
+  override hashStatements({
+    hasherVariable,
+    propertyValueVariable,
+  }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
+    return [`${propertyValueVariable}.hash(${hasherVariable});`];
   }
 
   rdfjsResourceType(options?: { mutable?: boolean }): {
@@ -127,7 +135,7 @@ export class ObjectType extends Type {
     };
   }
 
-  sparqlGraphPatternExpression({
+  override sparqlGraphPatternExpression({
     subjectVariable,
   }: Parameters<
     Type["sparqlGraphPatternExpression"]
@@ -138,7 +146,7 @@ export class ObjectType extends Type {
     });
   }
 
-  toRdfExpression({
+  override toRdfExpression({
     mutateGraphVariable,
     resourceSetVariable,
     propertyValueVariable,

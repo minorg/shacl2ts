@@ -61,6 +61,14 @@ export namespace MachineLearningModel {
       );
     }
 
+    hash<
+      HasherT extends {
+        update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+      },
+    >(hasher: HasherT): HasherT {
+      return MachineLearningModel.hash(this, hasher);
+    }
+
     toRdf(kwds: {
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
@@ -187,6 +195,19 @@ export namespace MachineLearningModel {
       type,
       url,
     });
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    machineLearningModel: Omit<MachineLearningModel, "identifier"> & {
+      identifier?: rdfjs.NamedNode;
+    },
+    hasher: HasherT,
+  ): HasherT {
+    return hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -366,6 +387,14 @@ export namespace LanguageModel {
       );
     }
 
+    override hash<
+      HasherT extends {
+        update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+      },
+    >(hasher: HasherT): HasherT {
+      return LanguageModel.hash(this, hasher);
+    }
+
     override toRdf(kwds: {
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
@@ -450,6 +479,20 @@ export namespace LanguageModel {
         type,
       });
     });
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    languageModel: Omit<LanguageModel, "identifier"> & {
+      identifier?: rdfjs.NamedNode;
+    },
+    hasher: HasherT,
+  ): HasherT {
+    MachineLearningModel.hash(languageModel, hasher);
+    return hasher;
   }
 
   export class SparqlGraphPatterns extends MachineLearningModel.SparqlGraphPatterns {
@@ -587,6 +630,14 @@ export namespace MachineLearningModelFamily {
       );
     }
 
+    hash<
+      HasherT extends {
+        update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+      },
+    >(hasher: HasherT): HasherT {
+      return MachineLearningModelFamily.hash(this, hasher);
+    }
+
     toRdf(kwds: {
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
@@ -692,6 +743,20 @@ export namespace MachineLearningModelFamily {
       type,
       url,
     });
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    machineLearningModelFamily: Omit<
+      MachineLearningModelFamily,
+      "identifier"
+    > & { identifier?: rdfjs.NamedNode },
+    hasher: HasherT,
+  ): HasherT {
+    return hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -831,6 +896,14 @@ export namespace Organization {
       );
     }
 
+    hash<
+      HasherT extends {
+        update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+      },
+    >(hasher: HasherT): HasherT {
+      return Organization.hash(this, hasher);
+    }
+
     toRdf(kwds: {
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
@@ -893,6 +966,19 @@ export namespace Organization {
     const name = _nameEither.unsafeCoerce();
     const type = "Organization" as const;
     return purify.Either.of({ identifier, name, type });
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    organization: Omit<Organization, "identifier"> & {
+      identifier?: rdfjs.NamedNode;
+    },
+    hasher: HasherT,
+  ): HasherT {
+    return hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {

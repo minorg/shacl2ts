@@ -4,23 +4,27 @@ import { Type } from "./Type.js";
 export class EnumType extends Type {
   readonly kind = "Enum";
 
-  get name(): string {
+  override get name(): string {
     throw new Error("not implemented");
   }
 
-  equalsFunction(): string {
+  override equalsFunction(): string {
     throw new Error("not implemented.");
   }
 
-  fromRdfExpression(): string {
+  override fromRdfExpression(): string {
     throw new Error("not implemented");
   }
 
-  sparqlGraphPatternExpression(): Maybe<Type.SparqlGraphPatternExpression> {
+  override hashStatements(): readonly string[] {
+    throw new Error("Method not implemented.");
+  }
+
+  override sparqlGraphPatternExpression(): Maybe<Type.SparqlGraphPatternExpression> {
     throw new Error("not implemented");
   }
 
-  toRdfExpression(): string {
+  override toRdfExpression(): string {
     throw new Error("not implemented");
   }
 }

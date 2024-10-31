@@ -53,17 +53,26 @@ export class IdentifierProperty extends Property {
     return Maybe.of(parameter);
   }
 
-  fromRdfStatement({
+  fromRdfStatements({
     resourceVariable,
-  }: Parameters<Property["fromRdfStatement"]>[0]): Maybe<string> {
-    return Maybe.of(`const ${this.name} = ${resourceVariable}.identifier`);
+  }: Parameters<Property["fromRdfStatements"]>[0]): readonly string[] {
+    return [`const ${this.name} = ${resourceVariable}.identifier`];
+  }
+
+  override hashStatements({
+    hasherVariable,
+  }: Parameters<Property["hashStatements"]>[0]): readonly string[] {
+    return this.type.hashStatements({
+      hasherVariable,
+      propertyValueVariable: this.name,
+    });
   }
 
   sparqlGraphPatternExpression(): Maybe<string> {
     return Maybe.empty();
   }
 
-  toRdfStatement(): Maybe<string> {
-    return Maybe.empty();
+  toRdfStatements(): readonly string[] {
+    return [];
   }
 }

@@ -11,4 +11,11 @@ export class StringType extends PrimitiveType {
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
     return `${resourceValueVariable}.toString()`;
   }
+
+  override hashStatements({
+    hasherVariable,
+    propertyValueVariable,
+  }: Parameters<PrimitiveType["hashStatements"]>[0]): readonly string[] {
+    return [`${hasherVariable}.update(${propertyValueVariable});`];
+  }
 }

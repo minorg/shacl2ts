@@ -45,7 +45,7 @@ export class IdentifierType extends RdfjsTermType {
   }
 
   @Memoize()
-  get name(): string {
+  override get name(): string {
     const names: string[] = [];
     if (this.nodeKinds.has(NodeKind.BLANK_NODE)) {
       names.push("rdfjs.BlankNode");
@@ -56,7 +56,7 @@ export class IdentifierType extends RdfjsTermType {
     return names.join(" | ");
   }
 
-  fromRdfExpression({
+  override fromRdfExpression({
     predicate,
     resourceVariable,
     resourceValueVariable,
@@ -78,5 +78,14 @@ export class IdentifierType extends RdfjsTermType {
       expression = `${expression}.chain<rdfjsResource.Resource.ValueError, ${this.name}>(_identifier => _identifier.equals(${this.rdfJsTermExpression(hasValue)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${resourceVariable}, predicate: ${this.rdfJsTermExpression(predicate)} })))`;
     });
     return expression;
+  }
+
+  override hashStatements({
+    hasherVariable,
+    propertyValueVariable,
+  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
+    return [
+      `${hasherVariable}.update(rdfjsResource.Identifier.toString(${propertyValueVariable}));`,
+    ];
   }
 }

@@ -32,15 +32,17 @@ export abstract class Property {
     parameter: string;
   }): Maybe<string>;
 
-  abstract fromRdfStatement(parameters: {
+  abstract fromRdfStatements(parameters: {
     resourceVariable: string;
-  }): Maybe<string>;
+  }): readonly string[];
 
-  abstract hashStatement(parameters: { hasherVariable: string }): string;
+  abstract hashStatements(parameters: {
+    hasherVariable: string;
+  }): readonly string[];
 
   abstract sparqlGraphPatternExpression(): Maybe<string>;
 
-  abstract toRdfStatement(
+  abstract toRdfStatements(
     parameters: Parameters<Type["toRdfExpression"]>[0],
-  ): Maybe<string>;
+  ): readonly string[];
 }

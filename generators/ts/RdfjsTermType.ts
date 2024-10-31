@@ -7,16 +7,16 @@ import { Type } from "./Type.js";
 export abstract class RdfjsTermType extends Type {
   abstract override readonly kind: "Identifier" | "Literal";
 
-  equalsFunction(): string {
+  override equalsFunction(): string {
     return "purifyHelpers.Equatable.booleanEquals";
   }
 
-  sparqlGraphPatternExpression(): Maybe<Type.SparqlGraphPatternExpression> {
+  override sparqlGraphPatternExpression(): Maybe<Type.SparqlGraphPatternExpression> {
     // Don't add any additional graph patterns for terms
     return Maybe.empty();
   }
 
-  toRdfExpression({
+  override toRdfExpression({
     propertyValueVariable,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
     return propertyValueVariable;
