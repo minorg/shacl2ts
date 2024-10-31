@@ -98,7 +98,9 @@ ${this.types
 }`;
   }
 
-  fromRdfExpression(parameters: Type.FromRdfExpressionParameters): string {
+  fromRdfExpression(
+    parameters: Parameters<Type["fromRdfExpression"]>[0],
+  ): string {
     let expression = "";
     this.types.forEach((type, typeIndex) => {
       let typeExpression = type.fromRdfExpression(parameters);
@@ -115,7 +117,9 @@ ${this.types
 
   sparqlGraphPatternExpression({
     subjectVariable,
-  }: Type.SparqlGraphPatternParameters): Maybe<Type.SparqlGraphPatternExpression> {
+  }: Parameters<
+    Type["sparqlGraphPatternExpression"]
+  >[0]): Maybe<Type.SparqlGraphPatternExpression> {
     const typeSparqlGraphPatternExpressions = this.types.flatMap((type) =>
       type.sparqlGraphPatternExpression({ subjectVariable }).toList(),
     );
@@ -162,7 +166,7 @@ ${this.types
   toRdfExpression({
     propertyValueVariable,
     ...otherParameters
-  }: Type.ToRdfExpressionParameters): string {
+  }: Parameters<Type["toRdfExpression"]>[0]): string {
     let expression = "";
     this.types.forEach((type, typeIndex) => {
       if (this.typesSharedDiscriminatorProperty.isJust()) {

@@ -42,7 +42,7 @@ export class ObjectType extends Type {
     lazyParentObjectTypes: () => readonly ObjectType[];
     lazyProperties: () => readonly ObjectType.Property[];
     rdfType: Maybe<NamedNode>;
-  } & Type.ConstructorParameters) {
+  } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
     // Lazily initialize some members in getters to avoid recursive construction
     this.lazyAncestorObjectTypes = lazyAncestorObjectTypes;
@@ -107,7 +107,7 @@ export class ObjectType extends Type {
 
   fromRdfExpression({
     resourceValueVariable,
-  }: Type.FromRdfExpressionParameters): string {
+  }: Parameters<Type["fromRdfExpression"]>[0]): string {
     return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf(resource))`;
   }
 
@@ -129,7 +129,9 @@ export class ObjectType extends Type {
 
   sparqlGraphPatternExpression({
     subjectVariable,
-  }: Type.SparqlGraphPatternParameters): Maybe<Type.SparqlGraphPatternExpression> {
+  }: Parameters<
+    Type["sparqlGraphPatternExpression"]
+  >[0]): Maybe<Type.SparqlGraphPatternExpression> {
     return Maybe.of({
       type: "GraphPatterns",
       value: `new ${this.moduleQualifiedName}.SparqlGraphPatterns(${subjectVariable})`,
@@ -140,7 +142,7 @@ export class ObjectType extends Type {
     mutateGraphVariable,
     resourceSetVariable,
     propertyValueVariable,
-  }: Type.ToRdfExpressionParameters): string {
+  }: Parameters<Type["toRdfExpression"]>[0]): string {
     return `${this.moduleQualifiedName}.toRdf(${propertyValueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
   }
 

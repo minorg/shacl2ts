@@ -11,16 +11,14 @@ export abstract class RdfjsTermType extends Type {
     return "purifyHelpers.Equatable.booleanEquals";
   }
 
-  sparqlGraphPatternExpression(
-    _parameters: Type.SparqlGraphPatternParameters,
-  ): Maybe<Type.SparqlGraphPatternExpression> {
+  sparqlGraphPatternExpression(): Maybe<Type.SparqlGraphPatternExpression> {
     // Don't add any additional graph patterns for terms
     return Maybe.empty();
   }
 
   toRdfExpression({
     propertyValueVariable,
-  }: Type.ToRdfExpressionParameters): string {
+  }: Parameters<Type["toRdfExpression"]>[0]): string {
     return propertyValueVariable;
   }
 }

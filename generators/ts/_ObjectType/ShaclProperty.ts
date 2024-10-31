@@ -29,7 +29,7 @@ export class ShaclProperty extends Property {
     minCount: number;
     path: rdfjs.NamedNode;
     type: Type;
-  } & Property.ConstructorParameters) {
+  } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
     this.maxCount = maxCount;
     this.minCount = minCount;
@@ -132,7 +132,7 @@ export class ShaclProperty extends Property {
 
   classConstructorInitializer({
     parameter,
-  }: Property.ClassConstructorInitializerParameters): Maybe<string> {
+  }: Parameters<Property["classConstructorInitializer"]>[0]): Maybe<string> {
     const maxCount = this.maxCount.extractNullable();
     if (this.minCount === 0) {
       if (maxCount === 1) {
@@ -149,7 +149,7 @@ export class ShaclProperty extends Property {
 
   fromRdfStatement({
     resourceVariable,
-  }: Property.FromRdfStatementParameters): Maybe<string> {
+  }: Parameters<Property["fromRdfStatement"]>[0]): Maybe<string> {
     const resourceValueVariable = "value";
     if (this.containerType === "Array") {
       return Maybe.of(
@@ -194,7 +194,7 @@ export class ShaclProperty extends Property {
     mutateGraphVariable,
     propertyValueVariable,
     resourceSetVariable,
-  }: Property.ToRdfStatementParameters): Maybe<string> {
+  }: Parameters<Property["toRdfStatement"]>[0]): Maybe<string> {
     switch (this.containerType) {
       case "Array":
         return Maybe.of(

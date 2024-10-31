@@ -11,15 +11,9 @@ export abstract class ComposedType extends Type {
   constructor({
     types,
     ...superParameters
-  }: ComposedType.ConstructorParameters) {
+  }: ConstructorParameters<typeof Type>[0] & { types: readonly Type[] }) {
     super(superParameters);
     invariant(types.length >= 2);
     this.types = types;
-  }
-}
-
-export namespace ComposedType {
-  export interface ConstructorParameters extends Type.ConstructorParameters {
-    types: readonly Type[];
   }
 }

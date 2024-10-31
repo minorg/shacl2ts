@@ -8,7 +8,7 @@ export class NumberType extends PrimitiveType {
 
   override fromRdfExpression({
     resourceValueVariable,
-  }: Type.FromRdfExpressionParameters): string {
+  }: Parameters<Type["fromRdfExpression"]>[0]): string {
     return `${resourceValueVariable}.toNumber()`;
   }
 }

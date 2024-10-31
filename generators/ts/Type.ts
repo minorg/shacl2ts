@@ -9,7 +9,11 @@ export abstract class Type {
   abstract readonly name: string;
   protected readonly configuration: Configuration;
 
-  constructor({ configuration }: Type.ConstructorParameters) {
+  constructor({
+    configuration,
+  }: {
+    configuration: Configuration;
+  }) {
     this.configuration = configuration;
   }
 
@@ -25,22 +29,28 @@ export abstract class Type {
   /**
    * An expression that converts a rdfjsResource.Resource.Value to a value of this type.
    */
-  abstract fromRdfExpression(
-    parameters: Type.FromRdfExpressionParameters,
-  ): string;
+  abstract fromRdfExpression(parameters: {
+    predicate: NamedNode;
+    resourceValueVariable: string;
+    resourceVariable: string;
+  }): string;
 
   /**
    * An optional sparqlBuilder.GraphPattern to chain to the basic pattern for a property.
    */
-  abstract sparqlGraphPatternExpression(
-    parameters: Type.SparqlGraphPatternParameters,
-  ): Maybe<Type.SparqlGraphPatternExpression>;
+  abstract sparqlGraphPatternExpression(parameters: {
+    subjectVariable: string;
+  }): Maybe<Type.SparqlGraphPatternExpression>;
 
   /**
    * An expression that converts a value of this type to an rdfjs.TermType that can be added to
    * an rdfjsResource.Resource.
    */
-  abstract toRdfExpression(parameters: Type.ToRdfExpressionParameters): string;
+  abstract toRdfExpression(parameters: {
+    mutateGraphVariable: string;
+    propertyValueVariable: string;
+    resourceSetVariable: string;
+  }): string;
 
   protected rdfJsTermExpression(
     rdfjsTerm: BlankNode | Literal | NamedNode,
@@ -60,32 +70,12 @@ export abstract class Type {
 }
 
 export namespace Type {
-  export interface ConstructorParameters {
-    configuration: Configuration;
-  }
-
   export interface DiscriminatorProperty {
     readonly name: string;
     readonly values: readonly string[];
   }
 
-  export interface FromRdfExpressionParameters {
-    predicate: NamedNode;
-    resourceValueVariable: string;
-    resourceVariable: string;
-  }
-
-  export interface SparqlGraphPatternParameters {
-    subjectVariable: string;
-  }
-
   export type SparqlGraphPatternExpression =
     | { type: "GraphPattern"; value: string }
     | { type: "GraphPatterns"; value: string };
-
-  export interface ToRdfExpressionParameters {
-    mutateGraphVariable: string;
-    propertyValueVariable: string;
-    resourceSetVariable: string;
-  }
 }

@@ -13,21 +13,15 @@ export class AndType extends ComposedType {
     throw new Error("Method not implemented.");
   }
 
-  override fromRdfExpression(
-    _parameters: Type.FromRdfExpressionParameters,
-  ): string {
+  override fromRdfExpression(): string {
     throw new Error("Method not implemented.");
   }
 
-  override sparqlGraphPatternExpression(
-    _parameters: Type.SparqlGraphPatternParameters,
-  ): Maybe<Type.SparqlGraphPatternExpression> {
+  override sparqlGraphPatternExpression(): Maybe<Type.SparqlGraphPatternExpression> {
     throw new Error("Method not implemented.");
   }
 
-  override toRdfExpression(
-    _parameters: Type.ToRdfExpressionParameters,
-  ): string {
+  override toRdfExpression(): string {
     throw new Error("Method not implemented.");
   }
 }

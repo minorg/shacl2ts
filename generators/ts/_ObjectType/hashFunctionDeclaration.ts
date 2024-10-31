@@ -20,10 +20,6 @@ export function hashFunctionDeclaration(
     );
   }
 
-  for (const property of this.properties) {
-    statements.push(property);
-  }
-
   statements.push(`return ${hasherVariable};`);
 
   return {

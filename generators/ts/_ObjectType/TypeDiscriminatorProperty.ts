@@ -23,7 +23,7 @@ export class TypeDiscriminatorProperty extends Property {
     override: boolean;
     type: TypeDiscriminatorProperty["type"];
     value: string;
-  } & Property.ConstructorParameters) {
+  } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
     this.override = override;
     this.type = type;
@@ -54,15 +54,11 @@ export class TypeDiscriminatorProperty extends Property {
     };
   }
 
-  classConstructorInitializer(
-    _parameters: Property.ClassConstructorInitializerParameters,
-  ): Maybe<string> {
+  classConstructorInitializer(): Maybe<string> {
     return Maybe.empty();
   }
 
-  fromRdfStatement(
-    _parameters: Property.FromRdfStatementParameters,
-  ): Maybe<string> {
+  fromRdfStatement(): Maybe<string> {
     return Maybe.of(`const ${this.name} = "${this.value}" as const`);
   }
 
@@ -70,9 +66,7 @@ export class TypeDiscriminatorProperty extends Property {
     return Maybe.empty();
   }
 
-  toRdfStatement(
-    _parameters: Property.ToRdfStatementParameters,
-  ): Maybe<string> {
+  toRdfStatement(): Maybe<string> {
     return Maybe.empty();
   }
 }

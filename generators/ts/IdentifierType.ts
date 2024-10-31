@@ -18,7 +18,7 @@ export class IdentifierType extends RdfjsTermType {
   }: {
     hasValue: Maybe<BlankNode | NamedNode>;
     nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
-  } & Type.ConstructorParameters) {
+  } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
     this.hasValue = hasValue;
     this.nodeKinds = new Set([...nodeKinds]);
@@ -60,7 +60,7 @@ export class IdentifierType extends RdfjsTermType {
     predicate,
     resourceVariable,
     resourceValueVariable,
-  }: Type.FromRdfExpressionParameters): string {
+  }: Parameters<Type["fromRdfExpression"]>[0]): string {
     let expression: string;
     switch (this.name) {
       case "rdfjs.BlankNode":

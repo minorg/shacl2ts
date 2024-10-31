@@ -20,7 +20,7 @@ export class LiteralType extends RdfjsTermType {
 
   fromRdfExpression({
     resourceValueVariable,
-  }: Type.FromRdfExpressionParameters): string {
+  }: Parameters<Type["fromRdfExpression"]>[0]): string {
     return `${resourceValueVariable}.toLiteral()`;
   }
 }

@@ -17,42 +17,30 @@ export abstract class Property {
   readonly name: string;
   protected readonly configuration: Configuration;
 
-  protected constructor({
+  constructor({
     configuration,
     name,
-  }: Property.ConstructorParameters) {
+  }: {
+    configuration: Configuration;
+    name: string;
+  }) {
     this.configuration = configuration;
     this.name = name;
   }
 
-  abstract classConstructorInitializer(
-    parameters: Property.ClassConstructorInitializerParameters,
-  ): Maybe<string>;
+  abstract classConstructorInitializer(parameters: {
+    parameter: string;
+  }): Maybe<string>;
 
-  abstract fromRdfStatement(
-    parameters: Property.FromRdfStatementParameters,
-  ): Maybe<string>;
+  abstract fromRdfStatement(parameters: {
+    resourceVariable: string;
+  }): Maybe<string>;
+
+  abstract hashStatement(parameters: { hasherVariable: string }): string;
 
   abstract sparqlGraphPatternExpression(): Maybe<string>;
 
   abstract toRdfStatement(
-    parameters: Property.ToRdfStatementParameters,
+    parameters: Parameters<Type["toRdfExpression"]>[0],
   ): Maybe<string>;
-}
-
-export namespace Property {
-  export interface ConstructorParameters {
-    configuration: Configuration;
-    name: string;
-  }
-
-  export interface ClassConstructorInitializerParameters {
-    parameter: string;
-  }
-
-  export interface FromRdfStatementParameters {
-    resourceVariable: string;
-  }
-
-  export type ToRdfStatementParameters = Type.ToRdfExpressionParameters;
 }

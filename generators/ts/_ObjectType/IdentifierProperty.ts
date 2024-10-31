@@ -16,7 +16,7 @@ export class IdentifierProperty extends Property {
     ...superParameters
   }: {
     type: IdentifierType;
-  } & Property.ConstructorParameters) {
+  } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
     this.type = type;
   }
@@ -49,13 +49,13 @@ export class IdentifierProperty extends Property {
 
   classConstructorInitializer({
     parameter,
-  }: Property.ClassConstructorInitializerParameters): Maybe<string> {
+  }: Parameters<Property["classConstructorInitializer"]>[0]): Maybe<string> {
     return Maybe.of(parameter);
   }
 
   fromRdfStatement({
     resourceVariable,
-  }: Property.FromRdfStatementParameters): Maybe<string> {
+  }: Parameters<Property["fromRdfStatement"]>[0]): Maybe<string> {
     return Maybe.of(`const ${this.name} = ${resourceVariable}.identifier`);
   }
 
@@ -63,9 +63,7 @@ export class IdentifierProperty extends Property {
     return Maybe.empty();
   }
 
-  toRdfStatement(
-    _parameters: Property.ToRdfStatementParameters,
-  ): Maybe<string> {
+  toRdfStatement(): Maybe<string> {
     return Maybe.empty();
   }
 }
