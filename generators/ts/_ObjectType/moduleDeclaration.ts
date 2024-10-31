@@ -3,15 +3,14 @@ import {
   type StatementStructures,
   StructureKind,
 } from "ts-morph";
-import {
-  classConstructorParametersInterfaceDeclaration,
-  classDeclaration,
-  equalsFunctionDeclaration,
-  fromRdfFunctionDeclaration,
-  sparqlGraphPatternsClassDeclaration,
-  toRdfFunctionDeclaration,
-} from ".";
 import type { ObjectType } from "../ObjectType.js";
+import { classConstructorParametersInterfaceDeclaration } from "./classConstructorParametersInterfaceDeclaration.js";
+import { classDeclaration } from "./classDeclaration.js";
+import { equalsFunctionDeclaration } from "./equalsFunctionDeclaration.js";
+import { fromRdfFunctionDeclaration } from "./fromRdfFunctionDeclaration.js";
+import { hashFunctionDeclaration } from "./hashFunctionDeclaration.js";
+import { sparqlGraphPatternsClassDeclaration } from "./sparqlGraphPatternsClassDeclaration.js";
+import { toRdfFunctionDeclaration } from "./toRdfFunctionDeclaration.js";
 
 export function moduleDeclaration(
   this: ObjectType,
@@ -36,6 +35,10 @@ export function moduleDeclaration(
 
   if (this.configuration.features.has("fromRdf")) {
     statements.push(fromRdfFunctionDeclaration.bind(this)());
+  }
+
+  if (this.configuration.features.has("hash")) {
+    statements.push(hashFunctionDeclaration.bind(this)());
   }
 
   if (this.configuration.features.has("sparql-graph-patterns")) {

@@ -6,9 +6,16 @@ export class NumberType extends PrimitiveType {
     return "number";
   }
 
-  override valueFromRdfExpression({
+  override fromRdfExpression({
     resourceValueVariable,
-  }: Type.ValueFromRdfParameters): string {
+  }: Parameters<Type["fromRdfExpression"]>[0]): string {
     return `${resourceValueVariable}.toNumber()`;
+  }
+
+  override hashStatements({
+    hasherVariable,
+    propertyValueVariable,
+  }: Parameters<PrimitiveType["hashStatements"]>[0]): readonly string[] {
+    return [`${hasherVariable}.update(${propertyValueVariable}.toString());`];
   }
 }

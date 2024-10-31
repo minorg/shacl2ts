@@ -24,10 +24,13 @@ export function fromRdfFunctionDeclaration(
   }
 
   for (const property of this.properties) {
-    property.valueFromRdfStatement({ resourceVariable }).ifJust((statement) => {
-      propertyInitializers.push(property.name);
-      statements.push(statement);
+    const propertyFromRdfStatements = property.fromRdfStatements({
+      resourceVariable,
     });
+    if (propertyFromRdfStatements.length > 0) {
+      propertyInitializers.push(property.name);
+      statements.push(...propertyFromRdfStatements);
+    }
   }
 
   statements.push(

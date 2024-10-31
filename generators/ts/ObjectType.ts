@@ -2,6 +2,7 @@ import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import type { IdentifierType } from "./IdentifierType.js";
+import type { RdfjsTermType } from "./RdfjsTermType";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType";
 
@@ -42,7 +43,7 @@ export class ObjectType extends Type {
     lazyParentObjectTypes: () => readonly ObjectType[];
     lazyProperties: () => readonly ObjectType.Property[];
     rdfType: Maybe<NamedNode>;
-  } & Type.ConstructorParameters) {
+  } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
     // Lazily initialize some members in getters to avoid recursive construction
     this.lazyAncestorObjectTypes = lazyAncestorObjectTypes;
@@ -78,7 +79,7 @@ export class ObjectType extends Type {
     });
   }
 
-  get name(): string {
+  override get name(): string {
     return this.interfaceQualifiedName;
   }
 
@@ -101,8 +102,23 @@ export class ObjectType extends Type {
     return properties;
   }
 
-  equalsFunction(): string {
+  override equalsFunction(): string {
     return `${this.moduleQualifiedName}.equals`;
+  }
+
+  override fromRdfExpression({
+    resourceValueVariable,
+  }: Parameters<Type["fromRdfExpression"]>[0]): string {
+    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf(resource))`;
+  }
+
+  override hashStatements({
+    hasherVariable,
+    propertyValueVariable,
+  }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
+    return [
+      `${this.moduleQualifiedName}.hash(${propertyValueVariable}, ${hasherVariable});`,
+    ];
   }
 
   rdfjsResourceType(options?: { mutable?: boolean }): {
@@ -121,26 +137,22 @@ export class ObjectType extends Type {
     };
   }
 
-  sparqlGraphPatternExpression({
+  override sparqlGraphPatternExpression({
     subjectVariable,
-  }: Type.SparqlGraphPatternParameters): Maybe<Type.SparqlGraphPatternExpression> {
+  }: Parameters<
+    Type["sparqlGraphPatternExpression"]
+  >[0]): Maybe<Type.SparqlGraphPatternExpression> {
     return Maybe.of({
       type: "GraphPatterns",
       value: `new ${this.moduleQualifiedName}.SparqlGraphPatterns(${subjectVariable})`,
     });
   }
 
-  valueFromRdfExpression({
-    resourceValueVariable,
-  }: Type.ValueFromRdfParameters): string {
-    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf(resource))`;
-  }
-
-  valueToRdfExpression({
+  override toRdfExpression({
     mutateGraphVariable,
     resourceSetVariable,
     propertyValueVariable,
-  }: Type.ValueToRdfParameters): string {
+  }: Parameters<Type["toRdfExpression"]>[0]): string {
     return `${this.moduleQualifiedName}.toRdf(${propertyValueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
   }
 

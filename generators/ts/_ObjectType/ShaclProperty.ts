@@ -29,7 +29,7 @@ export class ShaclProperty extends Property {
     minCount: number;
     path: rdfjs.NamedNode;
     type: Type;
-  } & Property.ConstructorParameters) {
+  } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
     this.maxCount = maxCount;
     this.minCount = minCount;
@@ -37,7 +37,7 @@ export class ShaclProperty extends Property {
     this.type = type;
   }
 
-  get classConstructorParametersPropertySignature(): Maybe<
+  override get classConstructorParametersPropertySignature(): Maybe<
     OptionalKind<PropertySignatureStructure>
   > {
     // If the interface type name is Maybe<string>
@@ -59,7 +59,7 @@ export class ShaclProperty extends Property {
     });
   }
 
-  get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
+  override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
     return {
       isReadonly: true,
       name: this.name,
@@ -68,7 +68,7 @@ export class ShaclProperty extends Property {
   }
 
   // biome-ignore lint/suspicious/useGetterReturn: <explanation>
-  get equalsFunction(): string {
+  override get equalsFunction(): string {
     const typeEqualsFunction = this.type.equalsFunction();
     const signature = "(left, right)";
     switch (this.containerType) {
@@ -92,7 +92,7 @@ export class ShaclProperty extends Property {
     }
   }
 
-  get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {
+  override get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {
     return {
       isReadonly: true,
       name: this.name,
@@ -130,9 +130,9 @@ export class ShaclProperty extends Property {
     return `${this.configuration.dataFactoryVariable}.namedNode("${this.path.value}")`;
   }
 
-  classConstructorInitializer({
+  override classConstructorInitializer({
     parameter,
-  }: Property.ClassConstructorInitializerParameters): Maybe<string> {
+  }: Parameters<Property["classConstructorInitializer"]>[0]): Maybe<string> {
     const maxCount = this.maxCount.extractNullable();
     if (this.minCount === 0) {
       if (maxCount === 1) {
@@ -147,7 +147,62 @@ export class ShaclProperty extends Property {
     return Maybe.of(parameter);
   }
 
-  sparqlGraphPatternExpression(): Maybe<string> {
+  override fromRdfStatements({
+    resourceVariable,
+  }: Parameters<Property["fromRdfStatements"]>[0]): readonly string[] {
+    const resourceValueVariable = "value";
+    if (this.containerType === "Array") {
+      return [
+        `const ${this.name} = ${resourceVariable}.values(${this.pathExpression}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.fromRdfExpression({ predicate: this.path, resourceVariable, resourceValueVariable })}).toMaybe().toList())).orDefault([]);`,
+      ];
+    }
+
+    const valueFromRdf = `${resourceVariable}.value(${this.pathExpression}).chain(${resourceValueVariable} => ${this.type.fromRdfExpression({ predicate: this.path, resourceVariable, resourceValueVariable })})`;
+    switch (this.containerType) {
+      case "Maybe":
+        return [`const ${this.name} = ${valueFromRdf}.toMaybe();`];
+      case null:
+        return [
+          `const _${this.name}Either: purify.Either<rdfjsResource.Resource.ValueError, ${this.type.name}> = ${valueFromRdf};`,
+          `if (_${this.name}Either.isLeft()) { return _${this.name}Either; }`,
+          `const ${this.name} = _${this.name}Either.unsafeCoerce();`,
+        ];
+    }
+  }
+
+  override hashStatements({
+    hasherVariable,
+    propertyValueVariable,
+  }: Parameters<Property["hashStatements"]>[0]): readonly string[] {
+    switch (this.containerType) {
+      case "Array":
+        return [
+          `${propertyValueVariable}.forEach((_${this.name}Element) => { ${this.type
+            .hashStatements({
+              hasherVariable,
+              propertyValueVariable: `_${this.name}Element`,
+            })
+            .join("\n")} })`,
+        ];
+      case "Maybe": {
+        return [
+          `${propertyValueVariable}.ifJust((_${this.name}) => { ${this.type
+            .hashStatements({
+              hasherVariable,
+              propertyValueVariable: `_${this.name}`,
+            })
+            .join("\n")} })`,
+        ];
+      }
+      case null:
+        return this.type.hashStatements({
+          hasherVariable,
+          propertyValueVariable,
+        });
+    }
+  }
+
+  override sparqlGraphPatternExpression(): Maybe<string> {
     let sparqlGraphPattern = `sparqlBuilder.GraphPattern.basic(this.subject, ${this.pathExpression}, this.variable("${pascalCase(this.name)}"))`;
     this.type
       .sparqlGraphPatternExpression({
@@ -169,51 +224,28 @@ export class ShaclProperty extends Property {
     return Maybe.of(sparqlGraphPattern);
   }
 
-  valueFromRdfStatement({
-    resourceVariable,
-  }: Property.ValueFromRdfParameters): Maybe<string> {
-    const resourceValueVariable = "value";
-    if (this.containerType === "Array") {
-      return Maybe.of(
-        `const ${this.name} = ${resourceVariable}.values(${this.pathExpression}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.valueFromRdfExpression({ predicate: this.path, resourceVariable, resourceValueVariable })}).toMaybe().toList())).orDefault([]);`,
-      );
-    }
-
-    const valueFromRdf = `${resourceVariable}.value(${this.pathExpression}).chain(${resourceValueVariable} => ${this.type.valueFromRdfExpression({ predicate: this.path, resourceVariable, resourceValueVariable })})`;
-    switch (this.containerType) {
-      case "Maybe":
-        return Maybe.of(`const ${this.name} = ${valueFromRdf}.toMaybe();`);
-      case null:
-        return Maybe.of(
-          `const _${this.name}Either: purify.Either<rdfjsResource.Resource.ValueError, ${this.type.name}> = ${valueFromRdf}; if (_${this.name}Either.isLeft()) { return _${this.name}Either; } const ${this.name} = _${this.name}Either.unsafeCoerce();`,
-        );
-    }
-  }
-
-  valueToRdfStatement({
+  override toRdfStatements({
     mutateGraphVariable,
     propertyValueVariable,
     resourceSetVariable,
-  }: Property.ValueToRdfParameters): Maybe<string> {
+  }: Parameters<Property["toRdfStatements"]>[0]): readonly string[] {
     switch (this.containerType) {
       case "Array":
-        return Maybe.of(
-          `${propertyValueVariable}.forEach((${this.name}Value) => { resource.add(${this.pathExpression}, ${this.type.valueToRdfExpression({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`,
-        );
+        return [
+          `${propertyValueVariable}.forEach((${this.name}Value) => { resource.add(${this.pathExpression}, ${this.type.toRdfExpression({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`,
+        ];
       case "Maybe":
-        return Maybe.of(
-          `${propertyValueVariable}.ifJust((${this.name}Value) => { resource.add(${this.pathExpression}, ${this.type.valueToRdfExpression({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`,
-        );
+        return [
+          `${propertyValueVariable}.ifJust((${this.name}Value) => { resource.add(${this.pathExpression}, ${this.type.toRdfExpression({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`,
+        ];
       case null:
-        return Maybe.of(
-          `resource.add(${this.pathExpression}, ${this.type.valueToRdfExpression(
-            {
-              mutateGraphVariable,
-              resourceSetVariable,
-              propertyValueVariable,
-            },
-          )});`,
-        );
+        return [
+          `resource.add(${this.pathExpression}, ${this.type.toRdfExpression({
+            mutateGraphVariable,
+            resourceSetVariable,
+            propertyValueVariable,
+          })});`,
+        ];
     }
   }
 }

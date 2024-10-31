@@ -5,7 +5,7 @@ import type { Type } from "./Type.js";
 export class AndType extends ComposedType {
   readonly kind = "And";
 
-  get name(): string {
+  override get name(): string {
     return `(${this.types.map((type) => type.name).join(" & ")})`;
   }
 
@@ -13,21 +13,19 @@ export class AndType extends ComposedType {
     throw new Error("Method not implemented.");
   }
 
-  override sparqlGraphPatternExpression(
-    _parameters: Type.SparqlGraphPatternParameters,
-  ): Maybe<Type.SparqlGraphPatternExpression> {
+  override fromRdfExpression(): string {
     throw new Error("Method not implemented.");
   }
 
-  override valueFromRdfExpression(
-    _parameters: Type.ValueFromRdfParameters,
-  ): string {
+  override hashStatements(): readonly string[] {
     throw new Error("Method not implemented.");
   }
 
-  override valueToRdfExpression(
-    _parameters: Type.ValueToRdfParameters,
-  ): string {
+  override sparqlGraphPatternExpression(): Maybe<Type.SparqlGraphPatternExpression> {
+    throw new Error("Method not implemented.");
+  }
+
+  override toRdfExpression(): string {
     throw new Error("Method not implemented.");
   }
 }

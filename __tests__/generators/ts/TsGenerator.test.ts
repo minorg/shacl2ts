@@ -1,5 +1,6 @@
 import type { NamedNode } from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
+import { sha256 } from "js-sha256";
 import N3, { DataFactory as dataFactory } from "n3";
 import { type Either, Maybe } from "purify-ts";
 import type { Equatable } from "purify-ts-helpers";
@@ -136,6 +137,18 @@ describe("TsGenerator", () => {
       model: organization,
       modelFromRdf: generated.Organization.Class.fromRdf,
     });
+  });
+
+  it("hash (LanguageModel)", ({ expect }) => {
+    expect(languageModel.hash(sha256.create()).hex()).toStrictEqual(
+      "7fead1d8ac51c47873f3426e599233c7caf247743e684ad2f46dfd9c1f79850c",
+    );
+  });
+
+  it("hash (Organization)", ({ expect }) => {
+    expect(organization.hash(sha256.create()).hex()).toStrictEqual(
+      "1cbaacc89707adaba94f7e5a3099c68a1b3e30b73c885824bb15bd67835af599",
+    );
   });
 
   it("toRdf should populate a dataset", ({ expect }) => {

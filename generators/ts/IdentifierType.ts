@@ -18,7 +18,7 @@ export class IdentifierType extends RdfjsTermType {
   }: {
     hasValue: Maybe<BlankNode | NamedNode>;
     nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
-  } & Type.ConstructorParameters) {
+  } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
     this.hasValue = hasValue;
     this.nodeKinds = new Set([...nodeKinds]);
@@ -45,7 +45,7 @@ export class IdentifierType extends RdfjsTermType {
   }
 
   @Memoize()
-  get name(): string {
+  override get name(): string {
     const names: string[] = [];
     if (this.nodeKinds.has(NodeKind.BLANK_NODE)) {
       names.push("rdfjs.BlankNode");
@@ -56,11 +56,11 @@ export class IdentifierType extends RdfjsTermType {
     return names.join(" | ");
   }
 
-  valueFromRdfExpression({
+  override fromRdfExpression({
     predicate,
     resourceVariable,
     resourceValueVariable,
-  }: Type.ValueFromRdfParameters): string {
+  }: Parameters<Type["fromRdfExpression"]>[0]): string {
     let expression: string;
     switch (this.name) {
       case "rdfjs.BlankNode":
@@ -78,5 +78,14 @@ export class IdentifierType extends RdfjsTermType {
       expression = `${expression}.chain<rdfjsResource.Resource.ValueError, ${this.name}>(_identifier => _identifier.equals(${this.rdfJsTermExpression(hasValue)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${resourceVariable}, predicate: ${this.rdfJsTermExpression(predicate)} })))`;
     });
     return expression;
+  }
+
+  override hashStatements({
+    hasherVariable,
+    propertyValueVariable,
+  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
+    return [
+      `${hasherVariable}.update(rdfjsResource.Resource.Identifier.toString(${propertyValueVariable}));`,
+    ];
   }
 }

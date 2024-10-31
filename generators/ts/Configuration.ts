@@ -2,6 +2,7 @@ type Feature =
   | "class"
   | "equals"
   | "fromRdf"
+  | "hash"
   | "toRdf"
   | "sparql-graph-patterns";
 
@@ -48,6 +49,7 @@ export namespace Configuration {
       "class",
       "equals",
       "fromRdf",
+      "hash",
       "toRdf",
       "sparql-graph-patterns",
     ]);

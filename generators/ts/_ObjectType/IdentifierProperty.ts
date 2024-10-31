@@ -16,12 +16,12 @@ export class IdentifierProperty extends Property {
     ...superParameters
   }: {
     type: IdentifierType;
-  } & Property.ConstructorParameters) {
+  } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
     this.type = type;
   }
 
-  get classConstructorParametersPropertySignature(): Maybe<
+  override get classConstructorParametersPropertySignature(): Maybe<
     OptionalKind<PropertySignatureStructure>
   > {
     return Maybe.of({
@@ -31,7 +31,7 @@ export class IdentifierProperty extends Property {
     });
   }
 
-  get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
+  override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
     return {
       isReadonly: true,
       name: this.name,
@@ -39,7 +39,7 @@ export class IdentifierProperty extends Property {
     };
   }
 
-  get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {
+  override get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {
     return {
       isReadonly: true,
       name: this.name,
@@ -47,25 +47,29 @@ export class IdentifierProperty extends Property {
     };
   }
 
-  classConstructorInitializer({
+  override classConstructorInitializer({
     parameter,
-  }: Property.ClassConstructorInitializerParameters): Maybe<string> {
+  }: Parameters<Property["classConstructorInitializer"]>[0]): Maybe<string> {
     return Maybe.of(parameter);
   }
 
-  sparqlGraphPatternExpression(): Maybe<string> {
-    return Maybe.empty();
-  }
-
-  valueFromRdfStatement({
+  override fromRdfStatements({
     resourceVariable,
-  }: Property.ValueFromRdfParameters): Maybe<string> {
-    return Maybe.of(`const ${this.name} = ${resourceVariable}.identifier`);
+  }: Parameters<Property["fromRdfStatements"]>[0]): readonly string[] {
+    return [`const ${this.name} = ${resourceVariable}.identifier`];
   }
 
-  valueToRdfStatement(
-    _parameters: Property.ValueToRdfParameters,
-  ): Maybe<string> {
+  override hashStatements(
+    parameters: Parameters<Property["hashStatements"]>[0],
+  ): readonly string[] {
+    return this.type.hashStatements(parameters);
+  }
+
+  override sparqlGraphPatternExpression(): Maybe<string> {
     return Maybe.empty();
+  }
+
+  override toRdfStatements(): readonly string[] {
+    return [];
   }
 }
