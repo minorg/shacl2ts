@@ -38,7 +38,7 @@ export function toRdfFunctionDeclaration(
 
   for (const property of this.properties) {
     property
-      .valueToRdfStatement({
+      .toRdfStatement({
         mutateGraphVariable,
         propertyValueVariable: `${thisVariable}.${property.name}`,
         resourceSetVariable,

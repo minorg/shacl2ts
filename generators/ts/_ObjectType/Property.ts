@@ -29,15 +29,13 @@ export abstract class Property {
     parameters: Property.ClassConstructorInitializerParameters,
   ): Maybe<string>;
 
+  abstract fromRdfStatement(
+    parameters: Property.FromRdfParameters,
+  ): Maybe<string>;
+
   abstract sparqlGraphPatternExpression(): Maybe<string>;
 
-  abstract valueFromRdfStatement(
-    parameters: Property.ValueFromRdfParameters,
-  ): Maybe<string>;
-
-  abstract valueToRdfStatement(
-    parameters: Property.ValueToRdfParameters,
-  ): Maybe<string>;
+  abstract toRdfStatement(parameters: Property.ToRdfParameters): Maybe<string>;
 }
 
 export namespace Property {
@@ -50,9 +48,9 @@ export namespace Property {
     parameter: string;
   }
 
-  export interface ValueFromRdfParameters {
+  export interface FromRdfParameters {
     resourceVariable: string;
   }
 
-  export type ValueToRdfParameters = Type.ValueToRdfParameters;
+  export type ToRdfParameters = Type.ToRdfExpressionParameters;
 }

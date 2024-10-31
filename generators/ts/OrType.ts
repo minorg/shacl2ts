@@ -98,6 +98,21 @@ ${this.types
 }`;
   }
 
+  fromRdfExpression(parameters: Type.FromRdfExpressionParameters): string {
+    let expression = "";
+    this.types.forEach((type, typeIndex) => {
+      let typeExpression = type.fromRdfExpression(parameters);
+      if (!this.typesSharedDiscriminatorProperty.isJust()) {
+        typeExpression = `${typeExpression}.map(value => ({ type: "${typeIndex}-${type.name}" as const, value }) as (${this.name}))`;
+      }
+      expression =
+        expression.length > 0
+          ? `${expression}.altLazy(() => ${typeExpression})`
+          : typeExpression;
+    });
+    return expression;
+  }
+
   sparqlGraphPatternExpression({
     subjectVariable,
   }: Type.SparqlGraphPatternParameters): Maybe<Type.SparqlGraphPatternExpression> {
@@ -144,30 +159,15 @@ ${this.types
     }
   }
 
-  valueFromRdfExpression(parameters: Type.ValueFromRdfParameters): string {
-    let expression = "";
-    this.types.forEach((type, typeIndex) => {
-      let typeExpression = type.valueFromRdfExpression(parameters);
-      if (!this.typesSharedDiscriminatorProperty.isJust()) {
-        typeExpression = `${typeExpression}.map(value => ({ type: "${typeIndex}-${type.name}" as const, value }) as (${this.name}))`;
-      }
-      expression =
-        expression.length > 0
-          ? `${expression}.altLazy(() => ${typeExpression})`
-          : typeExpression;
-    });
-    return expression;
-  }
-
-  valueToRdfExpression({
+  toRdfExpression({
     propertyValueVariable,
     ...otherParameters
-  }: Type.ValueToRdfParameters): string {
+  }: Type.ToRdfExpressionParameters): string {
     let expression = "";
     this.types.forEach((type, typeIndex) => {
       if (this.typesSharedDiscriminatorProperty.isJust()) {
         if (expression.length === 0) {
-          expression = type.valueToRdfExpression({
+          expression = type.toRdfExpression({
             propertyValueVariable,
             ...otherParameters,
           });
@@ -180,17 +180,17 @@ ${this.types
             )
             .join(
               " || ",
-            )}) ? ${type.valueToRdfExpression({ propertyValueVariable, ...otherParameters })} : ${expression}`;
+            )}) ? ${type.toRdfExpression({ propertyValueVariable, ...otherParameters })} : ${expression}`;
         }
       } else {
         if (expression.length === 0) {
-          expression = type.valueToRdfExpression({
+          expression = type.toRdfExpression({
             propertyValueVariable: `${propertyValueVariable}.value`,
             ...otherParameters,
           });
         } else {
           // No shared type discriminator between the types, use the one we synthesized
-          expression = `(${propertyValueVariable}.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") ? (${type.valueToRdfExpression({ propertyValueVariable: `${propertyValueVariable}.value`, ...otherParameters })}) : (${expression})`;
+          expression = `(${propertyValueVariable}.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") ? (${type.toRdfExpression({ propertyValueVariable: `${propertyValueVariable}.value`, ...otherParameters })}) : (${expression})`;
         }
       }
     });

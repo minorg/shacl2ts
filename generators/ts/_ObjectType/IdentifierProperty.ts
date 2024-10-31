@@ -53,19 +53,17 @@ export class IdentifierProperty extends Property {
     return Maybe.of(parameter);
   }
 
+  fromRdfStatement({
+    resourceVariable,
+  }: Property.FromRdfParameters): Maybe<string> {
+    return Maybe.of(`const ${this.name} = ${resourceVariable}.identifier`);
+  }
+
   sparqlGraphPatternExpression(): Maybe<string> {
     return Maybe.empty();
   }
 
-  valueFromRdfStatement({
-    resourceVariable,
-  }: Property.ValueFromRdfParameters): Maybe<string> {
-    return Maybe.of(`const ${this.name} = ${resourceVariable}.identifier`);
-  }
-
-  valueToRdfStatement(
-    _parameters: Property.ValueToRdfParameters,
-  ): Maybe<string> {
+  toRdfStatement(_parameters: Property.ToRdfParameters): Maybe<string> {
     return Maybe.empty();
   }
 }

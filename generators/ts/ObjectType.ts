@@ -105,6 +105,10 @@ export class ObjectType extends Type {
     return `${this.moduleQualifiedName}.equals`;
   }
 
+  fromRdfExpression({ resourceValueVariable }: Type.FromRdfExpressionParameters): string {
+    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf(resource))`;
+  }
+
   rdfjsResourceType(options?: { mutable?: boolean }): {
     readonly mutable: boolean;
     readonly name: string;
@@ -130,17 +134,11 @@ export class ObjectType extends Type {
     });
   }
 
-  valueFromRdfExpression({
-    resourceValueVariable,
-  }: Type.ValueFromRdfParameters): string {
-    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf(resource))`;
-  }
-
-  valueToRdfExpression({
+  toRdfExpression({
     mutateGraphVariable,
     resourceSetVariable,
     propertyValueVariable,
-  }: Type.ValueToRdfParameters): string {
+  }: Type.ToRdfExpressionParameters): string {
     return `${this.moduleQualifiedName}.toRdf(${propertyValueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
   }
 

@@ -6,9 +6,9 @@ export class StringType extends PrimitiveType {
     return "string";
   }
 
-  override valueFromRdfExpression({
+  override fromRdfExpression({
     resourceValueVariable,
-  }: Type.ValueFromRdfParameters): string {
+  }: Type.FromRdfExpressionParameters): string {
     return `${resourceValueVariable}.toString()`;
   }
 }

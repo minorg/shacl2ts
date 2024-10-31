@@ -12,17 +12,17 @@ export class EnumType extends Type {
     throw new Error("not implemented.");
   }
 
+  fromRdfExpression(_: Type.FromRdfExpressionParameters): string {
+    throw new Error("not implemented");
+  }
+
   sparqlGraphPatternExpression(
     _: Type.SparqlGraphPatternParameters,
   ): Maybe<Type.SparqlGraphPatternExpression> {
     throw new Error("not implemented");
   }
 
-  valueFromRdfExpression(_: Type.ValueFromRdfParameters): string {
-    throw new Error("not implemented");
-  }
-
-  valueToRdfExpression(_: Type.ValueToRdfParameters): string {
+  toRdfExpression(_: Type.ToRdfExpressionParameters): string {
     throw new Error("not implemented");
   }
 }

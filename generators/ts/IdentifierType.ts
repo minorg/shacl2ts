@@ -56,11 +56,11 @@ export class IdentifierType extends RdfjsTermType {
     return names.join(" | ");
   }
 
-  valueFromRdfExpression({
+  fromRdfExpression({
     predicate,
     resourceVariable,
     resourceValueVariable,
-  }: Type.ValueFromRdfParameters): string {
+  }: Type.FromRdfExpressionParameters): string {
     let expression: string;
     switch (this.name) {
       case "rdfjs.BlankNode":
