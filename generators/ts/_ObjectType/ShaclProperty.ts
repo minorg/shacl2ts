@@ -172,11 +172,34 @@ export class ShaclProperty extends Property {
 
   override hashStatements({
     hasherVariable,
+    propertyValueVariable,
   }: Parameters<Property["hashStatements"]>[0]): readonly string[] {
-    return this.type.hashStatements({
-      hasherVariable,
-      propertyValueVariable: this.name,
-    });
+    switch (this.containerType) {
+      case "Array":
+        return [
+          `${propertyValueVariable}.forEach((_${this.name}Element) => { ${this.type
+            .hashStatements({
+              hasherVariable,
+              propertyValueVariable: `_${this.name}Element`,
+            })
+            .join("\n")} })`,
+        ];
+      case "Maybe": {
+        return [
+          `${propertyValueVariable}.ifJust((_${this.name}) => { ${this.type
+            .hashStatements({
+              hasherVariable,
+              propertyValueVariable: `_${this.name}`,
+            })
+            .join("\n")} })`,
+        ];
+      }
+      case null:
+        return this.type.hashStatements({
+          hasherVariable,
+          propertyValueVariable,
+        });
+    }
   }
 
   override sparqlGraphPatternExpression(): Maybe<string> {

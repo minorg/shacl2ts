@@ -20,6 +20,25 @@ export function hashFunctionDeclaration(
     );
   }
 
+  for (const property of this.properties) {
+    const propertyValueVariable = `${thisVariable}.${property.name}`;
+    const propertyHashStatements = property.hashStatements({
+      hasherVariable,
+      propertyValueVariable,
+    });
+
+    if (
+      property.name === this.configuration.objectTypeIdentifierPropertyName &&
+      this.parentObjectTypes.length === 0
+    ) {
+      statements.push(
+        `if (typeof ${propertyValueVariable} !== "undefined") { ${propertyHashStatements.join("\n")} }`,
+      );
+    } else {
+      statements.push(...propertyHashStatements);
+    }
+  }
+
   statements.push(`return ${hasherVariable};`);
 
   return {

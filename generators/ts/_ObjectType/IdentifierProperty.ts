@@ -21,7 +21,7 @@ export class IdentifierProperty extends Property {
     this.type = type;
   }
 
-  get classConstructorParametersPropertySignature(): Maybe<
+  override get classConstructorParametersPropertySignature(): Maybe<
     OptionalKind<PropertySignatureStructure>
   > {
     return Maybe.of({
@@ -31,7 +31,7 @@ export class IdentifierProperty extends Property {
     });
   }
 
-  get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
+  override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
     return {
       isReadonly: true,
       name: this.name,
@@ -39,7 +39,7 @@ export class IdentifierProperty extends Property {
     };
   }
 
-  get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {
+  override get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {
     return {
       isReadonly: true,
       name: this.name,
@@ -47,32 +47,29 @@ export class IdentifierProperty extends Property {
     };
   }
 
-  classConstructorInitializer({
+  override classConstructorInitializer({
     parameter,
   }: Parameters<Property["classConstructorInitializer"]>[0]): Maybe<string> {
     return Maybe.of(parameter);
   }
 
-  fromRdfStatements({
+  override fromRdfStatements({
     resourceVariable,
   }: Parameters<Property["fromRdfStatements"]>[0]): readonly string[] {
     return [`const ${this.name} = ${resourceVariable}.identifier`];
   }
 
-  override hashStatements({
-    hasherVariable,
-  }: Parameters<Property["hashStatements"]>[0]): readonly string[] {
-    return this.type.hashStatements({
-      hasherVariable,
-      propertyValueVariable: this.name,
-    });
+  override hashStatements(
+    parameters: Parameters<Property["hashStatements"]>[0],
+  ): readonly string[] {
+    return this.type.hashStatements(parameters);
   }
 
-  sparqlGraphPatternExpression(): Maybe<string> {
+  override sparqlGraphPatternExpression(): Maybe<string> {
     return Maybe.empty();
   }
 
-  toRdfStatements(): readonly string[] {
+  override toRdfStatements(): readonly string[] {
     return [];
   }
 }

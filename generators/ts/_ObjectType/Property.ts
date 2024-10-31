@@ -36,9 +36,9 @@ export abstract class Property {
     resourceVariable: string;
   }): readonly string[];
 
-  abstract hashStatements(parameters: {
-    hasherVariable: string;
-  }): readonly string[];
+  abstract hashStatements(
+    parameters: Parameters<Type["hashStatements"]>[0],
+  ): readonly string[];
 
   abstract sparqlGraphPatternExpression(): Maybe<string>;
 

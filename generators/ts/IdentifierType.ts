@@ -85,7 +85,7 @@ export class IdentifierType extends RdfjsTermType {
     propertyValueVariable,
   }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `${hasherVariable}.update(rdfjsResource.Identifier.toString(${propertyValueVariable}));`,
+      `${hasherVariable}.update(rdfjsResource.Resource.Identifier.toString(${propertyValueVariable}));`,
     ];
   }
 }

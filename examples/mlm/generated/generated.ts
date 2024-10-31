@@ -151,6 +151,7 @@ export namespace MachineLearningModel {
     if (_isVariantOfEither.isLeft()) {
       return _isVariantOfEither;
     }
+
     const isVariantOf = _isVariantOfEither.unsafeCoerce();
     const _localIdentifierEither: purify.Either<
       rdfjsResource.Resource.ValueError,
@@ -161,6 +162,7 @@ export namespace MachineLearningModel {
     if (_localIdentifierEither.isLeft()) {
       return _localIdentifierEither;
     }
+
     const localIdentifier = _localIdentifierEither.unsafeCoerce();
     const _nameEither: purify.Either<
       rdfjsResource.Resource.ValueError,
@@ -171,6 +173,7 @@ export namespace MachineLearningModel {
     if (_nameEither.isLeft()) {
       return _nameEither;
     }
+
     const name = _nameEither.unsafeCoerce();
     const trainingDataCutoff = resource
       .value(
@@ -207,6 +210,26 @@ export namespace MachineLearningModel {
     },
     hasher: HasherT,
   ): HasherT {
+    machineLearningModel.description.ifJust((_description) => {
+      hasher.update(_description.value);
+    });
+    if (typeof machineLearningModel.identifier !== "undefined") {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(
+          machineLearningModel.identifier,
+        ),
+      );
+    }
+
+    MachineLearningModelFamily.hash(machineLearningModel.isVariantOf, hasher);
+    hasher.update(machineLearningModel.localIdentifier);
+    hasher.update(machineLearningModel.name.value);
+    machineLearningModel.trainingDataCutoff.ifJust((_trainingDataCutoff) => {
+      hasher.update(_trainingDataCutoff);
+    });
+    machineLearningModel.url.ifJust((_url) => {
+      hasher.update(_url);
+    });
     return hasher;
   }
 
@@ -492,6 +515,10 @@ export namespace LanguageModel {
     hasher: HasherT,
   ): HasherT {
     MachineLearningModel.hash(languageModel, hasher);
+    hasher.update(languageModel.contextWindow.toString());
+    languageModel.maxTokenOutput.ifJust((_maxTokenOutput) => {
+      hasher.update(_maxTokenOutput.toString());
+    });
     return hasher;
   }
 
@@ -719,6 +746,7 @@ export namespace MachineLearningModelFamily {
     if (_manufacturerEither.isLeft()) {
       return _manufacturerEither;
     }
+
     const manufacturer = _manufacturerEither.unsafeCoerce();
     const _nameEither: purify.Either<
       rdfjsResource.Resource.ValueError,
@@ -729,6 +757,7 @@ export namespace MachineLearningModelFamily {
     if (_nameEither.isLeft()) {
       return _nameEither;
     }
+
     const name = _nameEither.unsafeCoerce();
     const type = "MachineLearningModelFamily" as const;
     const url = resource
@@ -756,6 +785,22 @@ export namespace MachineLearningModelFamily {
     > & { identifier?: rdfjs.NamedNode },
     hasher: HasherT,
   ): HasherT {
+    machineLearningModelFamily.description.ifJust((_description) => {
+      hasher.update(_description.value);
+    });
+    if (typeof machineLearningModelFamily.identifier !== "undefined") {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(
+          machineLearningModelFamily.identifier,
+        ),
+      );
+    }
+
+    Organization.hash(machineLearningModelFamily.manufacturer, hasher);
+    hasher.update(machineLearningModelFamily.name.value);
+    machineLearningModelFamily.url.ifJust((_url) => {
+      hasher.update(_url);
+    });
     return hasher;
   }
 
@@ -963,6 +1008,7 @@ export namespace Organization {
     if (_nameEither.isLeft()) {
       return _nameEither;
     }
+
     const name = _nameEither.unsafeCoerce();
     const type = "Organization" as const;
     return purify.Either.of({ identifier, name, type });
@@ -978,6 +1024,13 @@ export namespace Organization {
     },
     hasher: HasherT,
   ): HasherT {
+    if (typeof organization.identifier !== "undefined") {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(organization.identifier),
+      );
+    }
+
+    hasher.update(organization.name.value);
     return hasher;
   }
 
