@@ -8,6 +8,7 @@ import {
   StructureKind,
 } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
+import { hasherTypeConstraint } from "./hashFunctionDeclaration";
 
 function constructorDeclaration(
   this: ObjectType,
@@ -46,6 +47,9 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
   }
   if (this.configuration.features.has("fromRdf")) {
     methods.push(fromRdfMethodDeclaration.bind(this)());
+  }
+  if (this.configuration.features.has("hash")) {
+    methods.push(hashMethodDeclaration.bind(this)());
   }
   if (this.configuration.features.has("toRdf")) {
     methods.push(toRdfMethodDeclaration.bind(this)());
@@ -105,6 +109,29 @@ function fromRdfMethodDeclaration(
     returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.classQualifiedName}>`,
     statements: [
       `return ${this.moduleQualifiedName}.fromRdf(resource).map(properties => new ${this.classQualifiedName}(properties));`,
+    ],
+  };
+}
+
+function hashMethodDeclaration(
+  this: ObjectType,
+): OptionalKind<MethodDeclarationStructure> {
+  return {
+    hasOverrideKeyword: this.parentObjectTypes.length > 0,
+    name: "hash",
+    parameters: [
+      {
+        name: "hasher",
+        type: "HasherT",
+      },
+    ],
+    returnType: "HasherT",
+    statements: [`return ${this.moduleQualifiedName}.hash(this, hasher);`],
+    typeParameters: [
+      {
+        name: "HasherT",
+        constraint: hasherTypeConstraint,
+      },
     ],
   };
 }
