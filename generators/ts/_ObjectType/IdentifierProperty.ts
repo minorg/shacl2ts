@@ -55,7 +55,7 @@ export class IdentifierProperty extends Property {
 
   fromRdfStatement({
     resourceVariable,
-  }: Property.FromRdfParameters): Maybe<string> {
+  }: Property.FromRdfStatementParameters): Maybe<string> {
     return Maybe.of(`const ${this.name} = ${resourceVariable}.identifier`);
   }
 
@@ -63,7 +63,9 @@ export class IdentifierProperty extends Property {
     return Maybe.empty();
   }
 
-  toRdfStatement(_parameters: Property.ToRdfParameters): Maybe<string> {
+  toRdfStatement(
+    _parameters: Property.ToRdfStatementParameters,
+  ): Maybe<string> {
     return Maybe.empty();
   }
 }

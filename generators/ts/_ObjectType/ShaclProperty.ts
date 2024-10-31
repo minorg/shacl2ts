@@ -149,7 +149,7 @@ export class ShaclProperty extends Property {
 
   fromRdfStatement({
     resourceVariable,
-  }: Property.FromRdfParameters): Maybe<string> {
+  }: Property.FromRdfStatementParameters): Maybe<string> {
     const resourceValueVariable = "value";
     if (this.containerType === "Array") {
       return Maybe.of(
@@ -194,7 +194,7 @@ export class ShaclProperty extends Property {
     mutateGraphVariable,
     propertyValueVariable,
     resourceSetVariable,
-  }: Property.ToRdfParameters): Maybe<string> {
+  }: Property.ToRdfStatementParameters): Maybe<string> {
     switch (this.containerType) {
       case "Array":
         return Maybe.of(

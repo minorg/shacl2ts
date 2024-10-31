@@ -60,7 +60,9 @@ export class TypeDiscriminatorProperty extends Property {
     return Maybe.empty();
   }
 
-  fromRdfStatement(_parameters: Property.FromRdfParameters): Maybe<string> {
+  fromRdfStatement(
+    _parameters: Property.FromRdfStatementParameters,
+  ): Maybe<string> {
     return Maybe.of(`const ${this.name} = "${this.value}" as const`);
   }
 
@@ -68,7 +70,9 @@ export class TypeDiscriminatorProperty extends Property {
     return Maybe.empty();
   }
 
-  toRdfStatement(_parameters: Property.ToRdfParameters): Maybe<string> {
+  toRdfStatement(
+    _parameters: Property.ToRdfStatementParameters,
+  ): Maybe<string> {
     return Maybe.empty();
   }
 }
