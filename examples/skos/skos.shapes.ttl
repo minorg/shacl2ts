@@ -3,19 +3,40 @@
 @prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix shacl2ts:   <http://minorg.github.io/shacl2ts/ns#> .
 @prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
 @prefix skos-shacl: <http://kos-kit.github.io/skos-shacl/ns#> .
 @prefix skos-xl:    <http://www.w3.org/2008/05/skos-xl#> .
+
+skos-shacl:altLabel
+    a       sh:PropertyShape ;
+    sh:name "altLabel" ;
+    sh:or   dash:StringOrLangString ;
+    sh:path skos:altLabel ;
+.
+
+skos-shacl:altLabelXl
+    a        sh:PropertyShape ;
+    sh:name  "altLabelXl" ;
+    sh:class skos-xl:Label ;
+    sh:path  skos-xl:altLabel ;
+.
 
 skos:Collection
     a           sh:NodeShape ;
     a           owl:Class ;
     sh:name     "Collection" ;
     sh:nodeKind sh:IRI ;
-    sh:property [ sh:name "member" ;
-                  sh:or   [ sh:class skos:Collection ;
-                            sh:class skos:Concept ] ;
-                  sh:path skos:member ; ] ;
+    sh:property skos-shacl:Collection-member ;
+.
+
+skos-shacl:Collection-member
+    a               sh:PropertyShape ;
+    shacl2ts:inline true ;
+    sh:name         "member" ;
+    sh:or           ( [ sh:class skos:Collection ; ]
+                      [ sh:class skos:Concept ; ] ) ;
+    sh:path         skos:member ;
 .
 
 skos:Concept
@@ -110,49 +131,6 @@ skos:ConceptScheme
     sh:property skos-shacl:prefLabel ;
 .
 
-skos:OrderedCollection
-    a               sh:NodeShape ;
-    a               owl:Class ;
-    rdfs:subClassOf skos:Collection ;
-    sh:name         "OrderedCollection" ;
-    sh:nodeKind     sh:IRI ;
-    sh:property     [ sh:node skos-shacl:OrderedCollectionMemberList ;
-                      sh:name "memberList" ;
-                      sh:path skos:memberList ; ] ;
-.
-
-skos-shacl:OrderedCollectionMemberList
-    a               sh:NodeShape ;
-    a               owl:Class ;
-    rdfs:subClassOf rdf:List ;
-    sh:name         "OrderedCollectionMemberList" ;
-    sh:nodeKind     sh:BlankNodeOrIRI ;
-    sh:property     [ sh:maxCount 1 ;
-                      sh:minCount 1 ;
-                      sh:name     "first" ;
-                      sh:or       [ sh:class skos:Concept ;
-                                    sh:class skos:Collection ] ;
-                      sh:path     rdf:first ; ] ;
-    sh:property     [ sh:maxCount 1 ;
-                      sh:minCount 1 ;
-                      sh:name     "rest" ;
-                      sh:or       ( [ sh:class skos-shacl:OrderedCollectionMemberList ] [ sh:hasValue rdf:nil ] ) ; ]
-.
-
-skos-shacl:altLabel
-    a       sh:PropertyShape ;
-    sh:name "altLabel" ;
-    sh:or   dash:StringOrLangString ;
-    sh:path skos:altLabel ;
-.
-
-skos-shacl:altLabelXl
-    a        sh:PropertyShape ;
-    sh:name  "altLabelXl" ;
-    sh:class skos-xl:Label ;
-    sh:path  skos-xl:altLabel ;
-.
-
 skos-shacl:hiddenLabel
     a       sh:PropertyShape ;
     sh:name "hiddenLabel" ;
@@ -175,6 +153,51 @@ skos-xl:Label
     sh:property [ sh:minCount 1 ;
                   sh:or       dash:StringOrLangString ;
                   sh:path     skos-xl:literalForm ; ] ;
+.
+
+skos:OrderedCollection
+    a               sh:NodeShape ;
+    a               owl:Class ;
+    rdfs:subClassOf skos:Collection ;
+    sh:name         "OrderedCollection" ;
+    sh:nodeKind     sh:IRI ;
+    sh:property     skos-shacl:OrderedCollection-memberList ;
+.
+
+skos-shacl:OrderedCollection-memberList
+    a               sh:PropertyShape ;
+    shacl2ts:inline true ;
+    sh:name         "memberList" ;
+    sh:node         skos-shacl:OrderedCollectionMemberList ;
+    sh:path         skos:memberList ;
+.
+
+skos-shacl:OrderedCollectionMemberList
+    a               sh:NodeShape ;
+    a               owl:Class ;
+    rdfs:subClassOf rdf:List ;
+    sh:name         "OrderedCollectionMemberList" ;
+    sh:nodeKind     sh:BlankNodeOrIRI ;
+    sh:property     skos-shacl:OrderedCollectionMemberList-first ;
+    sh:property     skos-shacl:OrderedCollectionMemberList-rest ;
+.
+
+skos-shacl:OrderedCollectionMemberList-first
+    a           sh:PropertyShape ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:name     "first" ;
+    sh:or       ( [ sh:class skos:Collection ; ] [ sh:class skos:Concept ; ] ) ;
+    sh:path     rdf:first ;
+.
+
+skos-shacl:OrderedCollectionMemberList-rest
+    a           sh:PropertyShape ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:name     "rest" ;
+    sh:or       ( [ sh:class skos-shacl:OrderedCollectionMemberList ] [ sh:hasValue rdf:nil ] ) ;
+    sh:path rdf:rest ;
 .
 
 skos-shacl:prefLabel

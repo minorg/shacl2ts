@@ -78,10 +78,10 @@ ${this.types
     this.typesSharedDiscriminatorProperty
       .map((typesSharedDiscriminatorProperty) => {
         // Types share a discriminator property already, use it
-        return typesSharedDiscriminatorProperty.values.map(
+        return type.discriminatorProperty.unsafeCoerce().values.map(
           (
             value,
-          ) => `if (left.${typesSharedDiscriminatorProperty} === "${value}" && right.${typesSharedDiscriminatorProperty} === "${value}") {
+          ) => `if (left.${typesSharedDiscriminatorProperty.name} === "${value}" && right.${typesSharedDiscriminatorProperty.name} === "${value}") {
   return ${type.equalsFunction()}(left, right);
 }`,
         );
@@ -108,6 +108,7 @@ ${this.types
       if (!this.typesSharedDiscriminatorProperty.isJust()) {
         typeExpression = `${typeExpression}.map(value => ({ type: "${typeIndex}-${type.name}" as const, value }) as (${this.name}))`;
       }
+      typeExpression = `(${typeExpression} as purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>)`;
       expression =
         expression.length > 0
           ? `${expression}.altLazy(() => ${typeExpression})`
@@ -166,7 +167,7 @@ ${this.types
                   return `sparqlBuilder.GraphPattern.group(${typeSparqlGraphPatternExpression.value})`;
               }
             })
-            .join(", ")}})`,
+            .join(", ")})`,
         });
     }
   }

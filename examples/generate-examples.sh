@@ -19,7 +19,7 @@ cd "$(dirname "$0")/.."
 # ./cli.sh ast-json examples/sdo/sdo.shapes.ttl examples/sdo/sdo.shacl2ts.ttl >examples/sdo/generated/ast.json
 
 # SKOS
-SKOS_SHAPES_TTL_ORIGINAL_FILE_PATH="../kos-kit/skos-shacl/shapes/shacl2ts.shacl.ttl"
+SKOS_SHAPES_TTL_ORIGINAL_FILE_PATH="../kos-kit/skos-shacl/shapes/skos-shacl2ts.shacl.ttl"
 if [ -f "$SKOS_SHAPES_TTL_ORIGINAL_FILE_PATH" ] ; then
   cp $SKOS_SHAPES_TTL_ORIGINAL_FILE_PATH examples/skos/skos.shapes.ttl
   echo "copied SKOS shapes from original file $SKOS_SHAPES_TTL_ORIGINAL_FILE_PATH"

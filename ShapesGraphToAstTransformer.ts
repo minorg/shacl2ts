@@ -213,20 +213,39 @@ export class ShapesGraphToAstTransformer {
    * a shape has one type.
    */
   private shapeType(shape: shaclAst.Shape): Either<Error, ast.Type> {
+    // if (shape.resource.identifier.value.endsWith("Collection-member")) {
+    //   console.info("Debug");
+    // }
+
     const hasValue = shape.constraints.hasValue;
 
-    if (shape.constraints.and.length > 0) {
-      return Either.sequence(
-        shape.constraints.and.map((shape) => this.shapeType(shape)),
-      ).chain((types) =>
-        types.length === 1
-          ? Either.of(types[0])
-          : Either.of({
-              kind: "And",
-              types,
-            }),
-      );
+    // Treat any type with sh:node(s) as an sh:and of those node shapes
+    if (
+      shape.constraints.and.length > 0 ||
+      shape.constraints.nodes.length > 0
+    ) {
+      const typeEithers =
+        shape.constraints.and.length > 0
+          ? shape.constraints.and.map((shape) => this.shapeType(shape))
+          : shape.constraints.nodes.map((shape) => this.shapeType(shape));
+      const types = Either.rights(typeEithers);
+      switch (types.length) {
+        case 0:
+          logger.warn(
+            "shape %s conjunction did not map to any types successfully",
+            shape,
+          );
+          return typeEithers[0];
+        case 1:
+          return Either.of(types[0]);
+        default:
+          return Either.of({
+            kind: "And",
+            types,
+          });
+      }
     }
+
     if (
       // Treat any shape with the constraints in the list as a literal type
       [
@@ -282,34 +301,27 @@ export class ShapesGraphToAstTransformer {
       });
     }
 
-    // Treat any type with sh:node(s) as the conjunction of those nodes.
-    if (shape.constraints.nodes.length > 0) {
-      return Either.sequence(
-        shape.constraints.nodes.map((nodeShape) =>
-          this.transformNodeShape(nodeShape),
-        ),
-      ).chain((types) =>
-        types.length === 1
-          ? Either.of(types[0] as ast.Type)
-          : Either.of({
-              kind: "And",
-              types,
-            }),
-      );
-    }
-
     // Treat any shape with sh:or as the disjunction of the member shapes.
     if (shape.constraints.or.length > 0) {
-      return Either.sequence(
-        shape.constraints.or.map((shape) => this.shapeType(shape)),
-      ).chain((types) =>
-        types.length === 1
-          ? Either.of(types[0])
-          : Either.of({
-              kind: "Or",
-              types,
-            }),
+      const typeEithers = shape.constraints.or.map((shape) =>
+        this.shapeType(shape),
       );
+      const types = Either.rights(typeEithers);
+      switch (types.length) {
+        case 0:
+          logger.warn(
+            "shape %s disjunction did not map to any types successfully",
+            shape,
+          );
+          return typeEithers[0];
+        case 1:
+          return Either.of(types[0]);
+        default:
+          return Either.of({
+            kind: "Or",
+            types,
+          });
+      }
     }
 
     // Treat any shape with sh:nodeKind blank node or IRI as an identifier type

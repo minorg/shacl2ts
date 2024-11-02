@@ -7,16 +7,23 @@ import * as rdfjsResource from "rdfjs-resource";
 
 export interface Collection {
   readonly identifier: rdfjs.NamedNode;
+  readonly member: readonly (Collection | Concept)[];
   readonly type: "Collection" | "OrderedCollection";
 }
 
 export namespace Collection {
   export class Class implements Collection {
     readonly identifier: rdfjs.NamedNode;
+    readonly member: readonly (Collection | Concept)[];
     readonly type: "Collection" | "OrderedCollection" = "Collection";
 
-    constructor(parameters: { readonly identifier: rdfjs.NamedNode }) {
+    constructor(parameters: {
+      readonly identifier: rdfjs.NamedNode;
+      readonly member?: readonly (Collection | Concept)[];
+    }) {
       this.identifier = parameters.identifier;
+      this.member =
+        typeof parameters.member !== "undefined" ? parameters.member : [];
     }
 
     equals(other: Collection): purifyHelpers.Equatable.EqualsResult {
@@ -53,6 +60,31 @@ export namespace Collection {
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
+      member: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          (left: Collection | Concept, right: Collection | Concept) => {
+            if (left.type === "Collection" && right.type === "Collection") {
+              return Collection.equals(left, right);
+            }
+            if (left.type === "Concept" && right.type === "Concept") {
+              return Concept.equals(left, right);
+            }
+
+            return purify.Left({
+              left,
+              right,
+              propertyName: "type",
+              propertyValuesUnequal: {
+                left: typeof left,
+                right: typeof right,
+                type: "BooleanEquals",
+              },
+              type: "Property",
+            });
+          },
+        ),
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -79,8 +111,39 @@ export namespace Collection {
     }
 
     const identifier = resource.identifier;
+    const member = [
+      ...resource
+        .values(
+          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#member"),
+        )
+        .flatMap((value) =>
+          (
+            value
+              .toNamedResource()
+              .chain((resource) =>
+                Collection.fromRdf(resource),
+              ) as purify.Either<
+              rdfjsResource.Resource.ValueError,
+              Collection | Concept
+            >
+          )
+            .altLazy(
+              () =>
+                value
+                  .toNamedResource()
+                  .chain((resource) =>
+                    Concept.fromRdf(resource),
+                  ) as purify.Either<
+                  rdfjsResource.Resource.ValueError,
+                  Collection | Concept
+                >,
+            )
+            .toMaybe()
+            .toList(),
+        ),
+    ];
     const type = "Collection" as const;
-    return purify.Either.of({ identifier, type });
+    return purify.Either.of({ identifier, member, type });
   }
 
   export function hash<
@@ -97,6 +160,10 @@ export namespace Collection {
       hasher.update(
         rdfjsResource.Resource.Identifier.toString(collection.identifier),
       );
+    }
+
+    for (const _memberElement of collection.member) {
+      hasher.update(_memberElement.value);
     }
 
     return hasher;
@@ -118,6 +185,25 @@ export namespace Collection {
           ),
         );
       }
+
+      this.add(
+        sparqlBuilder.GraphPattern.group(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#member"),
+            this.variable("Member"),
+          ).chainObject((member) => [
+            sparqlBuilder.GraphPattern.union(
+              sparqlBuilder.GraphPattern.group(
+                new Collection.SparqlGraphPatterns(member),
+              ),
+              sparqlBuilder.GraphPattern.group(
+                new Concept.SparqlGraphPatterns(member),
+              ),
+            ),
+          ]),
+        ),
+      );
     }
   }
 
@@ -145,6 +231,21 @@ export namespace Collection {
         resource.dataFactory.namedNode(
           "http://www.w3.org/2004/02/skos/core#Collection",
         ),
+      );
+    }
+
+    for (const memberValue of collection.member) {
+      resource.add(
+        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#member"),
+        memberValue.type === "Concept"
+          ? Concept.toRdf(memberValue, {
+              mutateGraph: mutateGraph,
+              resourceSet: resourceSet,
+            }).identifier
+          : Collection.toRdf(memberValue, {
+              mutateGraph: mutateGraph,
+              resourceSet: resourceSet,
+            }).identifier,
       );
     }
 
@@ -2200,19 +2301,42 @@ export namespace OrderedCollection {
 }
 
 export interface OrderedCollectionMemberList {
+  readonly first: Collection | Concept;
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly rest:
+    | {
+        type: "0-OrderedCollectionMemberList";
+        value: OrderedCollectionMemberList;
+      }
+    | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode };
   readonly type: "OrderedCollectionMemberList";
 }
 
 export namespace OrderedCollectionMemberList {
   export class Class implements OrderedCollectionMemberList {
+    readonly first: Collection | Concept;
     readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+    readonly rest:
+      | {
+          type: "0-OrderedCollectionMemberList";
+          value: OrderedCollectionMemberList;
+        }
+      | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode };
     readonly type = "OrderedCollectionMemberList" as const;
 
     constructor(parameters: {
+      readonly first: Collection | Concept;
       readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+      readonly rest:
+        | {
+            type: "0-OrderedCollectionMemberList";
+            value: OrderedCollectionMemberList;
+          }
+        | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode };
     }) {
+      this.first = parameters.first;
       this.identifier = parameters.identifier;
+      this.rest = parameters.rest;
     }
 
     equals(
@@ -2253,7 +2377,66 @@ export namespace OrderedCollectionMemberList {
     right: OrderedCollectionMemberList,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
+      first: (left: Collection | Concept, right: Collection | Concept) => {
+        if (left.type === "Collection" && right.type === "Collection") {
+          return Collection.equals(left, right);
+        }
+        if (left.type === "Concept" && right.type === "Concept") {
+          return Concept.equals(left, right);
+        }
+
+        return purify.Left({
+          left,
+          right,
+          propertyName: "type",
+          propertyValuesUnequal: {
+            left: typeof left,
+            right: typeof right,
+            type: "BooleanEquals",
+          },
+          type: "Property",
+        });
+      },
       identifier: purifyHelpers.Equatable.booleanEquals,
+      rest: (
+        left:
+          | {
+              type: "0-OrderedCollectionMemberList";
+              value: OrderedCollectionMemberList;
+            }
+          | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
+        right:
+          | {
+              type: "0-OrderedCollectionMemberList";
+              value: OrderedCollectionMemberList;
+            }
+          | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
+      ) => {
+        if (
+          left.type === "0-OrderedCollectionMemberList" &&
+          right.type === "0-OrderedCollectionMemberList"
+        ) {
+          return OrderedCollectionMemberList.equals(left.value, right.value);
+        }
+        if (
+          left.type === "1-rdfjs.NamedNode" &&
+          right.type === "1-rdfjs.NamedNode"
+        ) {
+          return purifyHelpers.Equatable.booleanEquals(left.value, right.value);
+        }
+
+        return purify.Left({
+          left,
+          right,
+          propertyName: "type",
+          propertyValuesUnequal: {
+            left: typeof left,
+            right: typeof right,
+            type: "BooleanEquals",
+          },
+          type: "Property",
+        });
+      },
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -2284,9 +2467,121 @@ export namespace OrderedCollectionMemberList {
       );
     }
 
+    const _firstEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      Collection | Concept
+    > = resource
+      .value(
+        dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
+        ),
+      )
+      .chain((value) =>
+        (
+          value
+            .toNamedResource()
+            .chain((resource) => Collection.fromRdf(resource)) as purify.Either<
+            rdfjsResource.Resource.ValueError,
+            Collection | Concept
+          >
+        ).altLazy(
+          () =>
+            value
+              .toNamedResource()
+              .chain((resource) => Concept.fromRdf(resource)) as purify.Either<
+              rdfjsResource.Resource.ValueError,
+              Collection | Concept
+            >,
+        ),
+      );
+    if (_firstEither.isLeft()) {
+      return _firstEither;
+    }
+
+    const first = _firstEither.unsafeCoerce();
     const identifier = resource.identifier;
+    const _restEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      | {
+          type: "0-OrderedCollectionMemberList";
+          value: OrderedCollectionMemberList;
+        }
+      | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode }
+    > = resource
+      .value(
+        dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
+        ),
+      )
+      .chain((value) =>
+        (
+          value
+            .toResource()
+            .chain((resource) => OrderedCollectionMemberList.fromRdf(resource))
+            .map(
+              (value) =>
+                ({ type: "0-OrderedCollectionMemberList" as const, value }) as
+                  | {
+                      type: "0-OrderedCollectionMemberList";
+                      value: OrderedCollectionMemberList;
+                    }
+                  | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
+            ) as purify.Either<
+            rdfjsResource.Resource.ValueError,
+            | {
+                type: "0-OrderedCollectionMemberList";
+                value: OrderedCollectionMemberList;
+              }
+            | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode }
+          >
+        ).altLazy(
+          () =>
+            value
+              .toIri()
+              .chain<rdfjsResource.Resource.ValueError, rdfjs.NamedNode>(
+                (_identifier) =>
+                  _identifier.equals(
+                    dataFactory.namedNode(
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil",
+                    ),
+                  )
+                    ? purify.Either.of(_identifier)
+                    : purify.Left(
+                        new rdfjsResource.Resource.MistypedValueError({
+                          actualValue: _identifier,
+                          expectedValueType: "NamedNode",
+                          focusResource: resource,
+                          predicate: dataFactory.namedNode(
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
+                          ),
+                        }),
+                      ),
+              )
+              .map(
+                (value) =>
+                  ({ type: "1-rdfjs.NamedNode" as const, value }) as
+                    | {
+                        type: "0-OrderedCollectionMemberList";
+                        value: OrderedCollectionMemberList;
+                      }
+                    | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
+              ) as purify.Either<
+              rdfjsResource.Resource.ValueError,
+              | {
+                  type: "0-OrderedCollectionMemberList";
+                  value: OrderedCollectionMemberList;
+                }
+              | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode }
+            >,
+        ),
+      );
+    if (_restEither.isLeft()) {
+      return _restEither;
+    }
+
+    const rest = _restEither.unsafeCoerce();
     const type = "OrderedCollectionMemberList" as const;
-    return purify.Either.of({ identifier, type });
+    return purify.Either.of({ first, identifier, rest, type });
   }
 
   export function hash<
@@ -2300,6 +2595,7 @@ export namespace OrderedCollectionMemberList {
     > & { identifier?: rdfjs.BlankNode | rdfjs.NamedNode },
     hasher: HasherT,
   ): HasherT {
+    hasher.update(orderedCollectionMemberList.first.value);
     if (typeof orderedCollectionMemberList.identifier !== "undefined") {
       hasher.update(
         rdfjsResource.Resource.Identifier.toString(
@@ -2308,6 +2604,7 @@ export namespace OrderedCollectionMemberList {
       );
     }
 
+    hasher.update(orderedCollectionMemberList.rest.value);
     return hasher;
   }
 
@@ -2327,6 +2624,44 @@ export namespace OrderedCollectionMemberList {
           ),
         );
       }
+
+      this.add(
+        sparqlBuilder.GraphPattern.group(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
+            ),
+            this.variable("First"),
+          ).chainObject((first) => [
+            sparqlBuilder.GraphPattern.union(
+              sparqlBuilder.GraphPattern.group(
+                new Collection.SparqlGraphPatterns(first),
+              ),
+              sparqlBuilder.GraphPattern.group(
+                new Concept.SparqlGraphPatterns(first),
+              ),
+            ),
+          ]),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.group(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
+            ),
+            this.variable("Rest"),
+          ).chainObject((rest) => [
+            sparqlBuilder.GraphPattern.optional(
+              sparqlBuilder.GraphPattern.group(
+                new OrderedCollectionMemberList.SparqlGraphPatterns(rest),
+              ),
+            ),
+          ]),
+        ),
+      );
     }
   }
 
@@ -2357,6 +2692,27 @@ export namespace OrderedCollectionMemberList {
       );
     }
 
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#first"),
+      orderedCollectionMemberList.first.type === "Concept"
+        ? Concept.toRdf(orderedCollectionMemberList.first, {
+            mutateGraph: mutateGraph,
+            resourceSet: resourceSet,
+          }).identifier
+        : Collection.toRdf(orderedCollectionMemberList.first, {
+            mutateGraph: mutateGraph,
+            resourceSet: resourceSet,
+          }).identifier,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"),
+      orderedCollectionMemberList.rest.type === "1-rdfjs.NamedNode"
+        ? orderedCollectionMemberList.rest.value
+        : OrderedCollectionMemberList.toRdf(
+            orderedCollectionMemberList.rest.value,
+            { mutateGraph: mutateGraph, resourceSet: resourceSet },
+          ).identifier,
+    );
     return resource;
   }
 }
