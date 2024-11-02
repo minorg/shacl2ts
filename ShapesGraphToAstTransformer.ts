@@ -181,8 +181,8 @@ export class ShapesGraphToAstTransformer {
         );
         compositionKind = "And";
       } else if (shape.constraints.nodes.length > 0) {
-        composedTypeEithers = shape.constraints.nodes.map((shape) =>
-          this.propertyShapeType(shape, { inline }),
+        composedTypeEithers = shape.constraints.nodes.map((nodeShape) =>
+          this.transformNodeShape(nodeShape),
         );
         compositionKind = "And";
       } else {

@@ -2040,18 +2040,18 @@ export namespace Label {
 }
 
 export interface OrderedCollection extends Collection {
-  readonly memberList: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+  readonly memberList: readonly OrderedCollectionMemberList[];
   readonly type: "OrderedCollection";
 }
 
 export namespace OrderedCollection {
   export class Class extends Collection.Class implements OrderedCollection {
-    readonly memberList: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+    readonly memberList: readonly OrderedCollectionMemberList[];
     override readonly type = "OrderedCollection" as const;
 
     constructor(
       parameters: {
-        readonly memberList?: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+        readonly memberList?: readonly OrderedCollectionMemberList[];
       } & ConstructorParameters<typeof Collection.Class>[0],
     ) {
       super(parameters);
@@ -2104,7 +2104,7 @@ export namespace OrderedCollection {
           purifyHelpers.Arrays.equals(
             left,
             right,
-            purifyHelpers.Equatable.booleanEquals,
+            OrderedCollectionMemberList.equals,
           ),
         type: purifyHelpers.Equatable.strictEquals,
       }),
@@ -2142,7 +2142,15 @@ export namespace OrderedCollection {
                 "http://www.w3.org/2004/02/skos/core#memberList",
               ),
             )
-            .flatMap((value) => value.toIdentifier().toMaybe().toList()),
+            .flatMap((value) =>
+              value
+                .toResource()
+                .chain((resource) =>
+                  OrderedCollectionMemberList.fromRdf(resource),
+                )
+                .toMaybe()
+                .toList(),
+            ),
         ];
         const type = "OrderedCollection" as const;
         return purify.Either.of({ ..._super, memberList, type });
@@ -2162,9 +2170,7 @@ export namespace OrderedCollection {
   ): HasherT {
     Collection.hash(orderedCollection, hasher);
     for (const _memberListElement of orderedCollection.memberList) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_memberListElement),
-      );
+      OrderedCollectionMemberList.hash(_memberListElement, hasher);
     }
 
     return hasher;
@@ -2188,12 +2194,17 @@ export namespace OrderedCollection {
       }
 
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#memberList",
+        sparqlBuilder.GraphPattern.group(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#memberList",
+            ),
+            this.variable("MemberList"),
+          ).chainObject(
+            (memberList) =>
+              new OrderedCollectionMemberList.SparqlGraphPatterns(memberList),
           ),
-          this.variable("MemberList"),
         ),
       );
     }
@@ -2230,7 +2241,10 @@ export namespace OrderedCollection {
     for (const memberListValue of orderedCollection.memberList) {
       resource.add(
         dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#memberList"),
-        memberListValue,
+        OrderedCollectionMemberList.toRdf(memberListValue, {
+          mutateGraph: mutateGraph,
+          resourceSet: resourceSet,
+        }).identifier,
       );
     }
 
