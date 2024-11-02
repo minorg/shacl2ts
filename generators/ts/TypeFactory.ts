@@ -111,33 +111,19 @@ export class TypeFactory {
   createTypeFromAstType(astType: ast.Type): Type {
     switch (astType.kind) {
       case "And":
-      case "Or": {
-        if (
-          astType.types.every((composedType) => composedType.kind === "Literal")
-        ) {
-          // Special case: all the composed types are Literals,
-          // like dash:StringOrLangString
-          return new LiteralType({
-            configuration: this.configuration,
-          });
-        }
-
-        if (astType.kind === "And") {
-          return new AndType({
-            configuration: this.configuration,
-            types: astType.types.map((astType) =>
-              this.createTypeFromAstType(astType),
-            ),
-          });
-        }
-
+        return new AndType({
+          configuration: this.configuration,
+          types: astType.types.map((astType) =>
+            this.createTypeFromAstType(astType),
+          ),
+        });
+      case "Or":
         return new OrType({
           configuration: this.configuration,
           types: astType.types.map((astType) =>
             this.createTypeFromAstType(astType),
           ),
         });
-      }
       case "Enum":
         throw new Error("not implemented");
       case "Identifier":
@@ -147,12 +133,14 @@ export class TypeFactory {
           nodeKinds: astType.nodeKinds,
         });
       case "Literal": {
-        const datatype = astType.datatype.orDefault(xsd.string);
-        if (datatype.equals(xsd.integer)) {
-          return new NumberType({ configuration: this.configuration });
-        }
-        if (datatype.equals(xsd.anyURI) || datatype.equals(xsd.string)) {
-          return new StringType({ configuration: this.configuration });
+        const datatype = astType.datatype.extractNullable();
+        if (datatype !== null) {
+          if (datatype.equals(xsd.integer)) {
+            return new NumberType({ configuration: this.configuration });
+          }
+          if (datatype.equals(xsd.anyURI) || datatype.equals(xsd.string)) {
+            return new StringType({ configuration: this.configuration });
+          }
         }
         return new LiteralType({ configuration: this.configuration });
       }

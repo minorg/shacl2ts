@@ -32,9 +32,9 @@ skos:Collection
 
 skos-shacl:Collection-member
     a               sh:PropertyShape ;
-    shacl2ts:inline true ;
     sh:name         "member" ;
-    sh:nodeKind      sh:IRI ;
+    sh:or           ( [ sh:class skos:Collection ; ]
+                      [ sh:class skos:Concept ; ] ) ;
     sh:path         skos:member ;
 .
 
@@ -186,7 +186,7 @@ skos-shacl:OrderedCollectionMemberList-first
     sh:maxCount 1 ;
     sh:minCount 1 ;
     sh:name     "first" ;
-    sh:nodeKind sh:IRI ;
+    sh:or       ( [ sh:class skos:Collection ; ] [ sh:class skos:Concept ; ] ) ;
     sh:path     rdf:first ;
 .
 
