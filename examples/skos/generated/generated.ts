@@ -19,6 +19,7 @@ export interface Concept {
   readonly prefLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
   readonly related: readonly rdfjs.NamedNode[];
   readonly semanticRelation: readonly rdfjs.NamedNode[];
+  readonly topConceptOf: readonly rdfjs.NamedNode[];
   readonly type: "Concept";
 }
 
@@ -37,6 +38,7 @@ export namespace Concept {
     readonly prefLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
     readonly related: readonly rdfjs.NamedNode[];
     readonly semanticRelation: readonly rdfjs.NamedNode[];
+    readonly topConceptOf: readonly rdfjs.NamedNode[];
     readonly type = "Concept" as const;
 
     constructor(parameters: Concept.Class.ConstructorParameters) {
@@ -78,6 +80,10 @@ export namespace Concept {
       this.semanticRelation =
         typeof parameters.semanticRelation !== "undefined"
           ? parameters.semanticRelation
+          : [];
+      this.topConceptOf =
+        typeof parameters.topConceptOf !== "undefined"
+          ? parameters.topConceptOf
           : [];
     }
 
@@ -124,6 +130,7 @@ export namespace Concept {
       readonly prefLabelXl?: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
       readonly related?: readonly rdfjs.NamedNode[];
       readonly semanticRelation?: readonly rdfjs.NamedNode[];
+      readonly topConceptOf?: readonly rdfjs.NamedNode[];
     }
   }
 
@@ -205,6 +212,12 @@ export namespace Concept {
           right,
           purifyHelpers.Equatable.booleanEquals,
         ),
+      topConceptOf: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -213,6 +226,23 @@ export namespace Concept {
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<rdfjsResource.Resource.ValueError, Concept> {
+    if (
+      !_options?.ignoreRdfType &&
+      !resource.isInstanceOf(
+        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#Concept"),
+      )
+    ) {
+      return purify.Left(
+        new rdfjsResource.Resource.ValueError({
+          focusResource: resource,
+          message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+          predicate: dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#Concept",
+          ),
+        }),
+      );
+    }
+
     const altLabel = [
       ...resource
         .values(
@@ -308,6 +338,15 @@ export namespace Concept {
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
+    const topConceptOf = [
+      ...resource
+        .values(
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#topConceptOf",
+          ),
+        )
+        .flatMap((value) => value.toIri().toMaybe().toList()),
+    ];
     const type = "Concept" as const;
     return purify.Either.of({
       altLabel,
@@ -323,6 +362,7 @@ export namespace Concept {
       prefLabelXl,
       related,
       semanticRelation,
+      topConceptOf,
       type,
     });
   }
@@ -407,6 +447,12 @@ export namespace Concept {
       );
     }
 
+    for (const _topConceptOfElement of concept.topConceptOf) {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(_topConceptOfElement),
+      );
+    }
+
     return hasher;
   }
 
@@ -416,6 +462,17 @@ export namespace Concept {
       _options?: { ignoreRdfType?: boolean },
     ) {
       super(subject);
+      if (!_options?.ignoreRdfType) {
+        this.add(
+          ...new sparqlBuilder.RdfTypeGraphPatterns(
+            subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#Concept",
+            ),
+          ),
+        );
+      }
+
       this.add(
         sparqlBuilder.GraphPattern.basic(
           this.subject,
@@ -510,12 +567,22 @@ export namespace Concept {
           this.variable("SemanticRelation"),
         ),
       );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#topConceptOf",
+          ),
+          this.variable("TopConceptOf"),
+        ),
+      );
     }
   }
 
   export function toRdf(
     concept: Concept,
     {
+      ignoreRdfType,
       mutateGraph,
       resourceSet,
     }: {
@@ -528,6 +595,17 @@ export namespace Concept {
       identifier: concept.identifier,
       mutateGraph,
     });
+    if (!ignoreRdfType) {
+      resource.add(
+        resource.dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+        ),
+        resource.dataFactory.namedNode(
+          "http://www.w3.org/2004/02/skos/core#Concept",
+        ),
+      );
+    }
+
     for (const altLabelValue of concept.altLabel) {
       resource.add(
         dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
@@ -618,31 +696,44 @@ export namespace Concept {
       );
     }
 
+    for (const topConceptOfValue of concept.topConceptOf) {
+      resource.add(
+        dataFactory.namedNode(
+          "http://www.w3.org/2004/02/skos/core#topConceptOf",
+        ),
+        topConceptOfValue,
+      );
+    }
+
     return resource;
   }
 }
 
 export interface ConceptScheme {
   readonly altLabel: readonly rdfjs.Literal[];
+  readonly hasTopConcept: readonly rdfjs.NamedNode[];
   readonly hiddenLabel: readonly rdfjs.Literal[];
   readonly identifier: rdfjs.NamedNode;
   readonly prefLabel: readonly rdfjs.Literal[];
-  readonly skos_hasTopConcept: readonly rdfjs.NamedNode[];
   readonly type: "ConceptScheme";
 }
 
 export namespace ConceptScheme {
   export class Class implements ConceptScheme {
     readonly altLabel: readonly rdfjs.Literal[];
+    readonly hasTopConcept: readonly rdfjs.NamedNode[];
     readonly hiddenLabel: readonly rdfjs.Literal[];
     readonly identifier: rdfjs.NamedNode;
     readonly prefLabel: readonly rdfjs.Literal[];
-    readonly skos_hasTopConcept: readonly rdfjs.NamedNode[];
     readonly type = "ConceptScheme" as const;
 
     constructor(parameters: ConceptScheme.Class.ConstructorParameters) {
       this.altLabel =
         typeof parameters.altLabel !== "undefined" ? parameters.altLabel : [];
+      this.hasTopConcept =
+        typeof parameters.hasTopConcept !== "undefined"
+          ? parameters.hasTopConcept
+          : [];
       this.hiddenLabel =
         typeof parameters.hiddenLabel !== "undefined"
           ? parameters.hiddenLabel
@@ -650,10 +741,6 @@ export namespace ConceptScheme {
       this.identifier = parameters.identifier;
       this.prefLabel =
         typeof parameters.prefLabel !== "undefined" ? parameters.prefLabel : [];
-      this.skos_hasTopConcept =
-        typeof parameters.skos_hasTopConcept !== "undefined"
-          ? parameters.skos_hasTopConcept
-          : [];
     }
 
     equals(other: ConceptScheme): purifyHelpers.Equatable.EqualsResult {
@@ -687,10 +774,10 @@ export namespace ConceptScheme {
   export namespace Class {
     export interface ConstructorParameters {
       readonly altLabel?: readonly rdfjs.Literal[];
+      readonly hasTopConcept?: readonly rdfjs.NamedNode[];
       readonly hiddenLabel?: readonly rdfjs.Literal[];
       readonly identifier: rdfjs.NamedNode;
       readonly prefLabel?: readonly rdfjs.Literal[];
-      readonly skos_hasTopConcept?: readonly rdfjs.NamedNode[];
     }
   }
 
@@ -700,6 +787,12 @@ export namespace ConceptScheme {
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       altLabel: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      hasTopConcept: (left, right) =>
         purifyHelpers.Arrays.equals(
           left,
           right,
@@ -718,12 +811,6 @@ export namespace ConceptScheme {
           right,
           purifyHelpers.Equatable.booleanEquals,
         ),
-      skos_hasTopConcept: (left, right) =>
-        purifyHelpers.Arrays.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.booleanEquals,
-        ),
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -732,12 +819,40 @@ export namespace ConceptScheme {
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<rdfjsResource.Resource.ValueError, ConceptScheme> {
+    if (
+      !_options?.ignoreRdfType &&
+      !resource.isInstanceOf(
+        dataFactory.namedNode(
+          "http://www.w3.org/2004/02/skos/core#ConceptScheme",
+        ),
+      )
+    ) {
+      return purify.Left(
+        new rdfjsResource.Resource.ValueError({
+          focusResource: resource,
+          message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+          predicate: dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#ConceptScheme",
+          ),
+        }),
+      );
+    }
+
     const altLabel = [
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
+    ];
+    const hasTopConcept = [
+      ...resource
+        .values(
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#hasTopConcept",
+          ),
+        )
+        .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
     const hiddenLabel = [
       ...resource
@@ -756,22 +871,13 @@ export namespace ConceptScheme {
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
-    const skos_hasTopConcept = [
-      ...resource
-        .values(
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#hasTopConcept",
-          ),
-        )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
     const type = "ConceptScheme" as const;
     return purify.Either.of({
       altLabel,
+      hasTopConcept,
       hiddenLabel,
       identifier,
       prefLabel,
-      skos_hasTopConcept,
       type,
     });
   }
@@ -790,6 +896,12 @@ export namespace ConceptScheme {
       hasher.update(_altLabelElement.value);
     }
 
+    for (const _hasTopConceptElement of conceptScheme.hasTopConcept) {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(_hasTopConceptElement),
+      );
+    }
+
     for (const _hiddenLabelElement of conceptScheme.hiddenLabel) {
       hasher.update(_hiddenLabelElement.value);
     }
@@ -804,12 +916,6 @@ export namespace ConceptScheme {
       hasher.update(_prefLabelElement.value);
     }
 
-    for (const _skos_hasTopConceptElement of conceptScheme.skos_hasTopConcept) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_skos_hasTopConceptElement),
-      );
-    }
-
     return hasher;
   }
 
@@ -819,11 +925,31 @@ export namespace ConceptScheme {
       _options?: { ignoreRdfType?: boolean },
     ) {
       super(subject);
+      if (!_options?.ignoreRdfType) {
+        this.add(
+          ...new sparqlBuilder.RdfTypeGraphPatterns(
+            subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#ConceptScheme",
+            ),
+          ),
+        );
+      }
+
       this.add(
         sparqlBuilder.GraphPattern.basic(
           this.subject,
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
           this.variable("AltLabel"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#hasTopConcept",
+          ),
+          this.variable("HasTopConcept"),
         ),
       );
       this.add(
@@ -842,21 +968,13 @@ export namespace ConceptScheme {
           this.variable("PrefLabel"),
         ),
       );
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#hasTopConcept",
-          ),
-          this.variable("SkosHasTopConcept"),
-        ),
-      );
     }
   }
 
   export function toRdf(
     conceptScheme: ConceptScheme,
     {
+      ignoreRdfType,
       mutateGraph,
       resourceSet,
     }: {
@@ -869,10 +987,30 @@ export namespace ConceptScheme {
       identifier: conceptScheme.identifier,
       mutateGraph,
     });
+    if (!ignoreRdfType) {
+      resource.add(
+        resource.dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+        ),
+        resource.dataFactory.namedNode(
+          "http://www.w3.org/2004/02/skos/core#ConceptScheme",
+        ),
+      );
+    }
+
     for (const altLabelValue of conceptScheme.altLabel) {
       resource.add(
         dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
         altLabelValue,
+      );
+    }
+
+    for (const hasTopConceptValue of conceptScheme.hasTopConcept) {
+      resource.add(
+        dataFactory.namedNode(
+          "http://www.w3.org/2004/02/skos/core#hasTopConcept",
+        ),
+        hasTopConceptValue,
       );
     }
 
@@ -887,15 +1025,6 @@ export namespace ConceptScheme {
       resource.add(
         dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#prefLabel"),
         prefLabelValue,
-      );
-    }
-
-    for (const skos_hasTopConceptValue of conceptScheme.skos_hasTopConcept) {
-      resource.add(
-        dataFactory.namedNode(
-          "http://www.w3.org/2004/02/skos/core#hasTopConcept",
-        ),
-        skos_hasTopConceptValue,
       );
     }
 
@@ -975,6 +1104,23 @@ export namespace Label {
     resource: rdfjsResource.Resource,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<rdfjsResource.Resource.ValueError, Label> {
+    if (
+      !_options?.ignoreRdfType &&
+      !resource.isInstanceOf(
+        dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#Label"),
+      )
+    ) {
+      return purify.Left(
+        new rdfjsResource.Resource.ValueError({
+          focusResource: resource,
+          message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+          predicate: dataFactory.namedNode(
+            "http://www.w3.org/2008/05/skos-xl#Label",
+          ),
+        }),
+      );
+    }
+
     const identifier = resource.identifier;
     const skos$j$xl_literalForm = [
       ...resource
@@ -1018,6 +1164,15 @@ export namespace Label {
       _options?: { ignoreRdfType?: boolean },
     ) {
       super(subject);
+      if (!_options?.ignoreRdfType) {
+        this.add(
+          ...new sparqlBuilder.RdfTypeGraphPatterns(
+            subject,
+            dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#Label"),
+          ),
+        );
+      }
+
       this.add(
         sparqlBuilder.GraphPattern.basic(
           this.subject,
@@ -1033,6 +1188,7 @@ export namespace Label {
   export function toRdf(
     label: Label,
     {
+      ignoreRdfType,
       mutateGraph,
       resourceSet,
     }: {
@@ -1045,6 +1201,17 @@ export namespace Label {
       identifier: label.identifier,
       mutateGraph,
     });
+    if (!ignoreRdfType) {
+      resource.add(
+        resource.dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+        ),
+        resource.dataFactory.namedNode(
+          "http://www.w3.org/2008/05/skos-xl#Label",
+        ),
+      );
+    }
+
     for (const skos$j$xl_literalFormValue of label.skos$j$xl_literalForm) {
       resource.add(
         dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#literalForm"),

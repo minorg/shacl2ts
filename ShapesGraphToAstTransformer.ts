@@ -3,7 +3,7 @@ import TermMap from "@rdfjs/term-map";
 import TermSet from "@rdfjs/term-set";
 import type * as rdfjs from "@rdfjs/types";
 import base62 from "@sindresorhus/base62";
-import { dash, owl, rdf, rdfs } from "@tpluscode/rdf-ns-builders";
+import { dash, owl, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import reservedTsIdentifiers_ from "reserved-identifiers";
@@ -367,20 +367,13 @@ export class ShapesGraphToAstTransformer {
       }
     }
 
-    let rdfType: Maybe<rdfjs.NamedNode> = Maybe.empty();
     // https://www.w3.org/TR/shacl/#implicit-targetClass
     // If the node shape is an owl:class or rdfs:Class, make the ObjectType have an rdf:type of the NodeShape.
-    for (const nodeShapeRdfType of nodeShape.resource
-      .values(rdf.type)
-      .flatMap((value) => value.toNamedResource().toMaybe().toList())) {
-      if (
-        nodeShapeRdfType.isInstanceOf(owl.Class) ||
-        nodeShapeRdfType.isInstanceOf(rdfs.Class)
-      ) {
-        rdfType = Maybe.of(nodeShape.resource.identifier as rdfjs.NamedNode);
-        break;
-      }
-    }
+    const rdfType: Maybe<rdfjs.NamedNode> =
+      nodeShape.resource.isInstanceOf(owl.Class) ||
+      nodeShape.resource.isInstanceOf(rdfs.Class)
+        ? Maybe.of(nodeShape.resource.identifier as rdfjs.NamedNode)
+        : Maybe.empty();
 
     const nodeKinds = new Set<
       shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
