@@ -5,6 +5,153 @@ import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
 import * as rdfjsResource from "rdfjs-resource";
 
+export interface Collection {
+  readonly identifier: rdfjs.NamedNode;
+  readonly type: "Collection" | "OrderedCollection";
+}
+
+export namespace Collection {
+  export class Class implements Collection {
+    readonly identifier: rdfjs.NamedNode;
+    readonly type: "Collection" | "OrderedCollection" = "Collection";
+
+    constructor(parameters: { readonly identifier: rdfjs.NamedNode }) {
+      this.identifier = parameters.identifier;
+    }
+
+    equals(other: Collection): purifyHelpers.Equatable.EqualsResult {
+      return Collection.equals(this, other);
+    }
+
+    static fromRdf(
+      resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    ): purify.Either<rdfjsResource.Resource.ValueError, Collection.Class> {
+      return Collection.fromRdf(resource).map(
+        (properties) => new Collection.Class(properties),
+      );
+    }
+
+    hash<
+      HasherT extends {
+        update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+      },
+    >(hasher: HasherT): HasherT {
+      return Collection.hash(this, hasher);
+    }
+
+    toRdf(kwds: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+      return Collection.toRdf(this, kwds);
+    }
+  }
+
+  export function equals(
+    left: Collection,
+    right: Collection,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  export function fromRdf(
+    resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<rdfjsResource.Resource.ValueError, Collection> {
+    if (
+      !_options?.ignoreRdfType &&
+      !resource.isInstanceOf(
+        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#Collection"),
+      )
+    ) {
+      return purify.Left(
+        new rdfjsResource.Resource.ValueError({
+          focusResource: resource,
+          message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+          predicate: dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#Collection",
+          ),
+        }),
+      );
+    }
+
+    const identifier = resource.identifier;
+    const type = "Collection" as const;
+    return purify.Either.of({ identifier, type });
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    collection: Omit<Collection, "identifier"> & {
+      identifier?: rdfjs.NamedNode;
+    },
+    hasher: HasherT,
+  ): HasherT {
+    if (typeof collection.identifier !== "undefined") {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(collection.identifier),
+      );
+    }
+
+    return hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      if (!_options?.ignoreRdfType) {
+        this.add(
+          ...new sparqlBuilder.RdfTypeGraphPatterns(
+            subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#Collection",
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  export function toRdf(
+    collection: Collection,
+    {
+      ignoreRdfType,
+      mutateGraph,
+      resourceSet,
+    }: {
+      ignoreRdfType?: boolean;
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    },
+  ): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+    const resource = resourceSet.mutableNamedResource({
+      identifier: collection.identifier,
+      mutateGraph,
+    });
+    if (!ignoreRdfType) {
+      resource.add(
+        resource.dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+        ),
+        resource.dataFactory.namedNode(
+          "http://www.w3.org/2004/02/skos/core#Collection",
+        ),
+      );
+    }
+
+    return resource;
+  }
+}
+
 export interface Concept {
   readonly altLabel: readonly rdfjs.Literal[];
   readonly altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
@@ -71,7 +218,37 @@ export namespace Concept {
     readonly topConceptOf: readonly rdfjs.NamedNode[];
     readonly type = "Concept" as const;
 
-    constructor(parameters: Concept.Class.ConstructorParameters) {
+    constructor(parameters: {
+      readonly altLabel?: readonly rdfjs.Literal[];
+      readonly altLabelXl?: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      readonly broader?: readonly rdfjs.NamedNode[];
+      readonly broaderTransitive?: readonly rdfjs.NamedNode[];
+      readonly broadMatch?: readonly rdfjs.NamedNode[];
+      readonly changeNote?: readonly rdfjs.Literal[];
+      readonly closeMatch?: readonly rdfjs.NamedNode[];
+      readonly definition?: readonly rdfjs.Literal[];
+      readonly editorialNote?: readonly rdfjs.Literal[];
+      readonly exactMatch?: readonly rdfjs.NamedNode[];
+      readonly example?: readonly rdfjs.Literal[];
+      readonly hiddenLabel?: readonly rdfjs.Literal[];
+      readonly hiddenLabelXl?: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      readonly historyNote?: readonly rdfjs.Literal[];
+      readonly identifier: rdfjs.NamedNode;
+      readonly inScheme?: readonly rdfjs.NamedNode[];
+      readonly mappingRelation?: readonly rdfjs.NamedNode[];
+      readonly narrower?: readonly rdfjs.NamedNode[];
+      readonly narrowerTransitive?: readonly rdfjs.NamedNode[];
+      readonly narrowMatch?: readonly rdfjs.NamedNode[];
+      readonly notation?: readonly rdfjs.Literal[];
+      readonly note?: readonly rdfjs.Literal[];
+      readonly prefLabel?: readonly rdfjs.Literal[];
+      readonly prefLabelXl?: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      readonly related?: readonly rdfjs.NamedNode[];
+      readonly relatedMatch?: readonly rdfjs.NamedNode[];
+      readonly scopeNote?: readonly rdfjs.Literal[];
+      readonly semanticRelation?: readonly rdfjs.NamedNode[];
+      readonly topConceptOf?: readonly rdfjs.NamedNode[];
+    }) {
       this.altLabel =
         typeof parameters.altLabel !== "undefined" ? parameters.altLabel : [];
       this.altLabelXl =
@@ -191,40 +368,6 @@ export namespace Concept {
       resourceSet: rdfjsResource.MutableResourceSet;
     }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
       return Concept.toRdf(this, kwds);
-    }
-  }
-
-  export namespace Class {
-    export interface ConstructorParameters {
-      readonly altLabel?: readonly rdfjs.Literal[];
-      readonly altLabelXl?: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
-      readonly broader?: readonly rdfjs.NamedNode[];
-      readonly broaderTransitive?: readonly rdfjs.NamedNode[];
-      readonly broadMatch?: readonly rdfjs.NamedNode[];
-      readonly changeNote?: readonly rdfjs.Literal[];
-      readonly closeMatch?: readonly rdfjs.NamedNode[];
-      readonly definition?: readonly rdfjs.Literal[];
-      readonly editorialNote?: readonly rdfjs.Literal[];
-      readonly exactMatch?: readonly rdfjs.NamedNode[];
-      readonly example?: readonly rdfjs.Literal[];
-      readonly hiddenLabel?: readonly rdfjs.Literal[];
-      readonly hiddenLabelXl?: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
-      readonly historyNote?: readonly rdfjs.Literal[];
-      readonly identifier: rdfjs.NamedNode;
-      readonly inScheme?: readonly rdfjs.NamedNode[];
-      readonly mappingRelation?: readonly rdfjs.NamedNode[];
-      readonly narrower?: readonly rdfjs.NamedNode[];
-      readonly narrowerTransitive?: readonly rdfjs.NamedNode[];
-      readonly narrowMatch?: readonly rdfjs.NamedNode[];
-      readonly notation?: readonly rdfjs.Literal[];
-      readonly note?: readonly rdfjs.Literal[];
-      readonly prefLabel?: readonly rdfjs.Literal[];
-      readonly prefLabelXl?: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
-      readonly related?: readonly rdfjs.NamedNode[];
-      readonly relatedMatch?: readonly rdfjs.NamedNode[];
-      readonly scopeNote?: readonly rdfjs.Literal[];
-      readonly semanticRelation?: readonly rdfjs.NamedNode[];
-      readonly topConceptOf?: readonly rdfjs.NamedNode[];
     }
   }
 
@@ -1369,7 +1512,13 @@ export namespace ConceptScheme {
     readonly prefLabel: readonly rdfjs.Literal[];
     readonly type = "ConceptScheme" as const;
 
-    constructor(parameters: ConceptScheme.Class.ConstructorParameters) {
+    constructor(parameters: {
+      readonly altLabel?: readonly rdfjs.Literal[];
+      readonly hasTopConcept?: readonly rdfjs.NamedNode[];
+      readonly hiddenLabel?: readonly rdfjs.Literal[];
+      readonly identifier: rdfjs.NamedNode;
+      readonly prefLabel?: readonly rdfjs.Literal[];
+    }) {
       this.altLabel =
         typeof parameters.altLabel !== "undefined" ? parameters.altLabel : [];
       this.hasTopConcept =
@@ -1410,16 +1559,6 @@ export namespace ConceptScheme {
       resourceSet: rdfjsResource.MutableResourceSet;
     }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
       return ConceptScheme.toRdf(this, kwds);
-    }
-  }
-
-  export namespace Class {
-    export interface ConstructorParameters {
-      readonly altLabel?: readonly rdfjs.Literal[];
-      readonly hasTopConcept?: readonly rdfjs.NamedNode[];
-      readonly hiddenLabel?: readonly rdfjs.Literal[];
-      readonly identifier: rdfjs.NamedNode;
-      readonly prefLabel?: readonly rdfjs.Literal[];
     }
   }
 
@@ -1686,7 +1825,10 @@ export namespace Label {
     readonly skos$j$xl_literalForm: readonly rdfjs.Literal[];
     readonly type = "Label" as const;
 
-    constructor(parameters: Label.Class.ConstructorParameters) {
+    constructor(parameters: {
+      readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+      readonly skos$j$xl_literalForm: readonly rdfjs.Literal[];
+    }) {
       this.identifier = parameters.identifier;
       this.skos$j$xl_literalForm = parameters.skos$j$xl_literalForm;
     }
@@ -1716,13 +1858,6 @@ export namespace Label {
       resourceSet: rdfjsResource.MutableResourceSet;
     }): rdfjsResource.MutableResource {
       return Label.toRdf(this, kwds);
-    }
-  }
-
-  export namespace Class {
-    export interface ConstructorParameters {
-      readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-      readonly skos$j$xl_literalForm: readonly rdfjs.Literal[];
     }
   }
 
@@ -1858,6 +1993,367 @@ export namespace Label {
       resource.add(
         dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#literalForm"),
         skos$j$xl_literalFormValue,
+      );
+    }
+
+    return resource;
+  }
+}
+
+export interface OrderedCollection extends Collection {
+  readonly memberList: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+  readonly type: "OrderedCollection";
+}
+
+export namespace OrderedCollection {
+  export class Class extends Collection.Class implements OrderedCollection {
+    readonly memberList: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+    override readonly type = "OrderedCollection" as const;
+
+    constructor(
+      parameters: {
+        readonly memberList?: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      } & ConstructorParameters<typeof Collection.Class>[0],
+    ) {
+      super(parameters);
+      this.memberList =
+        typeof parameters.memberList !== "undefined"
+          ? parameters.memberList
+          : [];
+    }
+
+    override equals(
+      other: OrderedCollection,
+    ): purifyHelpers.Equatable.EqualsResult {
+      return OrderedCollection.equals(this, other);
+    }
+
+    static override fromRdf(
+      resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    ): purify.Either<
+      rdfjsResource.Resource.ValueError,
+      OrderedCollection.Class
+    > {
+      return OrderedCollection.fromRdf(resource).map(
+        (properties) => new OrderedCollection.Class(properties),
+      );
+    }
+
+    override hash<
+      HasherT extends {
+        update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+      },
+    >(hasher: HasherT): HasherT {
+      return OrderedCollection.hash(this, hasher);
+    }
+
+    override toRdf(kwds: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+      return OrderedCollection.toRdf(this, kwds);
+    }
+  }
+
+  export function equals(
+    left: OrderedCollection,
+    right: OrderedCollection,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return Collection.equals(left, right).chain(() =>
+      purifyHelpers.Equatable.objectEquals(left, right, {
+        memberList: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
+  }
+
+  export function fromRdf(
+    resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<rdfjsResource.Resource.ValueError, OrderedCollection> {
+    return Collection.fromRdf(resource, { ignoreRdfType: true }).chain(
+      (_super) => {
+        if (
+          !_options?.ignoreRdfType &&
+          !resource.isInstanceOf(
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#OrderedCollection",
+            ),
+          )
+        ) {
+          return purify.Left(
+            new rdfjsResource.Resource.ValueError({
+              focusResource: resource,
+              message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+              predicate: dataFactory.namedNode(
+                "http://www.w3.org/2004/02/skos/core#OrderedCollection",
+              ),
+            }),
+          );
+        }
+        const memberList = [
+          ...resource
+            .values(
+              dataFactory.namedNode(
+                "http://www.w3.org/2004/02/skos/core#memberList",
+              ),
+            )
+            .flatMap((value) => value.toIdentifier().toMaybe().toList()),
+        ];
+        const type = "OrderedCollection" as const;
+        return purify.Either.of({ ..._super, memberList, type });
+      },
+    );
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    orderedCollection: Omit<OrderedCollection, "identifier"> & {
+      identifier?: rdfjs.NamedNode;
+    },
+    hasher: HasherT,
+  ): HasherT {
+    Collection.hash(orderedCollection, hasher);
+    for (const _memberListElement of orderedCollection.memberList) {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(_memberListElement),
+      );
+    }
+
+    return hasher;
+  }
+
+  export class SparqlGraphPatterns extends Collection.SparqlGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject, { ignoreRdfType: true });
+      if (!_options?.ignoreRdfType) {
+        this.add(
+          ...new sparqlBuilder.RdfTypeGraphPatterns(
+            subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#OrderedCollection",
+            ),
+          ),
+        );
+      }
+
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#memberList",
+          ),
+          this.variable("MemberList"),
+        ),
+      );
+    }
+  }
+
+  export function toRdf(
+    orderedCollection: OrderedCollection,
+    {
+      ignoreRdfType,
+      mutateGraph,
+      resourceSet,
+    }: {
+      ignoreRdfType?: boolean;
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    },
+  ): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+    const resource = Collection.toRdf(orderedCollection, {
+      mutateGraph,
+      ignoreRdfType: true,
+      resourceSet,
+    });
+    if (!ignoreRdfType) {
+      resource.add(
+        resource.dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+        ),
+        resource.dataFactory.namedNode(
+          "http://www.w3.org/2004/02/skos/core#OrderedCollection",
+        ),
+      );
+    }
+
+    for (const memberListValue of orderedCollection.memberList) {
+      resource.add(
+        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#memberList"),
+        memberListValue,
+      );
+    }
+
+    return resource;
+  }
+}
+
+export interface OrderedCollectionMemberList {
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly type: "OrderedCollectionMemberList";
+}
+
+export namespace OrderedCollectionMemberList {
+  export class Class implements OrderedCollectionMemberList {
+    readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+    readonly type = "OrderedCollectionMemberList" as const;
+
+    constructor(parameters: {
+      readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+    }) {
+      this.identifier = parameters.identifier;
+    }
+
+    equals(
+      other: OrderedCollectionMemberList,
+    ): purifyHelpers.Equatable.EqualsResult {
+      return OrderedCollectionMemberList.equals(this, other);
+    }
+
+    static fromRdf(
+      resource: rdfjsResource.Resource,
+    ): purify.Either<
+      rdfjsResource.Resource.ValueError,
+      OrderedCollectionMemberList.Class
+    > {
+      return OrderedCollectionMemberList.fromRdf(resource).map(
+        (properties) => new OrderedCollectionMemberList.Class(properties),
+      );
+    }
+
+    hash<
+      HasherT extends {
+        update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+      },
+    >(hasher: HasherT): HasherT {
+      return OrderedCollectionMemberList.hash(this, hasher);
+    }
+
+    toRdf(kwds: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    }): rdfjsResource.MutableResource {
+      return OrderedCollectionMemberList.toRdf(this, kwds);
+    }
+  }
+
+  export function equals(
+    left: OrderedCollectionMemberList,
+    right: OrderedCollectionMemberList,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  export function fromRdf(
+    resource: rdfjsResource.Resource,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    OrderedCollectionMemberList
+  > {
+    if (
+      !_options?.ignoreRdfType &&
+      !resource.isInstanceOf(
+        dataFactory.namedNode(
+          "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList",
+        ),
+      )
+    ) {
+      return purify.Left(
+        new rdfjsResource.Resource.ValueError({
+          focusResource: resource,
+          message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+          predicate: dataFactory.namedNode(
+            "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList",
+          ),
+        }),
+      );
+    }
+
+    const identifier = resource.identifier;
+    const type = "OrderedCollectionMemberList" as const;
+    return purify.Either.of({ identifier, type });
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    orderedCollectionMemberList: Omit<
+      OrderedCollectionMemberList,
+      "identifier"
+    > & { identifier?: rdfjs.BlankNode | rdfjs.NamedNode },
+    hasher: HasherT,
+  ): HasherT {
+    if (typeof orderedCollectionMemberList.identifier !== "undefined") {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(
+          orderedCollectionMemberList.identifier,
+        ),
+      );
+    }
+
+    return hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      if (!_options?.ignoreRdfType) {
+        this.add(
+          ...new sparqlBuilder.RdfTypeGraphPatterns(
+            subject,
+            dataFactory.namedNode(
+              "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList",
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  export function toRdf(
+    orderedCollectionMemberList: OrderedCollectionMemberList,
+    {
+      ignoreRdfType,
+      mutateGraph,
+      resourceSet,
+    }: {
+      ignoreRdfType?: boolean;
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    },
+  ): rdfjsResource.MutableResource {
+    const resource = resourceSet.mutableResource({
+      identifier: orderedCollectionMemberList.identifier,
+      mutateGraph,
+    });
+    if (!ignoreRdfType) {
+      resource.add(
+        resource.dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+        ),
+        resource.dataFactory.namedNode(
+          "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList",
+        ),
       );
     }
 
