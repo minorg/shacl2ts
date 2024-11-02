@@ -153,7 +153,7 @@ export class ShaclProperty extends Property {
     const resourceValueVariable = "value";
     if (this.containerType === "Array") {
       return [
-        `const ${this.name} = ${resourceVariable}.values(${this.pathExpression}).map(${resourceValueVariable}s => ${resourceValueVariable}s.flatMap(${resourceValueVariable} => (${this.type.fromRdfExpression({ predicate: this.path, resourceVariable, resourceValueVariable })}).toMaybe().toList())).orDefault([]);`,
+        `const ${this.name} = [...${resourceVariable}.values(${this.pathExpression}).flatMap(${resourceValueVariable} => (${this.type.fromRdfExpression({ predicate: this.path, resourceVariable, resourceValueVariable })}).toMaybe().toList())];`,
       ];
     }
 
@@ -177,12 +177,12 @@ export class ShaclProperty extends Property {
     switch (this.containerType) {
       case "Array":
         return [
-          `${propertyValueVariable}.forEach((_${this.name}Element) => { ${this.type
+          `for (const _${this.name}Element of ${propertyValueVariable}) { ${this.type
             .hashStatements({
               hasherVariable,
               propertyValueVariable: `_${this.name}Element`,
             })
-            .join("\n")} })`,
+            .join("\n")} }`,
         ];
       case "Maybe": {
         return [
@@ -232,7 +232,7 @@ export class ShaclProperty extends Property {
     switch (this.containerType) {
       case "Array":
         return [
-          `${propertyValueVariable}.forEach((${this.name}Value) => { resource.add(${this.pathExpression}, ${this.type.toRdfExpression({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`,
+          `for (const ${this.name}Value of ${propertyValueVariable}) { resource.add(${this.pathExpression}, ${this.type.toRdfExpression({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); }`,
         ];
       case "Maybe":
         return [
