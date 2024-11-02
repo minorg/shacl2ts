@@ -7,19 +7,19 @@ import * as rdfjsResource from "rdfjs-resource";
 
 export interface Collection {
   readonly identifier: rdfjs.NamedNode;
-  readonly member: readonly (Collection | Concept)[];
+  readonly member: readonly rdfjs.NamedNode[];
   readonly type: "Collection" | "OrderedCollection";
 }
 
 export namespace Collection {
   export class Class implements Collection {
     readonly identifier: rdfjs.NamedNode;
-    readonly member: readonly (Collection | Concept)[];
+    readonly member: readonly rdfjs.NamedNode[];
     readonly type: "Collection" | "OrderedCollection" = "Collection";
 
     constructor(parameters: {
       readonly identifier: rdfjs.NamedNode;
-      readonly member?: readonly (Collection | Concept)[];
+      readonly member?: readonly rdfjs.NamedNode[];
     }) {
       this.identifier = parameters.identifier;
       this.member =
@@ -64,26 +64,7 @@ export namespace Collection {
         purifyHelpers.Arrays.equals(
           left,
           right,
-          (left: Collection | Concept, right: Collection | Concept) => {
-            if (left.type === "Collection" && right.type === "Collection") {
-              return Collection.equals(left, right);
-            }
-            if (left.type === "Concept" && right.type === "Concept") {
-              return Concept.equals(left, right);
-            }
-
-            return purify.Left({
-              left,
-              right,
-              propertyName: "type",
-              propertyValuesUnequal: {
-                left: typeof left,
-                right: typeof right,
-                type: "BooleanEquals",
-              },
-              type: "Property",
-            });
-          },
+          purifyHelpers.Equatable.booleanEquals,
         ),
       type: purifyHelpers.Equatable.strictEquals,
     });
@@ -116,31 +97,7 @@ export namespace Collection {
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#member"),
         )
-        .flatMap((value) =>
-          (
-            value
-              .toNamedResource()
-              .chain((resource) =>
-                Collection.fromRdf(resource),
-              ) as purify.Either<
-              rdfjsResource.Resource.ValueError,
-              Collection | Concept
-            >
-          )
-            .altLazy(
-              () =>
-                value
-                  .toNamedResource()
-                  .chain((resource) =>
-                    Concept.fromRdf(resource),
-                  ) as purify.Either<
-                  rdfjsResource.Resource.ValueError,
-                  Collection | Concept
-                >,
-            )
-            .toMaybe()
-            .toList(),
-        ),
+        .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
     const type = "Collection" as const;
     return purify.Either.of({ identifier, member, type });
@@ -163,7 +120,7 @@ export namespace Collection {
     }
 
     for (const _memberElement of collection.member) {
-      hasher.update(_memberElement.value);
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_memberElement));
     }
 
     return hasher;
@@ -187,21 +144,10 @@ export namespace Collection {
       }
 
       this.add(
-        sparqlBuilder.GraphPattern.group(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#member"),
-            this.variable("Member"),
-          ).chainObject((member) => [
-            sparqlBuilder.GraphPattern.union(
-              sparqlBuilder.GraphPattern.group(
-                new Collection.SparqlGraphPatterns(member),
-              ),
-              sparqlBuilder.GraphPattern.group(
-                new Concept.SparqlGraphPatterns(member),
-              ),
-            ),
-          ]),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#member"),
+          this.variable("Member"),
         ),
       );
     }
@@ -237,15 +183,7 @@ export namespace Collection {
     for (const memberValue of collection.member) {
       resource.add(
         dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#member"),
-        memberValue.type === "Concept"
-          ? Concept.toRdf(memberValue, {
-              mutateGraph: mutateGraph,
-              resourceSet: resourceSet,
-            }).identifier
-          : Collection.toRdf(memberValue, {
-              mutateGraph: mutateGraph,
-              resourceSet: resourceSet,
-            }).identifier,
+        memberValue,
       );
     }
 
@@ -2301,7 +2239,7 @@ export namespace OrderedCollection {
 }
 
 export interface OrderedCollectionMemberList {
-  readonly first: Collection | Concept;
+  readonly first: rdfjs.NamedNode;
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   readonly rest:
     | {
@@ -2314,7 +2252,7 @@ export interface OrderedCollectionMemberList {
 
 export namespace OrderedCollectionMemberList {
   export class Class implements OrderedCollectionMemberList {
-    readonly first: Collection | Concept;
+    readonly first: rdfjs.NamedNode;
     readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
     readonly rest:
       | {
@@ -2325,7 +2263,7 @@ export namespace OrderedCollectionMemberList {
     readonly type = "OrderedCollectionMemberList" as const;
 
     constructor(parameters: {
-      readonly first: Collection | Concept;
+      readonly first: rdfjs.NamedNode;
       readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
       readonly rest:
         | {
@@ -2377,26 +2315,7 @@ export namespace OrderedCollectionMemberList {
     right: OrderedCollectionMemberList,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
-      first: (left: Collection | Concept, right: Collection | Concept) => {
-        if (left.type === "Collection" && right.type === "Collection") {
-          return Collection.equals(left, right);
-        }
-        if (left.type === "Concept" && right.type === "Concept") {
-          return Concept.equals(left, right);
-        }
-
-        return purify.Left({
-          left,
-          right,
-          propertyName: "type",
-          propertyValuesUnequal: {
-            left: typeof left,
-            right: typeof right,
-            type: "BooleanEquals",
-          },
-          type: "Property",
-        });
-      },
+      first: purifyHelpers.Equatable.booleanEquals,
       identifier: purifyHelpers.Equatable.booleanEquals,
       rest: (
         left:
@@ -2469,31 +2388,14 @@ export namespace OrderedCollectionMemberList {
 
     const _firstEither: purify.Either<
       rdfjsResource.Resource.ValueError,
-      Collection | Concept
+      rdfjs.NamedNode
     > = resource
       .value(
         dataFactory.namedNode(
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
         ),
       )
-      .chain((value) =>
-        (
-          value
-            .toNamedResource()
-            .chain((resource) => Collection.fromRdf(resource)) as purify.Either<
-            rdfjsResource.Resource.ValueError,
-            Collection | Concept
-          >
-        ).altLazy(
-          () =>
-            value
-              .toNamedResource()
-              .chain((resource) => Concept.fromRdf(resource)) as purify.Either<
-              rdfjsResource.Resource.ValueError,
-              Collection | Concept
-            >,
-        ),
-      );
+      .chain((value) => value.toIri());
     if (_firstEither.isLeft()) {
       return _firstEither;
     }
@@ -2595,7 +2497,11 @@ export namespace OrderedCollectionMemberList {
     > & { identifier?: rdfjs.BlankNode | rdfjs.NamedNode },
     hasher: HasherT,
   ): HasherT {
-    hasher.update(orderedCollectionMemberList.first.value);
+    hasher.update(
+      rdfjsResource.Resource.Identifier.toString(
+        orderedCollectionMemberList.first,
+      ),
+    );
     if (typeof orderedCollectionMemberList.identifier !== "undefined") {
       hasher.update(
         rdfjsResource.Resource.Identifier.toString(
@@ -2626,23 +2532,12 @@ export namespace OrderedCollectionMemberList {
       }
 
       this.add(
-        sparqlBuilder.GraphPattern.group(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode(
-              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
-            ),
-            this.variable("First"),
-          ).chainObject((first) => [
-            sparqlBuilder.GraphPattern.union(
-              sparqlBuilder.GraphPattern.group(
-                new Collection.SparqlGraphPatterns(first),
-              ),
-              sparqlBuilder.GraphPattern.group(
-                new Concept.SparqlGraphPatterns(first),
-              ),
-            ),
-          ]),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
+          ),
+          this.variable("First"),
         ),
       );
       this.add(
@@ -2694,15 +2589,7 @@ export namespace OrderedCollectionMemberList {
 
     resource.add(
       dataFactory.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#first"),
-      orderedCollectionMemberList.first.type === "Concept"
-        ? Concept.toRdf(orderedCollectionMemberList.first, {
-            mutateGraph: mutateGraph,
-            resourceSet: resourceSet,
-          }).identifier
-        : Collection.toRdf(orderedCollectionMemberList.first, {
-            mutateGraph: mutateGraph,
-            resourceSet: resourceSet,
-          }).identifier,
+      orderedCollectionMemberList.first,
     );
     resource.add(
       dataFactory.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"),
