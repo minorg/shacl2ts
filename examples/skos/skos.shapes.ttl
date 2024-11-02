@@ -31,11 +31,10 @@ skos:Collection
 .
 
 skos-shacl:Collection-member
-    a               sh:PropertyShape ;
-    sh:name         "member" ;
-    sh:or           ( [ sh:class skos:Collection ; ]
-                      [ sh:class skos:Concept ; ] ) ;
-    sh:path         skos:member ;
+    a       sh:PropertyShape ;
+    sh:name "member" ;
+    sh:or   ( [ sh:class skos:Collection ; ] [ sh:class skos:Concept ; ] ) ;
+    sh:path skos:member ;
 .
 
 skos:Concept
@@ -191,12 +190,13 @@ skos-shacl:OrderedCollectionMemberList-first
 .
 
 skos-shacl:OrderedCollectionMemberList-rest
-    a           sh:PropertyShape ;
-    sh:maxCount 1 ;
-    sh:minCount 1 ;
-    sh:name     "rest" ;
-    sh:or       ( [ sh:class skos-shacl:OrderedCollectionMemberList ] [ sh:hasValue rdf:nil ] ) ;
-    sh:path rdf:rest ;
+    a               sh:PropertyShape ;
+    shacl2ts:inline true ;
+    sh:maxCount     1 ;
+    sh:minCount     1 ;
+    sh:name         "rest" ;
+    sh:or           ( [ sh:class skos-shacl:OrderedCollectionMemberList ] [ sh:hasValue rdf:nil ] ) ;
+    sh:path         rdf:rest ;
 .
 
 skos-shacl:prefLabel

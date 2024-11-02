@@ -513,6 +513,11 @@ export class ShapesGraphToAstTransformer {
       propertiesByTsName[property.name.tsName] = property;
     }
 
+    // TODO: handle the list case here
+    // Two properties, rdf:first and rdf:rest
+    // rdf:first can be anything
+    // rdf:rest refers to this type itself (or an identifier type) sh:or an identifier type with hasValue: nil
+
     return Either.of(objectType);
   }
 

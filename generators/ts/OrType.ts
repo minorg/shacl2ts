@@ -121,7 +121,37 @@ ${this.types
     hasherVariable,
     propertyValueVariable,
   }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
-    return [`${hasherVariable}.update(${propertyValueVariable}.value);`];
+    const caseBlocks: string[] = [];
+    this.types.forEach((type, typeIndex) => {
+      if (this.typesSharedDiscriminatorProperty.isJust()) {
+        for (const typeDiscriminatorPropertyValue of type.discriminatorProperty.unsafeCoerce()
+          .values) {
+          caseBlocks.push(
+            `case "${typeDiscriminatorPropertyValue}": { ${type.hashStatements({
+              hasherVariable,
+              propertyValueVariable,
+            })}; break; }`,
+          );
+        }
+      } else {
+        caseBlocks.push(
+          `case "${syntheticTypeDiscriminatorValue({
+            type,
+            typeIndex,
+          })}": { ${type.hashStatements({ hasherVariable, propertyValueVariable: `${propertyValueVariable}.value` })}; break; }`,
+        );
+      }
+    });
+    const switchValue = this.typesSharedDiscriminatorProperty
+      .map(
+        (typeSharedDiscriminatorProperty) =>
+          `${propertyValueVariable}.${typeSharedDiscriminatorProperty.name}`,
+      )
+      .orDefaultLazy(
+        () =>
+          `${propertyValueVariable}.${syntheticTypeDiscriminatorPropertyName}`,
+      );
+    return [`switch (${switchValue}) { ${caseBlocks.join("\n")} }`];
   }
 
   override sparqlGraphPatternExpression({
