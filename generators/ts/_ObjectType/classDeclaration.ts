@@ -27,11 +27,25 @@ function constructorDeclaration(
       );
   }
 
+  let constructorParametersType = `{ ${this.properties
+    .flatMap((property) => {
+      return property.classConstructorParametersPropertySignature
+        .map(
+          (propertySignature) =>
+            `readonly ${propertySignature.name}${propertySignature.hasQuestionToken ? "?" : ""}: ${propertySignature.type}`,
+        )
+        .toList();
+    })
+    .join(", ")} }`;
+  if (this.parentObjectTypes.length > 0) {
+    constructorParametersType = `${constructorParametersType} & ConstructorParameters<typeof ${this.parentObjectTypes[0].classQualifiedName}>[0]`;
+  }
+
   return {
     parameters: [
       {
         name: "parameters",
-        type: `${this.classQualifiedName}.ConstructorParameters`,
+        type: constructorParametersType,
       },
     ],
     statements,

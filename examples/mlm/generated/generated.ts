@@ -28,7 +28,15 @@ export namespace MachineLearningModel {
       "MachineLearningModel";
     readonly url: purify.Maybe<string>;
 
-    constructor(parameters: MachineLearningModel.Class.ConstructorParameters) {
+    constructor(parameters: {
+      readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
+      readonly identifier: rdfjs.NamedNode;
+      readonly isVariantOf: MachineLearningModelFamily;
+      readonly localIdentifier: string;
+      readonly name: rdfjs.Literal;
+      readonly trainingDataCutoff?: purify.Maybe<string> | string;
+      readonly url?: purify.Maybe<string> | string;
+    }) {
       this.description = purify.Maybe.isMaybe(parameters.description)
         ? parameters.description
         : purify.Maybe.fromNullable(parameters.description);
@@ -74,18 +82,6 @@ export namespace MachineLearningModel {
       resourceSet: rdfjsResource.MutableResourceSet;
     }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
       return MachineLearningModel.toRdf(this, kwds);
-    }
-  }
-
-  export namespace Class {
-    export interface ConstructorParameters {
-      readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
-      readonly identifier: rdfjs.NamedNode;
-      readonly isVariantOf: MachineLearningModelFamily;
-      readonly localIdentifier: string;
-      readonly name: rdfjs.Literal;
-      readonly trainingDataCutoff?: purify.Maybe<string> | string;
-      readonly url?: purify.Maybe<string> | string;
     }
   }
 
@@ -388,7 +384,12 @@ export namespace LanguageModel {
     readonly maxTokenOutput: purify.Maybe<number>;
     override readonly type = "LanguageModel" as const;
 
-    constructor(parameters: LanguageModel.Class.ConstructorParameters) {
+    constructor(
+      parameters: {
+        readonly contextWindow: number;
+        readonly maxTokenOutput?: purify.Maybe<number> | number;
+      } & ConstructorParameters<typeof MachineLearningModel.Class>[0],
+    ) {
       super(parameters);
       this.contextWindow = parameters.contextWindow;
       this.maxTokenOutput = purify.Maybe.isMaybe(parameters.maxTokenOutput)
@@ -423,14 +424,6 @@ export namespace LanguageModel {
       resourceSet: rdfjsResource.MutableResourceSet;
     }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
       return LanguageModel.toRdf(this, kwds);
-    }
-  }
-
-  export namespace Class {
-    export interface ConstructorParameters
-      extends MachineLearningModel.Class.ConstructorParameters {
-      readonly contextWindow: number;
-      readonly maxTokenOutput?: purify.Maybe<number> | number;
     }
   }
 
@@ -626,9 +619,13 @@ export namespace MachineLearningModelFamily {
     readonly type = "MachineLearningModelFamily" as const;
     readonly url: purify.Maybe<string>;
 
-    constructor(
-      parameters: MachineLearningModelFamily.Class.ConstructorParameters,
-    ) {
+    constructor(parameters: {
+      readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
+      readonly identifier: rdfjs.NamedNode;
+      readonly manufacturer: Organization;
+      readonly name: rdfjs.Literal;
+      readonly url?: purify.Maybe<string> | string;
+    }) {
       this.description = purify.Maybe.isMaybe(parameters.description)
         ? parameters.description
         : purify.Maybe.fromNullable(parameters.description);
@@ -670,16 +667,6 @@ export namespace MachineLearningModelFamily {
       resourceSet: rdfjsResource.MutableResourceSet;
     }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
       return MachineLearningModelFamily.toRdf(this, kwds);
-    }
-  }
-
-  export namespace Class {
-    export interface ConstructorParameters {
-      readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
-      readonly identifier: rdfjs.NamedNode;
-      readonly manufacturer: Organization;
-      readonly name: rdfjs.Literal;
-      readonly url?: purify.Maybe<string> | string;
     }
   }
 
@@ -924,7 +911,10 @@ export namespace Organization {
     readonly name: rdfjs.Literal;
     readonly type = "Organization" as const;
 
-    constructor(parameters: Organization.Class.ConstructorParameters) {
+    constructor(parameters: {
+      readonly identifier: rdfjs.NamedNode;
+      readonly name: rdfjs.Literal;
+    }) {
       this.identifier = parameters.identifier;
       this.name = parameters.name;
     }
@@ -954,13 +944,6 @@ export namespace Organization {
       resourceSet: rdfjsResource.MutableResourceSet;
     }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
       return Organization.toRdf(this, kwds);
-    }
-  }
-
-  export namespace Class {
-    export interface ConstructorParameters {
-      readonly identifier: rdfjs.NamedNode;
-      readonly name: rdfjs.Literal;
     }
   }
 
