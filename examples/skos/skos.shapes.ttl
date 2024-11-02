@@ -1,0 +1,102 @@
+@prefix dash:       <http://datashapes.org/dash#> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix skos-shacl: <http://kos-kit.github.io/skos-shacl/ns#> .
+@prefix skos-xl:    <http://www.w3.org/2008/05/skos-xl#> .
+
+skos:Concept
+    a           sh:NodeShape ;
+    a           rdfs:Class ;
+    sh:name     "Concept" ;
+    sh:nodeKind sh:IRI ;
+    sh:property skos-shacl:altLabel ;
+    sh:property skos-shacl:altLabelXl ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "broader" ;
+                  sh:path  skos:broader ; ] ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "broaderTransitive" ;
+                  sh:path  skos:broaderTransitive ; ] ;
+    sh:property skos-shacl:hiddenLabel ;
+    sh:property skos-shacl:hiddenLabelXl ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "narrower" ;
+                  sh:path  skos:narrower ; ] ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "narrowerTransitive" ;
+                  sh:path  skos:narrowerTransitive ; ] ;
+    sh:property skos-shacl:prefLabel ;
+    sh:property skos-shacl:prefLabelXl ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "related" ;
+                  sh:path  skos:related ; ] ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "semanticRelation" ;
+                  sh:path  skos:semanticRelation ; ] ;
+.
+
+skos:ConceptScheme
+    a           sh:NodeShape ;
+    a           rdfs:Class ;
+    sh:name     "ConceptScheme" ;
+    sh:nodeKind sh:IRI ;
+    sh:property skos-shacl:altLabel ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:path  skos:hasTopConcept ] ;
+    sh:property skos-shacl:hiddenLabel ;
+    sh:property skos-shacl:prefLabel ;
+.
+
+skos-shacl:altLabel
+    a       sh:PropertyShape ;
+    sh:name "altLabel" ;
+    sh:or   dash:StringOrLangString ;
+    sh:path skos:altLabel ;
+.
+
+skos-shacl:altLabelXl
+    a        sh:PropertyShape ;
+    sh:name  "altLabelXl" ;
+    sh:class skos-xl:Label ;
+    sh:path  skos-xl:altLabel ;
+.
+
+skos-shacl:hiddenLabel
+    a       sh:PropertyShape ;
+    sh:name "hiddenLabel" ;
+    sh:or   dash:StringOrLangString ;
+    sh:path skos:altLabel ;
+.
+
+skos-shacl:hiddenLabelXl
+    a        sh:PropertyShape ;
+    sh:name  "hiddenLabelXl" ;
+    sh:class skos-xl:Label ;
+    sh:path  skos-xl:hiddenLabel ;
+.
+
+skos-xl:Label
+    a           sh:NodeShape ;
+    a           rdfs:Class ;
+    sh:name     "Label" ;
+    sh:nodeKind sh:BlankNodeOrIRI ;
+    sh:property [ sh:minCount 1 ;
+                  sh:path     skos-xl:literalForm ;
+                  sh:or       dash:StringOrLangString ; ] ;
+.
+
+skos-shacl:prefLabel
+    a       sh:PropertyShape ;
+    sh:name "prefLabel" ;
+    sh:or   dash:StringOrLangString ;
+    sh:path skos:prefLabel ;
+.
+
+skos-shacl:prefLabelXl
+    a        sh:PropertyShape ;
+    sh:name  "prefLabelXl" ;
+    sh:class skos-xl:Label ;
+    sh:path  skos-xl:prefLabel ;
+.
