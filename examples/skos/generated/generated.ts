@@ -10,14 +10,29 @@ export interface Concept {
   readonly altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
   readonly broader: readonly rdfjs.NamedNode[];
   readonly broaderTransitive: readonly rdfjs.NamedNode[];
+  readonly broadMatch: readonly rdfjs.NamedNode[];
+  readonly changeNote: readonly rdfjs.Literal[];
+  readonly closeMatch: readonly rdfjs.NamedNode[];
+  readonly definition: readonly rdfjs.Literal[];
+  readonly editorialNote: readonly rdfjs.Literal[];
+  readonly exactMatch: readonly rdfjs.NamedNode[];
+  readonly example: readonly rdfjs.Literal[];
   readonly hiddenLabel: readonly rdfjs.Literal[];
   readonly hiddenLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+  readonly historyNote: readonly rdfjs.Literal[];
   readonly identifier: rdfjs.NamedNode;
+  readonly inScheme: readonly rdfjs.NamedNode[];
+  readonly mappingRelation: readonly rdfjs.NamedNode[];
   readonly narrower: readonly rdfjs.NamedNode[];
   readonly narrowerTransitive: readonly rdfjs.NamedNode[];
+  readonly narrowMatch: readonly rdfjs.NamedNode[];
+  readonly notation: readonly rdfjs.Literal[];
+  readonly note: readonly rdfjs.Literal[];
   readonly prefLabel: readonly rdfjs.Literal[];
   readonly prefLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
   readonly related: readonly rdfjs.NamedNode[];
+  readonly relatedMatch: readonly rdfjs.NamedNode[];
+  readonly scopeNote: readonly rdfjs.Literal[];
   readonly semanticRelation: readonly rdfjs.NamedNode[];
   readonly topConceptOf: readonly rdfjs.NamedNode[];
   readonly type: "Concept";
@@ -29,14 +44,29 @@ export namespace Concept {
     readonly altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
     readonly broader: readonly rdfjs.NamedNode[];
     readonly broaderTransitive: readonly rdfjs.NamedNode[];
+    readonly broadMatch: readonly rdfjs.NamedNode[];
+    readonly changeNote: readonly rdfjs.Literal[];
+    readonly closeMatch: readonly rdfjs.NamedNode[];
+    readonly definition: readonly rdfjs.Literal[];
+    readonly editorialNote: readonly rdfjs.Literal[];
+    readonly exactMatch: readonly rdfjs.NamedNode[];
+    readonly example: readonly rdfjs.Literal[];
     readonly hiddenLabel: readonly rdfjs.Literal[];
     readonly hiddenLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+    readonly historyNote: readonly rdfjs.Literal[];
     readonly identifier: rdfjs.NamedNode;
+    readonly inScheme: readonly rdfjs.NamedNode[];
+    readonly mappingRelation: readonly rdfjs.NamedNode[];
     readonly narrower: readonly rdfjs.NamedNode[];
     readonly narrowerTransitive: readonly rdfjs.NamedNode[];
+    readonly narrowMatch: readonly rdfjs.NamedNode[];
+    readonly notation: readonly rdfjs.Literal[];
+    readonly note: readonly rdfjs.Literal[];
     readonly prefLabel: readonly rdfjs.Literal[];
     readonly prefLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
     readonly related: readonly rdfjs.NamedNode[];
+    readonly relatedMatch: readonly rdfjs.NamedNode[];
+    readonly scopeNote: readonly rdfjs.Literal[];
     readonly semanticRelation: readonly rdfjs.NamedNode[];
     readonly topConceptOf: readonly rdfjs.NamedNode[];
     readonly type = "Concept" as const;
@@ -54,6 +84,32 @@ export namespace Concept {
         typeof parameters.broaderTransitive !== "undefined"
           ? parameters.broaderTransitive
           : [];
+      this.broadMatch =
+        typeof parameters.broadMatch !== "undefined"
+          ? parameters.broadMatch
+          : [];
+      this.changeNote =
+        typeof parameters.changeNote !== "undefined"
+          ? parameters.changeNote
+          : [];
+      this.closeMatch =
+        typeof parameters.closeMatch !== "undefined"
+          ? parameters.closeMatch
+          : [];
+      this.definition =
+        typeof parameters.definition !== "undefined"
+          ? parameters.definition
+          : [];
+      this.editorialNote =
+        typeof parameters.editorialNote !== "undefined"
+          ? parameters.editorialNote
+          : [];
+      this.exactMatch =
+        typeof parameters.exactMatch !== "undefined"
+          ? parameters.exactMatch
+          : [];
+      this.example =
+        typeof parameters.example !== "undefined" ? parameters.example : [];
       this.hiddenLabel =
         typeof parameters.hiddenLabel !== "undefined"
           ? parameters.hiddenLabel
@@ -62,13 +118,30 @@ export namespace Concept {
         typeof parameters.hiddenLabelXl !== "undefined"
           ? parameters.hiddenLabelXl
           : [];
+      this.historyNote =
+        typeof parameters.historyNote !== "undefined"
+          ? parameters.historyNote
+          : [];
       this.identifier = parameters.identifier;
+      this.inScheme =
+        typeof parameters.inScheme !== "undefined" ? parameters.inScheme : [];
+      this.mappingRelation =
+        typeof parameters.mappingRelation !== "undefined"
+          ? parameters.mappingRelation
+          : [];
       this.narrower =
         typeof parameters.narrower !== "undefined" ? parameters.narrower : [];
       this.narrowerTransitive =
         typeof parameters.narrowerTransitive !== "undefined"
           ? parameters.narrowerTransitive
           : [];
+      this.narrowMatch =
+        typeof parameters.narrowMatch !== "undefined"
+          ? parameters.narrowMatch
+          : [];
+      this.notation =
+        typeof parameters.notation !== "undefined" ? parameters.notation : [];
+      this.note = typeof parameters.note !== "undefined" ? parameters.note : [];
       this.prefLabel =
         typeof parameters.prefLabel !== "undefined" ? parameters.prefLabel : [];
       this.prefLabelXl =
@@ -77,6 +150,12 @@ export namespace Concept {
           : [];
       this.related =
         typeof parameters.related !== "undefined" ? parameters.related : [];
+      this.relatedMatch =
+        typeof parameters.relatedMatch !== "undefined"
+          ? parameters.relatedMatch
+          : [];
+      this.scopeNote =
+        typeof parameters.scopeNote !== "undefined" ? parameters.scopeNote : [];
       this.semanticRelation =
         typeof parameters.semanticRelation !== "undefined"
           ? parameters.semanticRelation
@@ -121,14 +200,29 @@ export namespace Concept {
       readonly altLabelXl?: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
       readonly broader?: readonly rdfjs.NamedNode[];
       readonly broaderTransitive?: readonly rdfjs.NamedNode[];
+      readonly broadMatch?: readonly rdfjs.NamedNode[];
+      readonly changeNote?: readonly rdfjs.Literal[];
+      readonly closeMatch?: readonly rdfjs.NamedNode[];
+      readonly definition?: readonly rdfjs.Literal[];
+      readonly editorialNote?: readonly rdfjs.Literal[];
+      readonly exactMatch?: readonly rdfjs.NamedNode[];
+      readonly example?: readonly rdfjs.Literal[];
       readonly hiddenLabel?: readonly rdfjs.Literal[];
       readonly hiddenLabelXl?: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      readonly historyNote?: readonly rdfjs.Literal[];
       readonly identifier: rdfjs.NamedNode;
+      readonly inScheme?: readonly rdfjs.NamedNode[];
+      readonly mappingRelation?: readonly rdfjs.NamedNode[];
       readonly narrower?: readonly rdfjs.NamedNode[];
       readonly narrowerTransitive?: readonly rdfjs.NamedNode[];
+      readonly narrowMatch?: readonly rdfjs.NamedNode[];
+      readonly notation?: readonly rdfjs.Literal[];
+      readonly note?: readonly rdfjs.Literal[];
       readonly prefLabel?: readonly rdfjs.Literal[];
       readonly prefLabelXl?: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
       readonly related?: readonly rdfjs.NamedNode[];
+      readonly relatedMatch?: readonly rdfjs.NamedNode[];
+      readonly scopeNote?: readonly rdfjs.Literal[];
       readonly semanticRelation?: readonly rdfjs.NamedNode[];
       readonly topConceptOf?: readonly rdfjs.NamedNode[];
     }
@@ -163,6 +257,48 @@ export namespace Concept {
           right,
           purifyHelpers.Equatable.booleanEquals,
         ),
+      broadMatch: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      changeNote: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      closeMatch: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      definition: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      editorialNote: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      exactMatch: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      example: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
       hiddenLabel: (left, right) =>
         purifyHelpers.Arrays.equals(
           left,
@@ -175,7 +311,25 @@ export namespace Concept {
           right,
           purifyHelpers.Equatable.booleanEquals,
         ),
+      historyNote: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
       identifier: purifyHelpers.Equatable.booleanEquals,
+      inScheme: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      mappingRelation: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
       narrower: (left, right) =>
         purifyHelpers.Arrays.equals(
           left,
@@ -183,6 +337,24 @@ export namespace Concept {
           purifyHelpers.Equatable.booleanEquals,
         ),
       narrowerTransitive: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      narrowMatch: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      notation: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      note: (left, right) =>
         purifyHelpers.Arrays.equals(
           left,
           right,
@@ -201,6 +373,18 @@ export namespace Concept {
           purifyHelpers.Equatable.booleanEquals,
         ),
       related: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      relatedMatch: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      scopeNote: (left, right) =>
         purifyHelpers.Arrays.equals(
           left,
           right,
@@ -273,6 +457,67 @@ export namespace Concept {
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
+    const broadMatch = [
+      ...resource
+        .values(
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#broadMatch",
+          ),
+        )
+        .flatMap((value) => value.toIri().toMaybe().toList()),
+    ];
+    const changeNote = [
+      ...resource
+        .values(
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#changeNote",
+          ),
+        )
+        .flatMap((value) => value.toLiteral().toMaybe().toList()),
+    ];
+    const closeMatch = [
+      ...resource
+        .values(
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#closeMatch",
+          ),
+        )
+        .flatMap((value) => value.toIri().toMaybe().toList()),
+    ];
+    const definition = [
+      ...resource
+        .values(
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#definition",
+          ),
+        )
+        .flatMap((value) => value.toLiteral().toMaybe().toList()),
+    ];
+    const editorialNote = [
+      ...resource
+        .values(
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#editorialNote",
+          ),
+        )
+        .flatMap((value) => value.toLiteral().toMaybe().toList()),
+    ];
+    const exactMatch = [
+      ...resource
+        .values(
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#exactMatch",
+          ),
+        )
+        .flatMap((value) => value.toIri().toMaybe().toList()),
+    ];
+    const example = [
+      ...resource
+        .values(
+          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#example"),
+        )
+        .flatMap((value) => value.toLiteral().toMaybe().toList()),
+    ];
     const hiddenLabel = [
       ...resource
         .values(
@@ -289,7 +534,32 @@ export namespace Concept {
         )
         .flatMap((value) => value.toIdentifier().toMaybe().toList()),
     ];
+    const historyNote = [
+      ...resource
+        .values(
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#historyNote",
+          ),
+        )
+        .flatMap((value) => value.toLiteral().toMaybe().toList()),
+    ];
     const identifier = resource.identifier;
+    const inScheme = [
+      ...resource
+        .values(
+          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#inScheme"),
+        )
+        .flatMap((value) => value.toIri().toMaybe().toList()),
+    ];
+    const mappingRelation = [
+      ...resource
+        .values(
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#mappingRelation",
+          ),
+        )
+        .flatMap((value) => value.toIri().toMaybe().toList()),
+    ];
     const narrower = [
       ...resource
         .values(
@@ -305,6 +575,29 @@ export namespace Concept {
           ),
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
+    ];
+    const narrowMatch = [
+      ...resource
+        .values(
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#narrowMatch",
+          ),
+        )
+        .flatMap((value) => value.toIri().toMaybe().toList()),
+    ];
+    const notation = [
+      ...resource
+        .values(
+          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
+        )
+        .flatMap((value) => value.toLiteral().toMaybe().toList()),
+    ];
+    const note = [
+      ...resource
+        .values(
+          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
+        )
+        .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
     const prefLabel = [
       ...resource
@@ -328,6 +621,24 @@ export namespace Concept {
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#related"),
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
+    ];
+    const relatedMatch = [
+      ...resource
+        .values(
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#relatedMatch",
+          ),
+        )
+        .flatMap((value) => value.toIri().toMaybe().toList()),
+    ];
+    const scopeNote = [
+      ...resource
+        .values(
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#scopeNote",
+          ),
+        )
+        .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
     const semanticRelation = [
       ...resource
@@ -353,14 +664,29 @@ export namespace Concept {
       altLabelXl,
       broader,
       broaderTransitive,
+      broadMatch,
+      changeNote,
+      closeMatch,
+      definition,
+      editorialNote,
+      exactMatch,
+      example,
       hiddenLabel,
       hiddenLabelXl,
+      historyNote,
       identifier,
+      inScheme,
+      mappingRelation,
       narrower,
       narrowerTransitive,
+      narrowMatch,
+      notation,
+      note,
       prefLabel,
       prefLabelXl,
       related,
+      relatedMatch,
+      scopeNote,
       semanticRelation,
       topConceptOf,
       type,
@@ -397,6 +723,40 @@ export namespace Concept {
       );
     }
 
+    for (const _broadMatchElement of concept.broadMatch) {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(_broadMatchElement),
+      );
+    }
+
+    for (const _changeNoteElement of concept.changeNote) {
+      hasher.update(_changeNoteElement.value);
+    }
+
+    for (const _closeMatchElement of concept.closeMatch) {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(_closeMatchElement),
+      );
+    }
+
+    for (const _definitionElement of concept.definition) {
+      hasher.update(_definitionElement.value);
+    }
+
+    for (const _editorialNoteElement of concept.editorialNote) {
+      hasher.update(_editorialNoteElement.value);
+    }
+
+    for (const _exactMatchElement of concept.exactMatch) {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(_exactMatchElement),
+      );
+    }
+
+    for (const _exampleElement of concept.example) {
+      hasher.update(_exampleElement.value);
+    }
+
     for (const _hiddenLabelElement of concept.hiddenLabel) {
       hasher.update(_hiddenLabelElement.value);
     }
@@ -407,9 +767,25 @@ export namespace Concept {
       );
     }
 
+    for (const _historyNoteElement of concept.historyNote) {
+      hasher.update(_historyNoteElement.value);
+    }
+
     if (typeof concept.identifier !== "undefined") {
       hasher.update(
         rdfjsResource.Resource.Identifier.toString(concept.identifier),
+      );
+    }
+
+    for (const _inSchemeElement of concept.inScheme) {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(_inSchemeElement),
+      );
+    }
+
+    for (const _mappingRelationElement of concept.mappingRelation) {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(_mappingRelationElement),
       );
     }
 
@@ -423,6 +799,20 @@ export namespace Concept {
       hasher.update(
         rdfjsResource.Resource.Identifier.toString(_narrowerTransitiveElement),
       );
+    }
+
+    for (const _narrowMatchElement of concept.narrowMatch) {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(_narrowMatchElement),
+      );
+    }
+
+    for (const _notationElement of concept.notation) {
+      hasher.update(_notationElement.value);
+    }
+
+    for (const _noteElement of concept.note) {
+      hasher.update(_noteElement.value);
     }
 
     for (const _prefLabelElement of concept.prefLabel) {
@@ -439,6 +829,16 @@ export namespace Concept {
       hasher.update(
         rdfjsResource.Resource.Identifier.toString(_relatedElement),
       );
+    }
+
+    for (const _relatedMatchElement of concept.relatedMatch) {
+      hasher.update(
+        rdfjsResource.Resource.Identifier.toString(_relatedMatchElement),
+      );
+    }
+
+    for (const _scopeNoteElement of concept.scopeNote) {
+      hasher.update(_scopeNoteElement.value);
     }
 
     for (const _semanticRelationElement of concept.semanticRelation) {
@@ -506,6 +906,67 @@ export namespace Concept {
       this.add(
         sparqlBuilder.GraphPattern.basic(
           this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#broadMatch",
+          ),
+          this.variable("BroadMatch"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#changeNote",
+          ),
+          this.variable("ChangeNote"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#closeMatch",
+          ),
+          this.variable("CloseMatch"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#definition",
+          ),
+          this.variable("Definition"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#editorialNote",
+          ),
+          this.variable("EditorialNote"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#exactMatch",
+          ),
+          this.variable("ExactMatch"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#example"),
+          this.variable("Example"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
           this.variable("HiddenLabel"),
         ),
@@ -522,6 +983,31 @@ export namespace Concept {
       this.add(
         sparqlBuilder.GraphPattern.basic(
           this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#historyNote",
+          ),
+          this.variable("HistoryNote"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#inScheme"),
+          this.variable("InScheme"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#mappingRelation",
+          ),
+          this.variable("MappingRelation"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#narrower"),
           this.variable("Narrower"),
         ),
@@ -533,6 +1019,29 @@ export namespace Concept {
             "http://www.w3.org/2004/02/skos/core#narrowerTransitive",
           ),
           this.variable("NarrowerTransitive"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#narrowMatch",
+          ),
+          this.variable("NarrowMatch"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
+          this.variable("Notation"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
+          this.variable("Note"),
         ),
       );
       this.add(
@@ -556,6 +1065,24 @@ export namespace Concept {
           this.subject,
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#related"),
           this.variable("Related"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#relatedMatch",
+          ),
+          this.variable("RelatedMatch"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#scopeNote",
+          ),
+          this.variable("ScopeNote"),
         ),
       );
       this.add(
@@ -636,6 +1163,57 @@ export namespace Concept {
       );
     }
 
+    for (const broadMatchValue of concept.broadMatch) {
+      resource.add(
+        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#broadMatch"),
+        broadMatchValue,
+      );
+    }
+
+    for (const changeNoteValue of concept.changeNote) {
+      resource.add(
+        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#changeNote"),
+        changeNoteValue,
+      );
+    }
+
+    for (const closeMatchValue of concept.closeMatch) {
+      resource.add(
+        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#closeMatch"),
+        closeMatchValue,
+      );
+    }
+
+    for (const definitionValue of concept.definition) {
+      resource.add(
+        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#definition"),
+        definitionValue,
+      );
+    }
+
+    for (const editorialNoteValue of concept.editorialNote) {
+      resource.add(
+        dataFactory.namedNode(
+          "http://www.w3.org/2004/02/skos/core#editorialNote",
+        ),
+        editorialNoteValue,
+      );
+    }
+
+    for (const exactMatchValue of concept.exactMatch) {
+      resource.add(
+        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#exactMatch"),
+        exactMatchValue,
+      );
+    }
+
+    for (const exampleValue of concept.example) {
+      resource.add(
+        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#example"),
+        exampleValue,
+      );
+    }
+
     for (const hiddenLabelValue of concept.hiddenLabel) {
       resource.add(
         dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
@@ -647,6 +1225,31 @@ export namespace Concept {
       resource.add(
         dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#hiddenLabel"),
         hiddenLabelXlValue,
+      );
+    }
+
+    for (const historyNoteValue of concept.historyNote) {
+      resource.add(
+        dataFactory.namedNode(
+          "http://www.w3.org/2004/02/skos/core#historyNote",
+        ),
+        historyNoteValue,
+      );
+    }
+
+    for (const inSchemeValue of concept.inScheme) {
+      resource.add(
+        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#inScheme"),
+        inSchemeValue,
+      );
+    }
+
+    for (const mappingRelationValue of concept.mappingRelation) {
+      resource.add(
+        dataFactory.namedNode(
+          "http://www.w3.org/2004/02/skos/core#mappingRelation",
+        ),
+        mappingRelationValue,
       );
     }
 
@@ -663,6 +1266,29 @@ export namespace Concept {
           "http://www.w3.org/2004/02/skos/core#narrowerTransitive",
         ),
         narrowerTransitiveValue,
+      );
+    }
+
+    for (const narrowMatchValue of concept.narrowMatch) {
+      resource.add(
+        dataFactory.namedNode(
+          "http://www.w3.org/2004/02/skos/core#narrowMatch",
+        ),
+        narrowMatchValue,
+      );
+    }
+
+    for (const notationValue of concept.notation) {
+      resource.add(
+        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
+        notationValue,
+      );
+    }
+
+    for (const noteValue of concept.note) {
+      resource.add(
+        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
+        noteValue,
       );
     }
 
@@ -684,6 +1310,22 @@ export namespace Concept {
       resource.add(
         dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#related"),
         relatedValue,
+      );
+    }
+
+    for (const relatedMatchValue of concept.relatedMatch) {
+      resource.add(
+        dataFactory.namedNode(
+          "http://www.w3.org/2004/02/skos/core#relatedMatch",
+        ),
+        relatedMatchValue,
+      );
+    }
+
+    for (const scopeNoteValue of concept.scopeNote) {
+      resource.add(
+        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#scopeNote"),
+        scopeNoteValue,
       );
     }
 
