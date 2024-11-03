@@ -29,6 +29,14 @@ export interface ObjectType {
   readonly kind: "Object";
 
   /**
+   * If the ObjectType is an RDF list, this is the type of rdf:first.
+   * https://www.w3.org/TR/rdf-schema/#ch_collectionvocab
+   *
+   * Mutable to support cycle-handling logic in the transformer.
+   */
+  listItemType: Maybe<Type>;
+
+  /**
    * Name of this ObjectType, usually derived from sh:name or shacl2ts:name.
    */
   readonly name: Name;

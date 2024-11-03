@@ -3,9 +3,9 @@ import TermMap from "@rdfjs/term-map";
 import TermSet from "@rdfjs/term-set";
 import type * as rdfjs from "@rdfjs/types";
 import base62 from "@sindresorhus/base62";
-import { dash, owl, rdfs } from "@tpluscode/rdf-ns-builders";
+import { dash, owl, rdf, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
-import type { Resource } from "rdfjs-resource";
+import { Resource } from "rdfjs-resource";
 import reservedTsIdentifiers_ from "reserved-identifiers";
 import * as shaclAst from "shacl-ast";
 import type { NodeKind } from "shacl-ast";
@@ -41,6 +41,7 @@ function ancestorClassIris(
 
   return [...ancestorClassIris];
 }
+
 function descendantClassIris(
   classResource: Resource,
   maxDepth: number,
@@ -67,17 +68,6 @@ function descendantClassIris(
   descendantClassIrisRecursive(classResource, 1);
 
   return [...descendantClassIris];
-}
-
-function rdfIdentifierToString(
-  identifier: rdfjs.BlankNode | rdfjs.NamedNode,
-): string {
-  switch (identifier.termType) {
-    case "BlankNode":
-      return `_:${identifier.value}`;
-    case "NamedNode":
-      return `<${identifier.value}>`;
-  }
 }
 
 const reservedTsIdentifiers = reservedTsIdentifiers_({
@@ -109,11 +99,11 @@ export class ShapesGraphToAstTransformer {
     rdfjs.BlankNode | rdfjs.NamedNode,
     ast.ObjectType.Property
   > = new TermMap();
-  private readonly astObjectTypesByIdentifier: TermMap<
+  private readonly iriPrefixMap: PrefixMap;
+  private readonly nodeShapeAstTypesByIdentifier: TermMap<
     rdfjs.BlankNode | rdfjs.NamedNode,
     ast.ObjectType
   > = new TermMap();
-  private readonly iriPrefixMap: PrefixMap;
   private readonly shapesGraph: shaclAst.ShapesGraph;
 
   constructor({
@@ -135,10 +125,261 @@ export class ShapesGraphToAstTransformer {
             nodeShape.resource.identifier.termType === "NamedNode" &&
             !nodeShape.resource.identifier.value.startsWith(dash[""].value),
         )
-        .map((nodeShape) => this.transformNodeShape(nodeShape)),
-    ).map((objectTypes) => ({
-      objectTypes,
+        .map((nodeShape) => this.nodeShapeAstType(nodeShape)),
+    ).map((nodeShapeTypes) => ({
+      objectTypes: nodeShapeTypes.filter(
+        (nodeShapeType) => nodeShapeType.kind === "Object",
+      ),
     }));
+  }
+
+  /**
+   * Is an ast.ObjectType actually the shape of an RDF list?
+   * If so, return the type of its rdf:first.
+   */
+  private astObjectTypeListItemType(
+    astObjectType: ast.ObjectType,
+    nodeShape: shaclAst.NodeShape,
+  ): Either<Error, ast.Type> {
+    if (!nodeShape.resource.isSubClassOf(rdf.List)) {
+      return Left(new Error(`${nodeShape} is not an rdfs:subClassOf rdf:List`));
+    }
+
+    if (astObjectType.properties.length !== 2) {
+      return Left(
+        new Error(`${nodeShape} does not have exactly two properties`),
+      );
+    }
+
+    // rdf:first can have any type
+    // The type of the rdf:first property is the list item type.
+    const firstProperty = astObjectType.properties.find((property) =>
+      property.path.iri.equals(rdf.first),
+    );
+    if (!firstProperty) {
+      return Left(
+        new Error(`${nodeShape} does not have an rdf:first property`),
+      );
+    }
+
+    const restProperty = astObjectType.properties.find((property) =>
+      property.path.iri.equals(rdf.rest),
+    );
+    if (!restProperty) {
+      return Left(new Error(`${nodeShape} does not have an rdf:rest property`));
+    }
+    if (restProperty.type.kind !== "Or") {
+      return Left(new Error(`${nodeShape} rdf:rest property is not sh:or`));
+    }
+    if (restProperty.type.types.length !== 2) {
+      return Left(
+        new Error(
+          `${nodeShape} rdf:rest property sh:or does not have exactly two types`,
+        ),
+      );
+    }
+    // rdf:rest should be sh:or ( [ sh:class nodeShape ] [ sh:hasValue rdf:nil ] )
+    if (
+      !restProperty.type.types.find(
+        (type) =>
+          type.kind === "Object" &&
+          type.name.identifier.equals(nodeShape.resource.identifier),
+      )
+    ) {
+      return Left(
+        new Error(
+          `${nodeShape} rdf:rest property sh:or is not recursive into the node shape`,
+        ),
+      );
+    }
+    if (
+      !restProperty.type.types.find(
+        (type) =>
+          type.kind === "Identifier" &&
+          type.hasValue.extract()?.equals(rdf.nil),
+      )
+    ) {
+      return Left(
+        new Error(
+          `${nodeShape} rdf:rest property sh:or does not include sh:hasValue rdf:nil`,
+        ),
+      );
+    }
+
+    return Either.of(firstProperty.type);
+  }
+
+  private nodeShapeAstType(
+    nodeShape: shaclAst.NodeShape,
+  ): Either<Error, ast.ObjectType> {
+    {
+      const type = this.nodeShapeAstTypesByIdentifier.get(
+        nodeShape.resource.identifier,
+      );
+      if (type) {
+        return Either.of(type);
+      }
+    }
+
+    // https://www.w3.org/TR/shacl/#implicit-targetClass
+    // If the node shape is an owl:class or rdfs:Class, make the ObjectType have an rdf:type of the NodeShape.
+    const rdfType: Maybe<rdfjs.NamedNode> =
+      nodeShape.resource.isInstanceOf(owl.Class) ||
+      nodeShape.resource.isInstanceOf(rdfs.Class)
+        ? Maybe.of(nodeShape.resource.identifier as rdfjs.NamedNode)
+        : Maybe.empty();
+
+    const nodeKinds = new Set<
+      shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
+    >(
+      [...nodeShape.constraints.nodeKinds].filter(
+        (nodeKind) => nodeKind !== shaclAst.NodeKind.LITERAL,
+      ),
+    );
+    if (nodeKinds.size === 0) {
+      return Left(new Error(`${nodeShape} has no non-Literal node kinds`));
+    }
+
+    // Put a placeholder in the cache to deal with cyclic references
+    // If this node shape's properties (directly or indirectly) refer to the node shape itself,
+    // we'll return this placeholder.
+    const objectType: ast.ObjectType = {
+      ancestorObjectTypes: [],
+      childObjectTypes: [],
+      descendantObjectTypes: [],
+      kind: "Object",
+      listItemType: Maybe.empty(),
+      name: this.shapeName(nodeShape),
+      nodeKinds,
+      properties: [], // This is mutable, we'll populate it below.
+      rdfType,
+      parentObjectTypes: [], // This is mutable, we'll populate it below
+    };
+    this.nodeShapeAstTypesByIdentifier.set(
+      nodeShape.resource.identifier,
+      objectType,
+    );
+
+    // Populate ancestor and descendant object types
+    // Ancestors
+    for (const classIri of ancestorClassIris(
+      nodeShape.resource,
+      Number.MAX_SAFE_INTEGER,
+    )) {
+      this.resolveClassAstObjectType(classIri).ifRight((ancestorObjectType) =>
+        objectType.ancestorObjectTypes.push(ancestorObjectType),
+      );
+    }
+
+    // Parents
+    for (const classIri of ancestorClassIris(nodeShape.resource, 1)) {
+      this.resolveClassAstObjectType(classIri).ifRight((parentObjectType) =>
+        objectType.parentObjectTypes.push(parentObjectType),
+      );
+    }
+
+    // Descendants
+    for (const classIri of descendantClassIris(
+      nodeShape.resource,
+      Number.MAX_SAFE_INTEGER,
+    )) {
+      this.resolveClassAstObjectType(classIri).ifRight((descendantObjectType) =>
+        objectType.descendantObjectTypes.push(descendantObjectType),
+      );
+    }
+
+    // Children
+    for (const classIri of descendantClassIris(nodeShape.resource, 1)) {
+      this.resolveClassAstObjectType(classIri).ifRight((childObjectType) =>
+        objectType.childObjectTypes.push(childObjectType),
+      );
+    }
+
+    // Populate properties
+    const propertiesByTsName: Record<string, ast.ObjectType.Property> = {};
+    for (const propertyShape of nodeShape.constraints.properties) {
+      const propertyEither =
+        this.propertyShapeAstObjectTypeProperty(propertyShape);
+      if (propertyEither.isLeft()) {
+        logger.warn(
+          "error transforming %s %s: %s",
+          nodeShape,
+          propertyShape,
+          (propertyEither.extract() as Error).message,
+        );
+        continue;
+        // return property;
+      }
+      const property = propertyEither.unsafeCoerce();
+      if (propertiesByTsName[property.name.tsName]) {
+        logger.warn(
+          "error transforming %s %s: duplicate property TypeScript name %s",
+          nodeShape,
+          propertyShape,
+          property.name.tsName,
+        );
+      }
+      objectType.properties.push(property);
+      propertiesByTsName[property.name.tsName] = property;
+    }
+
+    // Is the object type an RDF list?
+    objectType.listItemType = this.astObjectTypeListItemType(
+      objectType,
+      nodeShape,
+    ).toMaybe();
+
+    return Either.of(objectType);
+  }
+
+  private propertyShapeAstObjectTypeProperty(
+    propertyShape: shaclAst.PropertyShape,
+  ): Either<Error, ast.ObjectType.Property> {
+    {
+      const property = this.astObjectTypePropertiesByIdentifier.get(
+        propertyShape.resource.identifier,
+      );
+      if (property) {
+        return Either.of(property);
+      }
+    }
+
+    const inline = propertyShape.resource
+      .value(shacl2ts.inline)
+      .chain((value) => value.toBoolean())
+      .orDefault(false);
+
+    const type = this.propertyShapeAstType(propertyShape, { inline });
+    if (type.isLeft()) {
+      return type;
+    }
+
+    const path = propertyShape.path;
+    if (path.kind !== "PredicatePath") {
+      return Left(
+        new Error(`${propertyShape} has non-predicate path, unsupported`),
+      );
+    }
+
+    const minCount = propertyShape.constraints.minCount
+      .filter((minCount) => minCount >= 0)
+      .orDefault(0);
+
+    const property: ast.ObjectType.Property = {
+      inline,
+      maxCount: propertyShape.constraints.maxCount.filter(
+        (maxCount) => maxCount >= minCount,
+      ),
+      minCount,
+      name: this.shapeName(propertyShape),
+      path,
+      type: type.extract() as ast.Type,
+    };
+    this.astObjectTypePropertiesByIdentifier.set(
+      propertyShape.resource.identifier,
+      property,
+    );
+    return Either.of(property);
   }
 
   /**
@@ -147,7 +388,7 @@ export class ShapesGraphToAstTransformer {
    * We don't try to handle exotic cases allowed by the SHACL spec, such as combinations of sh:in and sh:node. Instead we assume
    * a shape has one type.
    */
-  private propertyShapeType(
+  private propertyShapeAstType(
     shape: shaclAst.Shape,
     { inline }: { inline: boolean },
   ): Either<Error, ast.Type> {
@@ -164,12 +405,12 @@ export class ShapesGraphToAstTransformer {
       let compositionKind: "And" | "Or";
       if (shape.constraints.and.length > 0) {
         composedTypeEithers = shape.constraints.and.map((shape) =>
-          this.propertyShapeType(shape, { inline }),
+          this.propertyShapeAstType(shape, { inline }),
         );
         compositionKind = "And";
       } else if (shape.constraints.classes.length > 0) {
         composedTypeEithers = shape.constraints.classes.map((classIri) =>
-          this.resolveClassObjectType(classIri).map((classObjectType) =>
+          this.resolveClassAstObjectType(classIri).map((classObjectType) =>
             inline
               ? classObjectType
               : {
@@ -182,12 +423,12 @@ export class ShapesGraphToAstTransformer {
         compositionKind = "And";
       } else if (shape.constraints.nodes.length > 0) {
         composedTypeEithers = shape.constraints.nodes.map((nodeShape) =>
-          this.transformNodeShape(nodeShape),
+          this.nodeShapeAstType(nodeShape),
         );
         compositionKind = "And";
       } else {
         composedTypeEithers = shape.constraints.or.map((shape) =>
-          this.propertyShapeType(shape, { inline }),
+          this.propertyShapeAstType(shape, { inline }),
         );
         compositionKind = "Or";
       }
@@ -335,7 +576,7 @@ export class ShapesGraphToAstTransformer {
     return Left(new Error(`unable to transform type on ${shape}`));
   }
 
-  private resolveClassObjectType(
+  private resolveClassAstObjectType(
     classIri: rdfjs.NamedNode,
   ): Either<Error, ast.ObjectType> {
     let nodeShape: Maybe<shaclAst.NodeShape>;
@@ -353,7 +594,7 @@ export class ShapesGraphToAstTransformer {
       .toEither(
         new Error(`${classIri.value} does not correspond to a node shape`),
       )
-      .chain((nodeShape) => this.transformNodeShape(nodeShape))
+      .chain((nodeShape) => this.nodeShapeAstType(nodeShape))
       .ifLeft((error) => {
         logger.debug(
           "class %s did not resolve to an object type: %s",
@@ -386,9 +627,9 @@ export class ShapesGraphToAstTransformer {
       if (pathCurie) {
         tsNameAlternatives.push(pathCurie.replace(":", "_"));
       }
-      tsNameAlternatives.push(rdfIdentifierToString(pathIri));
+      tsNameAlternatives.push(Resource.Identifier.toString(pathIri));
     }
-    tsNameAlternatives.push(rdfIdentifierToString(identifier));
+    tsNameAlternatives.push(Resource.Identifier.toString(identifier));
 
     return {
       curie,
@@ -399,175 +640,5 @@ export class ShapesGraphToAstTransformer {
         tsNameAlternatives.find((tsNameAlternative) => !!tsNameAlternative)!,
       ),
     };
-  }
-
-  private transformNodeShape(
-    nodeShape: shaclAst.NodeShape,
-  ): Either<Error, ast.ObjectType> {
-    {
-      const objectType = this.astObjectTypesByIdentifier.get(
-        nodeShape.resource.identifier,
-      );
-      if (objectType) {
-        return Either.of(objectType);
-      }
-    }
-
-    // https://www.w3.org/TR/shacl/#implicit-targetClass
-    // If the node shape is an owl:class or rdfs:Class, make the ObjectType have an rdf:type of the NodeShape.
-    const rdfType: Maybe<rdfjs.NamedNode> =
-      nodeShape.resource.isInstanceOf(owl.Class) ||
-      nodeShape.resource.isInstanceOf(rdfs.Class)
-        ? Maybe.of(nodeShape.resource.identifier as rdfjs.NamedNode)
-        : Maybe.empty();
-
-    const nodeKinds = new Set<
-      shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
-    >(
-      [...nodeShape.constraints.nodeKinds].filter(
-        (nodeKind) => nodeKind !== shaclAst.NodeKind.LITERAL,
-      ),
-    );
-    if (nodeKinds.size === 0) {
-      return Left(new Error(`${nodeShape} has no non-Literal node kinds`));
-    }
-
-    // Put a placeholder in the cache to deal with cyclic references
-    // If this node shape's properties (directly or indirectly) refer to the node shape itself,
-    // we'll return this placeholder.
-    const objectType: ast.ObjectType = {
-      ancestorObjectTypes: [],
-      childObjectTypes: [],
-      descendantObjectTypes: [],
-      kind: "Object",
-      name: this.shapeName(nodeShape),
-      nodeKinds,
-      properties: [], // This is mutable, we'll populate it below.
-      rdfType,
-      parentObjectTypes: [], // This is mutable, we'll populate it below
-    };
-    this.astObjectTypesByIdentifier.set(
-      nodeShape.resource.identifier,
-      objectType,
-    );
-
-    // Populate ancestor and descendant object types
-    // Ancestors
-    for (const classIri of ancestorClassIris(
-      nodeShape.resource,
-      Number.MAX_SAFE_INTEGER,
-    )) {
-      this.resolveClassObjectType(classIri).ifRight((ancestorObjectType) =>
-        objectType.ancestorObjectTypes.push(ancestorObjectType),
-      );
-    }
-
-    // Parents
-    for (const classIri of ancestorClassIris(nodeShape.resource, 1)) {
-      this.resolveClassObjectType(classIri).ifRight((parentObjectType) =>
-        objectType.parentObjectTypes.push(parentObjectType),
-      );
-    }
-
-    // Descendants
-    for (const classIri of descendantClassIris(
-      nodeShape.resource,
-      Number.MAX_SAFE_INTEGER,
-    )) {
-      this.resolveClassObjectType(classIri).ifRight((descendantObjectType) =>
-        objectType.descendantObjectTypes.push(descendantObjectType),
-      );
-    }
-
-    // Children
-    for (const classIri of descendantClassIris(nodeShape.resource, 1)) {
-      this.resolveClassObjectType(classIri).ifRight((childObjectType) =>
-        objectType.childObjectTypes.push(childObjectType),
-      );
-    }
-
-    // Populate properties
-    const propertiesByTsName: Record<string, ast.ObjectType.Property> = {};
-    for (const propertyShape of nodeShape.constraints.properties) {
-      const propertyEither = this.transformPropertyShape(propertyShape);
-      if (propertyEither.isLeft()) {
-        logger.warn(
-          "error transforming %s %s: %s",
-          nodeShape,
-          propertyShape,
-          (propertyEither.extract() as Error).message,
-        );
-        continue;
-        // return property;
-      }
-      const property = propertyEither.unsafeCoerce();
-      if (propertiesByTsName[property.name.tsName]) {
-        logger.warn(
-          "error transforming %s %s: duplicate property TypeScript name %s",
-          nodeShape,
-          propertyShape,
-          property.name.tsName,
-        );
-      }
-      objectType.properties.push(property);
-      propertiesByTsName[property.name.tsName] = property;
-    }
-
-    // TODO: handle the list case here
-    // Two properties, rdf:first and rdf:rest
-    // rdf:first can be anything
-    // rdf:rest refers to this type itself (or an identifier type) sh:or an identifier type with hasValue: nil
-
-    return Either.of(objectType);
-  }
-
-  private transformPropertyShape(
-    propertyShape: shaclAst.PropertyShape,
-  ): Either<Error, ast.ObjectType.Property> {
-    {
-      const property = this.astObjectTypePropertiesByIdentifier.get(
-        propertyShape.resource.identifier,
-      );
-      if (property) {
-        return Either.of(property);
-      }
-    }
-
-    const inline = propertyShape.resource
-      .value(shacl2ts.inline)
-      .chain((value) => value.toBoolean())
-      .orDefault(false);
-
-    const type = this.propertyShapeType(propertyShape, { inline });
-    if (type.isLeft()) {
-      return type;
-    }
-
-    const path = propertyShape.path;
-    if (path.kind !== "PredicatePath") {
-      return Left(
-        new Error(`${propertyShape} has non-predicate path, unsupported`),
-      );
-    }
-
-    const minCount = propertyShape.constraints.minCount
-      .filter((minCount) => minCount >= 0)
-      .orDefault(0);
-
-    const property: ast.ObjectType.Property = {
-      inline,
-      maxCount: propertyShape.constraints.maxCount.filter(
-        (maxCount) => maxCount >= minCount,
-      ),
-      minCount,
-      name: this.shapeName(propertyShape),
-      path,
-      type: type.extract() as ast.Type,
-    };
-    this.astObjectTypePropertiesByIdentifier.set(
-      propertyShape.resource.identifier,
-      property,
-    );
-    return Either.of(property);
   }
 }

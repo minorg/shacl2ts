@@ -94,9 +94,11 @@ function typeToJson(type: ast.Type): AstJson.Type {
     case "Object":
       return {
         kind: type.kind,
+        listItemType: type.listItemType.map(typeToJson).extract(),
         name: nameToJson(type.name),
         parentObjectTypes: type.parentObjectTypes.map(typeToJson),
         nodeKinds: [...type.nodeKinds].map(nodeKindToJson),
+        rdfType: type.rdfType.map(termToJson).extract(),
       };
   }
 }
