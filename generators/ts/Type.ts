@@ -5,7 +5,7 @@ import type * as ast from "../../ast";
 import type { Configuration } from "./Configuration.js";
 
 export abstract class Type {
-  abstract readonly kind: ast.Type["kind"];
+  abstract readonly kind: ast.Type["kind"] | "List";
   abstract readonly name: string;
   protected readonly configuration: Configuration;
 

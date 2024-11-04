@@ -6,6 +6,7 @@ import type * as ast from "../../ast";
 import { AndType } from "./AndType.js";
 import type { Configuration } from "./Configuration";
 import { IdentifierType } from "./IdentifierType";
+import { ListType } from "./ListType.js";
 import { LiteralType } from "./LiteralType.js";
 import { NumberType } from "./NumberType.js";
 import { ObjectType } from "./ObjectType.js";
@@ -145,6 +146,15 @@ export class TypeFactory {
         return new LiteralType({ configuration: this.configuration });
       }
       case "Object":
+        if (astType.listItemType.isJust()) {
+          return new ListType({
+            configuration: this.configuration,
+            itemType: this.createTypeFromAstType(
+              astType.listItemType.unsafeCoerce(),
+            ),
+          });
+        }
+
         return this.createObjectTypeFromAstType(astType);
     }
   }
