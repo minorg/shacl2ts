@@ -2,6 +2,7 @@ import TermMap from "@rdfjs/term-map";
 import type { BlankNode, NamedNode } from "@rdfjs/types";
 import { xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
+import { NodeKind } from "shacl-ast";
 import type * as ast from "../../ast";
 import { AndType } from "./AndType.js";
 import type { Configuration } from "./Configuration";
@@ -69,9 +70,13 @@ export class TypeFactory {
         if (astType.listItemType.isJust()) {
           return new ListType({
             configuration: this.configuration,
+            identifierNodeKind: astType.nodeKinds.has(NodeKind.BLANK_NODE)
+              ? NodeKind.BLANK_NODE
+              : NodeKind.IRI,
             itemType: this.createTypeFromAstType(
               astType.listItemType.unsafeCoerce(),
             ),
+            rdfType: astType.rdfType,
           });
         }
 
