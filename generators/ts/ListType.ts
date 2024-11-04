@@ -30,8 +30,9 @@ export class ListType extends Type {
 
   override fromRdfExpression({
     resourceValueVariable,
+    ...otherParameters
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `${resourceValueVariable}.toLiteral()`;
+    return `${resourceValueVariable}.toList().map(values => values.flatMap(value => ${this.itemType.fromRdfExpression({ resourceValueVariable: "value", ...otherParameters })}.toMaybe().toList()))`;
   }
 
   override hashStatements({

@@ -2105,7 +2105,13 @@ export namespace OrderedCollection {
               "http://www.w3.org/2004/02/skos/core#memberList",
             ),
           )
-          .chain((value) => value.toLiteral());
+          .chain((value) =>
+            value
+              .toList()
+              .map((values) =>
+                values.flatMap((value) => value.toIri().toMaybe().toList()),
+              ),
+          );
         if (_memberListEither.isLeft()) {
           return _memberListEither;
         }
