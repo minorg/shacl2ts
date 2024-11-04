@@ -45,9 +45,10 @@ export class TsGenerator {
     const typeFactory = new TypeFactory({ configuration: this.configuration });
 
     this.generateSourceFile(
-      astObjectTypes.map((astObjectType) =>
-        typeFactory.createObjectTypeFromAstType(astObjectType),
-      ),
+      astObjectTypes.flatMap((astObjectType) => {
+        const type = typeFactory.createTypeFromAstType(astObjectType);
+        return type.kind === "Object" ? [type as ObjectType] : [];
+      }),
       sourceFile,
     );
 

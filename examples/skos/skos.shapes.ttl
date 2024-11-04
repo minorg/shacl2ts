@@ -165,6 +165,8 @@ skos:OrderedCollection
 skos-shacl:OrderedCollection-memberList
     a               sh:PropertyShape ;
     shacl2ts:inline true ;
+    sh:maxCount     1 ;
+    sh:minCount     1 ;
     sh:name         "memberList" ;
     sh:node         skos-shacl:OrderedCollectionMemberList ;
     sh:path         skos:memberList ;

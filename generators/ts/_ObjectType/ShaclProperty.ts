@@ -177,10 +177,10 @@ export class ShaclProperty extends Property {
     switch (this.containerType) {
       case "Array":
         return [
-          `for (const _${this.name}Element of ${propertyValueVariable}) { ${this.type
+          `for (const _element of ${propertyValueVariable}) { ${this.type
             .hashStatements({
               hasherVariable,
-              propertyValueVariable: `_${this.name}Element`,
+              propertyValueVariable: "_element",
             })
             .join("\n")} }`,
         ];

@@ -119,8 +119,8 @@ export namespace Collection {
       );
     }
 
-    for (const _memberElement of collection.member) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_memberElement));
+    for (const _element of collection.member) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     return hasher;
@@ -883,74 +883,60 @@ export namespace Concept {
     concept: Omit<Concept, "identifier"> & { identifier?: rdfjs.NamedNode },
     hasher: HasherT,
   ): HasherT {
-    for (const _altLabelElement of concept.altLabel) {
-      hasher.update(_altLabelElement.value);
+    for (const _element of concept.altLabel) {
+      hasher.update(_element.value);
     }
 
-    for (const _altLabelXlElement of concept.altLabelXl) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_altLabelXlElement),
-      );
+    for (const _element of concept.altLabelXl) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _broaderElement of concept.broader) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_broaderElement),
-      );
+    for (const _element of concept.broader) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _broaderTransitiveElement of concept.broaderTransitive) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_broaderTransitiveElement),
-      );
+    for (const _element of concept.broaderTransitive) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _broadMatchElement of concept.broadMatch) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_broadMatchElement),
-      );
+    for (const _element of concept.broadMatch) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _changeNoteElement of concept.changeNote) {
-      hasher.update(_changeNoteElement.value);
+    for (const _element of concept.changeNote) {
+      hasher.update(_element.value);
     }
 
-    for (const _closeMatchElement of concept.closeMatch) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_closeMatchElement),
-      );
+    for (const _element of concept.closeMatch) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _definitionElement of concept.definition) {
-      hasher.update(_definitionElement.value);
+    for (const _element of concept.definition) {
+      hasher.update(_element.value);
     }
 
-    for (const _editorialNoteElement of concept.editorialNote) {
-      hasher.update(_editorialNoteElement.value);
+    for (const _element of concept.editorialNote) {
+      hasher.update(_element.value);
     }
 
-    for (const _exactMatchElement of concept.exactMatch) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_exactMatchElement),
-      );
+    for (const _element of concept.exactMatch) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _exampleElement of concept.example) {
-      hasher.update(_exampleElement.value);
+    for (const _element of concept.example) {
+      hasher.update(_element.value);
     }
 
-    for (const _hiddenLabelElement of concept.hiddenLabel) {
-      hasher.update(_hiddenLabelElement.value);
+    for (const _element of concept.hiddenLabel) {
+      hasher.update(_element.value);
     }
 
-    for (const _hiddenLabelXlElement of concept.hiddenLabelXl) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_hiddenLabelXlElement),
-      );
+    for (const _element of concept.hiddenLabelXl) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _historyNoteElement of concept.historyNote) {
-      hasher.update(_historyNoteElement.value);
+    for (const _element of concept.historyNote) {
+      hasher.update(_element.value);
     }
 
     if (typeof concept.identifier !== "undefined") {
@@ -959,80 +945,60 @@ export namespace Concept {
       );
     }
 
-    for (const _inSchemeElement of concept.inScheme) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_inSchemeElement),
-      );
+    for (const _element of concept.inScheme) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _mappingRelationElement of concept.mappingRelation) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_mappingRelationElement),
-      );
+    for (const _element of concept.mappingRelation) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _narrowerElement of concept.narrower) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_narrowerElement),
-      );
+    for (const _element of concept.narrower) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _narrowerTransitiveElement of concept.narrowerTransitive) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_narrowerTransitiveElement),
-      );
+    for (const _element of concept.narrowerTransitive) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _narrowMatchElement of concept.narrowMatch) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_narrowMatchElement),
-      );
+    for (const _element of concept.narrowMatch) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _notationElement of concept.notation) {
-      hasher.update(_notationElement.value);
+    for (const _element of concept.notation) {
+      hasher.update(_element.value);
     }
 
-    for (const _noteElement of concept.note) {
-      hasher.update(_noteElement.value);
+    for (const _element of concept.note) {
+      hasher.update(_element.value);
     }
 
-    for (const _prefLabelElement of concept.prefLabel) {
-      hasher.update(_prefLabelElement.value);
+    for (const _element of concept.prefLabel) {
+      hasher.update(_element.value);
     }
 
-    for (const _prefLabelXlElement of concept.prefLabelXl) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_prefLabelXlElement),
-      );
+    for (const _element of concept.prefLabelXl) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _relatedElement of concept.related) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_relatedElement),
-      );
+    for (const _element of concept.related) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _relatedMatchElement of concept.relatedMatch) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_relatedMatchElement),
-      );
+    for (const _element of concept.relatedMatch) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _scopeNoteElement of concept.scopeNote) {
-      hasher.update(_scopeNoteElement.value);
+    for (const _element of concept.scopeNote) {
+      hasher.update(_element.value);
     }
 
-    for (const _semanticRelationElement of concept.semanticRelation) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_semanticRelationElement),
-      );
+    for (const _element of concept.semanticRelation) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _topConceptOfElement of concept.topConceptOf) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_topConceptOfElement),
-      );
+    for (const _element of concept.topConceptOf) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     return hasher;
@@ -1712,18 +1678,16 @@ export namespace ConceptScheme {
     },
     hasher: HasherT,
   ): HasherT {
-    for (const _altLabelElement of conceptScheme.altLabel) {
-      hasher.update(_altLabelElement.value);
+    for (const _element of conceptScheme.altLabel) {
+      hasher.update(_element.value);
     }
 
-    for (const _hasTopConceptElement of conceptScheme.hasTopConcept) {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(_hasTopConceptElement),
-      );
+    for (const _element of conceptScheme.hasTopConcept) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const _hiddenLabelElement of conceptScheme.hiddenLabel) {
-      hasher.update(_hiddenLabelElement.value);
+    for (const _element of conceptScheme.hiddenLabel) {
+      hasher.update(_element.value);
     }
 
     if (typeof conceptScheme.identifier !== "undefined") {
@@ -1732,8 +1696,8 @@ export namespace ConceptScheme {
       );
     }
 
-    for (const _prefLabelElement of conceptScheme.prefLabel) {
-      hasher.update(_prefLabelElement.value);
+    for (const _element of conceptScheme.prefLabel) {
+      hasher.update(_element.value);
     }
 
     return hasher;
@@ -1967,8 +1931,8 @@ export namespace Label {
       );
     }
 
-    for (const _skos$j$xl_literalFormElement of label.skos$j$xl_literalForm) {
-      hasher.update(_skos$j$xl_literalFormElement.value);
+    for (const _element of label.skos$j$xl_literalForm) {
+      hasher.update(_element.value);
     }
 
     return hasher;
@@ -2040,25 +2004,22 @@ export namespace Label {
 }
 
 export interface OrderedCollection extends Collection {
-  readonly memberList: readonly OrderedCollectionMemberList[];
+  readonly memberList: readonly rdfjs.NamedNode[];
   readonly type: "OrderedCollection";
 }
 
 export namespace OrderedCollection {
   export class Class extends Collection.Class implements OrderedCollection {
-    readonly memberList: readonly OrderedCollectionMemberList[];
+    readonly memberList: readonly rdfjs.NamedNode[];
     override readonly type = "OrderedCollection" as const;
 
     constructor(
       parameters: {
-        readonly memberList?: readonly OrderedCollectionMemberList[];
+        readonly memberList: readonly rdfjs.NamedNode[];
       } & ConstructorParameters<typeof Collection.Class>[0],
     ) {
       super(parameters);
-      this.memberList =
-        typeof parameters.memberList !== "undefined"
-          ? parameters.memberList
-          : [];
+      this.memberList = parameters.memberList;
     }
 
     override equals(
@@ -2104,7 +2065,7 @@ export namespace OrderedCollection {
           purifyHelpers.Arrays.equals(
             left,
             right,
-            OrderedCollectionMemberList.equals,
+            purifyHelpers.Equatable.booleanEquals,
           ),
         type: purifyHelpers.Equatable.strictEquals,
       }),
@@ -2135,23 +2096,20 @@ export namespace OrderedCollection {
             }),
           );
         }
-        const memberList = [
-          ...resource
-            .values(
-              dataFactory.namedNode(
-                "http://www.w3.org/2004/02/skos/core#memberList",
-              ),
-            )
-            .flatMap((value) =>
-              value
-                .toResource()
-                .chain((resource) =>
-                  OrderedCollectionMemberList.fromRdf(resource),
-                )
-                .toMaybe()
-                .toList(),
+        const _memberListEither: purify.Either<
+          rdfjsResource.Resource.ValueError,
+          readonly rdfjs.NamedNode[]
+        > = resource
+          .value(
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#memberList",
             ),
-        ];
+          )
+          .chain((value) => value.toLiteral());
+        if (_memberListEither.isLeft()) {
+          return _memberListEither;
+        }
+        const memberList = _memberListEither.unsafeCoerce();
         const type = "OrderedCollection" as const;
         return purify.Either.of({ ..._super, memberList, type });
       },
@@ -2169,8 +2127,8 @@ export namespace OrderedCollection {
     hasher: HasherT,
   ): HasherT {
     Collection.hash(orderedCollection, hasher);
-    for (const _memberListElement of orderedCollection.memberList) {
-      OrderedCollectionMemberList.hash(_memberListElement, hasher);
+    for (const _element of orderedCollection.memberList) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     return hasher;
@@ -2194,17 +2152,12 @@ export namespace OrderedCollection {
       }
 
       this.add(
-        sparqlBuilder.GraphPattern.group(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode(
-              "http://www.w3.org/2004/02/skos/core#memberList",
-            ),
-            this.variable("MemberList"),
-          ).chainObject(
-            (memberList) =>
-              new OrderedCollectionMemberList.SparqlGraphPatterns(memberList),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode(
+            "http://www.w3.org/2004/02/skos/core#memberList",
           ),
+          this.variable("MemberList"),
         ),
       );
     }
@@ -2238,398 +2191,8 @@ export namespace OrderedCollection {
       );
     }
 
-    for (const memberListValue of orderedCollection.memberList) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#memberList"),
-        OrderedCollectionMemberList.toRdf(memberListValue, {
-          mutateGraph: mutateGraph,
-          resourceSet: resourceSet,
-        }).identifier,
-      );
-    }
-
-    return resource;
-  }
-}
-
-export interface OrderedCollectionMemberList {
-  readonly first: rdfjs.NamedNode;
-  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly rest:
-    | {
-        type: "0-OrderedCollectionMemberList";
-        value: OrderedCollectionMemberList;
-      }
-    | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode };
-  readonly type: "OrderedCollectionMemberList";
-}
-
-export namespace OrderedCollectionMemberList {
-  export class Class implements OrderedCollectionMemberList {
-    readonly first: rdfjs.NamedNode;
-    readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-    readonly rest:
-      | {
-          type: "0-OrderedCollectionMemberList";
-          value: OrderedCollectionMemberList;
-        }
-      | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode };
-    readonly type = "OrderedCollectionMemberList" as const;
-
-    constructor(parameters: {
-      readonly first: rdfjs.NamedNode;
-      readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-      readonly rest:
-        | {
-            type: "0-OrderedCollectionMemberList";
-            value: OrderedCollectionMemberList;
-          }
-        | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode };
-    }) {
-      this.first = parameters.first;
-      this.identifier = parameters.identifier;
-      this.rest = parameters.rest;
-    }
-
-    equals(
-      other: OrderedCollectionMemberList,
-    ): purifyHelpers.Equatable.EqualsResult {
-      return OrderedCollectionMemberList.equals(this, other);
-    }
-
-    static fromRdf(
-      resource: rdfjsResource.Resource,
-    ): purify.Either<
-      rdfjsResource.Resource.ValueError,
-      OrderedCollectionMemberList.Class
-    > {
-      return OrderedCollectionMemberList.fromRdf(resource).map(
-        (properties) => new OrderedCollectionMemberList.Class(properties),
-      );
-    }
-
-    hash<
-      HasherT extends {
-        update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-      },
-    >(hasher: HasherT): HasherT {
-      return OrderedCollectionMemberList.hash(this, hasher);
-    }
-
-    toRdf(kwds: {
-      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-      resourceSet: rdfjsResource.MutableResourceSet;
-    }): rdfjsResource.MutableResource {
-      return OrderedCollectionMemberList.toRdf(this, kwds);
-    }
-  }
-
-  export function equals(
-    left: OrderedCollectionMemberList,
-    right: OrderedCollectionMemberList,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      first: purifyHelpers.Equatable.booleanEquals,
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      rest: (
-        left:
-          | {
-              type: "0-OrderedCollectionMemberList";
-              value: OrderedCollectionMemberList;
-            }
-          | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
-        right:
-          | {
-              type: "0-OrderedCollectionMemberList";
-              value: OrderedCollectionMemberList;
-            }
-          | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
-      ) => {
-        if (
-          left.type === "0-OrderedCollectionMemberList" &&
-          right.type === "0-OrderedCollectionMemberList"
-        ) {
-          return OrderedCollectionMemberList.equals(left.value, right.value);
-        }
-        if (
-          left.type === "1-rdfjs.NamedNode" &&
-          right.type === "1-rdfjs.NamedNode"
-        ) {
-          return purifyHelpers.Equatable.booleanEquals(left.value, right.value);
-        }
-
-        return purify.Left({
-          left,
-          right,
-          propertyName: "type",
-          propertyValuesUnequal: {
-            left: typeof left,
-            right: typeof right,
-            type: "BooleanEquals",
-          },
-          type: "Property",
-        });
-      },
-      type: purifyHelpers.Equatable.strictEquals,
-    });
-  }
-
-  export function fromRdf(
-    resource: rdfjsResource.Resource,
-    _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<
-    rdfjsResource.Resource.ValueError,
-    OrderedCollectionMemberList
-  > {
-    if (
-      !_options?.ignoreRdfType &&
-      !resource.isInstanceOf(
-        dataFactory.namedNode(
-          "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList",
-        ),
-      )
-    ) {
-      return purify.Left(
-        new rdfjsResource.Resource.ValueError({
-          focusResource: resource,
-          message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
-          predicate: dataFactory.namedNode(
-            "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList",
-          ),
-        }),
-      );
-    }
-
-    const _firstEither: purify.Either<
-      rdfjsResource.Resource.ValueError,
-      rdfjs.NamedNode
-    > = resource
-      .value(
-        dataFactory.namedNode(
-          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
-        ),
-      )
-      .chain((value) => value.toIri());
-    if (_firstEither.isLeft()) {
-      return _firstEither;
-    }
-
-    const first = _firstEither.unsafeCoerce();
-    const identifier = resource.identifier;
-    const _restEither: purify.Either<
-      rdfjsResource.Resource.ValueError,
-      | {
-          type: "0-OrderedCollectionMemberList";
-          value: OrderedCollectionMemberList;
-        }
-      | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode }
-    > = resource
-      .value(
-        dataFactory.namedNode(
-          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
-        ),
-      )
-      .chain((value) =>
-        (
-          value
-            .toResource()
-            .chain((resource) => OrderedCollectionMemberList.fromRdf(resource))
-            .map(
-              (value) =>
-                ({ type: "0-OrderedCollectionMemberList" as const, value }) as
-                  | {
-                      type: "0-OrderedCollectionMemberList";
-                      value: OrderedCollectionMemberList;
-                    }
-                  | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
-            ) as purify.Either<
-            rdfjsResource.Resource.ValueError,
-            | {
-                type: "0-OrderedCollectionMemberList";
-                value: OrderedCollectionMemberList;
-              }
-            | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode }
-          >
-        ).altLazy(
-          () =>
-            value
-              .toIri()
-              .chain<rdfjsResource.Resource.ValueError, rdfjs.NamedNode>(
-                (_identifier) =>
-                  _identifier.equals(
-                    dataFactory.namedNode(
-                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil",
-                    ),
-                  )
-                    ? purify.Either.of(_identifier)
-                    : purify.Left(
-                        new rdfjsResource.Resource.MistypedValueError({
-                          actualValue: _identifier,
-                          expectedValueType: "NamedNode",
-                          focusResource: resource,
-                          predicate: dataFactory.namedNode(
-                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
-                          ),
-                        }),
-                      ),
-              )
-              .map(
-                (value) =>
-                  ({ type: "1-rdfjs.NamedNode" as const, value }) as
-                    | {
-                        type: "0-OrderedCollectionMemberList";
-                        value: OrderedCollectionMemberList;
-                      }
-                    | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
-              ) as purify.Either<
-              rdfjsResource.Resource.ValueError,
-              | {
-                  type: "0-OrderedCollectionMemberList";
-                  value: OrderedCollectionMemberList;
-                }
-              | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode }
-            >,
-        ),
-      );
-    if (_restEither.isLeft()) {
-      return _restEither;
-    }
-
-    const rest = _restEither.unsafeCoerce();
-    const type = "OrderedCollectionMemberList" as const;
-    return purify.Either.of({ first, identifier, rest, type });
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    orderedCollectionMemberList: Omit<
-      OrderedCollectionMemberList,
-      "identifier"
-    > & { identifier?: rdfjs.BlankNode | rdfjs.NamedNode },
-    hasher: HasherT,
-  ): HasherT {
-    hasher.update(
-      rdfjsResource.Resource.Identifier.toString(
-        orderedCollectionMemberList.first,
-      ),
-    );
-    if (typeof orderedCollectionMemberList.identifier !== "undefined") {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(
-          orderedCollectionMemberList.identifier,
-        ),
-      );
-    }
-
-    switch (orderedCollectionMemberList.rest.type) {
-      case "0-OrderedCollectionMemberList": {
-        OrderedCollectionMemberList.hash(
-          orderedCollectionMemberList.rest.value,
-          hasher,
-        );
-        break;
-      }
-      case "1-rdfjs.NamedNode": {
-        hasher.update(
-          rdfjsResource.Resource.Identifier.toString(
-            orderedCollectionMemberList.rest.value,
-          ),
-        );
-        break;
-      }
-    }
-
-    return hasher;
-  }
-
-  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
-    constructor(
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
-    ) {
-      super(subject);
-      if (!_options?.ignoreRdfType) {
-        this.add(
-          ...new sparqlBuilder.RdfTypeGraphPatterns(
-            subject,
-            dataFactory.namedNode(
-              "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList",
-            ),
-          ),
-        );
-      }
-
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
-          ),
-          this.variable("First"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.group(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode(
-              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
-            ),
-            this.variable("Rest"),
-          ).chainObject((rest) => [
-            sparqlBuilder.GraphPattern.optional(
-              sparqlBuilder.GraphPattern.group(
-                new OrderedCollectionMemberList.SparqlGraphPatterns(rest),
-              ),
-            ),
-          ]),
-        ),
-      );
-    }
-  }
-
-  export function toRdf(
-    orderedCollectionMemberList: OrderedCollectionMemberList,
-    {
-      ignoreRdfType,
-      mutateGraph,
-      resourceSet,
-    }: {
-      ignoreRdfType?: boolean;
-      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-      resourceSet: rdfjsResource.MutableResourceSet;
-    },
-  ): rdfjsResource.MutableResource {
-    const resource = resourceSet.mutableResource({
-      identifier: orderedCollectionMemberList.identifier,
-      mutateGraph,
-    });
-    if (!ignoreRdfType) {
-      resource.add(
-        resource.dataFactory.namedNode(
-          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        ),
-        resource.dataFactory.namedNode(
-          "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList",
-        ),
-      );
-    }
-
     resource.add(
-      dataFactory.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#first"),
-      orderedCollectionMemberList.first,
-    );
-    resource.add(
-      dataFactory.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"),
-      orderedCollectionMemberList.rest.type === "1-rdfjs.NamedNode"
-        ? orderedCollectionMemberList.rest.value
-        : OrderedCollectionMemberList.toRdf(
-            orderedCollectionMemberList.rest.value,
-            { mutateGraph: mutateGraph, resourceSet: resourceSet },
-          ).identifier,
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#memberList"),
     );
     return resource;
   }
