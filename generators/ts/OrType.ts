@@ -119,7 +119,7 @@ ${this.types
 
   override hashStatements({
     hasherVariable,
-    propertyValueVariable,
+    valueVariable,
   }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
     const caseBlocks: string[] = [];
     this.types.forEach((type, typeIndex) => {
@@ -129,7 +129,7 @@ ${this.types
           caseBlocks.push(
             `case "${typeDiscriminatorPropertyValue}": { ${type.hashStatements({
               hasherVariable,
-              propertyValueVariable,
+              valueVariable,
             })}; break; }`,
           );
         }
@@ -138,18 +138,17 @@ ${this.types
           `case "${syntheticTypeDiscriminatorValue({
             type,
             typeIndex,
-          })}": { ${type.hashStatements({ hasherVariable, propertyValueVariable: `${propertyValueVariable}.value` })}; break; }`,
+          })}": { ${type.hashStatements({ hasherVariable, valueVariable: `${valueVariable}.value` })}; break; }`,
         );
       }
     });
     const switchValue = this.typesSharedDiscriminatorProperty
       .map(
         (typeSharedDiscriminatorProperty) =>
-          `${propertyValueVariable}.${typeSharedDiscriminatorProperty.name}`,
+          `${valueVariable}.${typeSharedDiscriminatorProperty.name}`,
       )
       .orDefaultLazy(
-        () =>
-          `${propertyValueVariable}.${syntheticTypeDiscriminatorPropertyName}`,
+        () => `${valueVariable}.${syntheticTypeDiscriminatorPropertyName}`,
       );
     return [`switch (${switchValue}) { ${caseBlocks.join("\n")} }`];
   }
@@ -203,7 +202,7 @@ ${this.types
   }
 
   override toRdfExpression({
-    propertyValueVariable,
+    valueVariable,
     ...otherParameters
   }: Parameters<Type["toRdfExpression"]>[0]): string {
     let expression = "";
@@ -211,7 +210,7 @@ ${this.types
       if (this.typesSharedDiscriminatorProperty.isJust()) {
         if (expression.length === 0) {
           expression = type.toRdfExpression({
-            propertyValueVariable,
+            valueVariable: valueVariable,
             ...otherParameters,
           });
         } else {
@@ -219,21 +218,21 @@ ${this.types
             .unsafeCoerce()
             .values.map(
               (value) =>
-                `${propertyValueVariable}.${this.typesSharedDiscriminatorProperty.unsafeCoerce().name} === "${value}"`,
+                `${valueVariable}.${this.typesSharedDiscriminatorProperty.unsafeCoerce().name} === "${value}"`,
             )
             .join(
               " || ",
-            )}) ? ${type.toRdfExpression({ propertyValueVariable, ...otherParameters })} : ${expression}`;
+            )}) ? ${type.toRdfExpression({ valueVariable: valueVariable, ...otherParameters })} : ${expression}`;
         }
       } else {
         if (expression.length === 0) {
           expression = type.toRdfExpression({
-            propertyValueVariable: `${propertyValueVariable}.value`,
+            valueVariable: `${valueVariable}.value`,
             ...otherParameters,
           });
         } else {
           // No shared type discriminator between the types, use the one we synthesized
-          expression = `(${propertyValueVariable}.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") ? (${type.toRdfExpression({ propertyValueVariable: `${propertyValueVariable}.value`, ...otherParameters })}) : (${expression})`;
+          expression = `(${valueVariable}.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") ? (${type.toRdfExpression({ valueVariable: `${valueVariable}.value`, ...otherParameters })}) : (${expression})`;
         }
       }
     });

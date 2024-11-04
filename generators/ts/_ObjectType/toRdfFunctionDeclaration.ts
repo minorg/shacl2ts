@@ -43,7 +43,7 @@ export function toRdfFunctionDeclaration(
     statements.push(
       ...property.toRdfStatements({
         mutateGraphVariable,
-        propertyValueVariable: `${thisVariable}.${property.name}`,
+        valueVariable: `${thisVariable}.${property.name}`,
         resourceSetVariable,
       }),
     );

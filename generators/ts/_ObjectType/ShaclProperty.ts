@@ -172,24 +172,24 @@ export class ShaclProperty extends Property {
 
   override hashStatements({
     hasherVariable,
-    propertyValueVariable,
+    valueVariable,
   }: Parameters<Property["hashStatements"]>[0]): readonly string[] {
     switch (this.containerType) {
       case "Array":
         return [
-          `for (const _element of ${propertyValueVariable}) { ${this.type
+          `for (const _element of ${valueVariable}) { ${this.type
             .hashStatements({
               hasherVariable,
-              propertyValueVariable: "_element",
+              valueVariable: "_element",
             })
             .join("\n")} }`,
         ];
       case "Maybe": {
         return [
-          `${propertyValueVariable}.ifJust((_${this.name}) => { ${this.type
+          `${valueVariable}.ifJust((_${this.name}) => { ${this.type
             .hashStatements({
               hasherVariable,
-              propertyValueVariable: `_${this.name}`,
+              valueVariable: `_${this.name}`,
             })
             .join("\n")} })`,
         ];
@@ -197,7 +197,7 @@ export class ShaclProperty extends Property {
       case null:
         return this.type.hashStatements({
           hasherVariable,
-          propertyValueVariable,
+          valueVariable: valueVariable,
         });
     }
   }
@@ -226,24 +226,24 @@ export class ShaclProperty extends Property {
 
   override toRdfStatements({
     mutateGraphVariable,
-    propertyValueVariable,
+    valueVariable,
     resourceSetVariable,
   }: Parameters<Property["toRdfStatements"]>[0]): readonly string[] {
     switch (this.containerType) {
       case "Array":
         return [
-          `for (const ${this.name}Value of ${propertyValueVariable}) { resource.add(${this.pathExpression}, ${this.type.toRdfExpression({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); }`,
+          `for (const ${this.name}Value of ${valueVariable}) { resource.add(${this.pathExpression}, ${this.type.toRdfExpression({ mutateGraphVariable, resourceSetVariable, valueVariable: `${this.name}Value` })}); }`,
         ];
       case "Maybe":
         return [
-          `${propertyValueVariable}.ifJust((${this.name}Value) => { resource.add(${this.pathExpression}, ${this.type.toRdfExpression({ mutateGraphVariable, resourceSetVariable, propertyValueVariable: `${this.name}Value` })}); });`,
+          `${valueVariable}.ifJust((${this.name}Value) => { resource.add(${this.pathExpression}, ${this.type.toRdfExpression({ mutateGraphVariable, resourceSetVariable, valueVariable: `${this.name}Value` })}); });`,
         ];
       case null:
         return [
           `resource.add(${this.pathExpression}, ${this.type.toRdfExpression({
             mutateGraphVariable,
             resourceSetVariable,
-            propertyValueVariable,
+            valueVariable: valueVariable,
           })});`,
         ];
     }

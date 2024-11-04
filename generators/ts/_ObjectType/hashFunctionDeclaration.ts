@@ -24,7 +24,7 @@ export function hashFunctionDeclaration(
     const propertyValueVariable = `${thisVariable}.${property.name}`;
     const propertyHashStatements = property.hashStatements({
       hasherVariable,
-      propertyValueVariable,
+      valueVariable: propertyValueVariable,
     });
 
     if (

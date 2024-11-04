@@ -17,8 +17,8 @@ export abstract class RdfjsTermType extends Type {
   }
 
   override toRdfExpression({
-    propertyValueVariable,
+    valueVariable,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
-    return propertyValueVariable;
+    return valueVariable;
   }
 }

@@ -37,7 +37,7 @@ export abstract class Type {
 
   abstract hashStatements(parameters: {
     hasherVariable: string;
-    propertyValueVariable: string;
+    valueVariable: string;
   }): readonly string[];
 
   /**
@@ -53,8 +53,8 @@ export abstract class Type {
    */
   abstract toRdfExpression(parameters: {
     mutateGraphVariable: string;
-    propertyValueVariable: string;
     resourceSetVariable: string;
+    valueVariable: string;
   }): string;
 
   protected rdfJsTermExpression(
