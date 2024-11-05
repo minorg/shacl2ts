@@ -12,7 +12,7 @@ cd "$(dirname "$0")/.."
 #else
 #  echo "MLM shapes original file $MLM_SHAPES_TTL_ORIGINAL_FILE_PATH not found, using copy"
 #fi
-##./cli.sh ast-json examples/mlm/mlm.shapes.ttl examples/mlm/mlm.shaclmate.ttl >examples/mlm/generated/ast.json
+#./cli.sh show-ast-json examples/mlm/mlm.shapes.ttl examples/mlm/mlm.shaclmate.ttl >examples/mlm/generated/ast.json
 #./cli.sh generate examples/mlm/mlm.shapes.ttl examples/mlm/mlm.shaclmate.ttl >examples/mlm/generated/generated.ts
 
 # SDO
