@@ -47,8 +47,6 @@ export class TypeFactory {
             this.createTypeFromAstType(astType),
           ),
         });
-      case "Enum":
-        throw new Error("not implemented");
       case "Identifier":
         return new IdentifierType({
           configuration: this.configuration,
