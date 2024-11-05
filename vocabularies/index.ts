@@ -1,1 +1,1 @@
-export { strict as shacl2ts } from "./shacl2ts";
+export { strict as shaclmate } from "./shaclmate";

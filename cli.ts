@@ -189,8 +189,8 @@ run(
         },
       }),
     },
-    description: "shacl2ts command line interface",
-    name: "shacl2ts",
+    description: "shaclmate command line interface",
+    name: "shaclmate",
   }),
   process.argv.slice(2),
 );

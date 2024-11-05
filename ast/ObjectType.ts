@@ -37,7 +37,7 @@ export interface ObjectType {
   listItemType: Maybe<Type>;
 
   /**
-   * Name of this ObjectType, usually derived from sh:name or shacl2ts:name.
+   * Name of this ObjectType, usually derived from sh:name or shaclmate:name.
    */
   readonly name: Name;
 

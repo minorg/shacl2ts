@@ -1,7 +1,7 @@
 {
   "author": "Minor Gordon",
   "bin": {
-    "shacl2ts": "cli.js"
+    "shaclmate": "cli.js"
   },
   "dependencies": {
     "@rdfjs/prefix-map": "^0.1.2",
@@ -41,13 +41,13 @@
   "files": ["*.d.ts", "*.d.ts.map", "*.js", "*.js.map"],
   "license": "Apache-2.0",
   "main": "index.js",
-  "name": "shacl2ts",
+  "name": "shaclmate",
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.6.1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/minorg/shacl2ts"
+    "url": "https://github.com/minorg/shaclmate"
   },
   "scripts": {
     "build": "tsc -b",
