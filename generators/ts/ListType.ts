@@ -151,7 +151,7 @@ ${valueVariable}.reduce(
     }),
   } as {
     currentSubListResource: ${mutableResourceTypeName} | null;
-    listResource: rdfjsResource.MutableResource;
+    listResource: ${mutableResourceTypeName};
   },
 ).listResource.identifier,
 `;
