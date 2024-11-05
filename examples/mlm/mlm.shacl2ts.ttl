@@ -2,9 +2,9 @@
 
 @prefix anno-mlm: <http://purl.annotize.ai/ontology/mlm#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix shacl2ts: <http://minorg.github.io/shacl2ts/ns#> .
+@prefix shaclmate: <http://minorg.github.io/shaclmate/ns#> .
 
-anno-mlm:MachineLearningModel-identifier shacl2ts:name "localIdentifier" .
-anno-mlm:MachineLearningModel-isVariantOf shacl2ts:inline true .
+anno-mlm:MachineLearningModel-identifier shaclmate:name "localIdentifier" .
+anno-mlm:MachineLearningModel-isVariantOf shaclmate:inline true .
 
-anno-mlm:MachineLearningModelFamily-manufacturer shacl2ts:inline true .
+anno-mlm:MachineLearningModelFamily-manufacturer shaclmate:inline true .

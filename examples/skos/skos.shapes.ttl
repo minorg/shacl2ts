@@ -3,7 +3,7 @@
 @prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix sh:         <http://www.w3.org/ns/shacl#> .
-@prefix shacl2ts:   <http://minorg.github.io/shacl2ts/ns#> .
+@prefix shaclmate:   <http://minorg.github.io/shaclmate/ns#> .
 @prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
 @prefix skos-shacl: <http://kos-kit.github.io/skos-shacl/ns#> .
 @prefix skos-xl:    <http://www.w3.org/2008/05/skos-xl#> .
@@ -164,7 +164,7 @@ skos:OrderedCollection
 
 skos-shacl:OrderedCollection-memberList
     a               sh:PropertyShape ;
-    shacl2ts:inline true ;
+    shaclmate:inline true ;
     sh:maxCount     1 ;
     sh:minCount     1 ;
     sh:name         "memberList" ;
@@ -193,7 +193,7 @@ skos-shacl:OrderedCollectionMemberList-first
 
 skos-shacl:OrderedCollectionMemberList-rest
     a               sh:PropertyShape ;
-    shacl2ts:inline true ;
+    shaclmate:inline true ;
     sh:maxCount     1 ;
     sh:minCount     1 ;
     sh:name         "rest" ;
