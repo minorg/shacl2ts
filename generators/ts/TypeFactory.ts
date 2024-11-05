@@ -75,6 +75,7 @@ export class TypeFactory {
             itemType: this.createTypeFromAstType(
               astType.listItemType.unsafeCoerce(),
             ),
+            mintingStrategy: astType.mintingStrategy,
             rdfType: astType.rdfType,
           });
         }
