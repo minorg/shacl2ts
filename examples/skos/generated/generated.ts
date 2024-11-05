@@ -2158,12 +2158,17 @@ export namespace OrderedCollection {
       }
 
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#memberList",
+        sparqlBuilder.GraphPattern.group(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#memberList",
+            ),
+            this.variable("MemberList"),
+          ).chainObject(
+            (memberList) =>
+              new sparqlBuilder.RdfListGraphPatterns({ rdfList: memberList }),
           ),
-          this.variable("MemberList"),
         ),
       );
     }

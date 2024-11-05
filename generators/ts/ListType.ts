@@ -55,10 +55,26 @@ export class ListType extends Type {
     ];
   }
 
-  override sparqlGraphPatternExpression(_: {
-    subjectVariable: string;
-  }): Maybe<Type.SparqlGraphPatternExpression> {
-    return Maybe.empty();
+  override sparqlGraphPatternExpression({
+    subjectVariable,
+  }: Parameters<
+    Type["sparqlGraphPatternExpression"]
+  >[0]): Maybe<Type.SparqlGraphPatternExpression> {
+    const itemVariable = "itemVariable";
+    return this.itemType
+      .sparqlGraphPatternExpression({
+        subjectVariable: itemVariable,
+      })
+      .map((itemSparqlGraphPatternExpression) => ({
+        type: "GraphPatterns" as const,
+        value: `new sparqlBuilder.RdfListGraphPatterns({ itemGraphPatterns: (itemVariable) => ${itemSparqlGraphPatternExpression}, rdfList: ${subjectVariable} })`,
+      }))
+      .altLazy(() =>
+        Maybe.of({
+          type: "GraphPatterns" as const,
+          value: `new sparqlBuilder.RdfListGraphPatterns({ rdfList: ${subjectVariable} })`,
+        }),
+      );
   }
 
   override toRdfExpression({
