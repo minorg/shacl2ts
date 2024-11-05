@@ -29,7 +29,6 @@ function nameToJson(name: ast.Name): AstJson.Name {
     identifier: termToJson(name.identifier),
     shName: name.shName.extract(),
     shaclmateName: name.shaclmateName.extract(),
-    tsName: name.tsName,
   };
 }
 

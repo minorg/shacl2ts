@@ -2,11 +2,9 @@ import type PrefixMap from "@rdfjs/prefix-map/PrefixMap.js";
 import TermMap from "@rdfjs/term-map";
 import TermSet from "@rdfjs/term-set";
 import type * as rdfjs from "@rdfjs/types";
-import base62 from "@sindresorhus/base62";
 import { dash, owl, rdf, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
-import { Resource } from "rdfjs-resource";
-import reservedTsIdentifiers_ from "reserved-identifiers";
+import type { Resource } from "rdfjs-resource";
 import * as shaclAst from "shacl-ast";
 import type { NodeKind } from "shacl-ast";
 import { invariant } from "ts-invariant";
@@ -70,28 +68,11 @@ function descendantClassIris(
   return [...descendantClassIris];
 }
 
-const reservedTsIdentifiers = reservedTsIdentifiers_({
-  includeGlobalProperties: true,
-});
-
 function shaclmateName(shape: shaclAst.Shape): Maybe<string> {
   return shape.resource
     .value(shaclmate.name)
     .chain((value) => value.toString())
     .toMaybe();
-}
-
-// Adapted from https://github.com/sindresorhus/to-valid-identifier , MIT license
-function toValidTsIdentifier(value: string): string {
-  if (reservedTsIdentifiers.has(value)) {
-    // We prefix with underscore to avoid any potential conflicts with the Base62 encoded string.
-    return `$_${value}$`;
-  }
-
-  return value.replaceAll(
-    /\P{ID_Continue}/gu,
-    (x) => `$${base62.encodeInteger(x.codePointAt(0)!)}$`,
-  );
 }
 
 export class ShapesGraphToAstTransformer {
@@ -296,7 +277,6 @@ export class ShapesGraphToAstTransformer {
     }
 
     // Populate properties
-    const propertiesByTsName: Record<string, ast.ObjectType.Property> = {};
     for (const propertyShape of nodeShape.constraints.properties) {
       const propertyEither =
         this.propertyShapeAstObjectTypeProperty(propertyShape);
@@ -310,17 +290,7 @@ export class ShapesGraphToAstTransformer {
         continue;
         // return property;
       }
-      const property = propertyEither.unsafeCoerce();
-      if (propertiesByTsName[property.name.tsName]) {
-        logger.warn(
-          "error transforming %s %s: duplicate property TypeScript name %s",
-          nodeShape,
-          propertyShape,
-          property.name.tsName,
-        );
-      }
-      objectType.properties.push(property);
-      propertiesByTsName[property.name.tsName] = property;
+      objectType.properties.push(propertyEither.unsafeCoerce());
     }
 
     // Is the object type an RDF list?
@@ -605,40 +575,29 @@ export class ShapesGraphToAstTransformer {
   }
 
   private shapeName(shape: shaclAst.Shape): ast.Name {
-    const identifier = shape.resource.identifier;
-    const curie =
-      identifier.termType === "NamedNode"
-        ? Maybe.fromNullable(this.iriPrefixMap.shrink(identifier)?.value)
-        : Maybe.empty();
-    const shName = shape.name.map((name) => name.value);
-    const shaclmateName_ = shaclmateName(shape);
-
-    const tsNameAlternatives: (string | null | undefined)[] = [
-      shaclmateName_.extract(),
-      shName.extract()?.replace(" ", "_"),
-      curie.map((curie) => curie.replace(":", "_")).extract(),
-    ];
+    let propertyPath: ast.Name["propertyPath"] = Maybe.empty();
     if (
       shape instanceof shaclAst.PropertyShape &&
       shape.path.kind === "PredicatePath"
     ) {
       const pathIri = shape.path.iri;
-      const pathCurie = this.iriPrefixMap.shrink(pathIri)?.value;
-      if (pathCurie) {
-        tsNameAlternatives.push(pathCurie.replace(":", "_"));
-      }
-      tsNameAlternatives.push(Resource.Identifier.toString(pathIri));
+      propertyPath = Maybe.of({
+        curie: Maybe.fromNullable(this.iriPrefixMap.shrink(pathIri)?.value),
+        identifier: pathIri,
+      });
     }
-    tsNameAlternatives.push(Resource.Identifier.toString(identifier));
 
     return {
-      curie,
-      identifier,
-      shName,
-      shaclmateName: shaclmateName_,
-      tsName: toValidTsIdentifier(
-        tsNameAlternatives.find((tsNameAlternative) => !!tsNameAlternative)!,
-      ),
+      curie:
+        shape.resource.identifier.termType === "NamedNode"
+          ? Maybe.fromNullable(
+              this.iriPrefixMap.shrink(shape.resource.identifier)?.value,
+            )
+          : Maybe.empty(),
+      identifier: shape.resource.identifier,
+      propertyPath,
+      shName: shape.name.map((name) => name.value),
+      shaclmateName: shaclmateName(shape),
     };
   }
 }

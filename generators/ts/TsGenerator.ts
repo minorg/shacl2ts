@@ -3,6 +3,7 @@ import type * as ast from "../../ast";
 import { Configuration } from "./Configuration.js";
 import type { ObjectType } from "./ObjectType.js";
 import { TypeFactory } from "./TypeFactory.js";
+import { tsName } from "./tsName.js";
 
 export class TsGenerator {
   private readonly configuration: Configuration;
@@ -34,7 +35,7 @@ export class TsGenerator {
         return -1;
       }
       // Neither is an ancestor of the other, sort by name
-      return left.name.tsName.localeCompare(right.name.tsName);
+      return tsName(left.name).localeCompare(tsName(right.name));
     });
 
     const project = new Project({

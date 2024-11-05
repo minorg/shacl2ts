@@ -14,6 +14,7 @@ import { ObjectType } from "./ObjectType.js";
 import { OrType } from "./OrType.js";
 import { StringType } from "./StringType.js";
 import type { Type } from "./Type.js";
+import { tsName } from "./tsName.js";
 
 export class TypeFactory {
   private cachedObjectTypePropertiesByIdentifier: TermMap<
@@ -101,7 +102,7 @@ export class TypeFactory {
     });
 
     const objectType = new ObjectType({
-      astName: astType.name.tsName,
+      astName: tsName(astType.name),
       configuration: this.configuration,
       identifierType,
       lazyAncestorObjectTypes: () =>
@@ -195,7 +196,7 @@ export class TypeFactory {
       configuration: this.configuration,
       maxCount: astObjectTypeProperty.maxCount,
       minCount: astObjectTypeProperty.minCount,
-      name: astObjectTypeProperty.name.tsName,
+      name: tsName(astObjectTypeProperty.name),
       path: astObjectTypeProperty.path.iri,
       type,
     });
