@@ -12,7 +12,7 @@ import type { NodeKind } from "shacl-ast";
 import { invariant } from "ts-invariant";
 import type * as ast from "./ast";
 import { logger } from "./logger.js";
-import { shacl2ts } from "./vocabularies/";
+import { shaclmate } from "./vocabularies/";
 
 function ancestorClassIris(
   classResource: Resource,
@@ -74,9 +74,9 @@ const reservedTsIdentifiers = reservedTsIdentifiers_({
   includeGlobalProperties: true,
 });
 
-function shacl2tsName(shape: shaclAst.Shape): Maybe<string> {
+function shaclmateName(shape: shaclAst.Shape): Maybe<string> {
   return shape.resource
-    .value(shacl2ts.name)
+    .value(shaclmate.name)
     .chain((value) => value.toString())
     .toMaybe();
 }
@@ -345,7 +345,7 @@ export class ShapesGraphToAstTransformer {
     }
 
     const inline = propertyShape.resource
-      .value(shacl2ts.inline)
+      .value(shaclmate.inline)
       .chain((value) => value.toBoolean())
       .orDefault(false);
 
@@ -611,10 +611,10 @@ export class ShapesGraphToAstTransformer {
         ? Maybe.fromNullable(this.iriPrefixMap.shrink(identifier)?.value)
         : Maybe.empty();
     const shName = shape.name.map((name) => name.value);
-    const shacl2tsName_ = shacl2tsName(shape);
+    const shaclmateName_ = shaclmateName(shape);
 
     const tsNameAlternatives: (string | null | undefined)[] = [
-      shacl2tsName_.extract(),
+      shaclmateName_.extract(),
       shName.extract()?.replace(" ", "_"),
       curie.map((curie) => curie.replace(":", "_")).extract(),
     ];
@@ -635,7 +635,7 @@ export class ShapesGraphToAstTransformer {
       curie,
       identifier,
       shName,
-      shacl2tsName: shacl2tsName_,
+      shaclmateName: shaclmateName_,
       tsName: toValidTsIdentifier(
         tsNameAlternatives.find((tsNameAlternative) => !!tsNameAlternative)!,
       ),

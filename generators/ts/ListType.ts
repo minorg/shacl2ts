@@ -103,7 +103,7 @@ export class ListType extends Type {
         break;
       }
       case NodeKind.IRI: {
-        listIdentifier = `dataFactory.namedNode(\`urn:shacl2ts:list:\${${valueVariable}.reduce(
+        listIdentifier = `dataFactory.namedNode(\`urn:shaclmate:list:\${${valueVariable}.reduce(
         (hasher, item) => {
           ${this.itemType.hashStatements({ hasherVariable: "hasher", valueVariable: "item" })}
           return hasher;

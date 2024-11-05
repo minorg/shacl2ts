@@ -1,4 +1,4 @@
-# shacl2ts
+# shaclmate
 
 Command line program and library for transforming SHACL to TypeScript.
 
@@ -8,7 +8,7 @@ Command line program and library for transforming SHACL to TypeScript.
 
     npm install
 
-The package is also available on npmjs as `shacl2ts`.
+The package is also available on npmjs as `shaclmate`.
 
 ### Running
 

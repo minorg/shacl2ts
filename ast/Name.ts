@@ -5,6 +5,6 @@ export interface Name {
   readonly curie: Maybe<string>;
   readonly identifier: BlankNode | NamedNode;
   readonly shName: Maybe<string>;
-  readonly shacl2tsName: Maybe<string>;
+  readonly shaclmateName: Maybe<string>;
   readonly tsName: string;
 }

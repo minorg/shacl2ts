@@ -1,0 +1,10 @@
+# baseURI: http://purl.annotize.ai/ontology/mlm
+
+@prefix anno-mlm: <http://purl.annotize.ai/ontology/mlm#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix shaclmate: <http://minorg.github.io/shaclmate/ns#> .
+
+anno-mlm:MachineLearningModel-identifier shaclmate:name "localIdentifier" .
+anno-mlm:MachineLearningModel-isVariantOf shaclmate:inline true .
+
+anno-mlm:MachineLearningModelFamily-manufacturer shaclmate:inline true .

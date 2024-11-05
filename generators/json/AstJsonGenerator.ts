@@ -28,7 +28,7 @@ function nameToJson(name: ast.Name): AstJson.Name {
     curie: name.curie.extract(),
     identifier: termToJson(name.identifier),
     shName: name.shName.extract(),
-    shacl2tsName: name.shacl2tsName.extract(),
+    shaclmateName: name.shaclmateName.extract(),
     tsName: name.tsName,
   };
 }
