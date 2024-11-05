@@ -57,7 +57,10 @@ export class TsGenerator {
     return project.getFileSystem().readFileSync(sourceFile.getFilePath());
   }
 
-  private addImportDeclarations(sourceFile: SourceFile) {
+  private addImportDeclarations(
+    objectTypes: readonly ObjectType[],
+    sourceFile: SourceFile,
+  ) {
     sourceFile.addImportDeclaration({
       moduleSpecifier: "purify-ts",
       namespaceImport: "purify",
@@ -94,13 +97,21 @@ export class TsGenerator {
         namespaceImport: "sparqlBuilder",
       });
     }
+
+    const typeImportStatements = new Set<string>();
+    for (const objectType of objectTypes) {
+      for (const importStatement of objectType.importStatements()) {
+        typeImportStatements.add(importStatement);
+      }
+    }
+    sourceFile.addStatements([...typeImportStatements]);
   }
 
   private generateSourceFile(
     objectTypes: readonly ObjectType[],
     sourceFile: SourceFile,
   ) {
-    this.addImportDeclarations(sourceFile);
+    this.addImportDeclarations(objectTypes, sourceFile);
 
     for (const objectType of objectTypes) {
       sourceFile.addInterface(objectType.interfaceDeclaration());

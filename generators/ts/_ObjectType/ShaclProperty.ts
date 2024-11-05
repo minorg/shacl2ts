@@ -202,6 +202,10 @@ export class ShaclProperty extends Property {
     }
   }
 
+  override importStatements(): readonly string[] {
+    return this.type.importStatements();
+  }
+
   override sparqlGraphPatternExpression(): Maybe<string> {
     let sparqlGraphPattern = `sparqlBuilder.GraphPattern.basic(this.subject, ${this.pathExpression}, this.variable("${pascalCase(this.name)}"))`;
     this.type

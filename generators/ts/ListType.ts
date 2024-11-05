@@ -55,6 +55,13 @@ export class ListType extends Type {
     ];
   }
 
+  override importStatements(): readonly string[] {
+    if (this.identifierNodeKind === NodeKind.IRI) {
+      return ['import { sha256 } from "js-sha256";'];
+    }
+    return [];
+  }
+
   override sparqlGraphPatternExpression({
     subjectVariable,
   }: Parameters<
@@ -65,10 +72,12 @@ export class ListType extends Type {
       .sparqlGraphPatternExpression({
         subjectVariable: itemVariable,
       })
-      .map((itemSparqlGraphPatternExpression) => ({
-        type: "GraphPatterns" as const,
-        value: `new sparqlBuilder.RdfListGraphPatterns({ itemGraphPatterns: (itemVariable) => ${itemSparqlGraphPatternExpression}, rdfList: ${subjectVariable} })`,
-      }))
+      .map((itemSparqlGraphPatternExpression) => {
+        return {
+          type: "GraphPatterns" as const,
+          value: `new sparqlBuilder.RdfListGraphPatterns({ itemGraphPatterns: (itemVariable) => ${itemSparqlGraphPatternExpression.type === "GraphPatterns" ? itemSparqlGraphPatternExpression.value : `[${itemSparqlGraphPatternExpression.value}]`}, rdfList: ${subjectVariable} })`,
+        };
+      })
       .altLazy(() =>
         Maybe.of({
           type: "GraphPatterns" as const,

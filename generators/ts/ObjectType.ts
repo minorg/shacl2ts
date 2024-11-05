@@ -121,6 +121,10 @@ export class ObjectType extends Type {
     ];
   }
 
+  override importStatements(): readonly string[] {
+    return this.properties.flatMap((property) => property.importStatements());
+  }
+
   rdfjsResourceType(options?: { mutable?: boolean }): {
     readonly mutable: boolean;
     readonly name: string;

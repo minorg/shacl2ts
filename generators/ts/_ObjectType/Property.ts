@@ -40,6 +40,10 @@ export abstract class Property {
     parameters: Parameters<Type["hashStatements"]>[0],
   ): readonly string[];
 
+  importStatements(): readonly string[] {
+    return [];
+  }
+
   abstract sparqlGraphPatternExpression(): Maybe<string>;
 
   abstract toRdfStatements(

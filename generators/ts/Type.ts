@@ -40,6 +40,10 @@ export abstract class Type {
     valueVariable: string;
   }): readonly string[];
 
+  importStatements(): readonly string[] {
+    return [];
+  }
+
   /**
    * An optional sparqlBuilder.GraphPattern to chain to the basic pattern for a property.
    */
