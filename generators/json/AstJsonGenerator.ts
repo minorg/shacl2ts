@@ -69,11 +69,6 @@ function typeToJson(type: ast.Type): AstJson.Type {
         kind: type.kind,
         types: type.types.map((type) => typeToJson(type)),
       };
-    case "Enum":
-      return {
-        kind: type.kind,
-        members: type.members.map((term) => termToJson(term)),
-      };
     case "Identifier":
       return {
         kind: type.kind,

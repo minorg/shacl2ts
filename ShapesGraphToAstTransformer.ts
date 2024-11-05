@@ -495,14 +495,6 @@ export class ShapesGraphToAstTransformer {
       });
     }
 
-    // Treat any shape with sh:in as an enum type
-    if (shape.constraints.in_.isJust()) {
-      return Either.of({
-        kind: "Enum",
-        members: shape.constraints.in_.extract(),
-      });
-    }
-
     // Treat any shape with sh:nodeKind blank node or IRI as an identifier type
     const hasIdentifierValue = hasValue.filter(
       (value) => value.termType !== "Literal",
