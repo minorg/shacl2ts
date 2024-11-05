@@ -82,10 +82,10 @@ export class IdentifierType extends RdfjsTermType {
 
   override hashStatements({
     hasherVariable,
-    propertyValueVariable,
+    valueVariable,
   }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `${hasherVariable}.update(rdfjsResource.Resource.Identifier.toString(${propertyValueVariable}));`,
+      `${hasherVariable}.update(rdfjsResource.Resource.Identifier.toString(${valueVariable}));`,
     ];
   }
 }

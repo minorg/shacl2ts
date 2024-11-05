@@ -13,6 +13,7 @@ export function toRdfFunctionDeclaration(
 ): FunctionDeclarationStructure {
   this.ensureAtMostOneSuperObjectType();
 
+  let usedIgnoreRdfTypeVariable = false;
   const thisVariable = camelCase(this.name);
 
   const statements: string[] = [];
@@ -20,6 +21,7 @@ export function toRdfFunctionDeclaration(
     statements.push(
       `const ${resourceVariable} = ${this.parentObjectTypes[0].moduleQualifiedName}.toRdf(${thisVariable}, { ${mutateGraphVariable}, ${ignoreRdfTypeVariable}: true, ${resourceSetVariable} });`,
     );
+    usedIgnoreRdfTypeVariable = true;
   } else if (this.identifierType.isNamedNodeKind) {
     statements.push(
       `const ${resourceVariable} = ${resourceSetVariable}.mutableNamedResource({ identifier: ${thisVariable}.${this.configuration.objectTypeIdentifierPropertyName}, ${mutateGraphVariable} });`,
@@ -34,13 +36,14 @@ export function toRdfFunctionDeclaration(
     statements.push(
       `if (!${ignoreRdfTypeVariable}) { ${resourceVariable}.add(${resourceVariable}.dataFactory.namedNode("${rdf.type.value}"), ${resourceVariable}.dataFactory.namedNode("${rdfType.value}")); }`,
     );
+    usedIgnoreRdfTypeVariable = true;
   });
 
   for (const property of this.properties) {
     statements.push(
       ...property.toRdfStatements({
         mutateGraphVariable,
-        propertyValueVariable: `${thisVariable}.${property.name}`,
+        valueVariable: `${thisVariable}.${property.name}`,
         resourceSetVariable,
       }),
     );
@@ -58,7 +61,7 @@ export function toRdfFunctionDeclaration(
         type: this.interfaceQualifiedName,
       },
       {
-        name: `{ ${ignoreRdfTypeVariable}, ${mutateGraphVariable}, ${resourceSetVariable} }`,
+        name: `{ ${usedIgnoreRdfTypeVariable ? `${ignoreRdfTypeVariable},` : ""} ${mutateGraphVariable}, ${resourceSetVariable} }`,
         type: `{ ${ignoreRdfTypeVariable}?: boolean; ${mutateGraphVariable}: rdfjsResource.MutableResource.MutateGraph, ${resourceSetVariable}: rdfjsResource.MutableResourceSet }`,
       },
     ],

@@ -26,8 +26,8 @@ export class LiteralType extends RdfjsTermType {
 
   override hashStatements({
     hasherVariable,
-    propertyValueVariable,
+    valueVariable,
   }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
-    return [`${hasherVariable}.update(${propertyValueVariable}.value);`];
+    return [`${hasherVariable}.update(${valueVariable}.value);`];
   }
 }

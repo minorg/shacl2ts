@@ -5,7 +5,7 @@ import type * as ast from "../../ast";
 import type { Configuration } from "./Configuration.js";
 
 export abstract class Type {
-  abstract readonly kind: ast.Type["kind"];
+  abstract readonly kind: ast.Type["kind"] | "List";
   abstract readonly name: string;
   protected readonly configuration: Configuration;
 
@@ -37,8 +37,12 @@ export abstract class Type {
 
   abstract hashStatements(parameters: {
     hasherVariable: string;
-    propertyValueVariable: string;
+    valueVariable: string;
   }): readonly string[];
+
+  importStatements(): readonly string[] {
+    return [];
+  }
 
   /**
    * An optional sparqlBuilder.GraphPattern to chain to the basic pattern for a property.
@@ -53,8 +57,8 @@ export abstract class Type {
    */
   abstract toRdfExpression(parameters: {
     mutateGraphVariable: string;
-    propertyValueVariable: string;
     resourceSetVariable: string;
+    valueVariable: string;
   }): string;
 
   protected rdfJsTermExpression(

@@ -114,11 +114,15 @@ export class ObjectType extends Type {
 
   override hashStatements({
     hasherVariable,
-    propertyValueVariable,
+    valueVariable,
   }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
     return [
-      `${this.moduleQualifiedName}.hash(${propertyValueVariable}, ${hasherVariable});`,
+      `${this.moduleQualifiedName}.hash(${valueVariable}, ${hasherVariable});`,
     ];
+  }
+
+  override importStatements(): readonly string[] {
+    return this.properties.flatMap((property) => property.importStatements());
   }
 
   rdfjsResourceType(options?: { mutable?: boolean }): {
@@ -151,9 +155,9 @@ export class ObjectType extends Type {
   override toRdfExpression({
     mutateGraphVariable,
     resourceSetVariable,
-    propertyValueVariable,
+    valueVariable,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
-    return `${this.moduleQualifiedName}.toRdf(${propertyValueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
+    return `${this.moduleQualifiedName}.toRdf(${valueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
   }
 
   protected ensureAtMostOneSuperObjectType() {

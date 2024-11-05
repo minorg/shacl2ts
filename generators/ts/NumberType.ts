@@ -14,8 +14,8 @@ export class NumberType extends PrimitiveType {
 
   override hashStatements({
     hasherVariable,
-    propertyValueVariable,
+    valueVariable,
   }: Parameters<PrimitiveType["hashStatements"]>[0]): readonly string[] {
-    return [`${hasherVariable}.update(${propertyValueVariable}.toString());`];
+    return [`${hasherVariable}.update(${valueVariable}.toString());`];
   }
 }

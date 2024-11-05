@@ -1,0 +1,216 @@
+@prefix dash:       <http://datashapes.org/dash#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix shacl2ts:   <http://minorg.github.io/shacl2ts/ns#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix skos-shacl: <http://kos-kit.github.io/skos-shacl/ns#> .
+@prefix skos-xl:    <http://www.w3.org/2008/05/skos-xl#> .
+
+skos-shacl:altLabel
+    a       sh:PropertyShape ;
+    sh:name "altLabel" ;
+    sh:or   dash:StringOrLangString ;
+    sh:path skos:altLabel ;
+.
+
+skos-shacl:altLabelXl
+    a        sh:PropertyShape ;
+    sh:name  "altLabelXl" ;
+    sh:class skos-xl:Label ;
+    sh:path  skos-xl:altLabel ;
+.
+
+skos:Collection
+    a           sh:NodeShape ;
+    a           owl:Class ;
+    sh:name     "Collection" ;
+    sh:nodeKind sh:IRI ;
+    sh:property skos-shacl:Collection-member ;
+.
+
+skos-shacl:Collection-member
+    a       sh:PropertyShape ;
+    sh:name "member" ;
+    sh:or   ( [ sh:class skos:Collection ; ] [ sh:class skos:Concept ; ] ) ;
+    sh:path skos:member ;
+.
+
+skos:Concept
+    a           sh:NodeShape ;
+    a           owl:Class ;
+    sh:name     "Concept" ;
+    sh:nodeKind sh:IRI ;
+    sh:property skos-shacl:altLabel ;
+    sh:property skos-shacl:altLabelXl ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "broader" ;
+                  sh:path  skos:broader ; ] ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "broaderTransitive" ;
+                  sh:path  skos:broaderTransitive ; ] ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "broadMatch" ;
+                  sh:path  skos:broadMatch ; ] ;
+    sh:property [ sh:name "changeNote" ;
+                  sh:or   dash:StringOrLangString ;
+                  sh:path skos:changeNote ; ] ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "closeMatch" ;
+                  sh:path  skos:closeMatch ; ] ;
+    sh:property [ sh:name "definition" ;
+                  sh:or   dash:StringOrLangString ;
+                  sh:path skos:definition ; ] ;
+    sh:property [ sh:name "editorialNote" ;
+                  sh:or   dash:StringOrLangString ;
+                  sh:path skos:editorialNote ; ] ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "exactMatch" ;
+                  sh:path  skos:exactMatch ; ] ;
+    sh:property [ sh:name "example" ;
+                  sh:or   dash:StringOrLangString ;
+                  sh:path skos:example ; ] ;
+    sh:property skos-shacl:hiddenLabel ;
+    sh:property skos-shacl:hiddenLabelXl ;
+    sh:property [ sh:name "historyNote" ;
+                  sh:or   dash:StringOrLangString ;
+                  sh:path skos:historyNote ; ] ;
+    sh:property [ sh:class skos:ConceptScheme ;
+                  sh:name  "inScheme" ;
+                  sh:path  skos:inScheme ] ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "mappingRelation" ;
+                  sh:path  skos:mappingRelation ; ] ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "narrower" ;
+                  sh:path  skos:narrower ; ] ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "narrowerTransitive" ;
+                  sh:path  skos:narrowerTransitive ; ] ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "narrowMatch" ;
+                  sh:path  skos:narrowMatch ; ] ;
+    sh:property [ sh:datatype rdf:langString ;
+                  sh:name     "notation" ;
+                  sh:path     skos:notation ; ] ;
+    sh:property [ sh:name "note" ;
+                  sh:or   dash:StringOrLangString ;
+                  sh:path skos:notation ; ] ;
+    sh:property skos-shacl:prefLabel ;
+    sh:property skos-shacl:prefLabelXl ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "related" ;
+                  sh:path  skos:related ; ] ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "relatedMatch" ;
+                  sh:path  skos:relatedMatch ; ] ;
+    sh:property [ sh:name "scopeNote" ;
+                  sh:or   dash:StringOrLangString ;
+                  sh:path skos:scopeNote ; ] ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "semanticRelation" ;
+                  sh:path  skos:semanticRelation ; ] ;
+    sh:property [ sh:class skos:ConceptScheme ;
+                  sh:name  "topConceptOf" ;
+                  sh:path  skos:topConceptOf ; ] ;
+.
+
+skos:ConceptScheme
+    a           sh:NodeShape ;
+    a           owl:Class ;
+    sh:name     "ConceptScheme" ;
+    sh:nodeKind sh:IRI ;
+    sh:property skos-shacl:altLabel ;
+    sh:property [ sh:class skos:Concept ;
+                  sh:name  "hasTopConcept" ;
+                  sh:path  skos:hasTopConcept ] ;
+    sh:property skos-shacl:hiddenLabel ;
+    sh:property skos-shacl:prefLabel ;
+.
+
+skos-shacl:hiddenLabel
+    a       sh:PropertyShape ;
+    sh:name "hiddenLabel" ;
+    sh:or   dash:StringOrLangString ;
+    sh:path skos:altLabel ;
+.
+
+skos-shacl:hiddenLabelXl
+    a        sh:PropertyShape ;
+    sh:name  "hiddenLabelXl" ;
+    sh:class skos-xl:Label ;
+    sh:path  skos-xl:hiddenLabel ;
+.
+
+skos-xl:Label
+    a           sh:NodeShape ;
+    a           owl:Class ;
+    sh:name     "Label" ;
+    sh:nodeKind sh:BlankNodeOrIRI ;
+    sh:property [ sh:minCount 1 ;
+                  sh:or       dash:StringOrLangString ;
+                  sh:path     skos-xl:literalForm ; ] ;
+.
+
+skos:OrderedCollection
+    a               sh:NodeShape ;
+    a               owl:Class ;
+    rdfs:subClassOf skos:Collection ;
+    sh:name         "OrderedCollection" ;
+    sh:nodeKind     sh:IRI ;
+    sh:property     skos-shacl:OrderedCollection-memberList ;
+.
+
+skos-shacl:OrderedCollection-memberList
+    a               sh:PropertyShape ;
+    shacl2ts:inline true ;
+    sh:maxCount     1 ;
+    sh:minCount     1 ;
+    sh:name         "memberList" ;
+    sh:node         skos-shacl:OrderedCollectionMemberList ;
+    sh:path         skos:memberList ;
+.
+
+skos-shacl:OrderedCollectionMemberList
+    a               sh:NodeShape ;
+    a               owl:Class ;
+    rdfs:subClassOf rdf:List ;
+    sh:name         "OrderedCollectionMemberList" ;
+    sh:nodeKind     sh:BlankNodeOrIRI ;
+    sh:property     skos-shacl:OrderedCollectionMemberList-first ;
+    sh:property     skos-shacl:OrderedCollectionMemberList-rest ;
+.
+
+skos-shacl:OrderedCollectionMemberList-first
+    a           sh:PropertyShape ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:name     "first" ;
+    sh:or       ( [ sh:class skos:Collection ; ] [ sh:class skos:Concept ; ] ) ;
+    sh:path     rdf:first ;
+.
+
+skos-shacl:OrderedCollectionMemberList-rest
+    a               sh:PropertyShape ;
+    shacl2ts:inline true ;
+    sh:maxCount     1 ;
+    sh:minCount     1 ;
+    sh:name         "rest" ;
+    sh:or           ( [ sh:class skos-shacl:OrderedCollectionMemberList ] [ sh:hasValue rdf:nil ] ) ;
+    sh:path         rdf:rest ;
+.
+
+skos-shacl:prefLabel
+    a       sh:PropertyShape ;
+    sh:name "prefLabel" ;
+    sh:or   dash:StringOrLangString ;
+    sh:path skos:prefLabel ;
+.
+
+skos-shacl:prefLabelXl
+    a        sh:PropertyShape ;
+    sh:name  "prefLabelXl" ;
+    sh:class skos-xl:Label ;
+    sh:path  skos-xl:prefLabel ;
+.

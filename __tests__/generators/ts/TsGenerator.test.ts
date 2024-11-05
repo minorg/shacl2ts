@@ -10,25 +10,27 @@ import {
   type Resource,
 } from "rdfjs-resource";
 import { type ExpectStatic, beforeAll, describe, it } from "vitest";
-import * as generated from "../../../examples/mlm/generated/generated.js";
+import * as mlm from "../../../examples/mlm/generated/generated.js";
+import * as skos from "../../../examples/skos/generated/generated.js";
 
 describe("TsGenerator", () => {
-  let languageModel: generated.LanguageModel.Class;
-  let organization: generated.Organization.Class;
+  let mlmLanguageModel: mlm.LanguageModel.Class;
+  let mlmOrganization: mlm.Organization.Class;
+  let skosOrderedCollection: skos.OrderedCollection.Class;
 
   beforeAll(() => {
-    organization = new generated.Organization.Class({
+    mlmOrganization = new mlm.Organization.Class({
       identifier: dataFactory.namedNode("http://example.com/organization"),
       name: dataFactory.literal("Test organization"),
     });
 
-    languageModel = new generated.LanguageModel.Class({
+    mlmLanguageModel = new mlm.LanguageModel.Class({
       contextWindow: 1,
       identifier: dataFactory.namedNode("http://example.com/mlm"),
-      isVariantOf: new generated.MachineLearningModelFamily.Class({
+      isVariantOf: new mlm.MachineLearningModelFamily.Class({
         description: dataFactory.literal("Family description"),
         identifier: dataFactory.namedNode("http://example.com/family"),
-        manufacturer: organization,
+        manufacturer: mlmOrganization,
         name: dataFactory.literal("Family"),
         url: "http://example.com/family",
       }),
@@ -38,10 +40,18 @@ describe("TsGenerator", () => {
       trainingDataCutoff: "Test cutoff",
       url: "http://example.com/mlm",
     });
+
+    skosOrderedCollection = new skos.OrderedCollection.Class({
+      identifier: dataFactory.namedNode("http://example.com/collection"),
+      memberList: [
+        dataFactory.namedNode("http://example.com/collection/member1"),
+        dataFactory.namedNode("http://example.com/collection/member2"),
+      ],
+    });
   });
 
   it("should generate valid TypeScript interfaces", ({ expect }) => {
-    const mlm: generated.LanguageModel = {
+    const mlm: mlm.LanguageModel = {
       contextWindow: 1,
       description: Maybe.of(dataFactory.literal("Test description")),
       identifier: dataFactory.namedNode("http://example.com/mlm"),
@@ -68,24 +78,26 @@ describe("TsGenerator", () => {
   });
 
   it("should construct a class instance from parameters", ({ expect }) => {
-    expect(languageModel.description.isNothing()).toStrictEqual(true);
+    expect(mlmLanguageModel.description.isNothing()).toStrictEqual(true);
     expect(
-      languageModel.isVariantOf.description.extractNullable()?.value,
+      mlmLanguageModel.isVariantOf.description.extractNullable()?.value,
     ).toStrictEqual("Family description");
-    expect(languageModel.name.value).toStrictEqual("Test name");
+    expect(mlmLanguageModel.name.value).toStrictEqual("Test name");
   });
 
   it("equals should return true with two equal objects", ({ expect }) => {
-    expect(organization.equals(organization).extract()).toStrictEqual(true);
+    expect(mlmOrganization.equals(mlmOrganization).extract()).toStrictEqual(
+      true,
+    );
   });
 
   it("equals should return an Unequals with two unequal objects", ({
     expect,
   }) => {
     expect(
-      organization
+      mlmOrganization
         .equals(
-          new generated.Organization.Class({
+          new mlm.Organization.Class({
             identifier: dataFactory.namedNode("http://example.com/other"),
             name: dataFactory.literal("Other"),
           }),
@@ -126,27 +138,27 @@ describe("TsGenerator", () => {
   it("fromRdf (LanguageModel)", ({ expect }) => {
     testFromRdf({
       expect,
-      model: languageModel,
-      modelFromRdf: generated.LanguageModel.Class.fromRdf,
+      model: mlmLanguageModel,
+      modelFromRdf: mlm.LanguageModel.Class.fromRdf,
     });
   });
 
   it("fromRdf (Organization)", ({ expect }) => {
     testFromRdf({
       expect,
-      model: organization,
-      modelFromRdf: generated.Organization.Class.fromRdf,
+      model: mlmOrganization,
+      modelFromRdf: mlm.Organization.Class.fromRdf,
     });
   });
 
   it("hash (LanguageModel)", ({ expect }) => {
-    expect(languageModel.hash(sha256.create()).hex()).toStrictEqual(
+    expect(mlmLanguageModel.hash(sha256.create()).hex()).toStrictEqual(
       "7fead1d8ac51c47873f3426e599233c7caf247743e684ad2f46dfd9c1f79850c",
     );
   });
 
   it("hash (Organization)", ({ expect }) => {
-    expect(organization.hash(sha256.create()).hex()).toStrictEqual(
+    expect(mlmOrganization.hash(sha256.create()).hex()).toStrictEqual(
       "1cbaacc89707adaba94f7e5a3099c68a1b3e30b73c885824bb15bd67835af599",
     );
   });
@@ -154,7 +166,7 @@ describe("TsGenerator", () => {
   it("toRdf should populate a dataset", ({ expect }) => {
     const dataset = new N3.Store();
     const resourceSet = new MutableResourceSet({ dataFactory, dataset });
-    const resource = organization.toRdf({
+    const resource = mlmOrganization.toRdf({
       resourceSet,
       mutateGraph: dataFactory.defaultGraph(),
     });
@@ -185,7 +197,7 @@ describe("TsGenerator", () => {
 
   it("toRdf should produce serializable RDF", ({ expect }) => {
     const dataset = new N3.Store();
-    languageModel.toRdf({
+    mlmLanguageModel.toRdf({
       mutateGraph: dataFactory.defaultGraph(),
       resourceSet: new MutableResourceSet({ dataFactory, dataset }),
     });
@@ -193,5 +205,27 @@ describe("TsGenerator", () => {
       ...dataset,
     ]);
     expect(ttl).not.toHaveLength(0);
+  });
+
+  it("toRdf should serialize and deserialize a list", ({ expect }) => {
+    const dataset = new N3.Store();
+    const skosOrderedCollectionResource = skosOrderedCollection.toRdf({
+      mutateGraph: dataFactory.defaultGraph(),
+      resourceSet: new MutableResourceSet({ dataFactory, dataset }),
+    });
+    const ttl = new N3.Writer({ format: "text/turtle" }).quadsToString([
+      ...dataset,
+    ]);
+    expect(ttl).not.toHaveLength(0);
+
+    const skosOrderedCollectionFromRdf = skos.OrderedCollection.fromRdf(
+      skosOrderedCollectionResource,
+    ).unsafeCoerce();
+    expect(
+      skos.OrderedCollection.equals(
+        skosOrderedCollectionFromRdf,
+        skosOrderedCollection,
+      ).extract(),
+    ).toStrictEqual(true);
   });
 });

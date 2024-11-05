@@ -14,8 +14,8 @@ export class StringType extends PrimitiveType {
 
   override hashStatements({
     hasherVariable,
-    propertyValueVariable,
+    valueVariable,
   }: Parameters<PrimitiveType["hashStatements"]>[0]): readonly string[] {
-    return [`${hasherVariable}.update(${propertyValueVariable});`];
+    return [`${hasherVariable}.update(${valueVariable});`];
   }
 }

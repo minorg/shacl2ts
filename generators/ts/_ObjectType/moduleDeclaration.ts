@@ -4,7 +4,6 @@ import {
   StructureKind,
 } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
-import { classConstructorParametersInterfaceDeclaration } from "./classConstructorParametersInterfaceDeclaration.js";
 import { classDeclaration } from "./classDeclaration.js";
 import { equalsFunctionDeclaration } from "./equalsFunctionDeclaration.js";
 import { fromRdfFunctionDeclaration } from "./fromRdfFunctionDeclaration.js";
@@ -20,13 +19,6 @@ export function moduleDeclaration(
   if (this.configuration.features.has("class")) {
     const classDeclaration_ = classDeclaration.bind(this)();
     statements.push(classDeclaration_);
-
-    statements.push({
-      isExported: true,
-      kind: StructureKind.Module,
-      name: classDeclaration_.name!,
-      statements: [classConstructorParametersInterfaceDeclaration.bind(this)()],
-    });
   }
 
   if (this.configuration.features.has("equals")) {

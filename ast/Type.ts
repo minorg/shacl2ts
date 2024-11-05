@@ -10,6 +10,5 @@ export type Type =
   | EnumType
   | IdentifierType
   | LiteralType
-  | IdentifierType
   | ObjectType
   | OrType;

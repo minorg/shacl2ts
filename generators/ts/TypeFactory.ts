@@ -2,10 +2,12 @@ import TermMap from "@rdfjs/term-map";
 import type { BlankNode, NamedNode } from "@rdfjs/types";
 import { xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
+import { NodeKind } from "shacl-ast";
 import type * as ast from "../../ast";
 import { AndType } from "./AndType.js";
 import type { Configuration } from "./Configuration";
 import { IdentifierType } from "./IdentifierType";
+import { ListType } from "./ListType.js";
 import { LiteralType } from "./LiteralType.js";
 import { NumberType } from "./NumberType.js";
 import { ObjectType } from "./ObjectType.js";
@@ -28,7 +30,61 @@ export class TypeFactory {
     this.configuration = configuration;
   }
 
-  createObjectTypeFromAstType(astType: ast.ObjectType): ObjectType {
+  createTypeFromAstType(astType: ast.Type): Type {
+    switch (astType.kind) {
+      case "And":
+        return new AndType({
+          configuration: this.configuration,
+          types: astType.types.map((astType) =>
+            this.createTypeFromAstType(astType),
+          ),
+        });
+      case "Or":
+        return new OrType({
+          configuration: this.configuration,
+          types: astType.types.map((astType) =>
+            this.createTypeFromAstType(astType),
+          ),
+        });
+      case "Enum":
+        throw new Error("not implemented");
+      case "Identifier":
+        return new IdentifierType({
+          configuration: this.configuration,
+          hasValue: astType.hasValue,
+          nodeKinds: astType.nodeKinds,
+        });
+      case "Literal": {
+        const datatype = astType.datatype.extractNullable();
+        if (datatype !== null) {
+          if (datatype.equals(xsd.integer)) {
+            return new NumberType({ configuration: this.configuration });
+          }
+          if (datatype.equals(xsd.anyURI) || datatype.equals(xsd.string)) {
+            return new StringType({ configuration: this.configuration });
+          }
+        }
+        return new LiteralType({ configuration: this.configuration });
+      }
+      case "Object":
+        if (astType.listItemType.isJust()) {
+          return new ListType({
+            configuration: this.configuration,
+            identifierNodeKind: astType.nodeKinds.has(NodeKind.BLANK_NODE)
+              ? NodeKind.BLANK_NODE
+              : NodeKind.IRI,
+            itemType: this.createTypeFromAstType(
+              astType.listItemType.unsafeCoerce(),
+            ),
+            rdfType: astType.rdfType,
+          });
+        }
+
+        return this.createObjectTypeFromAstType(astType);
+    }
+  }
+
+  private createObjectTypeFromAstType(astType: ast.ObjectType): ObjectType {
     {
       const cachedObjectType = this.cachedObjectTypesByIdentifier.get(
         astType.name.identifier,
@@ -106,59 +162,6 @@ export class TypeFactory {
     });
     this.cachedObjectTypesByIdentifier.set(astType.name.identifier, objectType);
     return objectType;
-  }
-
-  createTypeFromAstType(astType: ast.Type): Type {
-    switch (astType.kind) {
-      case "And":
-      case "Or": {
-        if (
-          astType.types.every((composedType) => composedType.kind === "Literal")
-        ) {
-          // Special case: all the composed types are Literals,
-          // like dash:StringOrLangString
-          return new LiteralType({
-            configuration: this.configuration,
-          });
-        }
-
-        if (astType.kind === "And") {
-          return new AndType({
-            configuration: this.configuration,
-            types: astType.types.map((astType) =>
-              this.createTypeFromAstType(astType),
-            ),
-          });
-        }
-
-        return new OrType({
-          configuration: this.configuration,
-          types: astType.types.map((astType) =>
-            this.createTypeFromAstType(astType),
-          ),
-        });
-      }
-      case "Enum":
-        throw new Error("not implemented");
-      case "Identifier":
-        return new IdentifierType({
-          configuration: this.configuration,
-          hasValue: astType.hasValue,
-          nodeKinds: astType.nodeKinds,
-        });
-      case "Literal": {
-        const datatype = astType.datatype.orDefault(xsd.string);
-        if (datatype.equals(xsd.integer)) {
-          return new NumberType({ configuration: this.configuration });
-        }
-        if (datatype.equals(xsd.anyURI) || datatype.equals(xsd.string)) {
-          return new StringType({ configuration: this.configuration });
-        }
-        return new LiteralType({ configuration: this.configuration });
-      }
-      case "Object":
-        return this.createObjectTypeFromAstType(astType);
-    }
   }
 
   private createObjectTypePropertyFromAstProperty(
