@@ -1,3 +1,4 @@
+import { camelCase } from "change-case";
 import { Maybe } from "purify-ts";
 import type {
   OptionalKind,
@@ -95,10 +96,10 @@ export class IdentifierProperty extends Property {
             }
           }
 
-          return `dataFactory.namedNode(\`urn:shaclmate:object:\${${objectType.moduleQualifiedName}.hash(${hashParameters ? "parameters" : `{ ${hashProperties.join(", ")} }`}, sha256.create())}\`)`;
+          return `dataFactory.namedNode(\`urn:shaclmate:object:${camelCase(objectType.astName)}:\${${objectType.moduleQualifiedName}.hash(${hashParameters ? "parameters" : `{ ${hashProperties.join(", ")} }`}, sha256.create())}\`)`;
         }
         case MintingStrategy.UUIDv4:
-          return "dataFactory.namedNode('urn:shaclmate:object:${uuid.v4()}`)";
+          return `dataFactory.namedNode('urn:shaclmate:object:${camelCase(objectType.astName)}:\${uuid.v4()}\`)`;
       }
     });
   }
