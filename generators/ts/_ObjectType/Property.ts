@@ -5,6 +5,7 @@ import type {
   PropertySignatureStructure,
 } from "ts-morph";
 import type { Configuration } from "../Configuration.js";
+import type { ObjectType } from "../ObjectType.js";
 import type { Type } from "../Type.js";
 
 export abstract class Property {
@@ -28,8 +29,9 @@ export abstract class Property {
     this.name = name;
   }
 
-  abstract classConstructorInitializer(parameters: {
+  abstract classConstructorInitializerExpression(parameters: {
     parameter: string;
+    objectType: ObjectType;
   }): Maybe<string>;
 
   abstract fromRdfStatements(parameters: {

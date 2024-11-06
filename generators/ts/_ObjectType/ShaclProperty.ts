@@ -130,9 +130,11 @@ export class ShaclProperty extends Property {
     return `${this.configuration.dataFactoryVariable}.namedNode("${this.path.value}")`;
   }
 
-  override classConstructorInitializer({
+  override classConstructorInitializerExpression({
     parameter,
-  }: Parameters<Property["classConstructorInitializer"]>[0]): Maybe<string> {
+  }: Parameters<
+    Property["classConstructorInitializerExpression"]
+  >[0]): Maybe<string> {
     const maxCount = this.maxCount.extractNullable();
     if (this.minCount === 0) {
       if (maxCount === 1) {

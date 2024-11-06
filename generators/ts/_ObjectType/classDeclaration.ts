@@ -8,18 +8,35 @@ import {
   StructureKind,
 } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
-import { hasherTypeConstraint } from "./hashFunctionDeclaration";
+import { IdentifierProperty } from "./IdentifierProperty.js";
+import { hasherTypeConstraint } from "./hashFunctionDeclaration.js";
 
 function constructorDeclaration(
   this: ObjectType,
 ): OptionalKind<ConstructorDeclarationStructure> {
   const statements: (string | StatementStructures)[] = [];
+
+  const mintIdentifier = IdentifierProperty.classConstructorMintExpression({
+    mintingStrategy: this.mintingStrategy,
+    objectType: this,
+  });
+
   if (this.parentObjectTypes.length > 0) {
-    statements.push("super(parameters);");
+    if (mintIdentifier.isJust()) {
+      // Have to mint the identifier in the subclass being instantiated in case the minting needs to hash all members
+      statements.push(
+        `super({...parameters, ${this.configuration.objectTypeIdentifierPropertyName}: parameters.${this.configuration.objectTypeIdentifierPropertyName} ?? ${mintIdentifier.unsafeCoerce()} });`,
+      );
+    } else {
+      statements.push("super(parameters);");
+    }
   }
   for (const property of this.properties) {
     property
-      .classConstructorInitializer({ parameter: `parameters.${property.name}` })
+      .classConstructorInitializerExpression({
+        objectType: this,
+        parameter: `parameters.${property.name}`,
+      })
       .ifJust((classConstructorInitializer) =>
         statements.push(
           `this.${property.name} = ${classConstructorInitializer};`,
