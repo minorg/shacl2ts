@@ -3,6 +3,7 @@ import type { Maybe } from "purify-ts";
 import type { NodeKind } from "shacl-ast";
 import type { PredicatePath } from "shacl-ast";
 import type { Name, Type } from ".";
+import type { MintingStrategy } from "./MintingStrategy";
 
 export interface ObjectType {
   /**
@@ -35,6 +36,11 @@ export interface ObjectType {
    * Mutable to support cycle-handling logic in the transformer.
    */
   listItemType: Maybe<Type>;
+
+  /**
+   * Strategy for minting new object identifiers. If not specified, require an identifier on construction.
+   */
+  readonly mintingStrategy: Maybe<MintingStrategy>;
 
   /**
    * Name of this ObjectType, usually derived from sh:name or shaclmate:name.

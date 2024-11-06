@@ -9,6 +9,7 @@ import * as shaclAst from "shacl-ast";
 import type { NodeKind } from "shacl-ast";
 import { invariant } from "ts-invariant";
 import type * as ast from "./ast";
+import { MintingStrategy } from "./ast/MintingStrategy";
 import { logger } from "./logger.js";
 import { shaclmate } from "./vocabularies/";
 
@@ -230,6 +231,21 @@ export class ShapesGraphToAstTransformer {
       descendantObjectTypes: [],
       kind: "Object",
       listItemType: Maybe.empty(),
+      mintingStrategy: nodeShape.resource
+        .value(shaclmate.mintingStrategy)
+        .chain((value) => value.toIri())
+        .chain((iri) => {
+          if (iri.equals(shaclmate.SHA256)) {
+            return Either.of(MintingStrategy.SHA256);
+          }
+          if (iri.equals(shaclmate.UUIDv4)) {
+            return Either.of(MintingStrategy.UUIDv4);
+          }
+          return Left(
+            new Error(`unrecognizing minting strategy: ${iri.value}`),
+          );
+        })
+        .toMaybe(),
       name: this.shapeName(nodeShape),
       nodeKinds,
       properties: [], // This is mutable, we'll populate it below.

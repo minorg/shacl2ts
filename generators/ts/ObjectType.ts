@@ -1,6 +1,7 @@
 import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
+import { MintingStrategy } from "../../ast";
 import type { IdentifierType } from "./IdentifierType.js";
 import type { RdfjsTermType } from "./RdfjsTermType";
 import { Type } from "./Type.js";
@@ -13,6 +14,7 @@ export class ObjectType extends Type {
   interfaceDeclaration = _ObjectType.interfaceDeclaration;
   readonly interfaceQualifiedName: string;
   readonly kind = "Object";
+  readonly mintingStrategy: Maybe<MintingStrategy>;
   moduleDeclaration = _ObjectType.moduleDeclaration;
   readonly moduleQualifiedName: string;
   readonly rdfType: Maybe<NamedNode>;
@@ -33,6 +35,7 @@ export class ObjectType extends Type {
     lazyDescendantObjectTypes,
     lazyParentObjectTypes,
     lazyProperties,
+    mintingStrategy,
     rdfType,
     ...superParameters
   }: {
@@ -42,6 +45,7 @@ export class ObjectType extends Type {
     lazyDescendantObjectTypes: () => readonly ObjectType[];
     lazyParentObjectTypes: () => readonly ObjectType[];
     lazyProperties: () => readonly ObjectType.Property[];
+    mintingStrategy: Maybe<MintingStrategy>;
     rdfType: Maybe<NamedNode>;
   } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
@@ -51,6 +55,7 @@ export class ObjectType extends Type {
     this.lazyParentObjectTypes = lazyParentObjectTypes;
     this.lazyProperties = lazyProperties;
     this.identifierType = identifierType;
+    this.mintingStrategy = mintingStrategy;
     this.rdfType = rdfType;
 
     this.astName = astName;
@@ -122,7 +127,20 @@ export class ObjectType extends Type {
   }
 
   override importStatements(): readonly string[] {
-    return this.properties.flatMap((property) => property.importStatements());
+    const importStatements = this.properties.flatMap((property) =>
+      property.importStatements(),
+    );
+    this.mintingStrategy.ifJust((mintingStrategy) => {
+      switch (mintingStrategy) {
+        case MintingStrategy.SHA256:
+          importStatements.push('import { sha256 } from "js-sha256";');
+          break;
+        case MintingStrategy.UUIDv4:
+          importStatements.push('import * as uuid from "uuid";');
+          break;
+      }
+    });
+    return importStatements;
   }
 
   rdfjsResourceType(options?: { mutable?: boolean }): {

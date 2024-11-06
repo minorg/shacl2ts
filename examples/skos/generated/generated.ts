@@ -96,6 +96,7 @@ export namespace Collection {
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#member"),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -108,7 +109,7 @@ export namespace Collection {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    collection: Omit<Collection, "identifier"> & {
+    collection: Omit<Collection, "identifier" | "type"> & {
       identifier?: rdfjs.NamedNode;
     },
     hasher: HasherT,
@@ -144,10 +145,12 @@ export namespace Collection {
       }
 
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#member"),
-          this.variable("Member"),
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#member"),
+            this.variable("Member"),
+          ),
         ),
       );
     }
@@ -613,6 +616,7 @@ export namespace Concept {
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -620,6 +624,7 @@ export namespace Concept {
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#altLabel"),
+          { unique: true },
         )
         .flatMap((value) => value.toIdentifier().toMaybe().toList()),
     ];
@@ -627,6 +632,7 @@ export namespace Concept {
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#broader"),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -636,6 +642,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#broaderTransitive",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -645,6 +652,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#broadMatch",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -654,6 +662,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#changeNote",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -663,6 +672,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#closeMatch",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -672,6 +682,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#definition",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -681,6 +692,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#editorialNote",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -690,6 +702,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#exactMatch",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -697,6 +710,7 @@ export namespace Concept {
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#example"),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -704,6 +718,7 @@ export namespace Concept {
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -713,6 +728,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2008/05/skos-xl#hiddenLabel",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toIdentifier().toMaybe().toList()),
     ];
@@ -722,6 +738,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#historyNote",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -730,6 +747,7 @@ export namespace Concept {
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#inScheme"),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -739,6 +757,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#mappingRelation",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -746,6 +765,7 @@ export namespace Concept {
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#narrower"),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -755,6 +775,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#narrowerTransitive",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -764,6 +785,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#narrowMatch",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -771,6 +793,7 @@ export namespace Concept {
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -778,6 +801,7 @@ export namespace Concept {
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -787,6 +811,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#prefLabel",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -794,6 +819,7 @@ export namespace Concept {
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#prefLabel"),
+          { unique: true },
         )
         .flatMap((value) => value.toIdentifier().toMaybe().toList()),
     ];
@@ -801,6 +827,7 @@ export namespace Concept {
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#related"),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -810,6 +837,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#relatedMatch",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -819,6 +847,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#scopeNote",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -828,6 +857,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#semanticRelation",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -837,6 +867,7 @@ export namespace Concept {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#topConceptOf",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -880,7 +911,9 @@ export namespace Concept {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    concept: Omit<Concept, "identifier"> & { identifier?: rdfjs.NamedNode },
+    concept: Omit<Concept, "identifier" | "type"> & {
+      identifier?: rdfjs.NamedNode;
+    },
     hasher: HasherT,
   ): HasherT {
     for (const _element of concept.altLabel) {
@@ -1022,233 +1055,309 @@ export namespace Concept {
       }
 
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
-          this.variable("AltLabel"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#altLabel"),
-          this.variable("AltLabelXl"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#broader"),
-          this.variable("Broader"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#broaderTransitive",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#altLabel",
+            ),
+            this.variable("AltLabel"),
           ),
-          this.variable("BroaderTransitive"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#broadMatch",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#altLabel"),
+            this.variable("AltLabelXl"),
           ),
-          this.variable("BroadMatch"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#changeNote",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#broader",
+            ),
+            this.variable("Broader"),
           ),
-          this.variable("ChangeNote"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#closeMatch",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#broaderTransitive",
+            ),
+            this.variable("BroaderTransitive"),
           ),
-          this.variable("CloseMatch"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#definition",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#broadMatch",
+            ),
+            this.variable("BroadMatch"),
           ),
-          this.variable("Definition"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#editorialNote",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#changeNote",
+            ),
+            this.variable("ChangeNote"),
           ),
-          this.variable("EditorialNote"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#exactMatch",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#closeMatch",
+            ),
+            this.variable("CloseMatch"),
           ),
-          this.variable("ExactMatch"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#example"),
-          this.variable("Example"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
-          this.variable("HiddenLabel"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2008/05/skos-xl#hiddenLabel",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#definition",
+            ),
+            this.variable("Definition"),
           ),
-          this.variable("HiddenLabelXl"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#historyNote",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#editorialNote",
+            ),
+            this.variable("EditorialNote"),
           ),
-          this.variable("HistoryNote"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#inScheme"),
-          this.variable("InScheme"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#mappingRelation",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#exactMatch",
+            ),
+            this.variable("ExactMatch"),
           ),
-          this.variable("MappingRelation"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#narrower"),
-          this.variable("Narrower"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#narrowerTransitive",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#example",
+            ),
+            this.variable("Example"),
           ),
-          this.variable("NarrowerTransitive"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#narrowMatch",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#altLabel",
+            ),
+            this.variable("HiddenLabel"),
           ),
-          this.variable("NarrowMatch"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
-          this.variable("Notation"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
-          this.variable("Note"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#prefLabel",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2008/05/skos-xl#hiddenLabel",
+            ),
+            this.variable("HiddenLabelXl"),
           ),
-          this.variable("PrefLabel"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#prefLabel"),
-          this.variable("PrefLabelXl"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#related"),
-          this.variable("Related"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#relatedMatch",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#historyNote",
+            ),
+            this.variable("HistoryNote"),
           ),
-          this.variable("RelatedMatch"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#scopeNote",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#inScheme",
+            ),
+            this.variable("InScheme"),
           ),
-          this.variable("ScopeNote"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#semanticRelation",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#mappingRelation",
+            ),
+            this.variable("MappingRelation"),
           ),
-          this.variable("SemanticRelation"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#topConceptOf",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#narrower",
+            ),
+            this.variable("Narrower"),
           ),
-          this.variable("TopConceptOf"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#narrowerTransitive",
+            ),
+            this.variable("NarrowerTransitive"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#narrowMatch",
+            ),
+            this.variable("NarrowMatch"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#notation",
+            ),
+            this.variable("Notation"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#notation",
+            ),
+            this.variable("Note"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#prefLabel",
+            ),
+            this.variable("PrefLabel"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2008/05/skos-xl#prefLabel",
+            ),
+            this.variable("PrefLabelXl"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#related",
+            ),
+            this.variable("Related"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#relatedMatch",
+            ),
+            this.variable("RelatedMatch"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#scopeNote",
+            ),
+            this.variable("ScopeNote"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#semanticRelation",
+            ),
+            this.variable("SemanticRelation"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#topConceptOf",
+            ),
+            this.variable("TopConceptOf"),
+          ),
         ),
       );
     }
@@ -1628,6 +1737,7 @@ export namespace ConceptScheme {
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -1637,6 +1747,7 @@ export namespace ConceptScheme {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#hasTopConcept",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toIri().toMaybe().toList()),
     ];
@@ -1644,6 +1755,7 @@ export namespace ConceptScheme {
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -1654,6 +1766,7 @@ export namespace ConceptScheme {
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#prefLabel",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -1673,7 +1786,7 @@ export namespace ConceptScheme {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    conceptScheme: Omit<ConceptScheme, "identifier"> & {
+    conceptScheme: Omit<ConceptScheme, "identifier" | "type"> & {
       identifier?: rdfjs.NamedNode;
     },
     hasher: HasherT,
@@ -1721,35 +1834,47 @@ export namespace ConceptScheme {
       }
 
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
-          this.variable("AltLabel"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#hasTopConcept",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#altLabel",
+            ),
+            this.variable("AltLabel"),
           ),
-          this.variable("HasTopConcept"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
-          this.variable("HiddenLabel"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://www.w3.org/2004/02/skos/core#prefLabel",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#hasTopConcept",
+            ),
+            this.variable("HasTopConcept"),
           ),
-          this.variable("PrefLabel"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#altLabel",
+            ),
+            this.variable("HiddenLabel"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://www.w3.org/2004/02/skos/core#prefLabel",
+            ),
+            this.variable("PrefLabel"),
+          ),
         ),
       );
     }
@@ -1908,6 +2033,7 @@ export namespace Label {
           dataFactory.namedNode(
             "http://www.w3.org/2008/05/skos-xl#literalForm",
           ),
+          { unique: true },
         )
         .flatMap((value) => value.toLiteral().toMaybe().toList()),
     ];
@@ -1920,7 +2046,7 @@ export namespace Label {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    label: Omit<Label, "identifier"> & {
+    label: Omit<Label, "identifier" | "type"> & {
       identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
     },
     hasher: HasherT,
@@ -2127,7 +2253,7 @@ export namespace OrderedCollection {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    orderedCollection: Omit<OrderedCollection, "identifier"> & {
+    orderedCollection: Omit<OrderedCollection, "identifier" | "type"> & {
       identifier?: rdfjs.NamedNode;
     },
     hasher: HasherT,

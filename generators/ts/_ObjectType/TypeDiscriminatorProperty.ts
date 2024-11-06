@@ -54,7 +54,7 @@ export class TypeDiscriminatorProperty extends Property {
     };
   }
 
-  override classConstructorInitializer(): Maybe<string> {
+  override classConstructorInitializerExpression(): Maybe<string> {
     return Maybe.empty();
   }
 

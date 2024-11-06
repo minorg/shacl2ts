@@ -75,6 +75,7 @@ export class TypeFactory {
             itemType: this.createTypeFromAstType(
               astType.listItemType.unsafeCoerce(),
             ),
+            mintingStrategy: astType.mintingStrategy,
             rdfType: astType.rdfType,
           });
         }
@@ -125,6 +126,7 @@ export class TypeFactory {
           properties.push(
             new ObjectType.IdentifierProperty({
               configuration: this.configuration,
+              mintingStrategy: astType.mintingStrategy,
               name: this.configuration.objectTypeIdentifierPropertyName,
               type: identifierType,
             }),
@@ -157,6 +159,7 @@ export class TypeFactory {
 
         return properties;
       },
+      mintingStrategy: astType.mintingStrategy,
       rdfType: astType.rdfType,
     });
     this.cachedObjectTypesByIdentifier.set(astType.name.identifier, objectType);

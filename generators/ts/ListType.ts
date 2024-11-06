@@ -2,6 +2,7 @@ import type { NamedNode } from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import { NodeKind } from "shacl-ast";
+import { MintingStrategy } from "../../ast/MintingStrategy";
 import type { RdfjsTermType } from "./RdfjsTermType.js";
 import { Type } from "./Type.js";
 
@@ -9,21 +10,25 @@ export class ListType extends Type {
   readonly itemType: Type;
   readonly kind = "List";
   private readonly identifierNodeKind: NodeKind.BLANK_NODE | NodeKind.IRI;
+  private readonly mintingStrategy: MintingStrategy;
   private readonly rdfType: Maybe<NamedNode>;
 
   constructor({
     identifierNodeKind,
     itemType,
+    mintingStrategy,
     rdfType,
     ...superParameters
   }: {
     identifierNodeKind: ListType["identifierNodeKind"];
     itemType: Type;
+    mintingStrategy: Maybe<MintingStrategy>;
     rdfType: Maybe<NamedNode>;
   } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
     this.identifierNodeKind = identifierNodeKind;
     this.itemType = itemType;
+    this.mintingStrategy = mintingStrategy.orDefault(MintingStrategy.SHA256);
     this.rdfType = rdfType;
   }
 
@@ -103,13 +108,21 @@ export class ListType extends Type {
         break;
       }
       case NodeKind.IRI: {
-        listIdentifier = `dataFactory.namedNode(\`urn:shaclmate:list:\${${valueVariable}.reduce(
+        switch (this.mintingStrategy) {
+          case MintingStrategy.SHA256:
+            listIdentifier = `dataFactory.namedNode(\`urn:shaclmate:list:\${${valueVariable}.reduce(
         (hasher, item) => {
           ${this.itemType.hashStatements({ hasherVariable: "hasher", valueVariable: "item" })}
           return hasher;
         },
         sha256.create(),
       )}\`)`;
+            break;
+          case MintingStrategy.UUIDv4:
+            listIdentifier =
+              'dataFactory.namedNode("urn:shaclmate:list:${uuid.v4()}")';
+            break;
+        }
         mutableResourceTypeName =
           "rdfjsResource.MutableResource<rdfjs.NamedNode>";
         resourceSetMethodName = "mutableNamedResource";

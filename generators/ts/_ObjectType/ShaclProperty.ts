@@ -130,9 +130,11 @@ export class ShaclProperty extends Property {
     return `${this.configuration.dataFactoryVariable}.namedNode("${this.path.value}")`;
   }
 
-  override classConstructorInitializer({
+  override classConstructorInitializerExpression({
     parameter,
-  }: Parameters<Property["classConstructorInitializer"]>[0]): Maybe<string> {
+  }: Parameters<
+    Property["classConstructorInitializerExpression"]
+  >[0]): Maybe<string> {
     const maxCount = this.maxCount.extractNullable();
     if (this.minCount === 0) {
       if (maxCount === 1) {
@@ -153,7 +155,7 @@ export class ShaclProperty extends Property {
     const resourceValueVariable = "value";
     if (this.containerType === "Array") {
       return [
-        `const ${this.name} = [...${resourceVariable}.values(${this.pathExpression}).flatMap(${resourceValueVariable} => (${this.type.fromRdfExpression({ predicate: this.path, resourceVariable, resourceValueVariable })}).toMaybe().toList())];`,
+        `const ${this.name} = [...${resourceVariable}.values(${this.pathExpression}, { unique: true }).flatMap(${resourceValueVariable} => (${this.type.fromRdfExpression({ predicate: this.path, resourceVariable, resourceValueVariable })}).toMaybe().toList())];`,
       ];
     }
 
@@ -222,7 +224,7 @@ export class ShaclProperty extends Property {
             break;
         }
       });
-    if (this.containerType === "Maybe") {
+    if (this.minCount === 0) {
       sparqlGraphPattern = `sparqlBuilder.GraphPattern.optional(${sparqlGraphPattern})`;
     }
     return Maybe.of(sparqlGraphPattern);

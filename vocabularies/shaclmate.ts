@@ -4,8 +4,13 @@ import type { NamedNode } from "@rdfjs/types";
 export interface Shaclmate {
   "": NamedNode<"http://minorg.github.io/shaclmate/ns#">;
 
+  // Resources
+  SHA256: NamedNode<"http://minorg.github.io/shaclmate/ns#SHA256">;
+  UUIDv4: NamedNode<"http://minorg.github.io/shaclmate/ns#UUIDv4">;
+
   // Properties
   inline: NamedNode<"http://minorg.github.io/shaclmate/ns#inline">;
+  mintingStrategy: NamedNode<"http://minorg.github.io/shaclmate/ns#mintingStrategy">;
   name: NamedNode<"http://minorg.github.io/shaclmate/ns#name">;
 }
 
