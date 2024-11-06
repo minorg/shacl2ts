@@ -155,7 +155,7 @@ export class ShaclProperty extends Property {
     const resourceValueVariable = "value";
     if (this.containerType === "Array") {
       return [
-        `const ${this.name} = [...${resourceVariable}.values(${this.pathExpression}).flatMap(${resourceValueVariable} => (${this.type.fromRdfExpression({ predicate: this.path, resourceVariable, resourceValueVariable })}).toMaybe().toList())];`,
+        `const ${this.name} = [...${resourceVariable}.values(${this.pathExpression}, { unique: true }).flatMap(${resourceValueVariable} => (${this.type.fromRdfExpression({ predicate: this.path, resourceVariable, resourceValueVariable })}).toMaybe().toList())];`,
       ];
     }
 
