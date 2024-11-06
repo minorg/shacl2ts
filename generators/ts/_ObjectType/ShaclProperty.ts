@@ -224,7 +224,7 @@ export class ShaclProperty extends Property {
             break;
         }
       });
-    if (this.containerType === "Maybe") {
+    if (this.minCount === 0) {
       sparqlGraphPattern = `sparqlBuilder.GraphPattern.optional(${sparqlGraphPattern})`;
     }
     return Maybe.of(sparqlGraphPattern);
