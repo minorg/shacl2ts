@@ -1,7 +1,6 @@
 import TermMap from "@rdfjs/term-map";
 import type { BlankNode, NamedNode } from "@rdfjs/types";
 import { xsd } from "@tpluscode/rdf-ns-builders";
-import { Maybe } from "purify-ts";
 import { NodeKind } from "shacl-ast";
 import type * as ast from "../../ast";
 import { AndType } from "./AndType.js";
@@ -51,7 +50,6 @@ export class TypeFactory {
       case "Identifier":
         return new IdentifierType({
           configuration: this.configuration,
-          hasValue: astType.hasValue,
           nodeKinds: astType.nodeKinds,
         });
       case "Literal": {
@@ -100,7 +98,6 @@ export class TypeFactory {
 
     const identifierType = new IdentifierType({
       configuration: this.configuration,
-      hasValue: Maybe.empty(),
       nodeKinds: astType.nodeKinds,
     });
 
@@ -190,7 +187,6 @@ export class TypeFactory {
       // Non-inlined object type = its identifier
       type = new IdentifierType({
         configuration: this.configuration,
-        hasValue: Maybe.empty(),
         nodeKinds: astObjectTypeProperty.type.nodeKinds,
       });
     } else {
@@ -199,6 +195,7 @@ export class TypeFactory {
 
     const property = new ObjectType.ShaclProperty({
       configuration: this.configuration,
+      hasValue: astObjectTypeProperty.hasValue,
       maxCount: astObjectTypeProperty.maxCount,
       minCount: astObjectTypeProperty.minCount,
       name: tsName(astObjectTypeProperty.name),

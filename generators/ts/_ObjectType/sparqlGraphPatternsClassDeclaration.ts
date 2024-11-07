@@ -1,5 +1,6 @@
 import { type ClassDeclarationStructure, StructureKind } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
+import { rdfjsTermExpression } from "../rdfjsTermExpression";
 
 const ignoreRdfTypeVariable = "ignoreRdfType";
 const optionsVariable = "_options";
@@ -22,7 +23,7 @@ export function sparqlGraphPatternsClassDeclaration(
 
   this.rdfType.ifJust((rdfType) =>
     constructorStatements.push(
-      `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${this.rdfJsTermExpression(rdfType)})); }`,
+      `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${rdfjsTermExpression(rdfType, this.configuration)})); }`,
     ),
   );
 

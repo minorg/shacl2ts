@@ -1,5 +1,4 @@
-import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
-import { xsd } from "@tpluscode/rdf-ns-builders";
+import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import type * as ast from "../../ast";
 import type { Configuration } from "./Configuration.js";
@@ -60,22 +59,6 @@ export abstract class Type {
     resourceSetVariable: string;
     valueVariable: string;
   }): string;
-
-  protected rdfJsTermExpression(
-    rdfjsTerm: BlankNode | Literal | NamedNode,
-  ): string {
-    switch (rdfjsTerm.termType) {
-      case "BlankNode":
-        return `${this.configuration.dataFactoryVariable}.blankNode("${rdfjsTerm.value}")`;
-      case "Literal":
-        if (rdfjsTerm.datatype.equals(xsd.string)) {
-          return `${this.configuration.dataFactoryVariable}.literal("${rdfjsTerm.value}", "${rdfjsTerm.language}")`;
-        }
-        return `${this.configuration.dataFactoryVariable}.literal("${rdfjsTerm.value}", ${this.configuration.dataFactoryVariable}.namedNode("${rdfjsTerm.datatype.value}"))`;
-      case "NamedNode":
-        return `${this.configuration.dataFactoryVariable}.namedNode("${rdfjsTerm.value}")`;
-    }
-  }
 }
 
 export namespace Type {

@@ -175,11 +175,8 @@ export class ShapesGraphToAstTransformer {
       );
     }
     if (
-      !restProperty.type.types.find(
-        (type) =>
-          type.kind === "Identifier" &&
-          type.hasValue.extract()?.equals(rdf.nil),
-      )
+      !restProperty.type.types.find((type) => type.kind === "Identifier") ||
+      !restProperty.hasValue.extract()?.equals(rdf.nil)
     ) {
       return Left(
         new Error(
@@ -352,6 +349,7 @@ export class ShapesGraphToAstTransformer {
       .orDefault(0);
 
     const property: ast.ObjectType.Property = {
+      hasValue: propertyShape.constraints.hasValue,
       inline,
       maxCount: propertyShape.constraints.maxCount.filter(
         (maxCount) => maxCount >= minCount,
@@ -435,10 +433,10 @@ export class ShapesGraphToAstTransformer {
       }
 
       if (
+        hasValue.isNothing() &&
         composedTypes.every(
           (composedType) =>
             composedType.kind === "Literal" &&
-            composedType.hasValue.isNothing() &&
             composedType.maxExclusive.isNothing() &&
             composedType.maxInclusive.isNothing() &&
             composedType.minExclusive.isNothing() &&
@@ -459,10 +457,9 @@ export class ShapesGraphToAstTransformer {
       }
 
       if (
+        hasValue.isNothing() &&
         composedTypes.every(
-          (composedType) =>
-            composedType.kind === "Identifier" &&
-            composedType.hasValue.isNothing(),
+          (composedType) => composedType.kind === "Identifier",
         )
       ) {
         // Special case: all composed types are blank or named nodes without further constraints
@@ -500,9 +497,6 @@ export class ShapesGraphToAstTransformer {
     ) {
       return Either.of<Error, ast.LiteralType>({
         datatype: shape.constraints.datatype,
-        hasValue: hasValue.filter(
-          (hasValue) => hasValue.termType === "Literal",
-        ),
         kind: "Literal",
         maxExclusive: shape.constraints.maxExclusive,
         maxInclusive: shape.constraints.maxInclusive,

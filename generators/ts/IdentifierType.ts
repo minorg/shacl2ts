@@ -8,19 +8,15 @@ import type { Type } from "./Type";
 
 export class IdentifierType extends RdfjsTermType {
   readonly kind = "Identifier";
-  private readonly hasValue: Maybe<BlankNode | NamedNode>;
   private readonly nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
 
   constructor({
-    hasValue,
     nodeKinds,
     ...superParameters
   }: {
-    hasValue: Maybe<BlankNode | NamedNode>;
     nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
   } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
-    this.hasValue = hasValue;
     this.nodeKinds = new Set([...nodeKinds]);
     invariant(this.nodeKinds.size > 0);
   }
@@ -57,27 +53,18 @@ export class IdentifierType extends RdfjsTermType {
   }
 
   override fromRdfExpression({
-    predicate,
-    resourceVariable,
     resourceValueVariable,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    let expression: string;
     switch (this.name) {
       case "rdfjs.BlankNode":
         throw new Error("not implemented");
       case "rdfjs.NamedNode":
-        expression = `${resourceValueVariable}.toIri()`;
-        break;
+        return `${resourceValueVariable}.toIri()`;
       case "rdfjs.BlankNode | rdfjs.NamedNode":
-        expression = `${resourceValueVariable}.toIdentifier()`;
-        break;
+        return `${resourceValueVariable}.toIdentifier()`;
       default:
         throw new Error(`not implemented: ${this.name}`);
     }
-    this.hasValue.ifJust((hasValue) => {
-      expression = `${expression}.chain<rdfjsResource.Resource.ValueError, ${this.name}>(_identifier => _identifier.equals(${this.rdfJsTermExpression(hasValue)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${resourceVariable}, predicate: ${this.rdfJsTermExpression(predicate)} })))`;
-    });
-    return expression;
   }
 
   override hashStatements({
