@@ -120,7 +120,7 @@ export class ListType extends Type {
             break;
           case MintingStrategy.UUIDv4:
             listIdentifier =
-              'dataFactory.namedNode("urn:shaclmate:list:${uuid.v4()}")';
+              "dataFactory.namedNode(`urn:shaclmate:list:${uuid.v4()}`)";
             break;
         }
         mutableResourceTypeName =
