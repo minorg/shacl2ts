@@ -1,7 +1,8 @@
-import type { NamedNode } from "@rdfjs/types";
+import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import type * as ast from "../../ast";
 import type { Configuration } from "./Configuration.js";
+import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
 export abstract class Type {
   abstract readonly kind: ast.Type["kind"] | "List";
@@ -21,6 +22,15 @@ export abstract class Type {
   }
 
   /**
+   * Convert a default value from an RDF/JS term into an expression that can be used in an initializer.
+   */
+  defaultValueExpression(
+    defaultValue: BlankNode | Literal | NamedNode,
+  ): string {
+    return rdfjsTermExpression(defaultValue, this.configuration);
+  }
+
+  /**
    * A function (reference or declaration) that conforms to purifyHelpers.Equatable.Equatable.
    */
   abstract equalsFunction(): string;
@@ -29,7 +39,6 @@ export abstract class Type {
    * An expression that converts a rdfjsResource.Resource.Value to a value of this type.
    */
   abstract fromRdfExpression(parameters: {
-    predicate: NamedNode;
     resourceValueVariable: string;
     resourceVariable: string;
   }): string;

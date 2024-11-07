@@ -79,6 +79,7 @@ export interface ObjectType {
 
 export namespace ObjectType {
   export interface Property {
+    readonly defaultValue: Maybe<BlankNode | Literal | NamedNode>;
     readonly hasValue: Maybe<BlankNode | Literal | NamedNode>;
     readonly inline: boolean;
     readonly maxCount: Maybe<number>;

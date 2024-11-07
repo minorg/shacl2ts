@@ -349,6 +349,7 @@ export class ShapesGraphToAstTransformer {
       .orDefault(0);
 
     const property: ast.ObjectType.Property = {
+      defaultValue: propertyShape.constraints.defaultValue,
       hasValue: propertyShape.constraints.hasValue,
       inline,
       maxCount: propertyShape.constraints.maxCount.filter(

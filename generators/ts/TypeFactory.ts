@@ -195,6 +195,7 @@ export class TypeFactory {
 
     const property = new ObjectType.ShaclProperty({
       configuration: this.configuration,
+      defaultValue: astObjectTypeProperty.defaultValue,
       hasValue: astObjectTypeProperty.hasValue,
       maxCount: astObjectTypeProperty.maxCount,
       minCount: astObjectTypeProperty.minCount,

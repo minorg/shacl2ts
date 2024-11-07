@@ -2,6 +2,7 @@ import type * as rdfjs from "@rdfjs/types";
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { pascalCase } from "change-case";
 import { Maybe } from "purify-ts";
+import { invariant } from "ts-invariant";
 import type {
   OptionalKind,
   PropertyDeclarationStructure,
@@ -16,12 +17,14 @@ type ContainerType = "Array" | "Maybe" | null;
 
 export class ShaclProperty extends Property {
   readonly type: Type;
+  private readonly defaultValue: Maybe<BlankNode | Literal | NamedNode>;
   private readonly hasValue: Maybe<BlankNode | Literal | NamedNode>;
   private readonly maxCount: Maybe<number>;
   private readonly minCount: number;
   private readonly path: rdfjs.NamedNode;
 
   constructor({
+    defaultValue,
     hasValue,
     maxCount,
     minCount,
@@ -29,6 +32,7 @@ export class ShaclProperty extends Property {
     type,
     ...superParameters
   }: {
+    defaultValue: Maybe<BlankNode | Literal | NamedNode>;
     hasValue: Maybe<BlankNode | Literal | NamedNode>;
     maxCount: Maybe<number>;
     minCount: number;
@@ -36,6 +40,7 @@ export class ShaclProperty extends Property {
     type: Type;
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
+    this.defaultValue = defaultValue;
     this.hasValue = hasValue;
     this.maxCount = maxCount;
     this.minCount = minCount;
@@ -48,20 +53,24 @@ export class ShaclProperty extends Property {
   > {
     // If the interface type name is Maybe<string>
     let hasQuestionToken = false;
-    const typeNames: string[] = [this.interfaceTypeName];
+    const typeNames = new Set<string>();
+    typeNames.add(this.interfaceTypeName);
     const maxCount = this.maxCount.extractNullable();
     if (this.minCount === 0) {
+      hasQuestionToken = true; // Allow undefined
+
       if (maxCount === 1) {
-        typeNames.push(this.type.name); // Allow Maybe<string> | string | undefined
+        // Allow Maybe<string> | string
+        typeNames.add(`purify.Maybe<${this.type.name}>`);
+        typeNames.add(this.type.name);
       }
-      hasQuestionToken = true; // Allow Maybe<string> | undefined
     }
 
     return Maybe.of({
       hasQuestionToken,
       isReadonly: true,
       name: this.name,
-      type: typeNames.join(" | "),
+      type: [...typeNames].sort().join(" | "),
     });
   }
 
@@ -123,7 +132,7 @@ export class ShaclProperty extends Property {
   private get containerType(): ContainerType {
     const maxCount = this.maxCount.extractNullable();
     if (this.minCount === 0 && maxCount === 1) {
-      return "Maybe";
+      return this.defaultValue.isJust() ? null : "Maybe";
     }
     if (this.minCount === 1 && maxCount === 1) {
       return null;
@@ -144,9 +153,11 @@ export class ShaclProperty extends Property {
     const maxCount = this.maxCount.extractNullable();
     if (this.minCount === 0) {
       if (maxCount === 1) {
-        return Maybe.of(
-          `purify.Maybe.isMaybe(${parameter}) ? ${parameter} : purify.Maybe.fromNullable(${parameter})`,
-        );
+        let expression = `purify.Maybe.isMaybe(${parameter}) ? ${parameter} : purify.Maybe.fromNullable(${parameter})`;
+        this.defaultValue.ifJust((defaultValue) => {
+          expression = `(${expression}).orDefault(${this.type.defaultValueExpression(defaultValue)})`;
+        });
+        return Maybe.of(expression);
       }
       return Maybe.of(
         `(typeof ${parameter} !== "undefined" ? ${parameter} : [])`,
@@ -160,7 +171,6 @@ export class ShaclProperty extends Property {
   }: Parameters<Property["fromRdfStatements"]>[0]): readonly string[] {
     const resourceValueVariable = "value";
     let valueFromRdfExpression = this.type.fromRdfExpression({
-      predicate: this.path,
       resourceVariable,
       resourceValueVariable,
     });
@@ -173,13 +183,24 @@ export class ShaclProperty extends Property {
 
     valueFromRdfExpression = `${resourceVariable}.value(${this.pathExpression}).chain(${resourceValueVariable} => ${valueFromRdfExpression})`;
     this.hasValue.ifJust((hasValue) => {
-      valueFromRdfExpression = `${valueFromRdfExpression}.chain<rdfjsResource.Resource.ValueError, ${this.name}>(_identifier => _identifier.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${resourceVariable}, predicate: ${rdfjsTermExpression(this.path, this.configuration)} })))`;
+      valueFromRdfExpression = `${valueFromRdfExpression}.chain<rdfjsResource.Resource.ValueError, ${this.type.name}>(_identifier => _identifier.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${resourceVariable}, predicate: ${rdfjsTermExpression(this.path, this.configuration)} })))`;
     });
 
     switch (this.containerType) {
       case "Maybe":
-        return [`const ${this.name} = ${valueFromRdfExpression}.toMaybe();`];
+        invariant(!this.defaultValue.isJust());
+        valueFromRdfExpression = `${valueFromRdfExpression}.toMaybe()`;
+        return [`const ${this.name} = ${valueFromRdfExpression};`];
       case null:
+        if (this.defaultValue.isJust()) {
+          const defaultValueExpression = this.type.defaultValueExpression(
+            this.defaultValue.unsafeCoerce(),
+          );
+          return [
+            `const ${this.name} = ${valueFromRdfExpression}.orDefault(${defaultValueExpression});`,
+          ];
+        }
+
         return [
           `const _${this.name}Either: purify.Either<rdfjsResource.Resource.ValueError, ${this.type.name}> = ${valueFromRdfExpression};`,
           `if (_${this.name}Either.isLeft()) { return _${this.name}Either; }`,
