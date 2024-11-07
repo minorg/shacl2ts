@@ -174,10 +174,7 @@ export class ShapesGraphToAstTransformer {
         ),
       );
     }
-    if (
-      !restProperty.type.types.find((type) => type.kind === "Identifier") ||
-      !restProperty.hasValue.extract()?.equals(rdf.nil)
-    ) {
+    if (!restProperty.type.types.find((type) => type.kind === "Identifier")) {
       return Left(
         new Error(
           `${nodeShape} rdf:rest property sh:or does not include sh:hasValue rdf:nil`,
