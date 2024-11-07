@@ -5,6 +5,7 @@ import { Maybe } from "purify-ts";
 import { NodeKind } from "shacl-ast";
 import type * as ast from "../../ast";
 import { AndType } from "./AndType.js";
+import { BooleanType } from "./BooleanType";
 import type { Configuration } from "./Configuration";
 import { IdentifierType } from "./IdentifierType";
 import { ListType } from "./ListType.js";
@@ -56,6 +57,9 @@ export class TypeFactory {
       case "Literal": {
         const datatype = astType.datatype.extractNullable();
         if (datatype !== null) {
+          if (datatype.equals(xsd.boolean)) {
+            return new BooleanType({ configuration: this.configuration });
+          }
           if (datatype.equals(xsd.integer)) {
             return new NumberType({ configuration: this.configuration });
           }
