@@ -159,16 +159,24 @@ export class ShaclProperty extends Property {
     resourceVariable,
   }: Parameters<Property["fromRdfStatements"]>[0]): readonly string[] {
     const resourceValueVariable = "value";
-    let valueFromRdfExpression = `${resourceVariable}.value(${this.pathExpression}).chain(${resourceValueVariable} => ${this.type.fromRdfExpression({ predicate: this.path, resourceVariable, resourceValueVariable })})`;
+    let valueFromRdfExpression = this.type.fromRdfExpression({
+      predicate: this.path,
+      resourceVariable,
+      resourceValueVariable,
+    });
     this.hasValue.ifJust((hasValue) => {
       valueFromRdfExpression = `${valueFromRdfExpression}.chain<rdfjsResource.Resource.ValueError, ${this.name}>(_identifier => _identifier.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${resourceVariable}, predicate: ${rdfjsTermExpression(this.path, this.configuration)} })))`;
     });
 
+    if (this.containerType === "Array") {
+      return [
+        `const ${this.name} = [...${resourceVariable}.values(${this.pathExpression}, { unique: true }).flatMap(${resourceValueVariable} => (${valueFromRdfExpression}).toMaybe().toList())];`,
+      ];
+    }
+
+    valueFromRdfExpression = `${resourceVariable}.value(${this.pathExpression}).chain(${resourceValueVariable} => ${valueFromRdfExpression})`;
+
     switch (this.containerType) {
-      case "Array":
-        return [
-          `const ${this.name} = [...${resourceVariable}.values(${this.pathExpression}, { unique: true }).flatMap(${resourceValueVariable} => (${valueFromRdfExpression}).toMaybe().toList())];`,
-        ];
       case "Maybe":
         return [`const ${this.name} = ${valueFromRdfExpression}.toMaybe();`];
       case null:
