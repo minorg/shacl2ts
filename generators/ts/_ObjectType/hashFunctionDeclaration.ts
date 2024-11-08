@@ -10,7 +10,7 @@ export const hasherTypeConstraint =
 export function hashFunctionDeclaration(
   this: ObjectType,
 ): FunctionDeclarationStructure {
-  const thisVariable = camelCase(this.name);
+  const thisVariable = camelCase(this.astName);
 
   const statements: string[] = [];
 

@@ -20,7 +20,7 @@ export class ObjectType extends Type {
   readonly rdfType: Maybe<NamedNode>;
   readonly sparqlGraphPatternsClassQualifiedName: string;
   protected readonly classUnqualifiedName: string = "Class";
-  protected readonly interfaceUnqualifiedName: string;
+  protected readonly interfaceUnqualifiedName: string = "Interface";
   protected readonly sparqlGraphPatternsClassUnqualifiedName: string =
     "SparqlGraphPatterns";
   private readonly lazyAncestorObjectTypes: () => readonly ObjectType[];
@@ -59,10 +59,9 @@ export class ObjectType extends Type {
     this.rdfType = rdfType;
 
     this.astName = astName;
-    this.interfaceUnqualifiedName = astName;
     this.moduleQualifiedName = astName;
     this.classQualifiedName = `${this.moduleQualifiedName}.${this.classUnqualifiedName}`;
-    this.interfaceQualifiedName = this.interfaceUnqualifiedName;
+    this.interfaceQualifiedName = `${this.moduleQualifiedName}.${this.interfaceUnqualifiedName}`;
     this.sparqlGraphPatternsClassQualifiedName = `${astName}.${this.sparqlGraphPatternsClassUnqualifiedName}`;
   }
 
@@ -122,6 +121,10 @@ export class ObjectType extends Type {
       }
     }
     return properties;
+  }
+
+  get typeDiscriminatorValue(): string {
+    return this.astName;
   }
 
   override equalsFunction(): string {

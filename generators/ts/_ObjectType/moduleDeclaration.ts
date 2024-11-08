@@ -8,6 +8,7 @@ import { classDeclaration } from "./classDeclaration.js";
 import { equalsFunctionDeclaration } from "./equalsFunctionDeclaration.js";
 import { fromRdfFunctionDeclaration } from "./fromRdfFunctionDeclaration.js";
 import { hashFunctionDeclaration } from "./hashFunctionDeclaration.js";
+import { interfaceDeclaration } from "./interfaceDeclaration";
 import { sparqlGraphPatternsClassDeclaration } from "./sparqlGraphPatternsClassDeclaration.js";
 import { toRdfFunctionDeclaration } from "./toRdfFunctionDeclaration.js";
 
@@ -15,6 +16,8 @@ export function moduleDeclaration(
   this: ObjectType,
 ): ModuleDeclarationStructure {
   const statements: StatementStructures[] = [];
+
+  statements.push(interfaceDeclaration.bind(this)());
 
   if (this.configuration.features.has("class")) {
     const classDeclaration_ = classDeclaration.bind(this)();

@@ -14,7 +14,7 @@ export function toRdfFunctionDeclaration(
   this.ensureAtMostOneSuperObjectType();
 
   let usedIgnoreRdfTypeVariable = false;
-  const thisVariable = camelCase(this.name);
+  const thisVariable = camelCase(this.astName);
 
   const statements: string[] = [];
   if (this.parentObjectTypes.length > 0) {

@@ -115,7 +115,11 @@ export class TsGenerator {
     this.addImportDeclarations(objectTypes, sourceFile);
 
     for (const objectType of objectTypes) {
-      sourceFile.addInterface(objectType.interfaceDeclaration());
+      // If there are classes point the unqualified object type name at the class, otherwise at the interface
+      sourceFile.addStatements([
+        `export type ${objectType.astName} = ${this.configuration.features.has("class") ? objectType.classQualifiedName : objectType.interfaceQualifiedName};`,
+      ]);
+
       sourceFile.addModule(objectType.moduleDeclaration());
     }
   }

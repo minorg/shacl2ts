@@ -177,7 +177,7 @@ export class ShaclProperty extends Property {
   >[0]): Maybe<string> {
     switch (this.containerType) {
       case "Array": {
-        // Don't try tro do conversions or default value here
+        // Don't try to do conversions or default value here
         return Maybe.of(
           `(typeof ${parameter} !== "undefined" ? ${parameter} : [])`,
         );
