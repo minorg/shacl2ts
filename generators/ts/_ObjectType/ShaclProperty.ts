@@ -324,7 +324,7 @@ export class ShaclProperty extends Property {
         ];
       case "Maybe":
         return [
-          `${valueVariable}.ifJust((${this.name}Value) => { ${resourceAddStatement} );`,
+          `${valueVariable}.ifJust((${this.name}Value) => { ${resourceAddStatement} } )`,
         ];
       case null:
         return [resourceAddStatement];

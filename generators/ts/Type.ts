@@ -21,7 +21,7 @@ export abstract class Type {
    * Array of (additional) type names that can be converted to this type.
    */
   get convertibleFromTypeNames(): readonly string[] {
-    return [];
+    return [this.name];
   }
 
   get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
