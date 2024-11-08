@@ -79,8 +79,12 @@ export class ObjectType extends Type {
     return Maybe.of({
       name: this.configuration.objectTypeDiscriminatorPropertyName,
       type: "string" as const,
-      values: [this.name],
+      values: [this.discriminatorValue],
     });
+  }
+
+  get discriminatorValue(): string {
+    return this.astName;
   }
 
   override get importStatements(): readonly string[] {
@@ -121,10 +125,6 @@ export class ObjectType extends Type {
       }
     }
     return properties;
-  }
-
-  get typeDiscriminatorValue(): string {
-    return this.astName;
   }
 
   override equalsFunction(): string {

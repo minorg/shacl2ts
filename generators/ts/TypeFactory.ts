@@ -143,9 +143,9 @@ export class TypeFactory {
             type: {
               name: [
                 ...new Set(
-                  [objectType.typeDiscriminatorValue].concat(
+                  [objectType.discriminatorValue].concat(
                     objectType.descendantObjectTypes.map(
-                      (objectType) => objectType.typeDiscriminatorValue,
+                      (objectType) => objectType.discriminatorValue,
                     ),
                   ),
                 ),
@@ -154,7 +154,7 @@ export class TypeFactory {
                 .map((name) => `"${name}"`)
                 .join("|"),
             },
-            value: objectType.typeDiscriminatorValue,
+            value: objectType.discriminatorValue,
           }),
         );
 
