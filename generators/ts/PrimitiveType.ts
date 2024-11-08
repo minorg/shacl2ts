@@ -1,3 +1,4 @@
+import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { LiteralType } from "./LiteralType.js";
 import type { Type } from "./Type.js";
@@ -21,5 +22,15 @@ export abstract class PrimitiveType extends LiteralType {
 
   override equalsFunction(): string {
     return "purifyHelpers.Equatable.strictEquals";
+  }
+
+  override valueIsNotDefaultExpression({
+    defaultValue,
+    valueVariable,
+  }: {
+    defaultValue: BlankNode | Literal | NamedNode;
+    valueVariable: string;
+  }): string {
+    return `${valueVariable} !== ${this.defaultValueExpression(defaultValue)}`;
   }
 }

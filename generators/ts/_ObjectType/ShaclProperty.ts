@@ -73,6 +73,12 @@ export class ShaclProperty extends Property {
         break;
       }
       case null: {
+        if (this.defaultValue.isJust()) {
+          // Required property with default value
+          // Allow undefined
+          // Could also support Maybe here but why bother?
+          hasQuestionToken = true;
+        }
         typeNames.add(this.interfaceTypeName);
         for (const typeName of this.type.convertibleFromTypeNames) {
           typeNames.add(typeName);
@@ -189,9 +195,13 @@ export class ShaclProperty extends Property {
         return Maybe.of(expression);
       }
       case null: {
-        return this.type
+        let expression = this.type
           .convertToExpression({ valueVariable: parameter })
-          .alt(Maybe.of(parameter));
+          .orDefault(parameter);
+        this.defaultValue.ifJust((defaultValue) => {
+          expression = `typeof ${parameter} !== "undefined" ? (${expression}) : ${this.type.defaultValueExpression(defaultValue)}`;
+        });
+        return Maybe.of(expression);
       }
     }
   }
@@ -295,26 +305,29 @@ export class ShaclProperty extends Property {
 
   override toRdfStatements({
     mutateGraphVariable,
-    valueVariable,
     resourceSetVariable,
+    valueVariable,
   }: Parameters<Property["toRdfStatements"]>[0]): readonly string[] {
+    const resourceAddValueVariable =
+      this.containerType === null ? valueVariable : `${this.name}Value`;
+    let resourceAddStatement = `resource.add(${this.pathExpression}, ${this.type.toRdfExpression({ mutateGraphVariable, resourceSetVariable, valueVariable: resourceAddValueVariable })});`;
+    if (this.containerType !== "Array") {
+      this.defaultValue.ifJust((defaultValue) => {
+        resourceAddStatement = `if (${this.type.valueIsNotDefaultExpression({ defaultValue, valueVariable: resourceAddValueVariable })}) { ${resourceAddStatement} }`;
+      });
+    }
+
     switch (this.containerType) {
       case "Array":
         return [
-          `for (const ${this.name}Value of ${valueVariable}) { resource.add(${this.pathExpression}, ${this.type.toRdfExpression({ mutateGraphVariable, resourceSetVariable, valueVariable: `${this.name}Value` })}); }`,
+          `for (const ${this.name}Value of ${valueVariable}) { ${resourceAddStatement} }`,
         ];
       case "Maybe":
         return [
-          `${valueVariable}.ifJust((${this.name}Value) => { resource.add(${this.pathExpression}, ${this.type.toRdfExpression({ mutateGraphVariable, resourceSetVariable, valueVariable: `${this.name}Value` })}); });`,
+          `${valueVariable}.ifJust((${this.name}Value) => { ${resourceAddStatement} );`,
         ];
       case null:
-        return [
-          `resource.add(${this.pathExpression}, ${this.type.toRdfExpression({
-            mutateGraphVariable,
-            resourceSetVariable,
-            valueVariable: valueVariable,
-          })});`,
-        ];
+        return [resourceAddStatement];
     }
   }
 }

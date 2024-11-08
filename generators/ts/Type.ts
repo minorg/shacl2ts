@@ -82,6 +82,19 @@ export abstract class Type {
     resourceSetVariable: string;
     valueVariable: string;
   }): string;
+
+  /**
+   * An expression that evaluates to a boolean if the given value is not the default value.
+   */
+  valueIsNotDefaultExpression({
+    defaultValue,
+    valueVariable,
+  }: {
+    defaultValue: BlankNode | Literal | NamedNode;
+    valueVariable: string;
+  }) {
+    return `!${valueVariable}.equals(${rdfjsTermExpression(defaultValue, this.configuration)})`;
+  }
 }
 
 export namespace Type {
