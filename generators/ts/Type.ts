@@ -17,7 +17,25 @@ export abstract class Type {
     this.configuration = configuration;
   }
 
+  /**
+   * Array of (additional) type names that can be converted to this type.
+   */
+  get convertibleFromTypeNames(): readonly string[] {
+    return [];
+  }
+
   get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
+    return Maybe.empty();
+  }
+
+  get importStatements(): readonly string[] {
+    return [];
+  }
+
+  /**
+   * An expression that converts any of the convertible-from type names to this type.
+   */
+  convertToExpression(_: { valueVariable: string }): Maybe<string> {
     return Maybe.empty();
   }
 
@@ -47,10 +65,6 @@ export abstract class Type {
     hasherVariable: string;
     valueVariable: string;
   }): readonly string[];
-
-  importStatements(): readonly string[] {
-    return [];
-  }
 
   /**
    * An optional sparqlBuilder.GraphPattern to chain to the basic pattern for a property.

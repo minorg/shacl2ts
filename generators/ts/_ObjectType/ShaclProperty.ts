@@ -51,18 +51,33 @@ export class ShaclProperty extends Property {
   override get classConstructorParametersPropertySignature(): Maybe<
     OptionalKind<PropertySignatureStructure>
   > {
-    // If the interface type name is Maybe<string>
     let hasQuestionToken = false;
-    const typeNames = new Set<string>();
-    typeNames.add(this.interfaceTypeName);
-    const maxCount = this.maxCount.extractNullable();
-    if (this.minCount === 0) {
-      hasQuestionToken = true; // Allow undefined
+    const typeNames = new Set<string>(); // Remove duplicates with a set
 
-      if (maxCount === 1) {
+    switch (this.containerType) {
+      case "Array": {
+        hasQuestionToken = true; // Allow undefined
+        typeNames.add(this.interfaceTypeName);
+        break;
+      }
+      case "Maybe": {
+        hasQuestionToken = true; // Allow undefined
+
         // Allow Maybe<string> | string
-        typeNames.add(`purify.Maybe<${this.type.name}>`);
-        typeNames.add(this.type.name);
+        typeNames.add(
+          `purify.Maybe<${this.type.convertibleFromTypeNames.join("|")}>`,
+        );
+        for (const typeName of this.type.convertibleFromTypeNames) {
+          typeNames.add(typeName);
+        }
+        break;
+      }
+      case null: {
+        typeNames.add(this.interfaceTypeName);
+        for (const typeName of this.type.convertibleFromTypeNames) {
+          typeNames.add(typeName);
+        }
+        break;
       }
     }
 
@@ -105,6 +120,10 @@ export class ShaclProperty extends Property {
       case null:
         return typeEqualsFunction;
     }
+  }
+
+  override get importStatements(): readonly string[] {
+    return this.type.importStatements;
   }
 
   override get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {
@@ -150,20 +169,31 @@ export class ShaclProperty extends Property {
   }: Parameters<
     Property["classConstructorInitializerExpression"]
   >[0]): Maybe<string> {
-    const maxCount = this.maxCount.extractNullable();
-    if (this.minCount === 0) {
-      if (maxCount === 1) {
+    switch (this.containerType) {
+      case "Array": {
+        // Don't try tro do conversions or default value here
+        return Maybe.of(
+          `(typeof ${parameter} !== "undefined" ? ${parameter} : [])`,
+        );
+      }
+      case "Maybe": {
         let expression = `purify.Maybe.isMaybe(${parameter}) ? ${parameter} : purify.Maybe.fromNullable(${parameter})`;
+        this.type
+          .convertToExpression({ valueVariable: "value" })
+          .ifJust((convertToExpression) => {
+            expression = `(${expression}).map(value => ${convertToExpression})`;
+          });
         this.defaultValue.ifJust((defaultValue) => {
           expression = `(${expression}).orDefault(${this.type.defaultValueExpression(defaultValue)})`;
         });
         return Maybe.of(expression);
       }
-      return Maybe.of(
-        `(typeof ${parameter} !== "undefined" ? ${parameter} : [])`,
-      );
+      case null: {
+        return this.type
+          .convertToExpression({ valueVariable: parameter })
+          .alt(Maybe.of(parameter));
+      }
     }
-    return Maybe.of(parameter);
   }
 
   override fromRdfStatements({
@@ -239,10 +269,6 @@ export class ShaclProperty extends Property {
           valueVariable: valueVariable,
         });
     }
-  }
-
-  override importStatements(): readonly string[] {
-    return this.type.importStatements();
   }
 
   override sparqlGraphPatternExpression(): Maybe<string> {

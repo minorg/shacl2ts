@@ -3,6 +3,7 @@ import type * as rdfjs from "@rdfjs/types";
 import { DataFactory as dataFactory } from "n3";
 import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
+import * as rdfLiteral from "rdf-literal";
 import * as rdfjsResource from "rdfjs-resource";
 
 export interface MachineLearningModel {
@@ -29,21 +30,37 @@ export namespace MachineLearningModel {
     readonly url: purify.Maybe<string>;
 
     constructor(parameters: {
-      readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
+      readonly description?:
+        | Date
+        | boolean
+        | number
+        | purify.Maybe<rdfjs.Literal | boolean | Date | number | string>
+        | rdfjs.Literal
+        | string;
       readonly identifier: rdfjs.NamedNode;
       readonly isVariantOf: MachineLearningModelFamily;
       readonly localIdentifier: string;
-      readonly name: rdfjs.Literal;
+      readonly name: Date | boolean | number | rdfjs.Literal | string;
       readonly trainingDataCutoff?: purify.Maybe<string> | string;
       readonly url?: purify.Maybe<string> | string;
     }) {
-      this.description = purify.Maybe.isMaybe(parameters.description)
-        ? parameters.description
-        : purify.Maybe.fromNullable(parameters.description);
+      this.description = (
+        purify.Maybe.isMaybe(parameters.description)
+          ? parameters.description
+          : purify.Maybe.fromNullable(parameters.description)
+      ).map((value) =>
+        typeof value === "object" && !(value instanceof Date)
+          ? value
+          : rdfLiteral.toRdf(value, dataFactory),
+      );
       this.identifier = parameters.identifier;
       this.isVariantOf = parameters.isVariantOf;
       this.localIdentifier = parameters.localIdentifier;
-      this.name = parameters.name;
+      this.name =
+        typeof parameters.name === "object" &&
+        !(parameters.name instanceof Date)
+          ? parameters.name
+          : rdfLiteral.toRdf(parameters.name, dataFactory);
       this.trainingDataCutoff = purify.Maybe.isMaybe(
         parameters.trainingDataCutoff,
       )
@@ -52,10 +69,6 @@ export namespace MachineLearningModel {
       this.url = purify.Maybe.isMaybe(parameters.url)
         ? parameters.url
         : purify.Maybe.fromNullable(parameters.url);
-    }
-
-    equals(other: MachineLearningModel): purifyHelpers.Equatable.EqualsResult {
-      return MachineLearningModel.equals(this, other);
     }
 
     static fromRdf(
@@ -67,6 +80,10 @@ export namespace MachineLearningModel {
       return MachineLearningModel.fromRdf(resource).map(
         (properties) => new MachineLearningModel.Class(properties),
       );
+    }
+
+    equals(other: MachineLearningModel): purifyHelpers.Equatable.EqualsResult {
+      return MachineLearningModel.equals(this, other);
     }
 
     hash<
@@ -201,7 +218,7 @@ export namespace MachineLearningModel {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    machineLearningModel: Omit<MachineLearningModel, "identifier"> & {
+    machineLearningModel: Omit<MachineLearningModel, "identifier" | "type"> & {
       identifier?: rdfjs.NamedNode;
     },
     hasher: HasherT,
@@ -387,7 +404,7 @@ export namespace LanguageModel {
     constructor(
       parameters: {
         readonly contextWindow: number;
-        readonly maxTokenOutput?: purify.Maybe<number> | number;
+        readonly maxTokenOutput?: number | purify.Maybe<number>;
       } & ConstructorParameters<typeof MachineLearningModel.Class>[0],
     ) {
       super(parameters);
@@ -397,18 +414,18 @@ export namespace LanguageModel {
         : purify.Maybe.fromNullable(parameters.maxTokenOutput);
     }
 
-    override equals(
-      other: LanguageModel,
-    ): purifyHelpers.Equatable.EqualsResult {
-      return LanguageModel.equals(this, other);
-    }
-
     static override fromRdf(
       resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     ): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel.Class> {
       return LanguageModel.fromRdf(resource).map(
         (properties) => new LanguageModel.Class(properties),
       );
+    }
+
+    override equals(
+      other: LanguageModel,
+    ): purifyHelpers.Equatable.EqualsResult {
+      return LanguageModel.equals(this, other);
     }
 
     override hash<
@@ -502,7 +519,7 @@ export namespace LanguageModel {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    languageModel: Omit<LanguageModel, "identifier"> & {
+    languageModel: Omit<LanguageModel, "identifier" | "type"> & {
       identifier?: rdfjs.NamedNode;
     },
     hasher: HasherT,
@@ -620,27 +637,37 @@ export namespace MachineLearningModelFamily {
     readonly url: purify.Maybe<string>;
 
     constructor(parameters: {
-      readonly description?: purify.Maybe<rdfjs.Literal> | rdfjs.Literal;
+      readonly description?:
+        | Date
+        | boolean
+        | number
+        | purify.Maybe<rdfjs.Literal | boolean | Date | number | string>
+        | rdfjs.Literal
+        | string;
       readonly identifier: rdfjs.NamedNode;
       readonly manufacturer: Organization;
-      readonly name: rdfjs.Literal;
+      readonly name: Date | boolean | number | rdfjs.Literal | string;
       readonly url?: purify.Maybe<string> | string;
     }) {
-      this.description = purify.Maybe.isMaybe(parameters.description)
-        ? parameters.description
-        : purify.Maybe.fromNullable(parameters.description);
+      this.description = (
+        purify.Maybe.isMaybe(parameters.description)
+          ? parameters.description
+          : purify.Maybe.fromNullable(parameters.description)
+      ).map((value) =>
+        typeof value === "object" && !(value instanceof Date)
+          ? value
+          : rdfLiteral.toRdf(value, dataFactory),
+      );
       this.identifier = parameters.identifier;
       this.manufacturer = parameters.manufacturer;
-      this.name = parameters.name;
+      this.name =
+        typeof parameters.name === "object" &&
+        !(parameters.name instanceof Date)
+          ? parameters.name
+          : rdfLiteral.toRdf(parameters.name, dataFactory);
       this.url = purify.Maybe.isMaybe(parameters.url)
         ? parameters.url
         : purify.Maybe.fromNullable(parameters.url);
-    }
-
-    equals(
-      other: MachineLearningModelFamily,
-    ): purifyHelpers.Equatable.EqualsResult {
-      return MachineLearningModelFamily.equals(this, other);
     }
 
     static fromRdf(
@@ -652,6 +679,12 @@ export namespace MachineLearningModelFamily {
       return MachineLearningModelFamily.fromRdf(resource).map(
         (properties) => new MachineLearningModelFamily.Class(properties),
       );
+    }
+
+    equals(
+      other: MachineLearningModelFamily,
+    ): purifyHelpers.Equatable.EqualsResult {
+      return MachineLearningModelFamily.equals(this, other);
     }
 
     hash<
@@ -768,7 +801,7 @@ export namespace MachineLearningModelFamily {
   >(
     machineLearningModelFamily: Omit<
       MachineLearningModelFamily,
-      "identifier"
+      "identifier" | "type"
     > & { identifier?: rdfjs.NamedNode },
     hasher: HasherT,
   ): HasherT {
@@ -913,14 +946,14 @@ export namespace Organization {
 
     constructor(parameters: {
       readonly identifier: rdfjs.NamedNode;
-      readonly name: rdfjs.Literal;
+      readonly name: Date | boolean | number | rdfjs.Literal | string;
     }) {
       this.identifier = parameters.identifier;
-      this.name = parameters.name;
-    }
-
-    equals(other: Organization): purifyHelpers.Equatable.EqualsResult {
-      return Organization.equals(this, other);
+      this.name =
+        typeof parameters.name === "object" &&
+        !(parameters.name instanceof Date)
+          ? parameters.name
+          : rdfLiteral.toRdf(parameters.name, dataFactory);
     }
 
     static fromRdf(
@@ -929,6 +962,10 @@ export namespace Organization {
       return Organization.fromRdf(resource).map(
         (properties) => new Organization.Class(properties),
       );
+    }
+
+    equals(other: Organization): purifyHelpers.Equatable.EqualsResult {
+      return Organization.equals(this, other);
     }
 
     hash<
@@ -1002,7 +1039,7 @@ export namespace Organization {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    organization: Omit<Organization, "identifier"> & {
+    organization: Omit<Organization, "identifier" | "type"> & {
       identifier?: rdfjs.NamedNode;
     },
     hasher: HasherT,

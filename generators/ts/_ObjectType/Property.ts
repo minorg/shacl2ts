@@ -29,6 +29,10 @@ export abstract class Property {
     this.name = name;
   }
 
+  get importStatements(): readonly string[] {
+    return [];
+  }
+
   abstract classConstructorInitializerExpression(parameters: {
     parameter: string;
     objectType: ObjectType;
@@ -41,10 +45,6 @@ export abstract class Property {
   abstract hashStatements(
     parameters: Parameters<Type["hashStatements"]>[0],
   ): readonly string[];
-
-  importStatements(): readonly string[] {
-    return [];
-  }
 
   abstract sparqlGraphPatternExpression(): Maybe<string>;
 

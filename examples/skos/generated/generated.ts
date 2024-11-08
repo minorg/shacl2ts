@@ -3,6 +3,7 @@ import type * as rdfjs from "@rdfjs/types";
 import { DataFactory as dataFactory } from "n3";
 import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
+import * as rdfLiteral from "rdf-literal";
 import * as rdfjsResource from "rdfjs-resource";
 
 export interface Collection {
@@ -1955,10 +1956,13 @@ export namespace Label {
 
     constructor(parameters: {
       readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-      readonly skos$j$xl_literalForm: readonly rdfjs.Literal[];
+      readonly skos$j$xl_literalForm?: readonly rdfjs.Literal[];
     }) {
       this.identifier = parameters.identifier;
-      this.skos$j$xl_literalForm = parameters.skos$j$xl_literalForm;
+      this.skos$j$xl_literalForm =
+        typeof parameters.skos$j$xl_literalForm !== "undefined"
+          ? parameters.skos$j$xl_literalForm
+          : [];
     }
 
     equals(other: Label): purifyHelpers.Equatable.EqualsResult {

@@ -84,6 +84,23 @@ export class ObjectType extends Type {
     });
   }
 
+  override get importStatements(): readonly string[] {
+    const importStatements = this.properties.flatMap(
+      (property) => property.importStatements,
+    );
+    this.mintingStrategy.ifJust((mintingStrategy) => {
+      switch (mintingStrategy) {
+        case MintingStrategy.SHA256:
+          importStatements.push('import { sha256 } from "js-sha256";');
+          break;
+        case MintingStrategy.UUIDv4:
+          importStatements.push('import * as uuid from "uuid";');
+          break;
+      }
+    });
+    return importStatements;
+  }
+
   override get name(): string {
     return this.interfaceQualifiedName;
   }
@@ -124,23 +141,6 @@ export class ObjectType extends Type {
     return [
       `${this.moduleQualifiedName}.hash(${valueVariable}, ${hasherVariable});`,
     ];
-  }
-
-  override importStatements(): readonly string[] {
-    const importStatements = this.properties.flatMap((property) =>
-      property.importStatements(),
-    );
-    this.mintingStrategy.ifJust((mintingStrategy) => {
-      switch (mintingStrategy) {
-        case MintingStrategy.SHA256:
-          importStatements.push('import { sha256 } from "js-sha256";');
-          break;
-        case MintingStrategy.UUIDv4:
-          importStatements.push('import * as uuid from "uuid";');
-          break;
-      }
-    });
-    return importStatements;
   }
 
   rdfjsResourceType(options?: { mutable?: boolean }): {

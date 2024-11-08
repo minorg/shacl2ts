@@ -36,6 +36,13 @@ export class ListType extends Type {
     return Maybe.empty();
   }
 
+  override get importStatements(): readonly string[] {
+    if (this.identifierNodeKind === NodeKind.IRI) {
+      return ['import { sha256 } from "js-sha256";'];
+    }
+    return [];
+  }
+
   override get name(): string {
     return `readonly ${this.itemType.name}[]`;
   }
@@ -58,13 +65,6 @@ export class ListType extends Type {
     return [
       `for (const _element of ${valueVariable}) { ${this.itemType.hashStatements({ hasherVariable, valueVariable: "_element" }).join("\n")} }`,
     ];
-  }
-
-  override importStatements(): readonly string[] {
-    if (this.identifierNodeKind === NodeKind.IRI) {
-      return ['import { sha256 } from "js-sha256";'];
-    }
-    return [];
   }
 
   override sparqlGraphPatternExpression({
