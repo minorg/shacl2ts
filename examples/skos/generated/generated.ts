@@ -3,7 +3,6 @@ import type * as rdfjs from "@rdfjs/types";
 import { DataFactory as dataFactory } from "n3";
 import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
-import * as rdfLiteral from "rdf-literal";
 import * as rdfjsResource from "rdfjs-resource";
 
 export interface Collection {
@@ -27,16 +26,16 @@ export namespace Collection {
         typeof parameters.member !== "undefined" ? parameters.member : [];
     }
 
-    equals(other: Collection): purifyHelpers.Equatable.EqualsResult {
-      return Collection.equals(this, other);
-    }
-
     static fromRdf(
       resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     ): purify.Either<rdfjsResource.Resource.ValueError, Collection.Class> {
       return Collection.fromRdf(resource).map(
         (properties) => new Collection.Class(properties),
       );
+    }
+
+    equals(other: Collection): purifyHelpers.Equatable.EqualsResult {
+      return Collection.equals(this, other);
     }
 
     hash<
@@ -198,9 +197,9 @@ export namespace Collection {
 export interface Concept {
   readonly altLabel: readonly rdfjs.Literal[];
   readonly altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+  readonly broadMatch: readonly rdfjs.NamedNode[];
   readonly broader: readonly rdfjs.NamedNode[];
   readonly broaderTransitive: readonly rdfjs.NamedNode[];
-  readonly broadMatch: readonly rdfjs.NamedNode[];
   readonly changeNote: readonly rdfjs.Literal[];
   readonly closeMatch: readonly rdfjs.NamedNode[];
   readonly definition: readonly rdfjs.Literal[];
@@ -213,9 +212,9 @@ export interface Concept {
   readonly identifier: rdfjs.NamedNode;
   readonly inScheme: readonly rdfjs.NamedNode[];
   readonly mappingRelation: readonly rdfjs.NamedNode[];
+  readonly narrowMatch: readonly rdfjs.NamedNode[];
   readonly narrower: readonly rdfjs.NamedNode[];
   readonly narrowerTransitive: readonly rdfjs.NamedNode[];
-  readonly narrowMatch: readonly rdfjs.NamedNode[];
   readonly notation: readonly rdfjs.Literal[];
   readonly note: readonly rdfjs.Literal[];
   readonly prefLabel: readonly rdfjs.Literal[];
@@ -232,9 +231,9 @@ export namespace Concept {
   export class Class implements Concept {
     readonly altLabel: readonly rdfjs.Literal[];
     readonly altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+    readonly broadMatch: readonly rdfjs.NamedNode[];
     readonly broader: readonly rdfjs.NamedNode[];
     readonly broaderTransitive: readonly rdfjs.NamedNode[];
-    readonly broadMatch: readonly rdfjs.NamedNode[];
     readonly changeNote: readonly rdfjs.Literal[];
     readonly closeMatch: readonly rdfjs.NamedNode[];
     readonly definition: readonly rdfjs.Literal[];
@@ -247,9 +246,9 @@ export namespace Concept {
     readonly identifier: rdfjs.NamedNode;
     readonly inScheme: readonly rdfjs.NamedNode[];
     readonly mappingRelation: readonly rdfjs.NamedNode[];
+    readonly narrowMatch: readonly rdfjs.NamedNode[];
     readonly narrower: readonly rdfjs.NamedNode[];
     readonly narrowerTransitive: readonly rdfjs.NamedNode[];
-    readonly narrowMatch: readonly rdfjs.NamedNode[];
     readonly notation: readonly rdfjs.Literal[];
     readonly note: readonly rdfjs.Literal[];
     readonly prefLabel: readonly rdfjs.Literal[];
@@ -386,16 +385,16 @@ export namespace Concept {
           : [];
     }
 
-    equals(other: Concept): purifyHelpers.Equatable.EqualsResult {
-      return Concept.equals(this, other);
-    }
-
     static fromRdf(
       resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     ): purify.Either<rdfjsResource.Resource.ValueError, Concept.Class> {
       return Concept.fromRdf(resource).map(
         (properties) => new Concept.Class(properties),
       );
+    }
+
+    equals(other: Concept): purifyHelpers.Equatable.EqualsResult {
+      return Concept.equals(this, other);
     }
 
     hash<
@@ -1649,16 +1648,16 @@ export namespace ConceptScheme {
         typeof parameters.prefLabel !== "undefined" ? parameters.prefLabel : [];
     }
 
-    equals(other: ConceptScheme): purifyHelpers.Equatable.EqualsResult {
-      return ConceptScheme.equals(this, other);
-    }
-
     static fromRdf(
       resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     ): purify.Either<rdfjsResource.Resource.ValueError, ConceptScheme.Class> {
       return ConceptScheme.fromRdf(resource).map(
         (properties) => new ConceptScheme.Class(properties),
       );
+    }
+
+    equals(other: ConceptScheme): purifyHelpers.Equatable.EqualsResult {
+      return ConceptScheme.equals(this, other);
     }
 
     hash<
@@ -1965,16 +1964,16 @@ export namespace Label {
           : [];
     }
 
-    equals(other: Label): purifyHelpers.Equatable.EqualsResult {
-      return Label.equals(this, other);
-    }
-
     static fromRdf(
       resource: rdfjsResource.Resource,
     ): purify.Either<rdfjsResource.Resource.ValueError, Label.Class> {
       return Label.fromRdf(resource).map(
         (properties) => new Label.Class(properties),
       );
+    }
+
+    equals(other: Label): purifyHelpers.Equatable.EqualsResult {
+      return Label.equals(this, other);
     }
 
     hash<
@@ -2152,12 +2151,6 @@ export namespace OrderedCollection {
       this.memberList = parameters.memberList;
     }
 
-    override equals(
-      other: OrderedCollection,
-    ): purifyHelpers.Equatable.EqualsResult {
-      return OrderedCollection.equals(this, other);
-    }
-
     static override fromRdf(
       resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     ): purify.Either<
@@ -2167,6 +2160,12 @@ export namespace OrderedCollection {
       return OrderedCollection.fromRdf(resource).map(
         (properties) => new OrderedCollection.Class(properties),
       );
+    }
+
+    override equals(
+      other: OrderedCollection,
+    ): purifyHelpers.Equatable.EqualsResult {
+      return OrderedCollection.equals(this, other);
     }
 
     override hash<
