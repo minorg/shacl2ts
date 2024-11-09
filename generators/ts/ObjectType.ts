@@ -105,7 +105,7 @@ export class ObjectType extends Type {
   }
 
   override get name(): string {
-    return this.interfaceQualifiedName;
+    return this.astName;
   }
 
   @Memoize()
