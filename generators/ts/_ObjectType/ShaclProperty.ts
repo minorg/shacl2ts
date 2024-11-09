@@ -242,7 +242,7 @@ export class ShaclProperty extends Property {
         }
 
         return [
-          `const _${this.name}Either: purify.Either<rdfjsResource.Resource.ValueError, ${this.type.name}> = ${valueFromRdfExpression};`,
+          `const _${this.name}Either = ${valueFromRdfExpression};`,
           `if (_${this.name}Either.isLeft()) { return _${this.name}Either; }`,
           `const ${this.name} = _${this.name}Either.unsafeCoerce();`,
         ];
