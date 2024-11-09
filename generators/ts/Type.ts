@@ -1,12 +1,11 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
-import { xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import type * as ast from "../../ast";
 import type { Configuration } from "./Configuration.js";
+import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
 export abstract class Type {
   abstract readonly kind: ast.Type["kind"] | "List";
-  abstract readonly name: string;
   protected readonly configuration: Configuration;
 
   constructor({
@@ -17,8 +16,35 @@ export abstract class Type {
     this.configuration = configuration;
   }
 
+  /**
+   * Array of (additional) type names that can be converted to this type.
+   */
+  get convertibleFromTypeNames(): readonly string[] {
+    return [this.name("interface")];
+  }
+
   get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
     return Maybe.empty();
+  }
+
+  get importStatements(): readonly string[] {
+    return [];
+  }
+
+  /**
+   * An expression that converts any of the convertible-from type names to this type.
+   */
+  convertToExpression(_: { valueVariable: string }): Maybe<string> {
+    return Maybe.empty();
+  }
+
+  /**
+   * Convert a default value from an RDF/JS term into an expression that can be used in an initializer.
+   */
+  defaultValueExpression(
+    defaultValue: BlankNode | Literal | NamedNode,
+  ): string {
+    return rdfjsTermExpression(defaultValue, this.configuration);
   }
 
   /**
@@ -30,7 +56,6 @@ export abstract class Type {
    * An expression that converts a rdfjsResource.Resource.Value to a value of this type.
    */
   abstract fromRdfExpression(parameters: {
-    predicate: NamedNode;
     resourceValueVariable: string;
     resourceVariable: string;
   }): string;
@@ -40,9 +65,7 @@ export abstract class Type {
     valueVariable: string;
   }): readonly string[];
 
-  importStatements(): readonly string[] {
-    return [];
-  }
+  abstract name(kind: "class" | "interface"): string;
 
   /**
    * An optional sparqlBuilder.GraphPattern to chain to the basic pattern for a property.
@@ -61,20 +84,17 @@ export abstract class Type {
     valueVariable: string;
   }): string;
 
-  protected rdfJsTermExpression(
-    rdfjsTerm: BlankNode | Literal | NamedNode,
-  ): string {
-    switch (rdfjsTerm.termType) {
-      case "BlankNode":
-        return `${this.configuration.dataFactoryVariable}.blankNode("${rdfjsTerm.value}")`;
-      case "Literal":
-        if (rdfjsTerm.datatype.equals(xsd.string)) {
-          return `${this.configuration.dataFactoryVariable}.literal("${rdfjsTerm.value}", "${rdfjsTerm.language}")`;
-        }
-        return `${this.configuration.dataFactoryVariable}.literal("${rdfjsTerm.value}", ${this.configuration.dataFactoryVariable}.namedNode("${rdfjsTerm.datatype.value}"))`;
-      case "NamedNode":
-        return `${this.configuration.dataFactoryVariable}.namedNode("${rdfjsTerm.value}")`;
-    }
+  /**
+   * An expression that evaluates to a boolean if the given value is not the default value.
+   */
+  valueIsNotDefaultExpression({
+    defaultValue,
+    valueVariable,
+  }: {
+    defaultValue: BlankNode | Literal | NamedNode;
+    valueVariable: string;
+  }) {
+    return `!${valueVariable}.equals(${rdfjsTermExpression(defaultValue, this.configuration)})`;
   }
 }
 

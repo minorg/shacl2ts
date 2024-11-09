@@ -101,7 +101,7 @@ export class TsGenerator {
 
     const typeImportStatements = new Set<string>();
     for (const objectType of objectTypes) {
-      for (const importStatement of objectType.importStatements()) {
+      for (const importStatement of objectType.importStatements) {
         typeImportStatements.add(importStatement);
       }
     }
@@ -115,7 +115,15 @@ export class TsGenerator {
     this.addImportDeclarations(objectTypes, sourceFile);
 
     for (const objectType of objectTypes) {
-      sourceFile.addInterface(objectType.interfaceDeclaration());
+      // If there are classes the unqualified object type name is a class
+      // Otherwise it's an interface
+
+      if (this.configuration.features.has("class")) {
+        sourceFile.addClass(objectType.classDeclaration());
+      } else {
+        sourceFile.addInterface(objectType.interfaceDeclaration());
+      }
+
       sourceFile.addModule(objectType.moduleDeclaration());
     }
   }

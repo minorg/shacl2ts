@@ -1,5 +1,6 @@
 import { type FunctionDeclarationStructure, StructureKind } from "ts-morph";
-import type { ObjectType } from "../ObjectType";
+import type { ObjectType } from "../ObjectType.js";
+import { rdfjsTermExpression } from "../rdfjsTermExpression.js";
 
 const ignoreRdfTypeVariable = "ignoreRdfType";
 const optionsVariable = "_options";
@@ -15,7 +16,7 @@ export function fromRdfFunctionDeclaration(
 
   this.rdfType.ifJust((rdfType) => {
     statements.push(
-      `if (!${optionsVariable}?.${ignoreRdfTypeVariable} && !${resourceVariable}.isInstanceOf(${this.rdfJsTermExpression(rdfType)})) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${resourceVariable}, message: \`\${rdfjsResource.Resource.Identifier.toString(${resourceVariable}.identifier)} has unexpected RDF type\`, predicate: ${this.rdfJsTermExpression(rdfType)} })); }`,
+      `if (!${optionsVariable}?.${ignoreRdfTypeVariable} && !${resourceVariable}.isInstanceOf(${rdfjsTermExpression(rdfType, this.configuration)})) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${resourceVariable}, message: \`\${rdfjsResource.Resource.Identifier.toString(${resourceVariable}.identifier)} has unexpected RDF type\`, predicate: ${rdfjsTermExpression(rdfType, this.configuration)} })); }`,
     );
   });
 

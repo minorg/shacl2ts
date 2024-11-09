@@ -11,7 +11,7 @@ function syntheticTypeDiscriminatorValue({
   type,
   typeIndex,
 }: { type: Type; typeIndex: number }): string {
-  return `${typeIndex}-${type.name}`;
+  return `${typeIndex}-${type.name("interface")}`;
 }
 
 export class OrType extends ComposedType {
@@ -25,17 +25,6 @@ export class OrType extends ComposedType {
         values: this.types.map((_, typeIndex) => typeIndex.toString()),
       }),
     );
-  }
-
-  @Memoize()
-  override get name(): string {
-    if (this.typesSharedDiscriminatorProperty.isJust()) {
-      // If every type shares a discriminator (e.g., RDF/JS "termType" or generated ObjectType "type"),
-      // just join their names with "|"
-      return `(${this.types.map((type) => type.name).join(" | ")})`;
-    }
-
-    return `(${this.types.map((type, typeIndex) => `{ ${syntheticTypeDiscriminatorPropertyName}: "${syntheticTypeDiscriminatorValue({ type, typeIndex })}", value: ${type.name} }`).join(" | ")})`;
   }
 
   @Memoize()
@@ -106,7 +95,7 @@ ${this.types
     this.types.forEach((type, typeIndex) => {
       let typeExpression = type.fromRdfExpression(parameters);
       if (!this.typesSharedDiscriminatorProperty.isJust()) {
-        typeExpression = `${typeExpression}.map(value => ({ type: "${typeIndex}-${type.name}" as const, value }) as (${this.name}))`;
+        typeExpression = `${typeExpression}.map(value => ({ type: "${typeIndex}-${type.name("interface")}" as const, value }) as (${this.name}))`;
       }
       typeExpression = `(${typeExpression} as purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>)`;
       expression =
@@ -151,6 +140,16 @@ ${this.types
         () => `${valueVariable}.${syntheticTypeDiscriminatorPropertyName}`,
       );
     return [`switch (${switchValue}) { ${caseBlocks.join("\n")} }`];
+  }
+
+  override name(kind: Parameters<ComposedType["name"]>[0]): string {
+    if (this.typesSharedDiscriminatorProperty.isJust()) {
+      // If every type shares a discriminator (e.g., RDF/JS "termType" or generated ObjectType "type"),
+      // just join their names with "|"
+      return `(${this.types.map((type) => type.name(kind)).join(" | ")})`;
+    }
+
+    return `(${this.types.map((type, typeIndex) => `{ ${syntheticTypeDiscriminatorPropertyName}: "${syntheticTypeDiscriminatorValue({ type, typeIndex })}", value: ${type.name(kind)} }`).join(" | ")})`;
   }
 
   override sparqlGraphPatternExpression({

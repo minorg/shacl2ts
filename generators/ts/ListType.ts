@@ -2,7 +2,8 @@ import type { NamedNode } from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import { NodeKind } from "shacl-ast";
-import { MintingStrategy } from "../../ast/MintingStrategy";
+import { MintingStrategy } from "../../ast";
+import type { ComposedType } from "./ComposedType";
 import type { RdfjsTermType } from "./RdfjsTermType.js";
 import { Type } from "./Type.js";
 
@@ -36,8 +37,11 @@ export class ListType extends Type {
     return Maybe.empty();
   }
 
-  override get name(): string {
-    return `readonly ${this.itemType.name}[]`;
+  override get importStatements(): readonly string[] {
+    if (this.identifierNodeKind === NodeKind.IRI) {
+      return ['import { sha256 } from "js-sha256";'];
+    }
+    return [];
   }
 
   override equalsFunction(): string {
@@ -60,11 +64,8 @@ export class ListType extends Type {
     ];
   }
 
-  override importStatements(): readonly string[] {
-    if (this.identifierNodeKind === NodeKind.IRI) {
-      return ['import { sha256 } from "js-sha256";'];
-    }
-    return [];
+  override name(kind: Parameters<ComposedType["name"]>[0]): string {
+    return `readonly ${this.itemType.name(kind)}[]`;
   }
 
   override sparqlGraphPatternExpression({
@@ -120,7 +121,7 @@ export class ListType extends Type {
             break;
           case MintingStrategy.UUIDv4:
             listIdentifier =
-              'dataFactory.namedNode("urn:shaclmate:list:${uuid.v4()}")';
+              "dataFactory.namedNode(`urn:shaclmate:list:${uuid.v4()}`)";
             break;
         }
         mutableResourceTypeName =

@@ -2,6 +2,7 @@ import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import { MintingStrategy } from "../../ast";
+import type { ComposedType } from "./ComposedType";
 import type { IdentifierType } from "./IdentifierType.js";
 import type { RdfjsTermType } from "./RdfjsTermType";
 import { Type } from "./Type.js";
@@ -9,6 +10,7 @@ import * as _ObjectType from "./_ObjectType";
 
 export class ObjectType extends Type {
   readonly astName: string;
+  classDeclaration = _ObjectType.classDeclaration;
   readonly classQualifiedName: string;
   readonly identifierType: IdentifierType;
   interfaceDeclaration = _ObjectType.interfaceDeclaration;
@@ -20,7 +22,7 @@ export class ObjectType extends Type {
   readonly rdfType: Maybe<NamedNode>;
   readonly sparqlGraphPatternsClassQualifiedName: string;
   protected readonly classUnqualifiedName: string = "Class";
-  protected readonly interfaceUnqualifiedName: string;
+  protected readonly interfaceUnqualifiedName: string = "Interface";
   protected readonly sparqlGraphPatternsClassUnqualifiedName: string =
     "SparqlGraphPatterns";
   private readonly lazyAncestorObjectTypes: () => readonly ObjectType[];
@@ -59,16 +61,19 @@ export class ObjectType extends Type {
     this.rdfType = rdfType;
 
     this.astName = astName;
-    this.interfaceUnqualifiedName = astName;
     this.moduleQualifiedName = astName;
     this.classQualifiedName = `${this.moduleQualifiedName}.${this.classUnqualifiedName}`;
-    this.interfaceQualifiedName = this.interfaceUnqualifiedName;
+    this.interfaceQualifiedName = `${this.moduleQualifiedName}.${this.interfaceUnqualifiedName}`;
     this.sparqlGraphPatternsClassQualifiedName = `${astName}.${this.sparqlGraphPatternsClassUnqualifiedName}`;
   }
 
   @Memoize()
   get ancestorObjectTypes(): readonly ObjectType[] {
     return this.lazyAncestorObjectTypes();
+  }
+
+  override get convertibleFromTypeNames(): readonly string[] {
+    return [this.interfaceQualifiedName];
   }
 
   @Memoize()
@@ -80,12 +85,29 @@ export class ObjectType extends Type {
     return Maybe.of({
       name: this.configuration.objectTypeDiscriminatorPropertyName,
       type: "string" as const,
-      values: [this.name],
+      values: [this.discriminatorValue],
     });
   }
 
-  override get name(): string {
-    return this.interfaceQualifiedName;
+  get discriminatorValue(): string {
+    return this.astName;
+  }
+
+  override get importStatements(): readonly string[] {
+    const importStatements = this.properties.flatMap(
+      (property) => property.importStatements,
+    );
+    this.mintingStrategy.ifJust((mintingStrategy) => {
+      switch (mintingStrategy) {
+        case MintingStrategy.SHA256:
+          importStatements.push('import { sha256 } from "js-sha256";');
+          break;
+        case MintingStrategy.UUIDv4:
+          importStatements.push('import * as uuid from "uuid";');
+          break;
+      }
+    });
+    return importStatements;
   }
 
   @Memoize()
@@ -107,6 +129,14 @@ export class ObjectType extends Type {
     return properties;
   }
 
+  override convertToExpression({
+    valueVariable,
+  }: { valueVariable: string }): Maybe<string> {
+    return Maybe.of(
+      `${valueVariable} instanceof ${this.classQualifiedName} ? ${valueVariable} : new ${this.classQualifiedName}(${valueVariable})`,
+    );
+  }
+
   override equalsFunction(): string {
     return `${this.moduleQualifiedName}.equals`;
   }
@@ -126,21 +156,13 @@ export class ObjectType extends Type {
     ];
   }
 
-  override importStatements(): readonly string[] {
-    const importStatements = this.properties.flatMap((property) =>
-      property.importStatements(),
-    );
-    this.mintingStrategy.ifJust((mintingStrategy) => {
-      switch (mintingStrategy) {
-        case MintingStrategy.SHA256:
-          importStatements.push('import { sha256 } from "js-sha256";');
-          break;
-        case MintingStrategy.UUIDv4:
-          importStatements.push('import * as uuid from "uuid";');
-          break;
-      }
-    });
-    return importStatements;
+  override name(kind: Parameters<ComposedType["name"]>[0]): string {
+    switch (kind) {
+      case "class":
+        return this.classQualifiedName;
+      case "interface":
+        return this.interfaceQualifiedName;
+    }
   }
 
   rdfjsResourceType(options?: { mutable?: boolean }): {

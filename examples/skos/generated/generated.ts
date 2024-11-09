@@ -4,15 +4,16 @@ import { DataFactory as dataFactory } from "n3";
 import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
 import * as rdfjsResource from "rdfjs-resource";
-
-export interface Collection {
-  readonly identifier: rdfjs.NamedNode;
-  readonly member: readonly rdfjs.NamedNode[];
-  readonly type: "Collection" | "OrderedCollection";
-}
+export type Collection = Collection.Class;
 
 export namespace Collection {
-  export class Class implements Collection {
+  export interface Interface {
+    readonly identifier: rdfjs.NamedNode;
+    readonly member: readonly rdfjs.NamedNode[];
+    readonly type: "Collection" | "OrderedCollection";
+  }
+
+  export class Class implements Collection.Interface {
     readonly identifier: rdfjs.NamedNode;
     readonly member: readonly rdfjs.NamedNode[];
     readonly type: "Collection" | "OrderedCollection" = "Collection";
@@ -26,16 +27,16 @@ export namespace Collection {
         typeof parameters.member !== "undefined" ? parameters.member : [];
     }
 
-    equals(other: Collection): purifyHelpers.Equatable.EqualsResult {
-      return Collection.equals(this, other);
-    }
-
     static fromRdf(
       resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     ): purify.Either<rdfjsResource.Resource.ValueError, Collection.Class> {
       return Collection.fromRdf(resource).map(
         (properties) => new Collection.Class(properties),
       );
+    }
+
+    equals(other: Collection.Interface): purifyHelpers.Equatable.EqualsResult {
+      return Collection.equals(this, other);
     }
 
     hash<
@@ -55,8 +56,8 @@ export namespace Collection {
   }
 
   export function equals(
-    left: Collection,
-    right: Collection,
+    left: Collection.Interface,
+    right: Collection.Interface,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
@@ -73,7 +74,7 @@ export namespace Collection {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, Collection> {
+  ): purify.Either<rdfjsResource.Resource.ValueError, Collection.Interface> {
     if (
       !_options?.ignoreRdfType &&
       !resource.isInstanceOf(
@@ -109,7 +110,7 @@ export namespace Collection {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    collection: Omit<Collection, "identifier" | "type"> & {
+    collection: Omit<Collection.Interface, "identifier" | "type"> & {
       identifier?: rdfjs.NamedNode;
     },
     hasher: HasherT,
@@ -157,7 +158,7 @@ export namespace Collection {
   }
 
   export function toRdf(
-    collection: Collection,
+    collection: Collection.Interface,
     {
       ignoreRdfType,
       mutateGraph,
@@ -193,47 +194,15 @@ export namespace Collection {
     return resource;
   }
 }
-
-export interface Concept {
-  readonly altLabel: readonly rdfjs.Literal[];
-  readonly altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
-  readonly broader: readonly rdfjs.NamedNode[];
-  readonly broaderTransitive: readonly rdfjs.NamedNode[];
-  readonly broadMatch: readonly rdfjs.NamedNode[];
-  readonly changeNote: readonly rdfjs.Literal[];
-  readonly closeMatch: readonly rdfjs.NamedNode[];
-  readonly definition: readonly rdfjs.Literal[];
-  readonly editorialNote: readonly rdfjs.Literal[];
-  readonly exactMatch: readonly rdfjs.NamedNode[];
-  readonly example: readonly rdfjs.Literal[];
-  readonly hiddenLabel: readonly rdfjs.Literal[];
-  readonly hiddenLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
-  readonly historyNote: readonly rdfjs.Literal[];
-  readonly identifier: rdfjs.NamedNode;
-  readonly inScheme: readonly rdfjs.NamedNode[];
-  readonly mappingRelation: readonly rdfjs.NamedNode[];
-  readonly narrower: readonly rdfjs.NamedNode[];
-  readonly narrowerTransitive: readonly rdfjs.NamedNode[];
-  readonly narrowMatch: readonly rdfjs.NamedNode[];
-  readonly notation: readonly rdfjs.Literal[];
-  readonly note: readonly rdfjs.Literal[];
-  readonly prefLabel: readonly rdfjs.Literal[];
-  readonly prefLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
-  readonly related: readonly rdfjs.NamedNode[];
-  readonly relatedMatch: readonly rdfjs.NamedNode[];
-  readonly scopeNote: readonly rdfjs.Literal[];
-  readonly semanticRelation: readonly rdfjs.NamedNode[];
-  readonly topConceptOf: readonly rdfjs.NamedNode[];
-  readonly type: "Concept";
-}
+export type Concept = Concept.Class;
 
 export namespace Concept {
-  export class Class implements Concept {
+  export interface Interface {
     readonly altLabel: readonly rdfjs.Literal[];
     readonly altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+    readonly broadMatch: readonly rdfjs.NamedNode[];
     readonly broader: readonly rdfjs.NamedNode[];
     readonly broaderTransitive: readonly rdfjs.NamedNode[];
-    readonly broadMatch: readonly rdfjs.NamedNode[];
     readonly changeNote: readonly rdfjs.Literal[];
     readonly closeMatch: readonly rdfjs.NamedNode[];
     readonly definition: readonly rdfjs.Literal[];
@@ -246,9 +215,42 @@ export namespace Concept {
     readonly identifier: rdfjs.NamedNode;
     readonly inScheme: readonly rdfjs.NamedNode[];
     readonly mappingRelation: readonly rdfjs.NamedNode[];
+    readonly narrowMatch: readonly rdfjs.NamedNode[];
     readonly narrower: readonly rdfjs.NamedNode[];
     readonly narrowerTransitive: readonly rdfjs.NamedNode[];
+    readonly notation: readonly rdfjs.Literal[];
+    readonly note: readonly rdfjs.Literal[];
+    readonly prefLabel: readonly rdfjs.Literal[];
+    readonly prefLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+    readonly related: readonly rdfjs.NamedNode[];
+    readonly relatedMatch: readonly rdfjs.NamedNode[];
+    readonly scopeNote: readonly rdfjs.Literal[];
+    readonly semanticRelation: readonly rdfjs.NamedNode[];
+    readonly topConceptOf: readonly rdfjs.NamedNode[];
+    readonly type: "Concept";
+  }
+
+  export class Class implements Concept.Interface {
+    readonly altLabel: readonly rdfjs.Literal[];
+    readonly altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+    readonly broadMatch: readonly rdfjs.NamedNode[];
+    readonly broader: readonly rdfjs.NamedNode[];
+    readonly broaderTransitive: readonly rdfjs.NamedNode[];
+    readonly changeNote: readonly rdfjs.Literal[];
+    readonly closeMatch: readonly rdfjs.NamedNode[];
+    readonly definition: readonly rdfjs.Literal[];
+    readonly editorialNote: readonly rdfjs.Literal[];
+    readonly exactMatch: readonly rdfjs.NamedNode[];
+    readonly example: readonly rdfjs.Literal[];
+    readonly hiddenLabel: readonly rdfjs.Literal[];
+    readonly hiddenLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+    readonly historyNote: readonly rdfjs.Literal[];
+    readonly identifier: rdfjs.NamedNode;
+    readonly inScheme: readonly rdfjs.NamedNode[];
+    readonly mappingRelation: readonly rdfjs.NamedNode[];
     readonly narrowMatch: readonly rdfjs.NamedNode[];
+    readonly narrower: readonly rdfjs.NamedNode[];
+    readonly narrowerTransitive: readonly rdfjs.NamedNode[];
     readonly notation: readonly rdfjs.Literal[];
     readonly note: readonly rdfjs.Literal[];
     readonly prefLabel: readonly rdfjs.Literal[];
@@ -385,16 +387,16 @@ export namespace Concept {
           : [];
     }
 
-    equals(other: Concept): purifyHelpers.Equatable.EqualsResult {
-      return Concept.equals(this, other);
-    }
-
     static fromRdf(
       resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     ): purify.Either<rdfjsResource.Resource.ValueError, Concept.Class> {
       return Concept.fromRdf(resource).map(
         (properties) => new Concept.Class(properties),
       );
+    }
+
+    equals(other: Concept.Interface): purifyHelpers.Equatable.EqualsResult {
+      return Concept.equals(this, other);
     }
 
     hash<
@@ -414,8 +416,8 @@ export namespace Concept {
   }
 
   export function equals(
-    left: Concept,
-    right: Concept,
+    left: Concept.Interface,
+    right: Concept.Interface,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       altLabel: (left, right) =>
@@ -594,7 +596,7 @@ export namespace Concept {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, Concept> {
+  ): purify.Either<rdfjsResource.Resource.ValueError, Concept.Interface> {
     if (
       !_options?.ignoreRdfType &&
       !resource.isInstanceOf(
@@ -911,7 +913,7 @@ export namespace Concept {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    concept: Omit<Concept, "identifier" | "type"> & {
+    concept: Omit<Concept.Interface, "identifier" | "type"> & {
       identifier?: rdfjs.NamedNode;
     },
     hasher: HasherT,
@@ -1364,7 +1366,7 @@ export namespace Concept {
   }
 
   export function toRdf(
-    concept: Concept,
+    concept: Concept.Interface,
     {
       ignoreRdfType,
       mutateGraph,
@@ -1607,18 +1609,19 @@ export namespace Concept {
     return resource;
   }
 }
-
-export interface ConceptScheme {
-  readonly altLabel: readonly rdfjs.Literal[];
-  readonly hasTopConcept: readonly rdfjs.NamedNode[];
-  readonly hiddenLabel: readonly rdfjs.Literal[];
-  readonly identifier: rdfjs.NamedNode;
-  readonly prefLabel: readonly rdfjs.Literal[];
-  readonly type: "ConceptScheme";
-}
+export type ConceptScheme = ConceptScheme.Class;
 
 export namespace ConceptScheme {
-  export class Class implements ConceptScheme {
+  export interface Interface {
+    readonly altLabel: readonly rdfjs.Literal[];
+    readonly hasTopConcept: readonly rdfjs.NamedNode[];
+    readonly hiddenLabel: readonly rdfjs.Literal[];
+    readonly identifier: rdfjs.NamedNode;
+    readonly prefLabel: readonly rdfjs.Literal[];
+    readonly type: "ConceptScheme";
+  }
+
+  export class Class implements ConceptScheme.Interface {
     readonly altLabel: readonly rdfjs.Literal[];
     readonly hasTopConcept: readonly rdfjs.NamedNode[];
     readonly hiddenLabel: readonly rdfjs.Literal[];
@@ -1648,16 +1651,18 @@ export namespace ConceptScheme {
         typeof parameters.prefLabel !== "undefined" ? parameters.prefLabel : [];
     }
 
-    equals(other: ConceptScheme): purifyHelpers.Equatable.EqualsResult {
-      return ConceptScheme.equals(this, other);
-    }
-
     static fromRdf(
       resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     ): purify.Either<rdfjsResource.Resource.ValueError, ConceptScheme.Class> {
       return ConceptScheme.fromRdf(resource).map(
         (properties) => new ConceptScheme.Class(properties),
       );
+    }
+
+    equals(
+      other: ConceptScheme.Interface,
+    ): purifyHelpers.Equatable.EqualsResult {
+      return ConceptScheme.equals(this, other);
     }
 
     hash<
@@ -1677,8 +1682,8 @@ export namespace ConceptScheme {
   }
 
   export function equals(
-    left: ConceptScheme,
-    right: ConceptScheme,
+    left: ConceptScheme.Interface,
+    right: ConceptScheme.Interface,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       altLabel: (left, right) =>
@@ -1713,7 +1718,7 @@ export namespace ConceptScheme {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, ConceptScheme> {
+  ): purify.Either<rdfjsResource.Resource.ValueError, ConceptScheme.Interface> {
     if (
       !_options?.ignoreRdfType &&
       !resource.isInstanceOf(
@@ -1786,7 +1791,7 @@ export namespace ConceptScheme {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    conceptScheme: Omit<ConceptScheme, "identifier" | "type"> & {
+    conceptScheme: Omit<ConceptScheme.Interface, "identifier" | "type"> & {
       identifier?: rdfjs.NamedNode;
     },
     hasher: HasherT,
@@ -1881,7 +1886,7 @@ export namespace ConceptScheme {
   }
 
   export function toRdf(
-    conceptScheme: ConceptScheme,
+    conceptScheme: ConceptScheme.Interface,
     {
       ignoreRdfType,
       mutateGraph,
@@ -1940,29 +1945,29 @@ export namespace ConceptScheme {
     return resource;
   }
 }
-
-export interface Label {
-  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly skos$j$xl_literalForm: readonly rdfjs.Literal[];
-  readonly type: "Label";
-}
+export type Label = Label.Class;
 
 export namespace Label {
-  export class Class implements Label {
+  export interface Interface {
+    readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+    readonly skos$j$xl_literalForm: readonly rdfjs.Literal[];
+    readonly type: "Label";
+  }
+
+  export class Class implements Label.Interface {
     readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
     readonly skos$j$xl_literalForm: readonly rdfjs.Literal[];
     readonly type = "Label" as const;
 
     constructor(parameters: {
       readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-      readonly skos$j$xl_literalForm: readonly rdfjs.Literal[];
+      readonly skos$j$xl_literalForm?: readonly rdfjs.Literal[];
     }) {
       this.identifier = parameters.identifier;
-      this.skos$j$xl_literalForm = parameters.skos$j$xl_literalForm;
-    }
-
-    equals(other: Label): purifyHelpers.Equatable.EqualsResult {
-      return Label.equals(this, other);
+      this.skos$j$xl_literalForm =
+        typeof parameters.skos$j$xl_literalForm !== "undefined"
+          ? parameters.skos$j$xl_literalForm
+          : [];
     }
 
     static fromRdf(
@@ -1971,6 +1976,10 @@ export namespace Label {
       return Label.fromRdf(resource).map(
         (properties) => new Label.Class(properties),
       );
+    }
+
+    equals(other: Label.Interface): purifyHelpers.Equatable.EqualsResult {
+      return Label.equals(this, other);
     }
 
     hash<
@@ -1990,8 +1999,8 @@ export namespace Label {
   }
 
   export function equals(
-    left: Label,
-    right: Label,
+    left: Label.Interface,
+    right: Label.Interface,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
@@ -2008,7 +2017,7 @@ export namespace Label {
   export function fromRdf(
     resource: rdfjsResource.Resource,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, Label> {
+  ): purify.Either<rdfjsResource.Resource.ValueError, Label.Interface> {
     if (
       !_options?.ignoreRdfType &&
       !resource.isInstanceOf(
@@ -2046,7 +2055,7 @@ export namespace Label {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    label: Omit<Label, "identifier" | "type"> & {
+    label: Omit<Label.Interface, "identifier" | "type"> & {
       identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
     },
     hasher: HasherT,
@@ -2092,7 +2101,7 @@ export namespace Label {
   }
 
   export function toRdf(
-    label: Label,
+    label: Label.Interface,
     {
       ignoreRdfType,
       mutateGraph,
@@ -2128,14 +2137,18 @@ export namespace Label {
     return resource;
   }
 }
-
-export interface OrderedCollection extends Collection {
-  readonly memberList: readonly rdfjs.NamedNode[];
-  readonly type: "OrderedCollection";
-}
+export type OrderedCollection = OrderedCollection.Class;
 
 export namespace OrderedCollection {
-  export class Class extends Collection.Class implements OrderedCollection {
+  export interface Interface extends Collection.Interface {
+    readonly memberList: readonly rdfjs.NamedNode[];
+    readonly type: "OrderedCollection";
+  }
+
+  export class Class
+    extends Collection.Class
+    implements OrderedCollection.Interface
+  {
     readonly memberList: readonly rdfjs.NamedNode[];
     override readonly type = "OrderedCollection" as const;
 
@@ -2148,12 +2161,6 @@ export namespace OrderedCollection {
       this.memberList = parameters.memberList;
     }
 
-    override equals(
-      other: OrderedCollection,
-    ): purifyHelpers.Equatable.EqualsResult {
-      return OrderedCollection.equals(this, other);
-    }
-
     static override fromRdf(
       resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     ): purify.Either<
@@ -2163,6 +2170,12 @@ export namespace OrderedCollection {
       return OrderedCollection.fromRdf(resource).map(
         (properties) => new OrderedCollection.Class(properties),
       );
+    }
+
+    override equals(
+      other: OrderedCollection.Interface,
+    ): purifyHelpers.Equatable.EqualsResult {
+      return OrderedCollection.equals(this, other);
     }
 
     override hash<
@@ -2182,8 +2195,8 @@ export namespace OrderedCollection {
   }
 
   export function equals(
-    left: OrderedCollection,
-    right: OrderedCollection,
+    left: OrderedCollection.Interface,
+    right: OrderedCollection.Interface,
   ): purifyHelpers.Equatable.EqualsResult {
     return Collection.equals(left, right).chain(() =>
       purifyHelpers.Equatable.objectEquals(left, right, {
@@ -2201,7 +2214,10 @@ export namespace OrderedCollection {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, OrderedCollection> {
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    OrderedCollection.Interface
+  > {
     return Collection.fromRdf(resource, { ignoreRdfType: true }).chain(
       (_super) => {
         if (
@@ -2222,10 +2238,7 @@ export namespace OrderedCollection {
             }),
           );
         }
-        const _memberListEither: purify.Either<
-          rdfjsResource.Resource.ValueError,
-          readonly rdfjs.NamedNode[]
-        > = resource
+        const _memberListEither = resource
           .value(
             dataFactory.namedNode(
               "http://www.w3.org/2004/02/skos/core#memberList",
@@ -2253,9 +2266,10 @@ export namespace OrderedCollection {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    orderedCollection: Omit<OrderedCollection, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
+    orderedCollection: Omit<
+      OrderedCollection.Interface,
+      "identifier" | "type"
+    > & { identifier?: rdfjs.NamedNode },
     hasher: HasherT,
   ): HasherT {
     Collection.hash(orderedCollection, hasher);
@@ -2301,7 +2315,7 @@ export namespace OrderedCollection {
   }
 
   export function toRdf(
-    orderedCollection: OrderedCollection,
+    orderedCollection: OrderedCollection.Interface,
     {
       ignoreRdfType,
       mutateGraph,

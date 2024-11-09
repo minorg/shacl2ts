@@ -6,6 +6,10 @@ import type { Type } from "./Type";
 export class LiteralType extends RdfjsTermType {
   readonly kind = "Literal";
 
+  override get convertibleFromTypeNames(): readonly string[] {
+    return [this.name(), "boolean", "Date", "number", "string"];
+  }
+
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
     return Maybe.of({
       name: "termType",
@@ -14,8 +18,16 @@ export class LiteralType extends RdfjsTermType {
     });
   }
 
-  override get name(): string {
-    return "rdfjs.Literal";
+  override get importStatements(): readonly string[] {
+    return ['import * as rdfLiteral from "rdf-literal";'];
+  }
+
+  override convertToExpression({
+    valueVariable,
+  }: { valueVariable: string }): Maybe<string> {
+    return Maybe.of(
+      `(typeof ${valueVariable} === "object" && !(${valueVariable} instanceof Date)) ? ${valueVariable} : rdfLiteral.toRdf(${valueVariable}, ${this.configuration.dataFactoryVariable})`,
+    );
   }
 
   override fromRdfExpression({
@@ -29,5 +41,9 @@ export class LiteralType extends RdfjsTermType {
     valueVariable,
   }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
     return [`${hasherVariable}.update(${valueVariable}.value);`];
+  }
+
+  name(): string {
+    return "rdfjs.Literal";
   }
 }
