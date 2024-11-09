@@ -1,3 +1,4 @@
+export * from "./classDeclaration.js";
 export * from "./interfaceDeclaration.js";
 export * from "./IdentifierProperty.js";
 export * from "./Property.js";

@@ -10,6 +10,7 @@ import * as _ObjectType from "./_ObjectType";
 
 export class ObjectType extends Type {
   readonly astName: string;
+  classDeclaration = _ObjectType.classDeclaration;
   readonly classQualifiedName: string;
   readonly identifierType: IdentifierType;
   interfaceDeclaration = _ObjectType.interfaceDeclaration;

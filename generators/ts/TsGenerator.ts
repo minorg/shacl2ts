@@ -115,10 +115,14 @@ export class TsGenerator {
     this.addImportDeclarations(objectTypes, sourceFile);
 
     for (const objectType of objectTypes) {
-      // If there are classes point the unqualified object type name at the class, otherwise at the interface
-      sourceFile.addStatements([
-        `export type ${objectType.astName} = ${this.configuration.features.has("class") ? objectType.classQualifiedName : objectType.interfaceQualifiedName};`,
-      ]);
+      // If there are classes the unqualified object type name is a class
+      // Otherwise it's an interface
+
+      if (this.configuration.features.has("class")) {
+        sourceFile.addClass(objectType.classDeclaration());
+      } else {
+        sourceFile.addInterface(objectType.interfaceDeclaration());
+      }
 
       sourceFile.addModule(objectType.moduleDeclaration());
     }
