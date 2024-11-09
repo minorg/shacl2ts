@@ -4,10 +4,6 @@ import { PrimitiveType } from "./PrimitiveType.js";
 import type { Type } from "./Type";
 
 export class BooleanType extends PrimitiveType {
-  override get name(): string {
-    return "boolean";
-  }
-
   override defaultValueExpression(
     defaultValue: BlankNode | Literal | NamedNode,
   ): string {
@@ -33,6 +29,10 @@ export class BooleanType extends PrimitiveType {
     valueVariable,
   }: Parameters<PrimitiveType["hashStatements"]>[0]): readonly string[] {
     return [`${hasherVariable}.update(${valueVariable}.toString());`];
+  }
+
+  override name(): string {
+    return "boolean";
   }
 
   override valueIsNotDefaultExpression({

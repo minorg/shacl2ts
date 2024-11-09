@@ -57,7 +57,7 @@ export class ShaclProperty extends Property {
     switch (this.containerType) {
       case "Array": {
         hasQuestionToken = true; // Allow undefined
-        typeNames.add(this.interfaceTypeName);
+        typeNames.add(this.typeName("interface"));
         break;
       }
       case "Maybe": {
@@ -79,7 +79,7 @@ export class ShaclProperty extends Property {
           // Could also support Maybe here but why bother?
           hasQuestionToken = true;
         }
-        typeNames.add(this.interfaceTypeName);
+        typeNames.add(this.typeName("interface"));
         for (const typeName of this.type.convertibleFromTypeNames) {
           typeNames.add(typeName);
         }
@@ -99,7 +99,7 @@ export class ShaclProperty extends Property {
     return {
       isReadonly: true,
       name: this.name,
-      type: this.interfaceTypeName,
+      type: this.typeName("class"),
     };
   }
 
@@ -136,21 +136,8 @@ export class ShaclProperty extends Property {
     return {
       isReadonly: true,
       name: this.name,
-      type: this.interfaceTypeName,
+      type: this.typeName("interface"),
     };
-  }
-
-  // biome-ignore lint/suspicious/useGetterReturn: <explanation>
-  @Memoize()
-  get interfaceTypeName(): string {
-    switch (this.containerType) {
-      case "Array":
-        return `readonly (${this.type.name})[]`;
-      case "Maybe":
-        return `purify.Maybe<${this.type.name}>`;
-      case null:
-        return this.type.name;
-    }
   }
 
   @Memoize()
@@ -223,7 +210,7 @@ export class ShaclProperty extends Property {
 
     valueFromRdfExpression = `${resourceVariable}.value(${this.pathExpression}).chain(${resourceValueVariable} => ${valueFromRdfExpression})`;
     this.hasValue.ifJust((hasValue) => {
-      valueFromRdfExpression = `${valueFromRdfExpression}.chain<rdfjsResource.Resource.ValueError, ${this.type.name}>(_identifier => _identifier.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${resourceVariable}, predicate: ${rdfjsTermExpression(this.path, this.configuration)} })))`;
+      valueFromRdfExpression = `${valueFromRdfExpression}.chain<rdfjsResource.Resource.ValueError, ${this.type.name("interface")}>(_identifier => _identifier.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${resourceVariable}, predicate: ${rdfjsTermExpression(this.path, this.configuration)} })))`;
     });
 
     switch (this.containerType) {
@@ -328,6 +315,17 @@ export class ShaclProperty extends Property {
         ];
       case null:
         return [resourceAddStatement];
+    }
+  }
+
+  private typeName(kind: Parameters<Type["name"]>[0]) {
+    switch (this.containerType) {
+      case "Array":
+        return `readonly (${this.type.name(kind)})[]`;
+      case "Maybe":
+        return `purify.Maybe<${this.type.name(kind)}>`;
+      case null:
+        return this.type.name(kind);
     }
   }
 }

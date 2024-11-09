@@ -2,6 +2,7 @@ import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import { MintingStrategy } from "../../ast";
+import type { ComposedType } from "./ComposedType";
 import type { IdentifierType } from "./IdentifierType.js";
 import type { RdfjsTermType } from "./RdfjsTermType";
 import { Type } from "./Type.js";
@@ -70,6 +71,10 @@ export class ObjectType extends Type {
     return this.lazyAncestorObjectTypes();
   }
 
+  override get convertibleFromTypeNames(): readonly string[] {
+    return [this.interfaceQualifiedName];
+  }
+
   @Memoize()
   get descendantObjectTypes(): readonly ObjectType[] {
     return this.lazyDescendantObjectTypes();
@@ -104,10 +109,6 @@ export class ObjectType extends Type {
     return importStatements;
   }
 
-  override get name(): string {
-    return this.astName;
-  }
-
   @Memoize()
   get parentObjectTypes(): readonly ObjectType[] {
     return this.lazyParentObjectTypes();
@@ -127,6 +128,14 @@ export class ObjectType extends Type {
     return properties;
   }
 
+  override convertToExpression({
+    valueVariable,
+  }: { valueVariable: string }): Maybe<string> {
+    return Maybe.of(
+      `${valueVariable} instanceof ${this.classQualifiedName} ? ${valueVariable} : new ${this.classQualifiedName}(${valueVariable})`,
+    );
+  }
+
   override equalsFunction(): string {
     return `${this.moduleQualifiedName}.equals`;
   }
@@ -144,6 +153,15 @@ export class ObjectType extends Type {
     return [
       `${this.moduleQualifiedName}.hash(${valueVariable}, ${hasherVariable});`,
     ];
+  }
+
+  override name(kind: Parameters<ComposedType["name"]>[0]): string {
+    switch (kind) {
+      case "class":
+        return this.classQualifiedName;
+      case "interface":
+        return this.interfaceQualifiedName;
+    }
   }
 
   rdfjsResourceType(options?: { mutable?: boolean }): {

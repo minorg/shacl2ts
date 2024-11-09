@@ -2238,10 +2238,7 @@ export namespace OrderedCollection {
             }),
           );
         }
-        const _memberListEither: purify.Either<
-          rdfjsResource.Resource.ValueError,
-          readonly rdfjs.NamedNode[]
-        > = resource
+        const _memberListEither = resource
           .value(
             dataFactory.namedNode(
               "http://www.w3.org/2004/02/skos/core#memberList",

@@ -6,7 +6,6 @@ import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
 export abstract class Type {
   abstract readonly kind: ast.Type["kind"] | "List";
-  abstract readonly name: string;
   protected readonly configuration: Configuration;
 
   constructor({
@@ -21,7 +20,7 @@ export abstract class Type {
    * Array of (additional) type names that can be converted to this type.
    */
   get convertibleFromTypeNames(): readonly string[] {
-    return [this.name];
+    return [this.name("interface")];
   }
 
   get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
@@ -65,6 +64,8 @@ export abstract class Type {
     hasherVariable: string;
     valueVariable: string;
   }): readonly string[];
+
+  abstract name(kind: "class" | "interface"): string;
 
   /**
    * An optional sparqlBuilder.GraphPattern to chain to the basic pattern for a property.

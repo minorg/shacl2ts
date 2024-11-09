@@ -48,7 +48,7 @@ export function hashFunctionDeclaration(
     parameters: [
       {
         name: thisVariable,
-        type: `Omit<${this.interfaceQualifiedName}, "${this.configuration.objectTypeIdentifierPropertyName}" | "${this.configuration.objectTypeDiscriminatorPropertyName}"> & { ${this.configuration.objectTypeIdentifierPropertyName}?: ${this.identifierType.name} }`,
+        type: `Omit<${this.interfaceQualifiedName}, "${this.configuration.objectTypeIdentifierPropertyName}" | "${this.configuration.objectTypeDiscriminatorPropertyName}"> & { ${this.configuration.objectTypeIdentifierPropertyName}?: ${this.identifierType.name()} }`,
       },
       {
         name: hasherVariable,

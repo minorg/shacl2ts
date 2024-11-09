@@ -40,22 +40,10 @@ export class IdentifierType extends RdfjsTermType {
     return this.nodeKinds.size === 1 && this.nodeKinds.has(NodeKind.IRI);
   }
 
-  @Memoize()
-  override get name(): string {
-    const names: string[] = [];
-    if (this.nodeKinds.has(NodeKind.BLANK_NODE)) {
-      names.push("rdfjs.BlankNode");
-    }
-    if (this.nodeKinds.has(NodeKind.IRI)) {
-      names.push("rdfjs.NamedNode");
-    }
-    return names.join(" | ");
-  }
-
   override fromRdfExpression({
     resourceValueVariable,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    switch (this.name) {
+    switch (this.name()) {
       case "rdfjs.BlankNode":
         throw new Error("not implemented");
       case "rdfjs.NamedNode":
@@ -74,5 +62,17 @@ export class IdentifierType extends RdfjsTermType {
     return [
       `${hasherVariable}.update(rdfjsResource.Resource.Identifier.toString(${valueVariable}));`,
     ];
+  }
+
+  @Memoize()
+  override name(): string {
+    const names: string[] = [];
+    if (this.nodeKinds.has(NodeKind.BLANK_NODE)) {
+      names.push("rdfjs.BlankNode");
+    }
+    if (this.nodeKinds.has(NodeKind.IRI)) {
+      names.push("rdfjs.NamedNode");
+    }
+    return names.join(" | ");
   }
 }

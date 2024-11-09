@@ -36,7 +36,7 @@ export class IdentifierProperty extends Property {
       hasQuestionToken: this.mintingStrategy.isJust(),
       isReadonly: true,
       name: this.name,
-      type: this.type.name,
+      type: this.type.name(),
     });
   }
 
@@ -44,7 +44,7 @@ export class IdentifierProperty extends Property {
     return {
       isReadonly: true,
       name: this.name,
-      type: this.type.name,
+      type: this.type.name(),
     };
   }
 
@@ -52,7 +52,7 @@ export class IdentifierProperty extends Property {
     return {
       isReadonly: true,
       name: this.name,
-      type: this.type.name,
+      type: this.type.name(),
     };
   }
 

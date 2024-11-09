@@ -5,7 +5,7 @@ import type { Type } from "./Type.js";
 
 export abstract class PrimitiveType extends LiteralType {
   override get convertibleFromTypeNames(): readonly string[] {
-    return [this.name];
+    return [this.name()];
   }
 
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {

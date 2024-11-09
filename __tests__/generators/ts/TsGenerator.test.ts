@@ -19,7 +19,7 @@ describe("TsGenerator", () => {
   let skosOrderedCollection: skos.OrderedCollection.Class;
 
   beforeAll(() => {
-    mlmOrganization = new mlm.Organization.Class({
+    mlmOrganization = new mlm.Organization({
       identifier: dataFactory.namedNode("http://example.com/organization"),
       name: dataFactory.literal("Test organization"),
     });
@@ -51,30 +51,27 @@ describe("TsGenerator", () => {
   });
 
   it("should generate valid TypeScript interfaces", ({ expect }) => {
-    const mlm: mlm.LanguageModel = {
+    const languageModel: mlm.LanguageModel = new mlm.LanguageModel.Class({
       contextWindow: 1,
       description: Maybe.of(dataFactory.literal("Test description")),
       identifier: dataFactory.namedNode("http://example.com/mlm"),
-      isVariantOf: {
+      isVariantOf: new mlm.MachineLearningModelFamily.Class({
         description: Maybe.of(dataFactory.literal("Family description")),
         identifier: dataFactory.namedNode("http://example.com/family"),
-        manufacturer: {
+        manufacturer: new mlm.Organization.Class({
           identifier: dataFactory.namedNode("http://examhple.com/organization"),
           name: dataFactory.literal("name"),
-          type: "Organization",
-        },
+        }),
         name: dataFactory.literal("name"),
-        type: "MachineLearningModelFamily",
         url: Maybe.of("http://example.com/family"),
-      },
+      }),
       localIdentifier: "testidentifier",
       maxTokenOutput: Maybe.of(1),
       name: dataFactory.literal("Test name"),
       trainingDataCutoff: Maybe.of("cutoff"),
-      type: "LanguageModel",
       url: Maybe.of("http://example.com/mlm"),
-    };
-    expect(mlm.name.value).toStrictEqual("Test name");
+    });
+    expect(languageModel.name.value).toStrictEqual("Test name");
   });
 
   it("should construct a class instance from parameters", ({ expect }) => {
