@@ -129,7 +129,12 @@ export class ObjectType extends Type {
   }
 
   override equalsFunction(): string {
-    return `${this.name}.equals`;
+    switch (this.configuration.objectTypeDeclarationType) {
+      case "class":
+        return "purifyHelpers.Equatable.equals";
+      case "interface":
+        return `${this.name}.equals`;
+    }
   }
 
   override fromRdfExpression({
@@ -179,7 +184,12 @@ export class ObjectType extends Type {
     resourceSetVariable,
     valueVariable,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
-    return `${this.name}.toRdf(${valueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
+    switch (this.configuration.objectTypeDeclarationType) {
+      case "class":
+        return `${valueVariable}.toRdf({ mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
+      case "interface":
+        return `${this.name}.toRdf(${valueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
+    }
   }
 
   protected ensureAtMostOneSuperObjectType() {

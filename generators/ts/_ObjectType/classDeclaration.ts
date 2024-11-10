@@ -1,5 +1,4 @@
 import { rdf } from "@tpluscode/rdf-ns-builders";
-import { camelCase } from "change-case";
 import {
   type ClassDeclarationStructure,
   type ConstructorDeclarationStructure,
