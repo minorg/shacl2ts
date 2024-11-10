@@ -76,9 +76,6 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
   if (this.configuration.features.has("equals")) {
     methods.push(equalsMethodDeclaration.bind(this)());
   }
-  if (this.configuration.features.has("fromRdf")) {
-    methods.push(fromRdfMethodDeclaration.bind(this)());
-  }
   if (this.configuration.features.has("hash")) {
     methods.push(hashMethodDeclaration.bind(this)());
   }
@@ -109,6 +106,13 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
 function equalsMethodDeclaration(
   this: ObjectType,
 ): OptionalKind<MethodDeclarationStructure> {
+  let expression = `purifyHelpers.Equatable.objectEquals(this, other, { ${this.properties
+    .map((property) => `${property.name}: ${property.equalsFunction}`)
+    .join()} })`;
+  if (this.parentObjectTypes.length > 0) {
+    expression = `super.equals(other).chain(() => ${expression})`;
+  }
+
   return {
     hasOverrideKeyword: this.parentObjectTypes.length > 0,
     name: "equals",
@@ -118,28 +122,8 @@ function equalsMethodDeclaration(
         type: this.name,
       },
     ],
-    statements: [`return ${this.name}.equals(this, other);`],
+    statements: [`return ${expression};`],
     returnType: "purifyHelpers.Equatable.EqualsResult",
-  };
-}
-
-function fromRdfMethodDeclaration(
-  this: ObjectType,
-): OptionalKind<MethodDeclarationStructure> {
-  return {
-    hasOverrideKeyword: this.parentObjectTypes.length > 0,
-    isStatic: true,
-    name: "fromRdf",
-    parameters: [
-      {
-        name: "resource",
-        type: this.rdfjsResourceType().name,
-      },
-    ],
-    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>`,
-    statements: [
-      `return ${this.name}.fromRdf(resource).map(properties => new ${this.name}(properties));`,
-    ],
   };
 }
 
