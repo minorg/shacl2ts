@@ -5,8 +5,8 @@ import type { ObjectType } from "./ObjectType.js";
 import { TypeFactory } from "./TypeFactory.js";
 import { tsName } from "./tsName.js";
 
-export class TsGenerator {
-  private readonly configuration: Configuration;
+export abstract class TsGenerator {
+  protected readonly configuration: Configuration;
 
   constructor(
     private ast: ast.Ast,
@@ -45,20 +45,24 @@ export class TsGenerator {
 
     const typeFactory = new TypeFactory({ configuration: this.configuration });
 
-    this.generateSourceFile(
-      astObjectTypes.flatMap((astObjectType) => {
-        const type = typeFactory.createTypeFromAstType(astObjectType);
-        return type.kind === "Object" ? [type as ObjectType] : [];
-      }),
-      sourceFile,
-    );
+    const objectTypes = astObjectTypes.flatMap((astObjectType) => {
+      const type = typeFactory.createTypeFromAstType(astObjectType);
+      return type.kind === "Object" ? [type as ObjectType] : [];
+    });
+
+    this.addDeclarations(objectTypes, sourceFile);
 
     sourceFile.saveSync();
 
     return project.getFileSystem().readFileSync(sourceFile.getFilePath());
   }
 
-  private addImportDeclarations(
+  protected abstract addDeclarations(
+    objectTypes: readonly ObjectType[],
+    sourceFile: SourceFile,
+  ): void;
+
+  protected addImportDeclarations(
     objectTypes: readonly ObjectType[],
     sourceFile: SourceFile,
   ) {
@@ -106,25 +110,5 @@ export class TsGenerator {
       }
     }
     sourceFile.addStatements([...typeImportStatements]);
-  }
-
-  private generateSourceFile(
-    objectTypes: readonly ObjectType[],
-    sourceFile: SourceFile,
-  ) {
-    this.addImportDeclarations(objectTypes, sourceFile);
-
-    for (const objectType of objectTypes) {
-      // If there are classes the unqualified object type name is a class
-      // Otherwise it's an interface
-
-      if (this.configuration.features.has("class")) {
-        sourceFile.addClass(objectType.classDeclaration());
-      } else {
-        sourceFile.addInterface(objectType.interfaceDeclaration());
-      }
-
-      sourceFile.addModule(objectType.moduleDeclaration());
-    }
   }
 }

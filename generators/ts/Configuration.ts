@@ -1,5 +1,4 @@
 type Feature =
-  | "class"
   | "equals"
   | "fromRdf"
   | "hash"
@@ -46,7 +45,6 @@ export namespace Configuration {
       'import { DataFactory as dataFactory } from "n3"';
     export const dataFactoryVariable = "dataFactory";
     export const features: Set<Feature> = new Set([
-      "class",
       "equals",
       "fromRdf",
       "hash",

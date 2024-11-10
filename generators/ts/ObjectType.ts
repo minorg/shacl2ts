@@ -12,15 +12,20 @@ export class ObjectType extends Type {
   readonly astName: string;
   classDeclaration = _ObjectType.classDeclaration;
   readonly classQualifiedName: string;
+  equalsFunctionDeclaration = _ObjectType.equalsFunctionDeclaration;
+  fromRdfFunctionDeclaration = _ObjectType.fromRdfFunctionDeclaration;
+  hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
   readonly identifierType: IdentifierType;
   interfaceDeclaration = _ObjectType.interfaceDeclaration;
   readonly interfaceQualifiedName: string;
   readonly kind = "Object";
   readonly mintingStrategy: Maybe<MintingStrategy>;
-  moduleDeclaration = _ObjectType.moduleDeclaration;
   readonly moduleQualifiedName: string;
   readonly rdfType: Maybe<NamedNode>;
+  sparqlGraphPatternsClassDeclaration =
+    _ObjectType.sparqlGraphPatternsClassDeclaration;
   readonly sparqlGraphPatternsClassQualifiedName: string;
+  toRdfFunctionDeclaration = _ObjectType.toRdfFunctionDeclaration;
   protected readonly classUnqualifiedName: string = "Class";
   protected readonly interfaceUnqualifiedName: string = "Interface";
   protected readonly sparqlGraphPatternsClassUnqualifiedName: string =
