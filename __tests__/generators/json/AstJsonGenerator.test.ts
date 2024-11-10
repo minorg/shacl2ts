@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, it } from "vitest";
 
 describe("AstJsonGenerator", () => {
-  for (const directoryName of ["mlm"]) {
+  for (const directoryName of ["mlm", "skos"]) {
     //["mlm", "sdo"]) {
     it(`should generate valid JSON for ${directoryName}`, async ({
       expect,
