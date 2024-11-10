@@ -84,6 +84,17 @@ export class ObjectType extends Type {
     return this.name;
   }
 
+  @Memoize()
+  get hashFunctionName(): string {
+    if (
+      this.lazyDescendantObjectTypes().length > 0 ||
+      this.ancestorObjectTypes.length > 0
+    ) {
+      return `hash${this.name}`;
+    }
+    return "hash";
+  }
+
   override get importStatements(): readonly string[] {
     const importStatements = this.properties.flatMap(
       (property) => property.importStatements,
@@ -148,7 +159,7 @@ export class ObjectType extends Type {
     valueVariable,
   }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
     return [
-      `${this.name}.hash${this.name}(${valueVariable}, ${hasherVariable});`,
+      `${this.name}.${this.hashFunctionName}(${valueVariable}, ${hasherVariable});`,
     ];
   }
 

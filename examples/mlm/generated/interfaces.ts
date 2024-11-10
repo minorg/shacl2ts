@@ -142,10 +142,7 @@ export namespace MachineLearningModel {
       );
     }
 
-    MachineLearningModelFamily.hashMachineLearningModelFamily(
-      machineLearningModel.isVariantOf,
-      hasher,
-    );
+    MachineLearningModelFamily.hash(machineLearningModel.isVariantOf, hasher);
     hasher.update(machineLearningModel.localIdentifier);
     hasher.update(machineLearningModel.name.value);
     machineLearningModel.trainingDataCutoff.ifJust((_trainingDataCutoff) => {
@@ -576,7 +573,7 @@ export namespace MachineLearningModelFamily {
     });
   }
 
-  export function hashMachineLearningModelFamily<
+  export function hash<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -598,10 +595,7 @@ export namespace MachineLearningModelFamily {
       );
     }
 
-    Organization.hashOrganization(
-      machineLearningModelFamily.manufacturer,
-      hasher,
-    );
+    Organization.hash(machineLearningModelFamily.manufacturer, hasher);
     hasher.update(machineLearningModelFamily.name.value);
     machineLearningModelFamily.url.ifJust((_url) => {
       hasher.update(_url);
@@ -771,7 +765,7 @@ export namespace Organization {
     return purify.Either.of({ identifier, name, type });
   }
 
-  export function hashOrganization<
+  export function hash<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },

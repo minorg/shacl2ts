@@ -12,11 +12,12 @@ export function hashFunctionDeclaration(
 ): FunctionDeclarationStructure {
   const thisVariable = camelCase(this.name);
 
+  const omitPropertyNames: string[] = [];
   const statements: string[] = [];
 
   for (const parentObjectType of this.parentObjectTypes) {
     statements.push(
-      `${parentObjectType.name}.hash${parentObjectType.name}(${thisVariable}, ${hasherVariable})`,
+      `${parentObjectType.name}.${parentObjectType.hashFunctionName}(${thisVariable}, ${hasherVariable})`,
     );
   }
 
@@ -26,6 +27,10 @@ export function hashFunctionDeclaration(
       hasherVariable,
       valueVariable: propertyValueVariable,
     });
+    if (propertyHashStatements.length === 0) {
+      omitPropertyNames.push(property.name);
+      continue;
+    }
 
     if (
       property.name === this.configuration.objectTypeIdentifierPropertyName &&
@@ -34,21 +39,28 @@ export function hashFunctionDeclaration(
       statements.push(
         `if (typeof ${propertyValueVariable} !== "undefined") { ${propertyHashStatements.join("\n")} }`,
       );
+      omitPropertyNames.push(property.name);
     } else {
       statements.push(...propertyHashStatements);
     }
   }
+
+  if (this.configuration.objectTypeDeclarationType === "class") {
+    omitPropertyNames.push("equals", "hash", "toRdf");
+  }
+
+  omitPropertyNames.sort();
 
   statements.push(`return ${hasherVariable};`);
 
   return {
     isExported: true,
     kind: StructureKind.Function,
-    name: `hash${this.name}`,
+    name: this.hashFunctionName,
     parameters: [
       {
         name: thisVariable,
-        type: `Omit<${this.name}, "${this.configuration.objectTypeIdentifierPropertyName}" | "${this.configuration.objectTypeDiscriminatorPropertyName}"> & { ${this.configuration.objectTypeIdentifierPropertyName}?: ${this.identifierType.name} }`,
+        type: `Omit<${this.name}, ${omitPropertyNames.map((propertyName) => `"${propertyName}"`).join(" | ")}> & { ${this.configuration.objectTypeIdentifierPropertyName}?: ${this.identifierType.name} }`,
       },
       {
         name: hasherVariable,
