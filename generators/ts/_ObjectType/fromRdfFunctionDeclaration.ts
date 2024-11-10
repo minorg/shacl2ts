@@ -20,8 +20,8 @@ export function fromRdfFunctionDeclaration(
     );
   });
 
-  for (const parentObjectType of this.parentObjectTypes) {
-    for (const property of parentObjectType.properties) {
+  for (const ancestorObjectType of this.ancestorObjectTypes) {
+    for (const property of ancestorObjectType.properties) {
       if (property.fromRdfStatements({ resourceVariable }).length > 0) {
         propertyInitializers.push(`${property.name}: _super.${property.name}`);
       }
