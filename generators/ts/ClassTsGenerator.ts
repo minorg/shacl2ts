@@ -18,10 +18,18 @@ export class ClassTsGenerator extends TsGenerator {
 
       const moduleStatements: StatementStructures[] = [];
 
+      if (this.configuration.features.has("equals")) {
+        moduleStatements.push(objectType.equalsFunctionDeclaration());
+      }
+
+      if (this.configuration.features.has("hash")) {
+        moduleStatements.push(objectType.hashFunctionDeclaration());
+      }
+
       if (this.configuration.features.has("sparql-graph-patterns")) {
         if (objectType.parentObjectTypes.length > 1) {
           throw new RangeError(
-            `object type '${objectType.astName}' has multiple super object types, can't use with SPARQL graph patterns`,
+            `object type '${objectType.name}' has multiple super object types, can't use with SPARQL graph patterns`,
           );
         }
 
@@ -31,7 +39,7 @@ export class ClassTsGenerator extends TsGenerator {
       sourceFile.addModule({
         isExported: true,
         kind: StructureKind.Module,
-        name: objectType.astName,
+        name: objectType.name,
         statements: moduleStatements,
       });
     }

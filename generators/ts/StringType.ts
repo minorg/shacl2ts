@@ -4,6 +4,10 @@ import { PrimitiveType } from "./PrimitiveType.js";
 import type { Type } from "./Type";
 
 export class StringType extends PrimitiveType {
+  override get name(): string {
+    return "string";
+  }
+
   override defaultValueExpression(
     defaultValue: BlankNode | Literal | NamedNode,
   ): string {
@@ -29,9 +33,5 @@ export class StringType extends PrimitiveType {
     valueVariable,
   }: Parameters<PrimitiveType["hashStatements"]>[0]): readonly string[] {
     return [`${hasherVariable}.update(${valueVariable});`];
-  }
-
-  override name(): string {
-    return "string";
   }
 }

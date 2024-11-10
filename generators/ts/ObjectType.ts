@@ -2,57 +2,48 @@ import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import { MintingStrategy } from "../../ast";
-import type { ComposedType } from "./ComposedType";
 import type { IdentifierType } from "./IdentifierType.js";
 import type { RdfjsTermType } from "./RdfjsTermType";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType";
 
 export class ObjectType extends Type {
-  readonly astName: string;
   classDeclaration = _ObjectType.classDeclaration;
-  readonly classQualifiedName: string;
   equalsFunctionDeclaration = _ObjectType.equalsFunctionDeclaration;
   fromRdfFunctionDeclaration = _ObjectType.fromRdfFunctionDeclaration;
   hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
   readonly identifierType: IdentifierType;
   interfaceDeclaration = _ObjectType.interfaceDeclaration;
-  readonly interfaceQualifiedName: string;
   readonly kind = "Object";
   readonly mintingStrategy: Maybe<MintingStrategy>;
-  readonly moduleQualifiedName: string;
+  readonly name: string;
   readonly rdfType: Maybe<NamedNode>;
   sparqlGraphPatternsClassDeclaration =
     _ObjectType.sparqlGraphPatternsClassDeclaration;
-  readonly sparqlGraphPatternsClassQualifiedName: string;
   toRdfFunctionDeclaration = _ObjectType.toRdfFunctionDeclaration;
-  protected readonly classUnqualifiedName: string = "Class";
-  protected readonly interfaceUnqualifiedName: string = "Interface";
-  protected readonly sparqlGraphPatternsClassUnqualifiedName: string =
-    "SparqlGraphPatterns";
   private readonly lazyAncestorObjectTypes: () => readonly ObjectType[];
   private readonly lazyDescendantObjectTypes: () => readonly ObjectType[];
   private readonly lazyParentObjectTypes: () => readonly ObjectType[];
   private readonly lazyProperties: () => readonly ObjectType.Property[];
 
   constructor({
-    astName,
     identifierType,
     lazyAncestorObjectTypes,
     lazyDescendantObjectTypes,
     lazyParentObjectTypes,
     lazyProperties,
     mintingStrategy,
+    name,
     rdfType,
     ...superParameters
   }: {
-    astName: string;
     identifierType: IdentifierType;
     lazyAncestorObjectTypes: () => readonly ObjectType[];
     lazyDescendantObjectTypes: () => readonly ObjectType[];
     lazyParentObjectTypes: () => readonly ObjectType[];
     lazyProperties: () => readonly ObjectType.Property[];
     mintingStrategy: Maybe<MintingStrategy>;
+    name: string;
     rdfType: Maybe<NamedNode>;
   } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
@@ -64,12 +55,7 @@ export class ObjectType extends Type {
     this.identifierType = identifierType;
     this.mintingStrategy = mintingStrategy;
     this.rdfType = rdfType;
-
-    this.astName = astName;
-    this.moduleQualifiedName = astName;
-    this.classQualifiedName = `${this.moduleQualifiedName}.${this.classUnqualifiedName}`;
-    this.interfaceQualifiedName = `${this.moduleQualifiedName}.${this.interfaceUnqualifiedName}`;
-    this.sparqlGraphPatternsClassQualifiedName = `${astName}.${this.sparqlGraphPatternsClassUnqualifiedName}`;
+    this.name = name;
   }
 
   @Memoize()
@@ -78,7 +64,7 @@ export class ObjectType extends Type {
   }
 
   override get convertibleFromTypeNames(): readonly string[] {
-    return [this.interfaceQualifiedName];
+    return [this.name];
   }
 
   @Memoize()
@@ -95,7 +81,7 @@ export class ObjectType extends Type {
   }
 
   get discriminatorValue(): string {
-    return this.astName;
+    return this.name;
   }
 
   override get importStatements(): readonly string[] {
@@ -138,36 +124,25 @@ export class ObjectType extends Type {
     valueVariable,
   }: { valueVariable: string }): Maybe<string> {
     return Maybe.of(
-      `${valueVariable} instanceof ${this.classQualifiedName} ? ${valueVariable} : new ${this.classQualifiedName}(${valueVariable})`,
+      `${valueVariable} instanceof ${this.name} ? ${valueVariable} : new ${this.name}(${valueVariable})`,
     );
   }
 
   override equalsFunction(): string {
-    return `${this.moduleQualifiedName}.equals`;
+    return `${this.name}.equals`;
   }
 
   override fromRdfExpression({
     resourceValueVariable,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.moduleQualifiedName}.fromRdf(resource))`;
+    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.name}.fromRdf(resource))`;
   }
 
   override hashStatements({
     hasherVariable,
     valueVariable,
   }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
-    return [
-      `${this.moduleQualifiedName}.hash(${valueVariable}, ${hasherVariable});`,
-    ];
-  }
-
-  override name(kind: Parameters<ComposedType["name"]>[0]): string {
-    switch (kind) {
-      case "class":
-        return this.classQualifiedName;
-      case "interface":
-        return this.interfaceQualifiedName;
-    }
+    return [`${this.name}.hash(${valueVariable}, ${hasherVariable});`];
   }
 
   rdfjsResourceType(options?: { mutable?: boolean }): {
@@ -193,7 +168,7 @@ export class ObjectType extends Type {
   >[0]): Maybe<Type.SparqlGraphPatternExpression> {
     return Maybe.of({
       type: "GraphPatterns",
-      value: `new ${this.moduleQualifiedName}.SparqlGraphPatterns(${subjectVariable})`,
+      value: `new ${this.name}.SparqlGraphPatterns(${subjectVariable})`,
     });
   }
 
@@ -202,13 +177,13 @@ export class ObjectType extends Type {
     resourceSetVariable,
     valueVariable,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
-    return `${this.moduleQualifiedName}.toRdf(${valueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
+    return `${this.name}.toRdf(${valueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
   }
 
   protected ensureAtMostOneSuperObjectType() {
     if (this.parentObjectTypes.length > 1) {
       throw new RangeError(
-        `object type '${this.astName}' has multiple super object types`,
+        `object type '${this.name}' has multiple super object types`,
       );
     }
   }

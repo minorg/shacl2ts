@@ -54,10 +54,10 @@ export function sparqlGraphPatternsClassDeclaration(
     ],
     extends:
       this.parentObjectTypes.length > 0
-        ? this.parentObjectTypes[0].sparqlGraphPatternsClassQualifiedName
+        ? `${this.parentObjectTypes[0].name}.SparqlGraphPatterns`
         : "sparqlBuilder.ResourceGraphPatterns",
     isExported: true,
     kind: StructureKind.Class,
-    name: this.sparqlGraphPatternsClassUnqualifiedName,
+    name: "SparqlGraphPatterns",
   };
 }

@@ -7,7 +7,7 @@ export class LiteralType extends RdfjsTermType {
   readonly kind = "Literal";
 
   override get convertibleFromTypeNames(): readonly string[] {
-    return [this.name(), "boolean", "Date", "number", "string"];
+    return [this.name, "boolean", "Date", "number", "string"];
   }
 
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
@@ -20,6 +20,10 @@ export class LiteralType extends RdfjsTermType {
 
   override get importStatements(): readonly string[] {
     return ['import * as rdfLiteral from "rdf-literal";'];
+  }
+
+  get name(): string {
+    return "rdfjs.Literal";
   }
 
   override convertToExpression({
@@ -41,9 +45,5 @@ export class LiteralType extends RdfjsTermType {
     valueVariable,
   }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
     return [`${hasherVariable}.update(${valueVariable}.value);`];
-  }
-
-  name(): string {
-    return "rdfjs.Literal";
   }
 }

@@ -33,7 +33,7 @@ export class InterfaceTsGenerator extends TsGenerator {
       if (this.configuration.features.has("sparql-graph-patterns")) {
         if (objectType.parentObjectTypes.length > 1) {
           throw new RangeError(
-            `object type '${objectType.astName}' has multiple super object types, can't use with SPARQL graph patterns`,
+            `object type '${objectType.name}' has multiple super object types, can't use with SPARQL graph patterns`,
           );
         }
 
@@ -47,7 +47,7 @@ export class InterfaceTsGenerator extends TsGenerator {
       sourceFile.addModule({
         isExported: true,
         kind: StructureKind.Module,
-        name: objectType.astName,
+        name: objectType.name,
         statements: moduleStatements,
       });
     }

@@ -10,13 +10,13 @@ export const hasherTypeConstraint =
 export function hashFunctionDeclaration(
   this: ObjectType,
 ): FunctionDeclarationStructure {
-  const thisVariable = camelCase(this.astName);
+  const thisVariable = camelCase(this.name);
 
   const statements: string[] = [];
 
   for (const parentObjectType of this.parentObjectTypes) {
     statements.push(
-      `${parentObjectType.moduleQualifiedName}.hash(${thisVariable}, ${hasherVariable})`,
+      `${parentObjectType.name}.hash(${thisVariable}, ${hasherVariable})`,
     );
   }
 
@@ -48,7 +48,7 @@ export function hashFunctionDeclaration(
     parameters: [
       {
         name: thisVariable,
-        type: `Omit<${this.interfaceQualifiedName}, "${this.configuration.objectTypeIdentifierPropertyName}" | "${this.configuration.objectTypeDiscriminatorPropertyName}"> & { ${this.configuration.objectTypeIdentifierPropertyName}?: ${this.identifierType.name()} }`,
+        type: `Omit<${this.name}, "${this.configuration.objectTypeIdentifierPropertyName}" | "${this.configuration.objectTypeDiscriminatorPropertyName}"> & { ${this.configuration.objectTypeIdentifierPropertyName}?: ${this.identifierType.name} }`,
       },
       {
         name: hasherVariable,

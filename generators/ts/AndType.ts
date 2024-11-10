@@ -5,6 +5,10 @@ import type { Type } from "./Type.js";
 export class AndType extends ComposedType {
   readonly kind = "And";
 
+  get name(): string {
+    return `(${this.types.map((type) => type.name).join(" & ")})`;
+  }
+
   override equalsFunction(): string {
     throw new Error("Method not implemented.");
   }
@@ -15,10 +19,6 @@ export class AndType extends ComposedType {
 
   override hashStatements(): readonly string[] {
     throw new Error("Method not implemented.");
-  }
-
-  override name(kind: Parameters<ComposedType["name"]>[0]): string {
-    return `(${this.types.map((type) => type.name(kind)).join(" & ")})`;
   }
 
   override sparqlGraphPatternExpression(): Maybe<Type.SparqlGraphPatternExpression> {

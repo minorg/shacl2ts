@@ -8,7 +8,7 @@ export function equalsFunctionDeclaration(
     .map((property) => `${property.name}: ${property.equalsFunction}`)
     .join()} })`;
   for (const parentObjectType of this.parentObjectTypes) {
-    expression = `${parentObjectType.moduleQualifiedName}.equals(left, right).chain(() => ${expression})`;
+    expression = `${parentObjectType.name}.equals(left, right).chain(() => ${expression})`;
   }
 
   return {
@@ -18,11 +18,11 @@ export function equalsFunctionDeclaration(
     parameters: [
       {
         name: "left",
-        type: this.interfaceQualifiedName,
+        type: this.name,
       },
       {
         name: "right",
-        type: this.interfaceQualifiedName,
+        type: this.name,
       },
     ],
     statements: [`return ${expression};`],

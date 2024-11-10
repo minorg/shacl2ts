@@ -14,11 +14,11 @@ export function interfaceDeclaration(
 
   return {
     extends: this.parentObjectTypes.map(
-      (parentObjectType) => parentObjectType.interfaceQualifiedName,
+      (parentObjectType) => parentObjectType.name,
     ),
     isExported: true,
     kind: StructureKind.Interface,
-    name: this.interfaceUnqualifiedName,
+    name: this.name,
     properties,
   };
 }
