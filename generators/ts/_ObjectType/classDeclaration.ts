@@ -1,3 +1,5 @@
+import { rdf } from "@tpluscode/rdf-ns-builders";
+import { camelCase } from "change-case";
 import {
   type ClassDeclarationStructure,
   type ConstructorDeclarationStructure,
@@ -153,16 +155,58 @@ function hashMethodDeclaration(
 function toRdfMethodDeclaration(
   this: ObjectType,
 ): OptionalKind<MethodDeclarationStructure> {
+  const ignoreRdfTypeVariable = "ignoreRdfType";
+  const mutateGraphVariable = "mutateGraph";
+  const resourceVariable = "resource";
+  const resourceSetVariable = "resourceSet";
+
+  let usedIgnoreRdfTypeVariable = false;
+
+  const statements: string[] = [];
+  if (this.parentObjectTypes.length > 0) {
+    statements.push(
+      `const ${resourceVariable} = super.toRdf({ ${mutateGraphVariable}, ${ignoreRdfTypeVariable}: true, ${resourceSetVariable} });`,
+    );
+    usedIgnoreRdfTypeVariable = true;
+  } else if (this.identifierType.isNamedNodeKind) {
+    statements.push(
+      `const ${resourceVariable} = ${resourceSetVariable}.mutableNamedResource({ identifier: this.${this.configuration.objectTypeIdentifierPropertyName}, ${mutateGraphVariable} });`,
+    );
+  } else {
+    statements.push(
+      `const ${resourceVariable} = ${resourceSetVariable}.mutableResource({ identifier: this.${this.configuration.objectTypeIdentifierPropertyName}, ${mutateGraphVariable} });`,
+    );
+  }
+
+  this.rdfType.ifJust((rdfType) => {
+    statements.push(
+      `if (!${ignoreRdfTypeVariable}) { ${resourceVariable}.add(${resourceVariable}.dataFactory.namedNode("${rdf.type.value}"), ${resourceVariable}.dataFactory.namedNode("${rdfType.value}")); }`,
+    );
+    usedIgnoreRdfTypeVariable = true;
+  });
+
+  for (const property of this.properties) {
+    statements.push(
+      ...property.toRdfStatements({
+        mutateGraphVariable,
+        valueVariable: `this.${property.name}`,
+        resourceSetVariable,
+      }),
+    );
+  }
+
+  statements.push(`return ${resourceVariable};`);
+
   return {
     hasOverrideKeyword: this.parentObjectTypes.length > 0,
     name: "toRdf",
     parameters: [
       {
-        name: "kwds",
-        type: "{ mutateGraph: rdfjsResource.MutableResource.MutateGraph, resourceSet: rdfjsResource.MutableResourceSet }",
+        name: `{ ${usedIgnoreRdfTypeVariable ? `${ignoreRdfTypeVariable},` : ""} ${mutateGraphVariable}, ${resourceSetVariable} }`,
+        type: `{ ${ignoreRdfTypeVariable}?: boolean; ${mutateGraphVariable}: rdfjsResource.MutableResource.MutateGraph, ${resourceSetVariable}: rdfjsResource.MutableResourceSet }`,
       },
     ],
     returnType: this.rdfjsResourceType({ mutable: true }).name,
-    statements: [`return ${this.name}.toRdf(this, kwds);`],
+    statements,
   };
 }

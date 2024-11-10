@@ -105,7 +105,10 @@ export class TsGenerator {
         moduleStatements.push(objectType.sparqlGraphPatternsClassDeclaration());
       }
 
-      if (this.configuration.features.has("toRdf")) {
+      if (
+        this.configuration.features.has("toRdf") &&
+        this.configuration.objectTypeDeclarationType === "interface"
+      ) {
         moduleStatements.push(objectType.toRdfFunctionDeclaration());
       }
 

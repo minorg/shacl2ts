@@ -3,6 +3,7 @@ import type * as rdfjs from "@rdfjs/types";
 import { DataFactory as dataFactory } from "n3";
 import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
+import * as rdfLiteral from "rdf-literal";
 import * as rdfjsResource from "rdfjs-resource";
 
 export interface Collection {
@@ -155,9 +156,9 @@ export namespace Collection {
 export interface Concept {
   readonly altLabel: readonly rdfjs.Literal[];
   readonly altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
-  readonly broadMatch: readonly rdfjs.NamedNode[];
   readonly broader: readonly rdfjs.NamedNode[];
   readonly broaderTransitive: readonly rdfjs.NamedNode[];
+  readonly broadMatch: readonly rdfjs.NamedNode[];
   readonly changeNote: readonly rdfjs.Literal[];
   readonly closeMatch: readonly rdfjs.NamedNode[];
   readonly definition: readonly rdfjs.Literal[];
@@ -170,9 +171,9 @@ export interface Concept {
   readonly identifier: rdfjs.NamedNode;
   readonly inScheme: readonly rdfjs.NamedNode[];
   readonly mappingRelation: readonly rdfjs.NamedNode[];
-  readonly narrowMatch: readonly rdfjs.NamedNode[];
   readonly narrower: readonly rdfjs.NamedNode[];
   readonly narrowerTransitive: readonly rdfjs.NamedNode[];
+  readonly narrowMatch: readonly rdfjs.NamedNode[];
   readonly notation: readonly rdfjs.Literal[];
   readonly note: readonly rdfjs.Literal[];
   readonly prefLabel: readonly rdfjs.Literal[];
