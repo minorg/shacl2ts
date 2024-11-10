@@ -165,6 +165,8 @@ export class ShaclProperty extends Property {
         return `purify.Maybe<${this.type.name}>`;
       case null:
         return this.type.name;
+      default:
+        throw new Error("should never reach this");
     }
   }
 

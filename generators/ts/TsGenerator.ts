@@ -1,11 +1,16 @@
-import { Project, type SourceFile } from "ts-morph";
+import {
+  Project,
+  type SourceFile,
+  type StatementStructures,
+  StructureKind,
+} from "ts-morph";
 import type * as ast from "../../ast";
 import { Configuration } from "./Configuration.js";
 import type { ObjectType } from "./ObjectType.js";
 import { TypeFactory } from "./TypeFactory.js";
 import { tsName } from "./tsName.js";
 
-export abstract class TsGenerator {
+export class TsGenerator {
   protected readonly configuration: Configuration;
 
   constructor(
@@ -57,12 +62,60 @@ export abstract class TsGenerator {
     return project.getFileSystem().readFileSync(sourceFile.getFilePath());
   }
 
-  protected abstract addDeclarations(
+  private addDeclarations(
     objectTypes: readonly ObjectType[],
     sourceFile: SourceFile,
-  ): void;
+  ): void {
+    this.addImportDeclarations(objectTypes, sourceFile);
 
-  protected addImportDeclarations(
+    for (const objectType of objectTypes) {
+      switch (this.configuration.objectTypeDeclarationType) {
+        case "class":
+          sourceFile.addClass(objectType.classDeclaration());
+          break;
+        case "interface":
+          sourceFile.addInterface(objectType.interfaceDeclaration());
+          break;
+      }
+
+      const moduleStatements: StatementStructures[] = [];
+
+      if (this.configuration.features.has("equals")) {
+        moduleStatements.push(objectType.equalsFunctionDeclaration());
+      }
+
+      if (this.configuration.features.has("fromRdf")) {
+        moduleStatements.push(objectType.fromRdfFunctionDeclaration());
+      }
+
+      if (this.configuration.features.has("hash")) {
+        moduleStatements.push(objectType.hashFunctionDeclaration());
+      }
+
+      if (this.configuration.features.has("sparql-graph-patterns")) {
+        if (objectType.parentObjectTypes.length > 1) {
+          throw new RangeError(
+            `object type '${objectType.name}' has multiple super object types, can't use with SPARQL graph patterns`,
+          );
+        }
+
+        moduleStatements.push(objectType.sparqlGraphPatternsClassDeclaration());
+      }
+
+      if (this.configuration.features.has("toRdf")) {
+        moduleStatements.push(objectType.toRdfFunctionDeclaration());
+      }
+
+      sourceFile.addModule({
+        isExported: true,
+        kind: StructureKind.Module,
+        name: objectType.name,
+        statements: moduleStatements,
+      });
+    }
+  }
+
+  private addImportDeclarations(
     objectTypes: readonly ObjectType[],
     sourceFile: SourceFile,
   ) {

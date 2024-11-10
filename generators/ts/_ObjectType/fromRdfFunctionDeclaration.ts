@@ -20,8 +20,10 @@ export function fromRdfFunctionDeclaration(
     );
   });
 
-  if (this.parentObjectTypes.length > 0) {
-    propertyInitializers.push("..._super");
+  for (const parentObjectType of this.parentObjectTypes) {
+    for (const property of parentObjectType.properties) {
+      propertyInitializers.push(`${property.name}: _super.${property.name}`);
+    }
   }
 
   for (const property of this.properties) {
@@ -40,7 +42,7 @@ export function fromRdfFunctionDeclaration(
 
   if (this.parentObjectTypes.length > 0) {
     statements = [
-      `return ${this.parentObjectTypes[0].moduleQualifiedName}.fromRdf(${resourceVariable}, { ${ignoreRdfTypeVariable}: true }).chain(_super => { ${statements.join("\n")} })`,
+      `return ${this.parentObjectTypes[0].name}.fromRdf(${resourceVariable}, { ${ignoreRdfTypeVariable}: true }).chain(_super => { ${statements.join("\n")} })`,
     ];
   }
 
@@ -59,7 +61,7 @@ export function fromRdfFunctionDeclaration(
         type: `{ ${ignoreRdfTypeVariable}?: boolean }`,
       },
     ],
-    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.interfaceQualifiedName}>`,
+    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>`,
     statements,
   };
 }

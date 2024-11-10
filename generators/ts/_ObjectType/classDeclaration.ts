@@ -55,7 +55,7 @@ function constructorDeclaration(
     })
     .join(", ")} }`;
   if (this.parentObjectTypes.length > 0) {
-    constructorParametersType = `${constructorParametersType} & ConstructorParameters<typeof ${this.parentObjectTypes[0].classQualifiedName}>[0]`;
+    constructorParametersType = `${constructorParametersType} & ConstructorParameters<typeof ${this.parentObjectTypes[0].name}>[0]`;
   }
 
   return {
@@ -96,13 +96,12 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
         : undefined,
     extends:
       this.parentObjectTypes.length > 0
-        ? this.parentObjectTypes[0].classQualifiedName
+        ? this.parentObjectTypes[0].name
         : undefined,
-    implements: [this.interfaceQualifiedName],
     kind: StructureKind.Class,
     isExported: true,
     methods,
-    name: this.classUnqualifiedName,
+    name: this.name,
     properties,
   };
 }
@@ -116,10 +115,10 @@ function equalsMethodDeclaration(
     parameters: [
       {
         name: "other",
-        type: this.interfaceQualifiedName,
+        type: this.name,
       },
     ],
-    statements: [`return ${this.moduleQualifiedName}.equals(this, other);`],
+    statements: [`return ${this.name}.equals(this, other);`],
     returnType: "purifyHelpers.Equatable.EqualsResult",
   };
 }
@@ -137,9 +136,9 @@ function fromRdfMethodDeclaration(
         type: this.rdfjsResourceType().name,
       },
     ],
-    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.classQualifiedName}>`,
+    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>`,
     statements: [
-      `return ${this.moduleQualifiedName}.fromRdf(resource).map(properties => new ${this.classQualifiedName}(properties));`,
+      `return ${this.name}.fromRdf(resource).map(properties => new ${this.name}(properties));`,
     ],
   };
 }
@@ -157,7 +156,7 @@ function hashMethodDeclaration(
       },
     ],
     returnType: "HasherT",
-    statements: [`return ${this.moduleQualifiedName}.hash(this, hasher);`],
+    statements: [`return ${this.name}.hash(this, hasher);`],
     typeParameters: [
       {
         name: "HasherT",
@@ -180,6 +179,6 @@ function toRdfMethodDeclaration(
       },
     ],
     returnType: this.rdfjsResourceType({ mutable: true }).name,
-    statements: [`return ${this.moduleQualifiedName}.toRdf(this, kwds);`],
+    statements: [`return ${this.name}.toRdf(this, kwds);`],
   };
 }

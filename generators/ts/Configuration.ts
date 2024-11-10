@@ -9,6 +9,7 @@ export class Configuration {
   readonly dataFactoryImport: string;
   readonly dataFactoryVariable: string;
   readonly features: Set<Feature>;
+  readonly objectTypeDeclarationType: "class" | "interface";
   readonly objectTypeDiscriminatorPropertyName: string;
   readonly objectTypeIdentifierPropertyName: string;
 
@@ -16,6 +17,7 @@ export class Configuration {
     dataFactoryImport?: string;
     dataFactoryVariable?: string;
     features?: Set<Feature>;
+    objectTypeDeclarationType?: "class" | "interface";
     objectTypeIdentifierPropertyName?: string;
     objectTypeDiscriminatorPropertyName?: string;
   }) {
@@ -30,6 +32,9 @@ export class Configuration {
     if (this.features.size === 0) {
       this.features = Configuration.Defaults.features;
     }
+    this.objectTypeDeclarationType =
+      parameters?.objectTypeDeclarationType ??
+      Configuration.Defaults.objectTypeDeclarationType;
     this.objectTypeIdentifierPropertyName =
       parameters?.objectTypeIdentifierPropertyName ??
       Configuration.Defaults.objectTypeIdentifierPropertyName;
@@ -51,6 +56,7 @@ export namespace Configuration {
       "toRdf",
       "sparql-graph-patterns",
     ]);
+    export const objectTypeDeclarationType = "class" as const;
     export const objectTypeDiscriminatorPropertyName = "type";
     export const objectTypeIdentifierPropertyName = "identifier";
   }

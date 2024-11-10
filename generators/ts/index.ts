@@ -1,2 +1,1 @@
-export * from "./ClassTsGenerator.js";
-export * from "./InterfaceTsGenerator.js";
+export * from "./TsGenerator.js";
