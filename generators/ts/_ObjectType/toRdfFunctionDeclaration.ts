@@ -14,12 +14,12 @@ export function toRdfFunctionDeclaration(
   this.ensureAtMostOneSuperObjectType();
 
   let usedIgnoreRdfTypeVariable = false;
-  const thisVariable = camelCase(this.astName);
+  const thisVariable = camelCase(this.name);
 
   const statements: string[] = [];
   if (this.parentObjectTypes.length > 0) {
     statements.push(
-      `const ${resourceVariable} = ${this.parentObjectTypes[0].moduleQualifiedName}.toRdf(${thisVariable}, { ${mutateGraphVariable}, ${ignoreRdfTypeVariable}: true, ${resourceSetVariable} });`,
+      `const ${resourceVariable} = ${this.parentObjectTypes[0].name}.toRdf(${thisVariable}, { ${mutateGraphVariable}, ${ignoreRdfTypeVariable}: true, ${resourceSetVariable} });`,
     );
     usedIgnoreRdfTypeVariable = true;
   } else if (this.identifierType.isNamedNodeKind) {
@@ -58,7 +58,7 @@ export function toRdfFunctionDeclaration(
     parameters: [
       {
         name: thisVariable,
-        type: this.interfaceQualifiedName,
+        type: this.name,
       },
       {
         name: `{ ${usedIgnoreRdfTypeVariable ? `${ignoreRdfTypeVariable},` : ""} ${mutateGraphVariable}, ${resourceSetVariable} }`,

@@ -59,7 +59,9 @@ export class TypeDiscriminatorProperty extends Property {
   }
 
   override fromRdfStatements(): readonly string[] {
-    return [`const ${this.name} = "${this.value}" as const`];
+    return this.configuration.objectTypeDeclarationType === "interface"
+      ? [`const ${this.name} = "${this.value}" as const`]
+      : [];
   }
 
   override hashStatements(): readonly string[] {

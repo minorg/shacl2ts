@@ -3,7 +3,6 @@ import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import { NodeKind } from "shacl-ast";
 import { MintingStrategy } from "../../ast";
-import type { ComposedType } from "./ComposedType";
 import type { RdfjsTermType } from "./RdfjsTermType.js";
 import { Type } from "./Type.js";
 
@@ -44,6 +43,10 @@ export class ListType extends Type {
     return [];
   }
 
+  override get name(): string {
+    return `readonly ${this.itemType.name}[]`;
+  }
+
   override equalsFunction(): string {
     return `(left, right) => purifyHelpers.Arrays.equals(left, right, ${this.itemType.equalsFunction()})`;
   }
@@ -62,10 +65,6 @@ export class ListType extends Type {
     return [
       `for (const _element of ${valueVariable}) { ${this.itemType.hashStatements({ hasherVariable, valueVariable: "_element" }).join("\n")} }`,
     ];
-  }
-
-  override name(kind: Parameters<ComposedType["name"]>[0]): string {
-    return `readonly ${this.itemType.name(kind)}[]`;
   }
 
   override sparqlGraphPatternExpression({

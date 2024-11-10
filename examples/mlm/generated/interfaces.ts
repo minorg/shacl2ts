@@ -3,114 +3,25 @@ import type * as rdfjs from "@rdfjs/types";
 import { DataFactory as dataFactory } from "n3";
 import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
+// @ts-ignore
 import * as rdfLiteral from "rdf-literal";
 import * as rdfjsResource from "rdfjs-resource";
-export type MachineLearningModel = MachineLearningModel.Class;
+
+export interface MachineLearningModel {
+  readonly description: purify.Maybe<rdfjs.Literal>;
+  readonly identifier: rdfjs.NamedNode;
+  readonly isVariantOf: MachineLearningModelFamily;
+  readonly localIdentifier: string;
+  readonly name: rdfjs.Literal;
+  readonly trainingDataCutoff: purify.Maybe<string>;
+  readonly type: "LanguageModel" | "MachineLearningModel";
+  readonly url: purify.Maybe<string>;
+}
 
 export namespace MachineLearningModel {
-  export interface Interface {
-    readonly description: purify.Maybe<rdfjs.Literal>;
-    readonly identifier: rdfjs.NamedNode;
-    readonly isVariantOf: MachineLearningModelFamily.Interface;
-    readonly localIdentifier: string;
-    readonly name: rdfjs.Literal;
-    readonly trainingDataCutoff: purify.Maybe<string>;
-    readonly type: "LanguageModel" | "MachineLearningModel";
-    readonly url: purify.Maybe<string>;
-  }
-
-  export class Class implements MachineLearningModel.Interface {
-    readonly description: purify.Maybe<rdfjs.Literal>;
-    readonly identifier: rdfjs.NamedNode;
-    readonly isVariantOf: MachineLearningModelFamily.Class;
-    readonly localIdentifier: string;
-    readonly name: rdfjs.Literal;
-    readonly trainingDataCutoff: purify.Maybe<string>;
-    readonly type: "LanguageModel" | "MachineLearningModel" =
-      "MachineLearningModel";
-    readonly url: purify.Maybe<string>;
-
-    constructor(parameters: {
-      readonly description?:
-        | Date
-        | boolean
-        | number
-        | purify.Maybe<rdfjs.Literal | boolean | Date | number | string>
-        | rdfjs.Literal
-        | string;
-      readonly identifier: rdfjs.NamedNode;
-      readonly isVariantOf: MachineLearningModelFamily.Interface;
-      readonly localIdentifier: string;
-      readonly name: Date | boolean | number | rdfjs.Literal | string;
-      readonly trainingDataCutoff?: purify.Maybe<string> | string;
-      readonly url?: purify.Maybe<string> | string;
-    }) {
-      this.description = (
-        purify.Maybe.isMaybe(parameters.description)
-          ? parameters.description
-          : purify.Maybe.fromNullable(parameters.description)
-      ).map((value) =>
-        typeof value === "object" && !(value instanceof Date)
-          ? value
-          : rdfLiteral.toRdf(value, dataFactory),
-      );
-      this.identifier = parameters.identifier;
-      this.isVariantOf =
-        parameters.isVariantOf instanceof MachineLearningModelFamily.Class
-          ? parameters.isVariantOf
-          : new MachineLearningModelFamily.Class(parameters.isVariantOf);
-      this.localIdentifier = parameters.localIdentifier;
-      this.name =
-        typeof parameters.name === "object" &&
-        !(parameters.name instanceof Date)
-          ? parameters.name
-          : rdfLiteral.toRdf(parameters.name, dataFactory);
-      this.trainingDataCutoff = purify.Maybe.isMaybe(
-        parameters.trainingDataCutoff,
-      )
-        ? parameters.trainingDataCutoff
-        : purify.Maybe.fromNullable(parameters.trainingDataCutoff);
-      this.url = purify.Maybe.isMaybe(parameters.url)
-        ? parameters.url
-        : purify.Maybe.fromNullable(parameters.url);
-    }
-
-    static fromRdf(
-      resource: rdfjsResource.Resource<rdfjs.NamedNode>,
-    ): purify.Either<
-      rdfjsResource.Resource.ValueError,
-      MachineLearningModel.Class
-    > {
-      return MachineLearningModel.fromRdf(resource).map(
-        (properties) => new MachineLearningModel.Class(properties),
-      );
-    }
-
-    equals(
-      other: MachineLearningModel.Interface,
-    ): purifyHelpers.Equatable.EqualsResult {
-      return MachineLearningModel.equals(this, other);
-    }
-
-    hash<
-      HasherT extends {
-        update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-      },
-    >(hasher: HasherT): HasherT {
-      return MachineLearningModel.hash(this, hasher);
-    }
-
-    toRdf(kwds: {
-      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-      resourceSet: rdfjsResource.MutableResourceSet;
-    }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
-      return MachineLearningModel.toRdf(this, kwds);
-    }
-  }
-
   export function equals(
-    left: MachineLearningModel.Interface,
-    right: MachineLearningModel.Interface,
+    left: MachineLearningModel,
+    right: MachineLearningModel,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       description: (left, right) =>
@@ -132,10 +43,7 @@ export namespace MachineLearningModel {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<
-    rdfjsResource.Resource.ValueError,
-    MachineLearningModel.Interface
-  > {
+  ): purify.Either<rdfjsResource.Resource.ValueError, MachineLearningModel> {
     if (
       !_options?.ignoreRdfType &&
       !resource.isInstanceOf(
@@ -213,15 +121,14 @@ export namespace MachineLearningModel {
     });
   }
 
-  export function hash<
+  export function hashMachineLearningModel<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    machineLearningModel: Omit<
-      MachineLearningModel.Interface,
-      "identifier" | "type"
-    > & { identifier?: rdfjs.NamedNode },
+    machineLearningModel: Omit<MachineLearningModel, "identifier" | "type"> & {
+      identifier?: rdfjs.NamedNode;
+    },
     hasher: HasherT,
   ): HasherT {
     machineLearningModel.description.ifJust((_description) => {
@@ -235,7 +142,10 @@ export namespace MachineLearningModel {
       );
     }
 
-    MachineLearningModelFamily.hash(machineLearningModel.isVariantOf, hasher);
+    MachineLearningModelFamily.hashMachineLearningModelFamily(
+      machineLearningModel.isVariantOf,
+      hasher,
+    );
     hasher.update(machineLearningModel.localIdentifier);
     hasher.update(machineLearningModel.name.value);
     machineLearningModel.trainingDataCutoff.ifJust((_trainingDataCutoff) => {
@@ -323,7 +233,7 @@ export namespace MachineLearningModel {
   }
 
   export function toRdf(
-    machineLearningModel: MachineLearningModel.Interface,
+    machineLearningModel: MachineLearningModel,
     {
       ignoreRdfType,
       mutateGraph,
@@ -386,69 +296,17 @@ export namespace MachineLearningModel {
     return resource;
   }
 }
-export type LanguageModel = LanguageModel.Class;
+
+export interface LanguageModel extends MachineLearningModel {
+  readonly contextWindow: number;
+  readonly maxTokenOutput: purify.Maybe<number>;
+  readonly type: "LanguageModel";
+}
 
 export namespace LanguageModel {
-  export interface Interface extends MachineLearningModel.Interface {
-    readonly contextWindow: number;
-    readonly maxTokenOutput: purify.Maybe<number>;
-    readonly type: "LanguageModel";
-  }
-
-  export class Class
-    extends MachineLearningModel.Class
-    implements LanguageModel.Interface
-  {
-    readonly contextWindow: number;
-    readonly maxTokenOutput: purify.Maybe<number>;
-    override readonly type = "LanguageModel" as const;
-
-    constructor(
-      parameters: {
-        readonly contextWindow: number;
-        readonly maxTokenOutput?: number | purify.Maybe<number>;
-      } & ConstructorParameters<typeof MachineLearningModel.Class>[0],
-    ) {
-      super(parameters);
-      this.contextWindow = parameters.contextWindow;
-      this.maxTokenOutput = purify.Maybe.isMaybe(parameters.maxTokenOutput)
-        ? parameters.maxTokenOutput
-        : purify.Maybe.fromNullable(parameters.maxTokenOutput);
-    }
-
-    static override fromRdf(
-      resource: rdfjsResource.Resource<rdfjs.NamedNode>,
-    ): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel.Class> {
-      return LanguageModel.fromRdf(resource).map(
-        (properties) => new LanguageModel.Class(properties),
-      );
-    }
-
-    override equals(
-      other: LanguageModel.Interface,
-    ): purifyHelpers.Equatable.EqualsResult {
-      return LanguageModel.equals(this, other);
-    }
-
-    override hash<
-      HasherT extends {
-        update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-      },
-    >(hasher: HasherT): HasherT {
-      return LanguageModel.hash(this, hasher);
-    }
-
-    override toRdf(kwds: {
-      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-      resourceSet: rdfjsResource.MutableResourceSet;
-    }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
-      return LanguageModel.toRdf(this, kwds);
-    }
-  }
-
   export function equals(
-    left: LanguageModel.Interface,
-    right: LanguageModel.Interface,
+    left: LanguageModel,
+    right: LanguageModel,
   ): purifyHelpers.Equatable.EqualsResult {
     return MachineLearningModel.equals(left, right).chain(() =>
       purifyHelpers.Equatable.objectEquals(left, right, {
@@ -462,7 +320,7 @@ export namespace LanguageModel {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel.Interface> {
+  ): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel> {
     return MachineLearningModel.fromRdf(resource, {
       ignoreRdfType: true,
     }).chain((_super) => {
@@ -505,7 +363,13 @@ export namespace LanguageModel {
         .toMaybe();
       const type = "LanguageModel" as const;
       return purify.Either.of({
-        ..._super,
+        description: _super.description,
+        identifier: _super.identifier,
+        isVariantOf: _super.isVariantOf,
+        localIdentifier: _super.localIdentifier,
+        name: _super.name,
+        trainingDataCutoff: _super.trainingDataCutoff,
+        url: _super.url,
         contextWindow,
         maxTokenOutput,
         type,
@@ -513,17 +377,17 @@ export namespace LanguageModel {
     });
   }
 
-  export function hash<
+  export function hashLanguageModel<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    languageModel: Omit<LanguageModel.Interface, "identifier" | "type"> & {
+    languageModel: Omit<LanguageModel, "identifier" | "type"> & {
       identifier?: rdfjs.NamedNode;
     },
     hasher: HasherT,
   ): HasherT {
-    MachineLearningModel.hash(languageModel, hasher);
+    MachineLearningModel.hashMachineLearningModel(languageModel, hasher);
     hasher.update(languageModel.contextWindow.toString());
     languageModel.maxTokenOutput.ifJust((_maxTokenOutput) => {
       hasher.update(_maxTokenOutput.toString());
@@ -572,7 +436,7 @@ export namespace LanguageModel {
   }
 
   export function toRdf(
-    languageModel: LanguageModel.Interface,
+    languageModel: LanguageModel,
     {
       ignoreRdfType,
       mutateGraph,
@@ -616,99 +480,20 @@ export namespace LanguageModel {
     return resource;
   }
 }
-export type MachineLearningModelFamily = MachineLearningModelFamily.Class;
+
+export interface MachineLearningModelFamily {
+  readonly description: purify.Maybe<rdfjs.Literal>;
+  readonly identifier: rdfjs.NamedNode;
+  readonly manufacturer: Organization;
+  readonly name: rdfjs.Literal;
+  readonly type: "MachineLearningModelFamily";
+  readonly url: purify.Maybe<string>;
+}
 
 export namespace MachineLearningModelFamily {
-  export interface Interface {
-    readonly description: purify.Maybe<rdfjs.Literal>;
-    readonly identifier: rdfjs.NamedNode;
-    readonly manufacturer: Organization.Interface;
-    readonly name: rdfjs.Literal;
-    readonly type: "MachineLearningModelFamily";
-    readonly url: purify.Maybe<string>;
-  }
-
-  export class Class implements MachineLearningModelFamily.Interface {
-    readonly description: purify.Maybe<rdfjs.Literal>;
-    readonly identifier: rdfjs.NamedNode;
-    readonly manufacturer: Organization.Class;
-    readonly name: rdfjs.Literal;
-    readonly type = "MachineLearningModelFamily" as const;
-    readonly url: purify.Maybe<string>;
-
-    constructor(parameters: {
-      readonly description?:
-        | Date
-        | boolean
-        | number
-        | purify.Maybe<rdfjs.Literal | boolean | Date | number | string>
-        | rdfjs.Literal
-        | string;
-      readonly identifier: rdfjs.NamedNode;
-      readonly manufacturer: Organization.Interface;
-      readonly name: Date | boolean | number | rdfjs.Literal | string;
-      readonly url?: purify.Maybe<string> | string;
-    }) {
-      this.description = (
-        purify.Maybe.isMaybe(parameters.description)
-          ? parameters.description
-          : purify.Maybe.fromNullable(parameters.description)
-      ).map((value) =>
-        typeof value === "object" && !(value instanceof Date)
-          ? value
-          : rdfLiteral.toRdf(value, dataFactory),
-      );
-      this.identifier = parameters.identifier;
-      this.manufacturer =
-        parameters.manufacturer instanceof Organization.Class
-          ? parameters.manufacturer
-          : new Organization.Class(parameters.manufacturer);
-      this.name =
-        typeof parameters.name === "object" &&
-        !(parameters.name instanceof Date)
-          ? parameters.name
-          : rdfLiteral.toRdf(parameters.name, dataFactory);
-      this.url = purify.Maybe.isMaybe(parameters.url)
-        ? parameters.url
-        : purify.Maybe.fromNullable(parameters.url);
-    }
-
-    static fromRdf(
-      resource: rdfjsResource.Resource<rdfjs.NamedNode>,
-    ): purify.Either<
-      rdfjsResource.Resource.ValueError,
-      MachineLearningModelFamily.Class
-    > {
-      return MachineLearningModelFamily.fromRdf(resource).map(
-        (properties) => new MachineLearningModelFamily.Class(properties),
-      );
-    }
-
-    equals(
-      other: MachineLearningModelFamily.Interface,
-    ): purifyHelpers.Equatable.EqualsResult {
-      return MachineLearningModelFamily.equals(this, other);
-    }
-
-    hash<
-      HasherT extends {
-        update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-      },
-    >(hasher: HasherT): HasherT {
-      return MachineLearningModelFamily.hash(this, hasher);
-    }
-
-    toRdf(kwds: {
-      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-      resourceSet: rdfjsResource.MutableResourceSet;
-    }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
-      return MachineLearningModelFamily.toRdf(this, kwds);
-    }
-  }
-
   export function equals(
-    left: MachineLearningModelFamily.Interface,
-    right: MachineLearningModelFamily.Interface,
+    left: MachineLearningModelFamily,
+    right: MachineLearningModelFamily,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       description: (left, right) =>
@@ -730,7 +515,7 @@ export namespace MachineLearningModelFamily {
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
-    MachineLearningModelFamily.Interface
+    MachineLearningModelFamily
   > {
     if (
       !_options?.ignoreRdfType &&
@@ -791,13 +576,13 @@ export namespace MachineLearningModelFamily {
     });
   }
 
-  export function hash<
+  export function hashMachineLearningModelFamily<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
     machineLearningModelFamily: Omit<
-      MachineLearningModelFamily.Interface,
+      MachineLearningModelFamily,
       "identifier" | "type"
     > & { identifier?: rdfjs.NamedNode },
     hasher: HasherT,
@@ -813,7 +598,10 @@ export namespace MachineLearningModelFamily {
       );
     }
 
-    Organization.hash(machineLearningModelFamily.manufacturer, hasher);
+    Organization.hashOrganization(
+      machineLearningModelFamily.manufacturer,
+      hasher,
+    );
     hasher.update(machineLearningModelFamily.name.value);
     machineLearningModelFamily.url.ifJust((_url) => {
       hasher.update(_url);
@@ -879,7 +667,7 @@ export namespace MachineLearningModelFamily {
   }
 
   export function toRdf(
-    machineLearningModelFamily: MachineLearningModelFamily.Interface,
+    machineLearningModelFamily: MachineLearningModelFamily,
     {
       ignoreRdfType,
       mutateGraph,
@@ -929,60 +717,16 @@ export namespace MachineLearningModelFamily {
   }
 }
 
-export class Class implements Organization.Interface {
+export interface Organization {
   readonly identifier: rdfjs.NamedNode;
   readonly name: rdfjs.Literal;
-  readonly type = "Organization" as const;
-
-  constructor(parameters: {
-    readonly identifier: rdfjs.NamedNode;
-    readonly name: Date | boolean | number | rdfjs.Literal | string;
-  }) {
-    this.identifier = parameters.identifier;
-    this.name =
-      typeof parameters.name === "object" && !(parameters.name instanceof Date)
-        ? parameters.name
-        : rdfLiteral.toRdf(parameters.name, dataFactory);
-  }
-
-  static fromRdf(
-    resource: rdfjsResource.Resource<rdfjs.NamedNode>,
-  ): purify.Either<rdfjsResource.Resource.ValueError, Organization.Class> {
-    return Organization.fromRdf(resource).map(
-      (properties) => new Organization.Class(properties),
-    );
-  }
-
-  equals(other: Organization.Interface): purifyHelpers.Equatable.EqualsResult {
-    return Organization.equals(this, other);
-  }
-
-  hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(hasher: HasherT): HasherT {
-    return Organization.hash(this, hasher);
-  }
-
-  toRdf(kwds: {
-    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-    resourceSet: rdfjsResource.MutableResourceSet;
-  }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
-    return Organization.toRdf(this, kwds);
-  }
+  readonly type: "Organization";
 }
 
 export namespace Organization {
-  export interface Interface {
-    readonly identifier: rdfjs.NamedNode;
-    readonly name: rdfjs.Literal;
-    readonly type: "Organization";
-  }
-
   export function equals(
-    left: Organization.Interface,
-    right: Organization.Interface,
+    left: Organization,
+    right: Organization,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
@@ -994,7 +738,7 @@ export namespace Organization {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, Organization.Interface> {
+  ): purify.Either<rdfjsResource.Resource.ValueError, Organization> {
     if (
       !_options?.ignoreRdfType &&
       !resource.isInstanceOf(
@@ -1027,12 +771,12 @@ export namespace Organization {
     return purify.Either.of({ identifier, name, type });
   }
 
-  export function hash<
+  export function hashOrganization<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    organization: Omit<Organization.Interface, "identifier" | "type"> & {
+    organization: Omit<Organization, "identifier" | "type"> & {
       identifier?: rdfjs.NamedNode;
     },
     hasher: HasherT,
@@ -1075,7 +819,7 @@ export namespace Organization {
   }
 
   export function toRdf(
-    organization: Organization.Interface,
+    organization: Organization,
     {
       ignoreRdfType,
       mutateGraph,

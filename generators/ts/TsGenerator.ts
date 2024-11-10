@@ -1,4 +1,9 @@
-import { Project, type SourceFile } from "ts-morph";
+import {
+  Project,
+  type SourceFile,
+  type StatementStructures,
+  StructureKind,
+} from "ts-morph";
 import type * as ast from "../../ast";
 import { Configuration } from "./Configuration.js";
 import type { ObjectType } from "./ObjectType.js";
@@ -6,7 +11,7 @@ import { TypeFactory } from "./TypeFactory.js";
 import { tsName } from "./tsName.js";
 
 export class TsGenerator {
-  private readonly configuration: Configuration;
+  protected readonly configuration: Configuration;
 
   constructor(
     private ast: ast.Ast,
@@ -45,17 +50,75 @@ export class TsGenerator {
 
     const typeFactory = new TypeFactory({ configuration: this.configuration });
 
-    this.generateSourceFile(
-      astObjectTypes.flatMap((astObjectType) => {
-        const type = typeFactory.createTypeFromAstType(astObjectType);
-        return type.kind === "Object" ? [type as ObjectType] : [];
-      }),
-      sourceFile,
-    );
+    const objectTypes = astObjectTypes.flatMap((astObjectType) => {
+      const type = typeFactory.createTypeFromAstType(astObjectType);
+      return type.kind === "Object" ? [type as ObjectType] : [];
+    });
+
+    this.addDeclarations(objectTypes, sourceFile);
 
     sourceFile.saveSync();
 
     return project.getFileSystem().readFileSync(sourceFile.getFilePath());
+  }
+
+  private addDeclarations(
+    objectTypes: readonly ObjectType[],
+    sourceFile: SourceFile,
+  ): void {
+    this.addImportDeclarations(objectTypes, sourceFile);
+
+    for (const objectType of objectTypes) {
+      switch (this.configuration.objectTypeDeclarationType) {
+        case "class":
+          sourceFile.addClass(objectType.classDeclaration());
+          break;
+        case "interface":
+          sourceFile.addInterface(objectType.interfaceDeclaration());
+          break;
+      }
+
+      const moduleStatements: StatementStructures[] = [];
+
+      if (
+        this.configuration.features.has("equals") &&
+        this.configuration.objectTypeDeclarationType === "interface"
+      ) {
+        moduleStatements.push(objectType.equalsFunctionDeclaration());
+      }
+
+      if (this.configuration.features.has("fromRdf")) {
+        moduleStatements.push(objectType.fromRdfFunctionDeclaration());
+      }
+
+      if (this.configuration.features.has("hash")) {
+        moduleStatements.push(objectType.hashFunctionDeclaration());
+      }
+
+      if (this.configuration.features.has("sparql-graph-patterns")) {
+        if (objectType.parentObjectTypes.length > 1) {
+          throw new RangeError(
+            `object type '${objectType.name}' has multiple super object types, can't use with SPARQL graph patterns`,
+          );
+        }
+
+        moduleStatements.push(objectType.sparqlGraphPatternsClassDeclaration());
+      }
+
+      if (
+        this.configuration.features.has("toRdf") &&
+        this.configuration.objectTypeDeclarationType === "interface"
+      ) {
+        moduleStatements.push(objectType.toRdfFunctionDeclaration());
+      }
+
+      sourceFile.addModule({
+        isExported: true,
+        kind: StructureKind.Module,
+        name: objectType.name,
+        statements: moduleStatements,
+      });
+    }
   }
 
   private addImportDeclarations(
@@ -106,25 +169,5 @@ export class TsGenerator {
       }
     }
     sourceFile.addStatements([...typeImportStatements]);
-  }
-
-  private generateSourceFile(
-    objectTypes: readonly ObjectType[],
-    sourceFile: SourceFile,
-  ) {
-    this.addImportDeclarations(objectTypes, sourceFile);
-
-    for (const objectType of objectTypes) {
-      // If there are classes the unqualified object type name is a class
-      // Otherwise it's an interface
-
-      if (this.configuration.features.has("class")) {
-        sourceFile.addClass(objectType.classDeclaration());
-      } else {
-        sourceFile.addInterface(objectType.interfaceDeclaration());
-      }
-
-      sourceFile.addModule(objectType.moduleDeclaration());
-    }
   }
 }

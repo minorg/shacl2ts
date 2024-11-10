@@ -102,7 +102,6 @@ export class TypeFactory {
     });
 
     const objectType = new ObjectType({
-      astName: tsName(astType.name),
       configuration: this.configuration,
       identifierType,
       lazyAncestorObjectTypes: () =>
@@ -161,6 +160,7 @@ export class TypeFactory {
         return properties;
       },
       mintingStrategy: astType.mintingStrategy,
+      name: tsName(astType.name),
       rdfType: astType.rdfType,
     });
     this.cachedObjectTypesByIdentifier.set(astType.name.identifier, objectType);

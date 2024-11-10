@@ -1,3 +1,4 @@
+import { rdf } from "@tpluscode/rdf-ns-builders";
 import {
   type ClassDeclarationStructure,
   type ConstructorDeclarationStructure,
@@ -55,7 +56,7 @@ function constructorDeclaration(
     })
     .join(", ")} }`;
   if (this.parentObjectTypes.length > 0) {
-    constructorParametersType = `${constructorParametersType} & ConstructorParameters<typeof ${this.parentObjectTypes[0].classQualifiedName}>[0]`;
+    constructorParametersType = `${constructorParametersType} & ConstructorParameters<typeof ${this.parentObjectTypes[0].name}>[0]`;
   }
 
   return {
@@ -76,9 +77,6 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
   if (this.configuration.features.has("equals")) {
     methods.push(equalsMethodDeclaration.bind(this)());
   }
-  if (this.configuration.features.has("fromRdf")) {
-    methods.push(fromRdfMethodDeclaration.bind(this)());
-  }
   if (this.configuration.features.has("hash")) {
     methods.push(hashMethodDeclaration.bind(this)());
   }
@@ -96,13 +94,12 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
         : undefined,
     extends:
       this.parentObjectTypes.length > 0
-        ? this.parentObjectTypes[0].classQualifiedName
+        ? this.parentObjectTypes[0].name
         : undefined,
-    implements: [this.interfaceQualifiedName],
     kind: StructureKind.Class,
     isExported: true,
     methods,
-    name: this.classUnqualifiedName,
+    name: this.name,
     properties,
   };
 }
@@ -110,37 +107,24 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
 function equalsMethodDeclaration(
   this: ObjectType,
 ): OptionalKind<MethodDeclarationStructure> {
+  let expression = `purifyHelpers.Equatable.objectEquals(this, other, { ${this.properties
+    .map((property) => `${property.name}: ${property.equalsFunction}`)
+    .join()} })`;
+  if (this.parentObjectTypes.length > 0) {
+    expression = `super.equals(other).chain(() => ${expression})`;
+  }
+
   return {
     hasOverrideKeyword: this.parentObjectTypes.length > 0,
     name: "equals",
     parameters: [
       {
         name: "other",
-        type: this.interfaceQualifiedName,
+        type: this.name,
       },
     ],
-    statements: [`return ${this.moduleQualifiedName}.equals(this, other);`],
+    statements: [`return ${expression};`],
     returnType: "purifyHelpers.Equatable.EqualsResult",
-  };
-}
-
-function fromRdfMethodDeclaration(
-  this: ObjectType,
-): OptionalKind<MethodDeclarationStructure> {
-  return {
-    hasOverrideKeyword: this.parentObjectTypes.length > 0,
-    isStatic: true,
-    name: "fromRdf",
-    parameters: [
-      {
-        name: "resource",
-        type: this.rdfjsResourceType().name,
-      },
-    ],
-    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.classQualifiedName}>`,
-    statements: [
-      `return ${this.moduleQualifiedName}.fromRdf(resource).map(properties => new ${this.classQualifiedName}(properties));`,
-    ],
   };
 }
 
@@ -157,7 +141,7 @@ function hashMethodDeclaration(
       },
     ],
     returnType: "HasherT",
-    statements: [`return ${this.moduleQualifiedName}.hash(this, hasher);`],
+    statements: [`return ${this.name}.hash${this.name}(this, hasher);`],
     typeParameters: [
       {
         name: "HasherT",
@@ -170,16 +154,58 @@ function hashMethodDeclaration(
 function toRdfMethodDeclaration(
   this: ObjectType,
 ): OptionalKind<MethodDeclarationStructure> {
+  const ignoreRdfTypeVariable = "ignoreRdfType";
+  const mutateGraphVariable = "mutateGraph";
+  const resourceVariable = "resource";
+  const resourceSetVariable = "resourceSet";
+
+  let usedIgnoreRdfTypeVariable = false;
+
+  const statements: string[] = [];
+  if (this.parentObjectTypes.length > 0) {
+    statements.push(
+      `const ${resourceVariable} = super.toRdf({ ${mutateGraphVariable}, ${ignoreRdfTypeVariable}: true, ${resourceSetVariable} });`,
+    );
+    usedIgnoreRdfTypeVariable = true;
+  } else if (this.identifierType.isNamedNodeKind) {
+    statements.push(
+      `const ${resourceVariable} = ${resourceSetVariable}.mutableNamedResource({ identifier: this.${this.configuration.objectTypeIdentifierPropertyName}, ${mutateGraphVariable} });`,
+    );
+  } else {
+    statements.push(
+      `const ${resourceVariable} = ${resourceSetVariable}.mutableResource({ identifier: this.${this.configuration.objectTypeIdentifierPropertyName}, ${mutateGraphVariable} });`,
+    );
+  }
+
+  this.rdfType.ifJust((rdfType) => {
+    statements.push(
+      `if (!${ignoreRdfTypeVariable}) { ${resourceVariable}.add(${resourceVariable}.dataFactory.namedNode("${rdf.type.value}"), ${resourceVariable}.dataFactory.namedNode("${rdfType.value}")); }`,
+    );
+    usedIgnoreRdfTypeVariable = true;
+  });
+
+  for (const property of this.properties) {
+    statements.push(
+      ...property.toRdfStatements({
+        mutateGraphVariable,
+        valueVariable: `this.${property.name}`,
+        resourceSetVariable,
+      }),
+    );
+  }
+
+  statements.push(`return ${resourceVariable};`);
+
   return {
     hasOverrideKeyword: this.parentObjectTypes.length > 0,
     name: "toRdf",
     parameters: [
       {
-        name: "kwds",
-        type: "{ mutateGraph: rdfjsResource.MutableResource.MutateGraph, resourceSet: rdfjsResource.MutableResourceSet }",
+        name: `{ ${usedIgnoreRdfTypeVariable ? `${ignoreRdfTypeVariable},` : ""} ${mutateGraphVariable}, ${resourceSetVariable} }`,
+        type: `{ ${ignoreRdfTypeVariable}?: boolean; ${mutateGraphVariable}: rdfjsResource.MutableResource.MutateGraph, ${resourceSetVariable}: rdfjsResource.MutableResourceSet }`,
       },
     ],
     returnType: this.rdfjsResourceType({ mutable: true }).name,
-    statements: [`return ${this.moduleQualifiedName}.toRdf(this, kwds);`],
+    statements,
   };
 }

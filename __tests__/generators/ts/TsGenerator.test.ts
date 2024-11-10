@@ -10,24 +10,26 @@ import {
   type Resource,
 } from "rdfjs-resource";
 import { type ExpectStatic, beforeAll, describe, it } from "vitest";
-import * as mlm from "../../../examples/mlm/generated/generated.js";
-import * as skos from "../../../examples/skos/generated/generated.js";
+import * as mlmClasses from "../../../examples/mlm/generated/classes.js";
+import * as mlmInterfaces from "../../../examples/mlm/generated/interfaces.js";
+import * as skosClasses from "../../../examples/skos/generated/classes.js";
+import * as skosInterfaces from "../../../examples/skos/generated/interfaces.js";
 
 describe("TsGenerator", () => {
-  let mlmLanguageModel: mlm.LanguageModel.Class;
-  let mlmOrganization: mlm.Organization.Class;
-  let skosOrderedCollection: skos.OrderedCollection.Class;
+  let mlmLanguageModel: mlmClasses.LanguageModel;
+  let mlmOrganization: mlmClasses.Organization;
+  let skosOrderedCollection: skosClasses.OrderedCollection;
 
   beforeAll(() => {
-    mlmOrganization = new mlm.Organization({
+    mlmOrganization = new mlmClasses.Organization({
       identifier: dataFactory.namedNode("http://example.com/organization"),
       name: dataFactory.literal("Test organization"),
     });
 
-    mlmLanguageModel = new mlm.LanguageModel.Class({
+    mlmLanguageModel = new mlmClasses.LanguageModel({
       contextWindow: 1,
       identifier: dataFactory.namedNode("http://example.com/mlm"),
-      isVariantOf: new mlm.MachineLearningModelFamily.Class({
+      isVariantOf: new mlmClasses.MachineLearningModelFamily({
         description: dataFactory.literal("Family description"),
         identifier: dataFactory.namedNode("http://example.com/family"),
         manufacturer: mlmOrganization,
@@ -41,7 +43,7 @@ describe("TsGenerator", () => {
       url: "http://example.com/mlm",
     });
 
-    skosOrderedCollection = new skos.OrderedCollection.Class({
+    skosOrderedCollection = new skosClasses.OrderedCollection({
       identifier: dataFactory.namedNode("http://example.com/collection"),
       memberList: [
         dataFactory.namedNode("http://example.com/collection/member1"),
@@ -51,30 +53,35 @@ describe("TsGenerator", () => {
   });
 
   it("should generate valid TypeScript interfaces", ({ expect }) => {
-    const languageModel: mlm.LanguageModel = new mlm.LanguageModel.Class({
+    const languageModel: mlmInterfaces.LanguageModel = {
       contextWindow: 1,
       description: Maybe.of(dataFactory.literal("Test description")),
       identifier: dataFactory.namedNode("http://example.com/mlm"),
-      isVariantOf: new mlm.MachineLearningModelFamily.Class({
+      isVariantOf: {
         description: Maybe.of(dataFactory.literal("Family description")),
         identifier: dataFactory.namedNode("http://example.com/family"),
-        manufacturer: new mlm.Organization.Class({
+        manufacturer: {
           identifier: dataFactory.namedNode("http://examhple.com/organization"),
           name: dataFactory.literal("name"),
-        }),
+          type: "Organization",
+        },
         name: dataFactory.literal("name"),
+        type: "MachineLearningModelFamily",
         url: Maybe.of("http://example.com/family"),
-      }),
+      },
       localIdentifier: "testidentifier",
       maxTokenOutput: Maybe.of(1),
       name: dataFactory.literal("Test name"),
       trainingDataCutoff: Maybe.of("cutoff"),
+      type: "LanguageModel",
       url: Maybe.of("http://example.com/mlm"),
-    });
+    };
     expect(languageModel.name.value).toStrictEqual("Test name");
   });
 
-  it("should construct a class instance from parameters", ({ expect }) => {
+  it("should construct a class instance from convertible parameters", ({
+    expect,
+  }) => {
     expect(mlmLanguageModel.description.isNothing()).toStrictEqual(true);
     expect(
       mlmLanguageModel.isVariantOf.description.extractNullable()?.value,
@@ -82,10 +89,21 @@ describe("TsGenerator", () => {
     expect(mlmLanguageModel.name.value).toStrictEqual("Test name");
   });
 
-  it("equals should return true with two equal objects", ({ expect }) => {
+  it("class equals should return true with two equal objects", ({ expect }) => {
     expect(mlmOrganization.equals(mlmOrganization).extract()).toStrictEqual(
       true,
     );
+  });
+
+  it("interface function equals should return true with two equal objects", ({
+    expect,
+  }) => {
+    expect(
+      mlmInterfaces.Organization.equals(
+        mlmOrganization,
+        mlmOrganization,
+      ).extract(),
+    ).toStrictEqual(true);
   });
 
   it("equals should return an Unequals with two unequal objects", ({
@@ -94,7 +112,7 @@ describe("TsGenerator", () => {
     expect(
       mlmOrganization
         .equals(
-          new mlm.Organization.Class({
+          new mlmClasses.Organization({
             identifier: dataFactory.namedNode("http://example.com/other"),
             name: dataFactory.literal("Other"),
           }),
@@ -136,7 +154,7 @@ describe("TsGenerator", () => {
     testFromRdf({
       expect,
       model: mlmLanguageModel,
-      modelFromRdf: mlm.LanguageModel.Class.fromRdf,
+      modelFromRdf: mlmClasses.LanguageModel.fromRdf,
     });
   });
 
@@ -144,7 +162,7 @@ describe("TsGenerator", () => {
     testFromRdf({
       expect,
       model: mlmOrganization,
-      modelFromRdf: mlm.Organization.Class.fromRdf,
+      modelFromRdf: mlmClasses.Organization.fromRdf,
     });
   });
 
@@ -160,7 +178,7 @@ describe("TsGenerator", () => {
     );
   });
 
-  it("toRdf should populate a dataset", ({ expect }) => {
+  it("class toRdf should populate a dataset", ({ expect }) => {
     const dataset = new N3.Store();
     const resourceSet = new MutableResourceSet({ dataFactory, dataset });
     const resource = mlmOrganization.toRdf({
@@ -192,7 +210,7 @@ describe("TsGenerator", () => {
     ).toStrictEqual("Test organization");
   });
 
-  it("toRdf should produce serializable RDF", ({ expect }) => {
+  it("class toRdf should produce serializable RDF", ({ expect }) => {
     const dataset = new N3.Store();
     mlmLanguageModel.toRdf({
       mutateGraph: dataFactory.defaultGraph(),
@@ -204,7 +222,7 @@ describe("TsGenerator", () => {
     expect(ttl).not.toHaveLength(0);
   });
 
-  it("toRdf should serialize and deserialize a list", ({ expect }) => {
+  it("class toRdf should serialize and deserialize a list", ({ expect }) => {
     const dataset = new N3.Store();
     const skosOrderedCollectionResource = skosOrderedCollection.toRdf({
       mutateGraph: dataFactory.defaultGraph(),
@@ -215,11 +233,12 @@ describe("TsGenerator", () => {
     ]);
     expect(ttl).not.toHaveLength(0);
 
-    const skosOrderedCollectionFromRdf = skos.OrderedCollection.fromRdf(
-      skosOrderedCollectionResource,
-    ).unsafeCoerce();
+    const skosOrderedCollectionFromRdf =
+      skosInterfaces.OrderedCollection.fromRdf(
+        skosOrderedCollectionResource,
+      ).unsafeCoerce();
     expect(
-      skos.OrderedCollection.equals(
+      skosInterfaces.OrderedCollection.equals(
         skosOrderedCollectionFromRdf,
         skosOrderedCollection,
       ).extract(),

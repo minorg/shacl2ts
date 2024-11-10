@@ -8,8 +8,7 @@
           "termType": "NamedNode",
           "value": "http://purl.annotize.ai/ontology/mlm#LanguageModel"
         },
-        "shName": "LanguageModel",
-        "tsName": "LanguageModel"
+        "shName": "LanguageModel"
       },
       "properties": [
         {
@@ -21,8 +20,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#LanguageModel-contextWindow"
             },
-            "shName": "contextWindow",
-            "tsName": "contextWindow"
+            "shName": "contextWindow"
           },
           "path": "http://purl.annotize.ai/ontology/mlm#contextWindow",
           "type": {
@@ -42,8 +40,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#LanguageModel-maxTokenOutput"
             },
-            "shName": "maxTokenOutput",
-            "tsName": "maxTokenOutput"
+            "shName": "maxTokenOutput"
           },
           "path": "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
           "type": {
@@ -64,8 +61,7 @@
           "termType": "NamedNode",
           "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel"
         },
-        "shName": "MachineLearningModel",
-        "tsName": "MachineLearningModel"
+        "shName": "MachineLearningModel"
       },
       "properties": [
         {
@@ -77,8 +73,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-description"
             },
-            "shName": "description",
-            "tsName": "description"
+            "shName": "description"
           },
           "path": "https://schema.org/description",
           "type": {
@@ -99,8 +94,7 @@
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-identifier"
             },
             "shName": "identifier",
-            "shaclmateName": "localIdentifier",
-            "tsName": "localIdentifier"
+            "shaclmateName": "localIdentifier"
           },
           "path": "https://schema.org/identifier",
           "type": {
@@ -120,8 +114,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-isVariantOf"
             },
-            "shName": "isVariantOf",
-            "tsName": "isVariantOf"
+            "shName": "isVariantOf"
           },
           "path": "https://schema.org/isVariantOf",
           "type": {
@@ -132,8 +125,7 @@
                 "termType": "NamedNode",
                 "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily"
               },
-              "shName": "MachineLearningModelFamily",
-              "tsName": "MachineLearningModelFamily"
+              "shName": "MachineLearningModelFamily"
             },
             "parentObjectTypes": [],
             "nodeKinds": ["NamedNode"],
@@ -152,8 +144,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-name"
             },
-            "shName": "name",
-            "tsName": "name"
+            "shName": "name"
           },
           "path": "https://schema.org/name",
           "type": {
@@ -173,8 +164,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-trainingDataCutoff"
             },
-            "shName": "trainingDataCutoff",
-            "tsName": "trainingDataCutoff"
+            "shName": "trainingDataCutoff"
           },
           "path": "http://purl.annotize.ai/ontology/mlm#trainingDataCutoff",
           "type": {
@@ -194,8 +184,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModel-url"
             },
-            "shName": "url",
-            "tsName": "url"
+            "shName": "url"
           },
           "path": "https://schema.org/url",
           "type": {
@@ -216,8 +205,7 @@
           "termType": "NamedNode",
           "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily"
         },
-        "shName": "MachineLearningModelFamily",
-        "tsName": "MachineLearningModelFamily"
+        "shName": "MachineLearningModelFamily"
       },
       "properties": [
         {
@@ -229,8 +217,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily-description"
             },
-            "shName": "description",
-            "tsName": "description"
+            "shName": "description"
           },
           "path": "https://schema.org/description",
           "type": {
@@ -250,8 +237,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily-manufacturer"
             },
-            "shName": "manufacturer",
-            "tsName": "manufacturer"
+            "shName": "manufacturer"
           },
           "path": "https://schema.org/manufacturer",
           "type": {
@@ -262,8 +248,7 @@
                 "termType": "NamedNode",
                 "value": "http://purl.annotize.ai/ontology/mlm#Organization"
               },
-              "shName": "Organization",
-              "tsName": "Organization"
+              "shName": "Organization"
             },
             "parentObjectTypes": [],
             "nodeKinds": ["NamedNode"],
@@ -282,8 +267,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily-name"
             },
-            "shName": "name",
-            "tsName": "name"
+            "shName": "name"
           },
           "path": "https://schema.org/name",
           "type": {
@@ -303,8 +287,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#MachineLearningModelFamily-url"
             },
-            "shName": "url",
-            "tsName": "url"
+            "shName": "url"
           },
           "path": "https://schema.org/url",
           "type": {
@@ -325,8 +308,7 @@
           "termType": "NamedNode",
           "value": "http://purl.annotize.ai/ontology/mlm#Organization"
         },
-        "shName": "Organization",
-        "tsName": "Organization"
+        "shName": "Organization"
       },
       "properties": [
         {
@@ -338,8 +320,7 @@
               "termType": "NamedNode",
               "value": "http://purl.annotize.ai/ontology/mlm#Organization-name"
             },
-            "shName": "name",
-            "tsName": "name"
+            "shName": "name"
           },
           "path": "https://schema.org/name",
           "type": {

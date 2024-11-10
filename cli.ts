@@ -131,6 +131,12 @@ run(
           }),
           inputFilePaths,
           outputFilePath,
+          objectTypeDeclarationType: option({
+            defaultValue: () =>
+              Configuration.Defaults.objectTypeDeclarationType,
+            long: "object-type-declaration-type",
+            type: oneOf(["class", "interface"]),
+          }),
           objectTypeDiscriminatorPropertyName: option({
             defaultValue: () =>
               Configuration.Defaults.objectTypeDiscriminatorPropertyName,
@@ -153,6 +159,7 @@ run(
           dataFactoryVariable,
           features,
           inputFilePaths,
+          objectTypeDeclarationType,
           objectTypeDiscriminatorPropertyName,
           objectTypeIdentifierPropertyName,
           outputFilePath,
@@ -164,6 +171,8 @@ run(
                 dataFactoryImport,
                 dataFactoryVariable,
                 features: new Set(features) as Configuration["features"],
+                objectTypeDeclarationType:
+                  objectTypeDeclarationType as Configuration["objectTypeDeclarationType"],
                 objectTypeDiscriminatorPropertyName,
                 objectTypeIdentifierPropertyName,
               }),
