@@ -19,7 +19,7 @@ export class LiteralType extends RdfjsTermType {
   }
 
   override get importStatements(): readonly string[] {
-    return ['import * as rdfLiteral from "rdf-literal";'];
+    return ["// @ts-ignore", 'import * as rdfLiteral from "rdf-literal";'];
   }
 
   get name(): string {
