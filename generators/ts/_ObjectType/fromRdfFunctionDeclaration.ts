@@ -22,7 +22,9 @@ export function fromRdfFunctionDeclaration(
 
   for (const parentObjectType of this.parentObjectTypes) {
     for (const property of parentObjectType.properties) {
-      propertyInitializers.push(`${property.name}: _super.${property.name}`);
+      if (property.fromRdfStatements({ resourceVariable }).length > 0) {
+        propertyInitializers.push(`${property.name}: _super.${property.name}`);
+      }
     }
   }
 
@@ -36,9 +38,12 @@ export function fromRdfFunctionDeclaration(
     }
   }
 
-  statements.push(
-    `return purify.Either.of({ ${propertyInitializers.join(", ")} })`,
-  );
+  let construction = `{ ${propertyInitializers.join(", ")} }`;
+  if (this.configuration.objectTypeDeclarationType === "class") {
+    construction = `new ${this.name}(${construction})`;
+  }
+
+  statements.push(`return purify.Either.of(${construction})`);
 
   if (this.parentObjectTypes.length > 0) {
     statements = [
