@@ -171,7 +171,8 @@ run(
                 dataFactoryImport,
                 dataFactoryVariable,
                 features: new Set(features) as Configuration["features"],
-                objectTypeDeclarationType,
+                objectTypeDeclarationType:
+                  objectTypeDeclarationType as Configuration["objectTypeDeclarationType"],
                 objectTypeDiscriminatorPropertyName,
                 objectTypeIdentifierPropertyName,
               }),
