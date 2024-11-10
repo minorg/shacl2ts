@@ -248,10 +248,7 @@ export namespace MachineLearningModel {
       );
     }
 
-    MachineLearningModelFamily.hashMachineLearningModelFamily(
-      machineLearningModel.isVariantOf,
-      hasher,
-    );
+    MachineLearningModelFamily.hash(machineLearningModel.isVariantOf, hasher);
     hasher.update(machineLearningModel.localIdentifier);
     hasher.update(machineLearningModel.name.value);
     machineLearningModel.trainingDataCutoff.ifJust((_trainingDataCutoff) => {
@@ -358,13 +355,15 @@ export class LanguageModel extends MachineLearningModel {
   }
 
   override equals(other: LanguageModel): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        contextWindow: purifyHelpers.Equatable.strictEquals,
-        maxTokenOutput: (left, right) => left.equals(right),
-        type: purifyHelpers.Equatable.strictEquals,
-      }),
-    );
+    return super
+      .equals(other)
+      .chain(() =>
+        purifyHelpers.Equatable.objectEquals(this, other, {
+          contextWindow: purifyHelpers.Equatable.strictEquals,
+          maxTokenOutput: (left, right) => left.equals(right),
+          type: purifyHelpers.Equatable.strictEquals,
+        }),
+      );
   }
 
   override hash<
@@ -605,10 +604,7 @@ export class MachineLearningModelFamily {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(hasher: HasherT): HasherT {
-    return MachineLearningModelFamily.hashMachineLearningModelFamily(
-      this,
-      hasher,
-    );
+    return MachineLearningModelFamily.hash(this, hasher);
   }
 
   toRdf({
@@ -723,7 +719,7 @@ export namespace MachineLearningModelFamily {
     );
   }
 
-  export function hashMachineLearningModelFamily<
+  export function hash<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -745,10 +741,7 @@ export namespace MachineLearningModelFamily {
       );
     }
 
-    Organization.hashOrganization(
-      machineLearningModelFamily.manufacturer,
-      hasher,
-    );
+    Organization.hash(machineLearningModelFamily.manufacturer, hasher);
     hasher.update(machineLearningModelFamily.name.value);
     machineLearningModelFamily.url.ifJust((_url) => {
       hasher.update(_url);
@@ -843,7 +836,7 @@ export class Organization {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(hasher: HasherT): HasherT {
-    return Organization.hashOrganization(this, hasher);
+    return Organization.hash(this, hasher);
   }
 
   toRdf({
@@ -911,7 +904,7 @@ export namespace Organization {
     return purify.Either.of(new Organization({ identifier, name }));
   }
 
-  export function hashOrganization<
+  export function hash<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },

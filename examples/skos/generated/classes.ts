@@ -489,7 +489,7 @@ export class Concept {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(hasher: HasherT): HasherT {
-    return Concept.hashConcept(this, hasher);
+    return Concept.hash(this, hasher);
   }
 
   toRdf({
@@ -1050,7 +1050,7 @@ export namespace Concept {
     );
   }
 
-  export function hashConcept<
+  export function hash<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -1574,7 +1574,7 @@ export class ConceptScheme {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(hasher: HasherT): HasherT {
-    return ConceptScheme.hashConceptScheme(this, hasher);
+    return ConceptScheme.hash(this, hasher);
   }
 
   toRdf({
@@ -1707,7 +1707,7 @@ export namespace ConceptScheme {
     );
   }
 
-  export function hashConceptScheme<
+  export function hash<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -1841,7 +1841,7 @@ export class Label {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(hasher: HasherT): HasherT {
-    return Label.hashLabel(this, hasher);
+    return Label.hash(this, hasher);
   }
 
   toRdf({
@@ -1915,7 +1915,7 @@ export namespace Label {
     return purify.Either.of(new Label({ identifier, skos$j$xl_literalForm }));
   }
 
-  export function hashLabel<
+  export function hash<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -1982,17 +1982,19 @@ export class OrderedCollection extends Collection {
   override equals(
     other: OrderedCollection,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        memberList: (left, right) =>
-          purifyHelpers.Arrays.equals(
-            left,
-            right,
-            purifyHelpers.Equatable.booleanEquals,
-          ),
-        type: purifyHelpers.Equatable.strictEquals,
-      }),
-    );
+    return super
+      .equals(other)
+      .chain(() =>
+        purifyHelpers.Equatable.objectEquals(this, other, {
+          memberList: (left, right) =>
+            purifyHelpers.Arrays.equals(
+              left,
+              right,
+              purifyHelpers.Equatable.booleanEquals,
+            ),
+          type: purifyHelpers.Equatable.strictEquals,
+        }),
+      );
   }
 
   override hash<

@@ -681,7 +681,7 @@ export namespace Concept {
     });
   }
 
-  export function hashConcept<
+  export function hash<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -1498,7 +1498,7 @@ export namespace ConceptScheme {
     });
   }
 
-  export function hashConceptScheme<
+  export function hash<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -1717,7 +1717,7 @@ export namespace Label {
     return purify.Either.of({ identifier, skos$j$xl_literalForm, type });
   }
 
-  export function hashLabel<
+  export function hash<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
