@@ -63,7 +63,7 @@ export namespace Collection {
     return purify.Either.of({ identifier, member, type });
   }
 
-  export function hash<
+  export function hashCollection<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -680,7 +680,7 @@ export namespace Concept {
     });
   }
 
-  export function hash<
+  export function hashConcept<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -1497,7 +1497,7 @@ export namespace ConceptScheme {
     });
   }
 
-  export function hash<
+  export function hashConceptScheme<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -1716,7 +1716,7 @@ export namespace Label {
     return purify.Either.of({ identifier, skos$j$xl_literalForm, type });
   }
 
-  export function hash<
+  export function hashLabel<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -1879,7 +1879,7 @@ export namespace OrderedCollection {
     );
   }
 
-  export function hash<
+  export function hashOrderedCollection<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -1889,7 +1889,7 @@ export namespace OrderedCollection {
     },
     hasher: HasherT,
   ): HasherT {
-    Collection.hash(orderedCollection, hasher);
+    Collection.hashCollection(orderedCollection, hasher);
     for (const _element of orderedCollection.memberList) {
       hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }

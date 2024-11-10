@@ -3,7 +3,6 @@ import type * as rdfjs from "@rdfjs/types";
 import { DataFactory as dataFactory } from "n3";
 import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
-import * as rdfLiteral from "rdf-literal";
 import * as rdfjsResource from "rdfjs-resource";
 
 export class Collection {
@@ -38,7 +37,7 @@ export class Collection {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(hasher: HasherT): HasherT {
-    return Collection.hash(this, hasher);
+    return Collection.hashCollection(this, hasher);
   }
 
   toRdf({
@@ -110,7 +109,7 @@ export namespace Collection {
     return purify.Either.of(new Collection({ identifier, member }));
   }
 
-  export function hash<
+  export function hashCollection<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -166,9 +165,9 @@ export namespace Collection {
 export class Concept {
   readonly altLabel: readonly rdfjs.Literal[];
   readonly altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+  readonly broadMatch: readonly rdfjs.NamedNode[];
   readonly broader: readonly rdfjs.NamedNode[];
   readonly broaderTransitive: readonly rdfjs.NamedNode[];
-  readonly broadMatch: readonly rdfjs.NamedNode[];
   readonly changeNote: readonly rdfjs.Literal[];
   readonly closeMatch: readonly rdfjs.NamedNode[];
   readonly definition: readonly rdfjs.Literal[];
@@ -181,9 +180,9 @@ export class Concept {
   readonly identifier: rdfjs.NamedNode;
   readonly inScheme: readonly rdfjs.NamedNode[];
   readonly mappingRelation: readonly rdfjs.NamedNode[];
+  readonly narrowMatch: readonly rdfjs.NamedNode[];
   readonly narrower: readonly rdfjs.NamedNode[];
   readonly narrowerTransitive: readonly rdfjs.NamedNode[];
-  readonly narrowMatch: readonly rdfjs.NamedNode[];
   readonly notation: readonly rdfjs.Literal[];
   readonly note: readonly rdfjs.Literal[];
   readonly prefLabel: readonly rdfjs.Literal[];
@@ -488,7 +487,7 @@ export class Concept {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(hasher: HasherT): HasherT {
-    return Concept.hash(this, hasher);
+    return Concept.hashConcept(this, hasher);
   }
 
   toRdf({
@@ -1049,7 +1048,7 @@ export namespace Concept {
     );
   }
 
-  export function hash<
+  export function hashConcept<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -1573,7 +1572,7 @@ export class ConceptScheme {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(hasher: HasherT): HasherT {
-    return ConceptScheme.hash(this, hasher);
+    return ConceptScheme.hashConceptScheme(this, hasher);
   }
 
   toRdf({
@@ -1706,7 +1705,7 @@ export namespace ConceptScheme {
     );
   }
 
-  export function hash<
+  export function hashConceptScheme<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -1840,7 +1839,7 @@ export class Label {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(hasher: HasherT): HasherT {
-    return Label.hash(this, hasher);
+    return Label.hashLabel(this, hasher);
   }
 
   toRdf({
@@ -1914,7 +1913,7 @@ export namespace Label {
     return purify.Either.of(new Label({ identifier, skos$j$xl_literalForm }));
   }
 
-  export function hash<
+  export function hashLabel<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -1981,19 +1980,17 @@ export class OrderedCollection extends Collection {
   override equals(
     other: OrderedCollection,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          memberList: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        memberList: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -2001,7 +1998,7 @@ export class OrderedCollection extends Collection {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(hasher: HasherT): HasherT {
-    return OrderedCollection.hash(this, hasher);
+    return OrderedCollection.hashOrderedCollection(this, hasher);
   }
 
   override toRdf({
@@ -2147,7 +2144,7 @@ export namespace OrderedCollection {
     );
   }
 
-  export function hash<
+  export function hashOrderedCollection<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
@@ -2157,7 +2154,7 @@ export namespace OrderedCollection {
     },
     hasher: HasherT,
   ): HasherT {
-    Collection.hash(orderedCollection, hasher);
+    Collection.hashCollection(orderedCollection, hasher);
     for (const _element of orderedCollection.memberList) {
       hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }

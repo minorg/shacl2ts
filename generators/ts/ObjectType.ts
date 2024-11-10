@@ -142,7 +142,9 @@ export class ObjectType extends Type {
     hasherVariable,
     valueVariable,
   }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
-    return [`${this.name}.hash(${valueVariable}, ${hasherVariable});`];
+    return [
+      `${this.name}.hash${this.name}(${valueVariable}, ${hasherVariable});`,
+    ];
   }
 
   rdfjsResourceType(options?: { mutable?: boolean }): {

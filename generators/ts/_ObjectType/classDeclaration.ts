@@ -142,7 +142,7 @@ function hashMethodDeclaration(
       },
     ],
     returnType: "HasherT",
-    statements: [`return ${this.name}.hash(this, hasher);`],
+    statements: [`return ${this.name}.hash${this.name}(this, hasher);`],
     typeParameters: [
       {
         name: "HasherT",

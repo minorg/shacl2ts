@@ -96,7 +96,7 @@ export class IdentifierProperty extends Property {
             }
           }
 
-          return `dataFactory.namedNode(\`urn:shaclmate:object:${camelCase(objectType.name)}:\${${objectType.name}.hash(${hashParameters ? "parameters" : `{ ${hashProperties.join(", ")} }`}, sha256.create())}\`)`;
+          return `dataFactory.namedNode(\`urn:shaclmate:object:${camelCase(objectType.name)}:\${${objectType.name}.hash${objectType.name}(${hashParameters ? "parameters" : `{ ${hashProperties.join(", ")} }`}, sha256.create())}\`)`;
         }
         case MintingStrategy.UUIDv4:
           return `dataFactory.namedNode(\`urn:shaclmate:object:${camelCase(objectType.name)}:\${uuid.v4()}\`)`;

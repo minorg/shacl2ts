@@ -16,7 +16,7 @@ export function hashFunctionDeclaration(
 
   for (const parentObjectType of this.parentObjectTypes) {
     statements.push(
-      `${parentObjectType.name}.hash(${thisVariable}, ${hasherVariable})`,
+      `${parentObjectType.name}.hash${parentObjectType.name}(${thisVariable}, ${hasherVariable})`,
     );
   }
 
@@ -44,7 +44,7 @@ export function hashFunctionDeclaration(
   return {
     isExported: true,
     kind: StructureKind.Function,
-    name: "hash",
+    name: `hash${this.name}`,
     parameters: [
       {
         name: thisVariable,
