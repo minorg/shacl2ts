@@ -80,7 +80,10 @@ export class TsGenerator {
 
       const moduleStatements: StatementStructures[] = [];
 
-      if (this.configuration.features.has("equals")) {
+      if (
+        this.configuration.features.has("equals") &&
+        this.configuration.objectTypeDeclarationType === "interface"
+      ) {
         moduleStatements.push(objectType.equalsFunctionDeclaration());
       }
 
