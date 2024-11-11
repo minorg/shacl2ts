@@ -8,8 +8,10 @@ import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType";
 
 export class ObjectType extends Type {
+  readonly abstract: boolean;
   classDeclaration = _ObjectType.classDeclaration;
   equalsFunctionDeclaration = _ObjectType.equalsFunctionDeclaration;
+  readonly export_: boolean;
   fromRdfFunctionDeclaration = _ObjectType.fromRdfFunctionDeclaration;
   hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
   readonly identifierType: IdentifierType;
@@ -27,7 +29,9 @@ export class ObjectType extends Type {
   private readonly lazyProperties: () => readonly ObjectType.Property[];
 
   constructor({
+    abstract,
     identifierType,
+    export_,
     lazyAncestorObjectTypes,
     lazyDescendantObjectTypes,
     lazyParentObjectTypes,
@@ -37,6 +41,8 @@ export class ObjectType extends Type {
     rdfType,
     ...superParameters
   }: {
+    abstract: boolean;
+    export_: boolean;
     identifierType: IdentifierType;
     lazyAncestorObjectTypes: () => readonly ObjectType[];
     lazyDescendantObjectTypes: () => readonly ObjectType[];
@@ -47,6 +53,8 @@ export class ObjectType extends Type {
     rdfType: Maybe<NamedNode>;
   } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
+    this.abstract = abstract;
+    this.export_ = export_;
     // Lazily initialize some members in getters to avoid recursive construction
     this.lazyAncestorObjectTypes = lazyAncestorObjectTypes;
     this.lazyDescendantObjectTypes = lazyDescendantObjectTypes;

@@ -102,7 +102,9 @@ export class TypeFactory {
     });
 
     const objectType = new ObjectType({
+      abstract: astType.abstract,
       configuration: this.configuration,
+      export_: astType.export,
       identifierType,
       lazyAncestorObjectTypes: () =>
         astType.ancestorObjectTypes.map((astType) =>

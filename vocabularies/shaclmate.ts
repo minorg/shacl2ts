@@ -9,6 +9,8 @@ export interface Shaclmate {
   UUIDv4: NamedNode<"http://minorg.github.io/shaclmate/ns#UUIDv4">;
 
   // Properties
+  abstract: NamedNode<"http://minorg.github.io/shaclmate/ns#abstract">;
+  export: NamedNode<"http://minorg.github.io/shaclmate/ns#export">;
   inline: NamedNode<"http://minorg.github.io/shaclmate/ns#inline">;
   mintingStrategy: NamedNode<"http://minorg.github.io/shaclmate/ns#mintingStrategy">;
   name: NamedNode<"http://minorg.github.io/shaclmate/ns#name">;
