@@ -71,7 +71,11 @@ export class IdentifierProperty extends Property {
           // If none of the parameters need to be converted to the interface type we can just use the parameters object
           // Otherwise we have to construct an anonymous object with converted values.
           let hashParameters = true;
-          for (const property of objectType.properties) {
+          for (const property of objectType.properties.concat(
+            objectType.ancestorObjectTypes.flatMap(
+              (ancestorObjectType) => ancestorObjectType.properties,
+            ),
+          )) {
             if (
               property instanceof IdentifierProperty ||
               property instanceof TypeDiscriminatorProperty

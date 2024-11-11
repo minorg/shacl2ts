@@ -12,7 +12,17 @@ export function hashFunctionDeclaration(
 ): FunctionDeclarationStructure {
   const thisVariable = camelCase(this.name);
 
-  const omitPropertyNames: string[] = [];
+  const omitPropertyNamesSet = new Set<string>();
+  omitPropertyNamesSet.add(this.configuration.objectTypeIdentifierPropertyName);
+  omitPropertyNamesSet.add(
+    this.configuration.objectTypeDiscriminatorPropertyName,
+  );
+  if (this.configuration.objectTypeDeclarationType === "class") {
+    omitPropertyNamesSet.add("equals");
+    omitPropertyNamesSet.add("hash");
+    omitPropertyNamesSet.add("toRdf");
+  }
+
   const statements: string[] = [];
 
   for (const parentObjectType of this.parentObjectTypes) {
@@ -27,28 +37,25 @@ export function hashFunctionDeclaration(
       hasherVariable,
       valueVariable: propertyValueVariable,
     });
+
     if (propertyHashStatements.length === 0) {
-      omitPropertyNames.push(property.name);
+      omitPropertyNamesSet.add(property.name);
       continue;
     }
 
-    if (
-      property.name === this.configuration.objectTypeIdentifierPropertyName &&
-      this.parentObjectTypes.length === 0
-    ) {
-      statements.push(
-        `if (typeof ${propertyValueVariable} !== "undefined") { ${propertyHashStatements.join("\n")} }`,
-      );
-      omitPropertyNames.push(property.name);
-    } else {
-      statements.push(...propertyHashStatements);
+    if (property.name === this.configuration.objectTypeIdentifierPropertyName) {
+      if (this.parentObjectTypes.length === 0) {
+        statements.push(
+          `if (typeof ${propertyValueVariable} !== "undefined") { ${propertyHashStatements.join("\n")} }`,
+        );
+      }
+      continue;
     }
+
+    statements.push(...propertyHashStatements);
   }
 
-  if (this.configuration.objectTypeDeclarationType === "class") {
-    omitPropertyNames.push("equals", "hash", "toRdf");
-  }
-
+  const omitPropertyNames = [...omitPropertyNamesSet];
   omitPropertyNames.sort();
 
   statements.push(`return ${hasherVariable};`);
