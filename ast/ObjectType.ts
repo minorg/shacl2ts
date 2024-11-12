@@ -7,6 +7,13 @@ import type { MintingStrategy } from "./MintingStrategy";
 
 export interface ObjectType {
   /**
+   * Classes generated from this type are abstract / cannot be instantiated themselves.
+   *
+   * Defaults to false.
+   */
+  readonly abstract: boolean;
+
+  /**
    * Ancestor (parents, their parents, ad nauseum) ObjectTypes of this ObjectType.
    *
    * Mutable to support cycle-handling logic in the transformer.
@@ -26,6 +33,13 @@ export interface ObjectType {
    * Mutable to support cycle-handling logic in the transformer.
    */
   readonly descendantObjectTypes: ObjectType[];
+
+  /**
+   * Should generated code derived from this ObjectType be visible outside its module?
+   *
+   * Defaults to true.
+   */
+  readonly export: boolean;
 
   readonly kind: "Object";
 

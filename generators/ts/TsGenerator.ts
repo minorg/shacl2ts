@@ -113,7 +113,7 @@ export class TsGenerator {
       }
 
       sourceFile.addModule({
-        isExported: true,
+        isExported: objectType.export_,
         kind: StructureKind.Module,
         name: objectType.name,
         statements: moduleStatements,

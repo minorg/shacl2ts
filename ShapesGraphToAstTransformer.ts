@@ -220,9 +220,17 @@ export class ShapesGraphToAstTransformer {
     // If this node shape's properties (directly or indirectly) refer to the node shape itself,
     // we'll return this placeholder.
     const objectType: ast.ObjectType = {
+      abstract: nodeShape.resource
+        .value(shaclmate.abstract)
+        .chain((value) => value.toBoolean())
+        .orDefault(false),
       ancestorObjectTypes: [],
       childObjectTypes: [],
       descendantObjectTypes: [],
+      export: nodeShape.resource
+        .value(shaclmate.export)
+        .chain((value) => value.toBoolean())
+        .orDefault(true),
       kind: "Object",
       listItemType: Maybe.empty(),
       mintingStrategy: nodeShape.resource

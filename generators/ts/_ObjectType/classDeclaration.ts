@@ -96,8 +96,9 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
       this.parentObjectTypes.length > 0
         ? this.parentObjectTypes[0].name
         : undefined,
+    isAbstract: this.abstract,
     kind: StructureKind.Class,
-    isExported: true,
+    isExported: this.export_,
     methods,
     name: this.name,
     properties,

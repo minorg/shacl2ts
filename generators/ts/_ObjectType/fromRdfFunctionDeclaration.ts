@@ -39,8 +39,24 @@ export function fromRdfFunctionDeclaration(
   }
 
   let construction = `{ ${propertyInitializers.join(", ")} }`;
+  let returnType = this.name;
   if (this.configuration.objectTypeDeclarationType === "class") {
-    construction = `new ${this.name}(${construction})`;
+    if (!this.abstract) {
+      construction = `new ${this.name}(${construction})`;
+    } else {
+      // Return an interface
+      returnType = `{ ${this.properties
+        .concat(
+          this.ancestorObjectTypes.flatMap(
+            (ancestorObjectType) => ancestorObjectType.properties,
+          ),
+        )
+        .map((property) => property.interfacePropertySignature)
+        .map(
+          (interfacePropertySignature) =>
+            `${interfacePropertySignature.name}: ${interfacePropertySignature.type}`,
+        )} }`;
+    }
   }
 
   statements.push(`return purify.Either.of(${construction})`);
@@ -66,7 +82,7 @@ export function fromRdfFunctionDeclaration(
         type: `{ ${ignoreRdfTypeVariable}?: boolean }`,
       },
     ],
-    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>`,
+    returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${returnType}>`,
     statements,
   };
 }
