@@ -56,7 +56,17 @@ function constructorDeclaration(
     })
     .join(", ")} }`;
   if (this.parentObjectTypes.length > 0) {
-    constructorParametersType = `${constructorParametersType} & ConstructorParameters<typeof ${this.parentObjectTypes[0].name}>[0]`;
+    let parentConstructorParametersType = `ConstructorParameters<typeof ${this.parentObjectTypes[0].name}>[0]`;
+    if (mintIdentifier.isJust()) {
+      // If identifier is not specified we're always going to mint it in the subclass, so we can ignore
+      // the type of the parent's identifier.
+      parentConstructorParametersType = `Omit<${parentConstructorParametersType}, "${this.configuration.objectTypeIdentifierPropertyName}">`;
+    }
+    constructorParametersType = `${constructorParametersType} & ${parentConstructorParametersType}`;
+    if (mintIdentifier.isJust()) {
+      // See note above.
+      constructorParametersType = `${constructorParametersType} & { ${this.configuration.objectTypeIdentifierPropertyName}?: ${this.identifierType.name} }`;
+    }
   }
 
   return {
