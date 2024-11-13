@@ -73,7 +73,7 @@ function typeToJson(type: ast.Type): AstJson.Type {
     case "UnionType":
       return {
         kind: type.kind,
-        types: type.types.map((type) => typeToJson(type)),
+        types: type.memberTypes.map((type) => typeToJson(type)),
       };
     case "LiteralType": {
       return {

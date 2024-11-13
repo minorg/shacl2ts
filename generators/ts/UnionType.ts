@@ -14,15 +14,15 @@ function syntheticTypeDiscriminatorValue({
 
 export class UnionType extends Type {
   readonly kind = "UnionType";
-  readonly types: readonly Type[];
+  readonly memberTypes: readonly Type[];
 
   constructor({
-    types,
+    memberTypes,
     ...superParameters
-  }: ConstructorParameters<typeof Type>[0] & { types: readonly Type[] }) {
+  }: ConstructorParameters<typeof Type>[0] & { memberTypes: readonly Type[] }) {
     super(superParameters);
-    invariant(types.length >= 2);
-    this.types = types;
+    invariant(memberTypes.length >= 2);
+    this.memberTypes = memberTypes;
   }
 
   @Memoize()
@@ -30,7 +30,7 @@ export class UnionType extends Type {
     return this.typesSharedDiscriminatorProperty.altLazy(() =>
       Maybe.of({
         name: syntheticTypeDiscriminatorPropertyName,
-        values: this.types.map((_, typeIndex) => typeIndex.toString()),
+        values: this.memberTypes.map((_, typeIndex) => typeIndex.toString()),
       }),
     );
   }
@@ -39,10 +39,10 @@ export class UnionType extends Type {
     if (this.typesSharedDiscriminatorProperty.isJust()) {
       // If every type shares a discriminator (e.g., RDF/JS "termType" or generated ObjectType "type"),
       // just join their names with "|"
-      return `(${this.types.map((type) => type.name).join(" | ")})`;
+      return `(${this.memberTypes.map((type) => type.name).join(" | ")})`;
     }
 
-    return `(${this.types.map((type, typeIndex) => `{ ${syntheticTypeDiscriminatorPropertyName}: "${syntheticTypeDiscriminatorValue({ type, typeIndex })}", value: ${type.name} }`).join(" | ")})`;
+    return `(${this.memberTypes.map((type, typeIndex) => `{ ${syntheticTypeDiscriminatorPropertyName}: "${syntheticTypeDiscriminatorValue({ type, typeIndex })}", value: ${type.name} }`).join(" | ")})`;
   }
 
   @Memoize()
@@ -53,7 +53,7 @@ export class UnionType extends Type {
           values: string[];
         })
       | undefined;
-    for (const type of this.types) {
+    for (const type of this.memberTypes) {
       const typeDiscriminatorProperty = type.discriminatorProperty.extract();
       if (!typeDiscriminatorProperty) {
         return Maybe.empty();
@@ -80,7 +80,7 @@ export class UnionType extends Type {
   override equalsFunction(): string {
     return `
 (left: ${this.name}, right: ${this.name}) => {
-${this.types
+${this.memberTypes
   .flatMap((type, typeIndex) =>
     this.typesSharedDiscriminatorProperty
       .map((typesSharedDiscriminatorProperty) => {
@@ -110,7 +110,7 @@ ${this.types
     parameters: Parameters<Type["fromRdfExpression"]>[0],
   ): string {
     let expression = "";
-    this.types.forEach((type, typeIndex) => {
+    this.memberTypes.forEach((type, typeIndex) => {
       let typeExpression = type.fromRdfExpression(parameters);
       if (!this.typesSharedDiscriminatorProperty.isJust()) {
         typeExpression = `${typeExpression}.map(value => ({ type: "${typeIndex}-${type.name}" as const, value }) as (${this.name}))`;
@@ -129,7 +129,7 @@ ${this.types
     valueVariable,
   }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     const caseBlocks: string[] = [];
-    this.types.forEach((type, typeIndex) => {
+    this.memberTypes.forEach((type, typeIndex) => {
       if (this.typesSharedDiscriminatorProperty.isJust()) {
         for (const typeDiscriminatorPropertyValue of type.discriminatorProperty.unsafeCoerce()
           .values) {
@@ -165,7 +165,7 @@ ${this.types
   }: Parameters<
     Type["sparqlGraphPatternExpression"]
   >[0]): Maybe<Type.SparqlGraphPatternExpression> {
-    const typeSparqlGraphPatternExpressions = this.types.flatMap((type) =>
+    const typeSparqlGraphPatternExpressions = this.memberTypes.flatMap((type) =>
       type.sparqlGraphPatternExpression({ subjectVariable }).toList(),
     );
     switch (typeSparqlGraphPatternExpressions.length) {
@@ -189,7 +189,7 @@ ${this.types
       }
       default:
         invariant(
-          typeSparqlGraphPatternExpressions.length === this.types.length,
+          typeSparqlGraphPatternExpressions.length === this.memberTypes.length,
           "all types must be represented in the SPARQL UNION",
         );
         return Maybe.of({
@@ -213,7 +213,7 @@ ${this.types
     ...otherParameters
   }: Parameters<Type["toRdfExpression"]>[0]): string {
     let expression = "";
-    this.types.forEach((type, typeIndex) => {
+    this.memberTypes.forEach((type, typeIndex) => {
       if (this.typesSharedDiscriminatorProperty.isJust()) {
         if (expression.length === 0) {
           expression = type.toRdfExpression({

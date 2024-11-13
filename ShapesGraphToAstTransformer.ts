@@ -153,16 +153,16 @@ export class ShapesGraphToAstTransformer {
     if (restProperty.type.kind !== "UnionType") {
       return Left(new Error(`${nodeShape} rdf:rest property is not sh:or`));
     }
-    if (restProperty.type.types.length !== 2) {
+    if (restProperty.type.memberTypes.length !== 2) {
       return Left(
         new Error(
-          `${nodeShape} rdf:rest property sh:or does not have exactly two types`,
+          `${nodeShape} rdf:rest property sh:or does not have exactly two member types`,
         ),
       );
     }
     // rdf:rest should be sh:or ( [ sh:class nodeShape ] [ sh:hasValue rdf:nil ] )
     if (
-      !restProperty.type.types.find(
+      !restProperty.type.memberTypes.find(
         (type) =>
           type.kind === "ObjectType" &&
           type.name.identifier.equals(nodeShape.resource.identifier),
@@ -175,7 +175,9 @@ export class ShapesGraphToAstTransformer {
       );
     }
     if (
-      !restProperty.type.types.find((type) => type.kind === "IdentifierType")
+      !restProperty.type.memberTypes.find(
+        (type) => type.kind === "IdentifierType",
+      )
     ) {
       return Left(
         new Error(
@@ -392,15 +394,15 @@ export class ShapesGraphToAstTransformer {
       shape.constraints.nodes.length > 0 ||
       shape.constraints.or.length > 0
     ) {
-      let compositeTypeEithers: readonly Either<Error, ast.Type>[];
+      let memberTypeEithers: readonly Either<Error, ast.Type>[];
       let compositeTypeKind: "IntersectionType" | "UnionType";
       if (shape.constraints.and.length > 0) {
-        compositeTypeEithers = shape.constraints.and.map((shape) =>
+        memberTypeEithers = shape.constraints.and.map((shape) =>
           this.propertyShapeAstType(shape, { inline }),
         );
         compositeTypeKind = "IntersectionType";
       } else if (shape.constraints.classes.length > 0) {
-        compositeTypeEithers = shape.constraints.classes.map((classIri) =>
+        memberTypeEithers = shape.constraints.classes.map((classIri) =>
           this.resolveClassAstObjectType(classIri).map((classObjectType) =>
             inline
               ? classObjectType
@@ -413,35 +415,35 @@ export class ShapesGraphToAstTransformer {
         );
         compositeTypeKind = "IntersectionType";
       } else if (shape.constraints.nodes.length > 0) {
-        compositeTypeEithers = shape.constraints.nodes.map((nodeShape) =>
+        memberTypeEithers = shape.constraints.nodes.map((nodeShape) =>
           this.nodeShapeAstType(nodeShape),
         );
         compositeTypeKind = "IntersectionType";
       } else {
-        compositeTypeEithers = shape.constraints.or.map((shape) =>
+        memberTypeEithers = shape.constraints.or.map((shape) =>
           this.propertyShapeAstType(shape, { inline }),
         );
         compositeTypeKind = "UnionType";
       }
-      invariant(compositeTypeEithers.length > 0);
+      invariant(memberTypeEithers.length > 0);
 
-      const compositeTypes = Either.rights(compositeTypeEithers);
-      if (compositeTypes.length !== compositeTypeEithers.length) {
+      const memberTypes = Either.rights(memberTypeEithers);
+      if (memberTypes.length !== memberTypeEithers.length) {
         logger.warn(
           "shape %s composition did not map all composed types successfully",
           shape,
         );
-        return compositeTypeEithers[0];
+        return memberTypeEithers[0];
       }
-      invariant(compositeTypes.length > 0);
+      invariant(memberTypes.length > 0);
 
-      if (compositeTypes.length === 1) {
-        return Either.of(compositeTypes[0]);
+      if (memberTypes.length === 1) {
+        return Either.of(memberTypes[0]);
       }
 
       if (
         hasValue.isNothing() &&
-        compositeTypes.every(
+        memberTypes.every(
           (compositeType) =>
             compositeType.kind === "LiteralType" &&
             compositeType.maxExclusive.isNothing() &&
@@ -465,7 +467,7 @@ export class ShapesGraphToAstTransformer {
 
       if (
         hasValue.isNothing() &&
-        compositeTypes.every(
+        memberTypes.every(
           (compositeType) => compositeType.kind === "IdentifierType",
         )
       ) {
@@ -474,7 +476,7 @@ export class ShapesGraphToAstTransformer {
           hasValue: Maybe.empty(),
           kind: "IdentifierType",
           nodeKinds: new Set<NodeKind.BLANK_NODE | NodeKind.IRI>(
-            compositeTypes
+            memberTypes
               .filter(
                 (compositeType) => compositeType.kind === "IdentifierType",
               )
@@ -485,7 +487,7 @@ export class ShapesGraphToAstTransformer {
 
       return Either.of({
         kind: compositeTypeKind,
-        types: compositeTypes,
+        memberTypes: memberTypes,
       });
     }
 

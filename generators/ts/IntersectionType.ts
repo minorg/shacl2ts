@@ -4,19 +4,19 @@ import { Type } from "./Type.js";
 
 export class IntersectionType extends Type {
   readonly kind = "IntersectionType";
-  readonly types: readonly Type[];
+  readonly memberTypes: readonly Type[];
 
   constructor({
-    types,
+    memberTypes,
     ...superParameters
-  }: ConstructorParameters<typeof Type>[0] & { types: readonly Type[] }) {
+  }: ConstructorParameters<typeof Type>[0] & { memberTypes: readonly Type[] }) {
     super(superParameters);
-    invariant(types.length >= 2);
-    this.types = types;
+    invariant(memberTypes.length >= 2);
+    this.memberTypes = memberTypes;
   }
 
   get name(): string {
-    return `(${this.types.map((type) => type.name).join(" & ")})`;
+    return `(${this.memberTypes.map((type) => type.name).join(" & ")})`;
   }
 
   override equalsFunction(): string {

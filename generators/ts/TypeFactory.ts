@@ -43,7 +43,7 @@ export class TypeFactory {
       case "IntersectionType":
         return new IntersectionType({
           configuration: this.configuration,
-          types: astType.types.map((astType) =>
+          memberTypes: astType.memberTypes.map((astType) =>
             this.createTypeFromAstType(astType),
           ),
         });
@@ -94,7 +94,7 @@ export class TypeFactory {
       case "UnionType":
         return new UnionType({
           configuration: this.configuration,
-          types: astType.types.map((astType) =>
+          memberTypes: astType.memberTypes.map((astType) =>
             this.createTypeFromAstType(astType),
           ),
         });
