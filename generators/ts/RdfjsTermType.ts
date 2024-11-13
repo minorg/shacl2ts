@@ -5,7 +5,7 @@ import { Type } from "./Type.js";
  * Abstract base class for IdentifierType and LiteralType.
  */
 export abstract class RdfjsTermType extends Type {
-  abstract override readonly kind: "Identifier" | "Literal";
+  abstract override readonly kind: "IdentifierType" | "LiteralType";
 
   override equalsFunction(): string {
     return "purifyHelpers.Equatable.booleanEquals";

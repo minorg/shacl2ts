@@ -52,7 +52,7 @@ export class TsGenerator {
 
     const objectTypes = astObjectTypes.flatMap((astObjectType) => {
       const type = typeFactory.createTypeFromAstType(astObjectType);
-      return type.kind === "Object" ? [type as ObjectType] : [];
+      return type.kind === "ObjectType" ? [type as ObjectType] : [];
     });
 
     this.addDeclarations(objectTypes, sourceFile);

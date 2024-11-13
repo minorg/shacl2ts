@@ -7,7 +7,7 @@ import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type";
 
 export class IdentifierType extends RdfjsTermType {
-  readonly kind = "Identifier";
+  readonly kind = "IdentifierType";
   private readonly nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
 
   constructor({

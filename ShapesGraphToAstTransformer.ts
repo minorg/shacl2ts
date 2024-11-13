@@ -110,7 +110,7 @@ export class ShapesGraphToAstTransformer {
         .map((nodeShape) => this.nodeShapeAstType(nodeShape)),
     ).map((nodeShapeTypes) => ({
       objectTypes: nodeShapeTypes.filter(
-        (nodeShapeType) => nodeShapeType.kind === "Object",
+        (nodeShapeType) => nodeShapeType.kind === "ObjectType",
       ),
     }));
   }
@@ -150,7 +150,7 @@ export class ShapesGraphToAstTransformer {
     if (!restProperty) {
       return Left(new Error(`${nodeShape} does not have an rdf:rest property`));
     }
-    if (restProperty.type.kind !== "Or") {
+    if (restProperty.type.kind !== "UnionType") {
       return Left(new Error(`${nodeShape} rdf:rest property is not sh:or`));
     }
     if (restProperty.type.types.length !== 2) {
@@ -164,7 +164,7 @@ export class ShapesGraphToAstTransformer {
     if (
       !restProperty.type.types.find(
         (type) =>
-          type.kind === "Object" &&
+          type.kind === "ObjectType" &&
           type.name.identifier.equals(nodeShape.resource.identifier),
       )
     ) {
@@ -174,7 +174,9 @@ export class ShapesGraphToAstTransformer {
         ),
       );
     }
-    if (!restProperty.type.types.find((type) => type.kind === "Identifier")) {
+    if (
+      !restProperty.type.types.find((type) => type.kind === "IdentifierType")
+    ) {
       return Left(
         new Error(
           `${nodeShape} rdf:rest property sh:or does not include sh:hasValue rdf:nil`,
@@ -231,7 +233,7 @@ export class ShapesGraphToAstTransformer {
         .value(shaclmate.export)
         .chain((value) => value.toBoolean())
         .orDefault(true),
-      kind: "Object",
+      kind: "ObjectType",
       listItemType: Maybe.empty(),
       mintingStrategy: nodeShape.resource
         .value(shaclmate.mintingStrategy)
@@ -391,62 +393,62 @@ export class ShapesGraphToAstTransformer {
       shape.constraints.nodes.length > 0 ||
       shape.constraints.or.length > 0
     ) {
-      let composedTypeEithers: readonly Either<Error, ast.Type>[];
-      let compositionKind: "And" | "Or";
+      let compositeTypeEithers: readonly Either<Error, ast.Type>[];
+      let compositeTypeKind: "IntersectionType" | "UnionType";
       if (shape.constraints.and.length > 0) {
-        composedTypeEithers = shape.constraints.and.map((shape) =>
+        compositeTypeEithers = shape.constraints.and.map((shape) =>
           this.propertyShapeAstType(shape, { inline }),
         );
-        compositionKind = "And";
+        compositeTypeKind = "IntersectionType";
       } else if (shape.constraints.classes.length > 0) {
-        composedTypeEithers = shape.constraints.classes.map((classIri) =>
+        compositeTypeEithers = shape.constraints.classes.map((classIri) =>
           this.resolveClassAstObjectType(classIri).map((classObjectType) =>
             inline
               ? classObjectType
               : {
                   hasValue: Maybe.empty(),
-                  kind: "Identifier",
+                  kind: "IdentifierType",
                   nodeKinds: classObjectType.nodeKinds,
                 },
           ),
         );
-        compositionKind = "And";
+        compositeTypeKind = "IntersectionType";
       } else if (shape.constraints.nodes.length > 0) {
-        composedTypeEithers = shape.constraints.nodes.map((nodeShape) =>
+        compositeTypeEithers = shape.constraints.nodes.map((nodeShape) =>
           this.nodeShapeAstType(nodeShape),
         );
-        compositionKind = "And";
+        compositeTypeKind = "IntersectionType";
       } else {
-        composedTypeEithers = shape.constraints.or.map((shape) =>
+        compositeTypeEithers = shape.constraints.or.map((shape) =>
           this.propertyShapeAstType(shape, { inline }),
         );
-        compositionKind = "Or";
+        compositeTypeKind = "UnionType";
       }
-      invariant(composedTypeEithers.length > 0);
+      invariant(compositeTypeEithers.length > 0);
 
-      const composedTypes = Either.rights(composedTypeEithers);
-      if (composedTypes.length !== composedTypeEithers.length) {
+      const compositeTypes = Either.rights(compositeTypeEithers);
+      if (compositeTypes.length !== compositeTypeEithers.length) {
         logger.warn(
           "shape %s composition did not map all composed types successfully",
           shape,
         );
-        return composedTypeEithers[0];
+        return compositeTypeEithers[0];
       }
-      invariant(composedTypes.length > 0);
+      invariant(compositeTypes.length > 0);
 
-      if (composedTypes.length === 1) {
-        return Either.of(composedTypes[0]);
+      if (compositeTypes.length === 1) {
+        return Either.of(compositeTypes[0]);
       }
 
       if (
         hasValue.isNothing() &&
-        composedTypes.every(
-          (composedType) =>
-            composedType.kind === "Literal" &&
-            composedType.maxExclusive.isNothing() &&
-            composedType.maxInclusive.isNothing() &&
-            composedType.minExclusive.isNothing() &&
-            composedType.minInclusive.isNothing(),
+        compositeTypes.every(
+          (compositeType) =>
+            compositeType.kind === "LiteralType" &&
+            compositeType.maxExclusive.isNothing() &&
+            compositeType.maxInclusive.isNothing() &&
+            compositeType.minExclusive.isNothing() &&
+            compositeType.minInclusive.isNothing(),
         )
       ) {
         // Special case: all the composed types are Literals without further constraints,
@@ -454,7 +456,7 @@ export class ShapesGraphToAstTransformer {
         return Either.of({
           datatype: Maybe.empty(),
           hasValue: Maybe.empty(),
-          kind: "Literal",
+          kind: "LiteralType",
           maxExclusive: Maybe.empty(),
           maxInclusive: Maybe.empty(),
           minExclusive: Maybe.empty(),
@@ -464,25 +466,27 @@ export class ShapesGraphToAstTransformer {
 
       if (
         hasValue.isNothing() &&
-        composedTypes.every(
-          (composedType) => composedType.kind === "Identifier",
+        compositeTypes.every(
+          (compositeType) => compositeType.kind === "IdentifierType",
         )
       ) {
         // Special case: all composed types are blank or named nodes without further constraints
         return Either.of({
           hasValue: Maybe.empty(),
-          kind: "Identifier",
+          kind: "IdentifierType",
           nodeKinds: new Set<NodeKind.BLANK_NODE | NodeKind.IRI>(
-            composedTypes
-              .filter((composedType) => composedType.kind === "Identifier")
-              .flatMap((composedType) => [...composedType.nodeKinds]),
+            compositeTypes
+              .filter(
+                (compositeType) => compositeType.kind === "IdentifierType",
+              )
+              .flatMap((compositeType) => [...compositeType.nodeKinds]),
           ),
         });
       }
 
       return Either.of({
-        kind: compositionKind,
-        types: composedTypes,
+        kind: compositeTypeKind,
+        types: compositeTypes,
       });
     }
 
@@ -503,7 +507,7 @@ export class ShapesGraphToAstTransformer {
     ) {
       return Either.of<Error, ast.LiteralType>({
         datatype: shape.constraints.datatype,
-        kind: "Literal",
+        kind: "LiteralType",
         maxExclusive: shape.constraints.maxExclusive,
         maxInclusive: shape.constraints.maxInclusive,
         minExclusive: shape.constraints.minExclusive,
@@ -546,7 +550,7 @@ export class ShapesGraphToAstTransformer {
 
       return Either.of({
         hasValue: hasIdentifierValue,
-        kind: "Identifier",
+        kind: "IdentifierType",
         nodeKinds,
       });
     }

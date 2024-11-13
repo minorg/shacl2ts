@@ -1,9 +1,19 @@
 import type { Maybe } from "purify-ts";
-import { ComposedType } from "./ComposedType.js";
-import type { Type } from "./Type.js";
+import { invariant } from "ts-invariant";
+import { Type } from "./Type.js";
 
-export class AndType extends ComposedType {
-  readonly kind = "And";
+export class IntersectionType extends Type {
+  readonly kind = "IntersectionType";
+  readonly types: readonly Type[];
+
+  constructor({
+    types,
+    ...superParameters
+  }: ConstructorParameters<typeof Type>[0] & { types: readonly Type[] }) {
+    super(superParameters);
+    invariant(types.length >= 2);
+    this.types = types;
+  }
 
   get name(): string {
     return `(${this.types.map((type) => type.name).join(" & ")})`;

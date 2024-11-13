@@ -16,7 +16,7 @@ export class ObjectType extends Type {
   hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
   readonly identifierType: IdentifierType;
   interfaceDeclaration = _ObjectType.interfaceDeclaration;
-  readonly kind = "Object";
+  readonly kind = "ObjectType";
   readonly mintingStrategy: Maybe<MintingStrategy>;
   readonly name: string;
   readonly rdfType: Maybe<NamedNode>;

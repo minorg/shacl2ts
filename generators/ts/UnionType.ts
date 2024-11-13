@@ -1,9 +1,8 @@
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
-import { ComposedType } from "./ComposedType.js";
 import type { RdfjsTermType } from "./RdfjsTermType";
-import type { Type } from "./Type.js";
+import { Type } from "./Type.js";
 
 const syntheticTypeDiscriminatorPropertyName = "type";
 
@@ -14,8 +13,18 @@ function syntheticTypeDiscriminatorValue({
   return `${typeIndex}-${type.name}`;
 }
 
-export class OrType extends ComposedType {
-  readonly kind = "Or";
+export class UnionType extends Type {
+  readonly kind = "UnionType";
+  readonly types: readonly Type[];
+
+  constructor({
+    types,
+    ...superParameters
+  }: ConstructorParameters<typeof Type>[0] & { types: readonly Type[] }) {
+    super(superParameters);
+    invariant(types.length >= 2);
+    this.types = types;
+  }
 
   @Memoize()
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {

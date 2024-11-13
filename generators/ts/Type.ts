@@ -5,7 +5,7 @@ import type { Configuration } from "./Configuration.js";
 import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
 export abstract class Type {
-  abstract readonly kind: ast.Type["kind"] | "List";
+  abstract readonly kind: ast.Type["kind"] | "ListType";
   abstract readonly name: string;
   protected readonly configuration: Configuration;
 
