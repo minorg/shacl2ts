@@ -12,6 +12,8 @@ import { ListType } from "./ListType.js";
 import { LiteralType } from "./LiteralType.js";
 import { NumberType } from "./NumberType.js";
 import { ObjectType } from "./ObjectType.js";
+import { OptionType } from "./OptionType";
+import { SetType } from "./SetType";
 import { StringType } from "./StringType.js";
 import type { Type } from "./Type.js";
 import { UnionType } from "./UnionType";
@@ -37,6 +39,7 @@ export class TypeFactory {
       case "IdentifierType":
         return new IdentifierType({
           configuration: this.configuration,
+          defaultValue: astType.defaultValue,
           hasValue: astType.hasValue,
           nodeKinds: astType.nodeKinds,
         });
@@ -53,24 +56,28 @@ export class TypeFactory {
           if (datatype.equals(xsd.boolean)) {
             return new BooleanType({
               configuration: this.configuration,
+              defaultValue: astType.defaultValue,
               hasValue: astType.hasValue,
             });
           }
           if (datatype.equals(xsd.integer)) {
             return new NumberType({
               configuration: this.configuration,
+              defaultValue: astType.defaultValue,
               hasValue: astType.hasValue,
             });
           }
           if (datatype.equals(xsd.anyURI) || datatype.equals(xsd.string)) {
             return new StringType({
               configuration: this.configuration,
+              defaultValue: astType.defaultValue,
               hasValue: astType.hasValue,
             });
           }
         }
         return new LiteralType({
           configuration: this.configuration,
+          defaultValue: astType.defaultValue,
           hasValue: astType.hasValue,
         });
       }
@@ -91,6 +98,16 @@ export class TypeFactory {
 
         return this.createObjectTypeFromAstType(astType);
       }
+      case "OptionType":
+        return new OptionType({
+          configuration: this.configuration,
+          itemType: this.createTypeFromAstType(astType),
+        });
+      case "SetType":
+        return new SetType({
+          configuration: this.configuration,
+          itemType: this.createTypeFromAstType(astType),
+        });
       case "UnionType":
         return new UnionType({
           configuration: this.configuration,
@@ -113,6 +130,7 @@ export class TypeFactory {
 
     const identifierType = new IdentifierType({
       configuration: this.configuration,
+      defaultValue: Maybe.empty(),
       hasValue: Maybe.empty(),
       nodeKinds: astType.nodeKinds,
     });
@@ -209,6 +227,7 @@ export class TypeFactory {
       // Non-inlined object type = its identifier
       type = new IdentifierType({
         configuration: this.configuration,
+        defaultValue: Maybe.empty(),
         hasValue: Maybe.empty(),
         nodeKinds: astObjectTypeProperty.type.nodeKinds,
       });
@@ -218,9 +237,6 @@ export class TypeFactory {
 
     const property = new ObjectType.ShaclProperty({
       configuration: this.configuration,
-      defaultValue: astObjectTypeProperty.defaultValue,
-      maxCount: astObjectTypeProperty.maxCount,
-      minCount: astObjectTypeProperty.minCount,
       name: tsName(astObjectTypeProperty.name),
       path: astObjectTypeProperty.path.iri,
       type,

@@ -78,11 +78,13 @@ export abstract class Type {
    * An expression that converts a value of this type to an rdfjs.TermType that can be added to
    * an rdfjsResource.Resource.
    */
-  abstract toRdfExpression(parameters: {
+  abstract toRdfStatements(parameters: {
     mutateGraphVariable: string;
+    predicateVariable: string;
+    resourceVariable: string;
     resourceSetVariable: string;
     valueVariable: string;
-  }): string;
+  }): readonly string[];
 
   /**
    * An expression that evaluates to a boolean if the given value is not the default value.

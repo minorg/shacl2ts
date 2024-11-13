@@ -90,11 +90,13 @@ export class ListType extends Type {
       );
   }
 
-  override toRdfExpression({
+  override toRdfStatements({
     mutateGraphVariable,
+    predicateVariable,
     resourceSetVariable,
+    resourceVariable,
     valueVariable,
-  }: Parameters<Type["toRdfExpression"]>[0]): string {
+  }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
     let listIdentifier: string;
     let mutableResourceTypeName: string;
     let resourceSetMethodName: string;
@@ -131,9 +133,8 @@ export class ListType extends Type {
       }
     }
 
-    return `\
-${valueVariable}.reduce(
-  ({ currentSubListResource, listResource }, item, itemIndex) => {
+    return [
+      `${resourceVariable}.add(${predicateVariable}, ${valueVariable}.reduce(({ currentSubListResource, listResource }, item, itemIndex) => {
     if (itemIndex === 0) {
       currentSubListResource = listResource;
     } else {
@@ -147,7 +148,7 @@ ${valueVariable}.reduce(
     
     ${this.rdfType.map((rdfType) => `currentSubListResource.add(dataFactory.namedNode("${rdf.type.value}"), dataFactory.namedNode("${rdfType.value}"))`).orDefault("")}
         
-    currentSubListResource.add(dataFactory.namedNode("${rdf.first.value}"), ${this.itemType.toRdfExpression({ mutateGraphVariable, resourceSetVariable, valueVariable: "item" })});
+    ${this.itemType.toRdfStatements({ mutateGraphVariable, predicateVariable: `dataFactory.namedNode("${rdf.first.value}")`, resourceVariable: "currentSubListResource", resourceSetVariable, valueVariable: "item" })}
 
     if (itemIndex + 1 === ${valueVariable}.length) {
       currentSubListResource.add(dataFactory.namedNode("${rdf.rest.value}"), dataFactory.namedNode("${rdf.nil.value}"));
@@ -165,7 +166,7 @@ ${valueVariable}.reduce(
     currentSubListResource: ${mutableResourceTypeName} | null;
     listResource: ${mutableResourceTypeName};
   },
-).listResource.identifier,
-`;
+).listResource.identifier);`,
+    ];
   }
 }

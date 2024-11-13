@@ -197,16 +197,22 @@ export class ObjectType extends Type {
     });
   }
 
-  override toRdfExpression({
+  override toRdfStatements({
+    predicateVariable,
     mutateGraphVariable,
+    resourceVariable,
     resourceSetVariable,
     valueVariable,
-  }: Parameters<Type["toRdfExpression"]>[0]): string {
+  }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
     switch (this.configuration.objectTypeDeclarationType) {
       case "class":
-        return `${valueVariable}.toRdf({ mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
+        return [
+          `${resourceVariable}.add(${predicateVariable}, ${valueVariable}.toRdf({ mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier);`,
+        ];
       case "interface":
-        return `${this.name}.toRdf(${valueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
+        return [
+          `${resourceVariable}.add(${predicateVariable}, ${this.name}.toRdf(${valueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier);`,
+        ];
     }
   }
 

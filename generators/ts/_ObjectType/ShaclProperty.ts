@@ -12,33 +12,19 @@ import { Memoize } from "typescript-memoize";
 import type { Type } from "../Type.js";
 import { Property } from "./Property.js";
 
-type ContainerType = "Array" | "Maybe" | null;
-
 export class ShaclProperty extends Property {
   readonly type: Type;
-  private readonly defaultValue: Maybe<BlankNode | Literal | NamedNode>;
-  private readonly maxCount: Maybe<number>;
-  private readonly minCount: number;
   private readonly path: rdfjs.NamedNode;
 
   constructor({
-    defaultValue,
-    maxCount,
-    minCount,
     path,
     type,
     ...superParameters
   }: {
-    defaultValue: Maybe<BlankNode | Literal | NamedNode>;
-    maxCount: Maybe<number>;
-    minCount: number;
     path: rdfjs.NamedNode;
     type: Type;
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
-    this.defaultValue = defaultValue;
-    this.maxCount = maxCount;
-    this.minCount = minCount;
     this.path = path;
     this.type = type;
   }
@@ -74,7 +60,7 @@ export class ShaclProperty extends Property {
           // Could also support Maybe here but why bother?
           hasQuestionToken = true;
         }
-        typeNames.add(this.typeName);
+        typeNames.add(this.type.name);
         for (const typeName of this.type.convertibleFromTypeNames) {
           typeNames.add(typeName);
         }
@@ -94,33 +80,12 @@ export class ShaclProperty extends Property {
     return {
       isReadonly: true,
       name: this.name,
-      type: this.typeName,
+      type: this.type.name,
     };
   }
 
-  // biome-ignore lint/suspicious/useGetterReturn: <explanation>
   override get equalsFunction(): string {
-    const typeEqualsFunction = this.type.equalsFunction();
-    const signature = "(left, right)";
-    switch (this.containerType) {
-      case "Array": {
-        if (typeEqualsFunction === "purifyHelpers.Equatable.equals") {
-          return "purifyHelpers.Equatable.arrayEquals";
-        }
-        return `${signature} => purifyHelpers.Arrays.equals(left, right, ${typeEqualsFunction})`;
-      }
-      case "Maybe": {
-        if (typeEqualsFunction === "purifyHelpers.Equatable.equals") {
-          return "purifyHelpers.Equatable.maybeEquals";
-        }
-        if (typeEqualsFunction === "purifyHelpers.Equatable.strictEquals") {
-          return `${signature} => left.equals(right)`; // Use Maybe.equals
-        }
-        return `${signature} => purifyHelpers.Maybes.equals(left, right, ${typeEqualsFunction})`;
-      }
-      case null:
-        return typeEqualsFunction;
-    }
+    return this.type.equalsFunction();
   }
 
   override get importStatements(): readonly string[] {
@@ -131,38 +96,13 @@ export class ShaclProperty extends Property {
     return {
       isReadonly: true,
       name: this.name,
-      type: this.typeName,
+      type: this.type.name,
     };
-  }
-
-  @Memoize()
-  private get containerType(): ContainerType {
-    const maxCount = this.maxCount.extractNullable();
-    if (this.minCount === 0 && maxCount === 1) {
-      return this.defaultValue.isJust() ? null : "Maybe";
-    }
-    if (this.minCount === 1 && maxCount === 1) {
-      return null;
-    }
-    return "Array";
   }
 
   @Memoize()
   private get pathExpression(): string {
     return `${this.configuration.dataFactoryVariable}.namedNode("${this.path.value}")`;
-  }
-
-  private get typeName(): string {
-    switch (this.containerType) {
-      case "Array":
-        return `readonly (${this.type.name})[]`;
-      case "Maybe":
-        return `purify.Maybe<${this.type.name}>`;
-      case null:
-        return this.type.name;
-      default:
-        throw new Error("should never reach this");
-    }
   }
 
   override classConstructorInitializerExpression({
@@ -242,36 +182,10 @@ export class ShaclProperty extends Property {
     }
   }
 
-  override hashStatements({
-    hasherVariable,
-    valueVariable,
-  }: Parameters<Property["hashStatements"]>[0]): readonly string[] {
-    switch (this.containerType) {
-      case "Array":
-        return [
-          `for (const _element of ${valueVariable}) { ${this.type
-            .hashStatements({
-              hasherVariable,
-              valueVariable: "_element",
-            })
-            .join("\n")} }`,
-        ];
-      case "Maybe": {
-        return [
-          `${valueVariable}.ifJust((_${this.name}) => { ${this.type
-            .hashStatements({
-              hasherVariable,
-              valueVariable: `_${this.name}`,
-            })
-            .join("\n")} })`,
-        ];
-      }
-      case null:
-        return this.type.hashStatements({
-          hasherVariable,
-          valueVariable: valueVariable,
-        });
-    }
+  override hashStatements(
+    parameters: Parameters<Property["hashStatements"]>[0],
+  ): readonly string[] {
+    return this.type.hashStatements(parameters);
   }
 
   override sparqlGraphPatternExpression(): Maybe<string> {
@@ -300,10 +214,13 @@ export class ShaclProperty extends Property {
     mutateGraphVariable,
     resourceSetVariable,
     valueVariable,
-  }: Parameters<Property["toRdfStatements"]>[0]): readonly string[] {
+  }: Omit<
+    Parameters<Type["toRdfStatements"]>[0],
+    "predicate"
+  >): readonly string[] {
     const resourceAddValueVariable =
       this.containerType === null ? valueVariable : `${this.name}Value`;
-    let resourceAddStatement = `resource.add(${this.pathExpression}, ${this.type.toRdfExpression({ mutateGraphVariable, resourceSetVariable, valueVariable: resourceAddValueVariable })});`;
+    let resourceAddStatement = `resource.add(${this.pathExpression}, ${this.type.toRdfStatements({ mutateGraphVariable, resourceSetVariable, valueVariable: resourceAddValueVariable })});`;
     if (this.containerType !== "Array") {
       this.defaultValue.ifJust((defaultValue) => {
         resourceAddStatement = `if (${this.type.valueIsNotDefaultExpression({ defaultValue, valueVariable: resourceAddValueVariable })}) { ${resourceAddStatement} }`;

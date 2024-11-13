@@ -208,41 +208,29 @@ ${this.memberTypes
     }
   }
 
-  override toRdfExpression({
+  override toRdfStatements({
     valueVariable,
     ...otherParameters
-  }: Parameters<Type["toRdfExpression"]>[0]): string {
-    let expression = "";
+  }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
+    const statements: string[] = [];
     this.memberTypes.forEach((type, typeIndex) => {
-      if (this.typesSharedDiscriminatorProperty.isJust()) {
-        if (expression.length === 0) {
-          expression = type.toRdfExpression({
-            valueVariable: valueVariable,
-            ...otherParameters,
-          });
-        } else {
-          expression = `(${type.discriminatorProperty
-            .unsafeCoerce()
-            .values.map(
-              (value) =>
-                `${valueVariable}.${this.typesSharedDiscriminatorProperty.unsafeCoerce().name} === "${value}"`,
-            )
-            .join(
-              " || ",
-            )}) ? ${type.toRdfExpression({ valueVariable: valueVariable, ...otherParameters })} : ${expression}`;
-        }
-      } else {
-        if (expression.length === 0) {
-          expression = type.toRdfExpression({
-            valueVariable: `${valueVariable}.value`,
-            ...otherParameters,
-          });
-        } else {
-          // No shared type discriminator between the types, use the one we synthesized
-          expression = `(${valueVariable}.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") ? (${type.toRdfExpression({ valueVariable: `${valueVariable}.value`, ...otherParameters })}) : (${expression})`;
-        }
-      }
+      const typeStatements = type
+        .toRdfStatements({ valueVariable, ...otherParameters })
+        .join("\n");
+      this.typesSharedDiscriminatorProperty
+        .ifJust((typeShareDiscriminatorProperty) => {
+          for (const typeDiscriminatorValue of typeShareDiscriminatorProperty.values) {
+            statements.push(
+              `if (${valueVariable}.${typeShareDiscriminatorProperty.name} === "${typeDiscriminatorValue}") { ${typeStatements} }`,
+            );
+          }
+        })
+        .ifNothing(() => {
+          statements.push(
+            `if (${valueVariable}.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") { ${typeStatements} }`,
+          );
+        });
     });
-    return expression;
+    return statements;
   }
 }

@@ -35,7 +35,7 @@ export class IntersectionType extends Type {
     throw new Error("Method not implemented.");
   }
 
-  override toRdfExpression(): string {
+  override toRdfStatements(): readonly string[] {
     throw new Error("Method not implemented.");
   }
 }

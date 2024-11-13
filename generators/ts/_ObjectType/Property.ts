@@ -49,6 +49,6 @@ export abstract class Property {
   abstract sparqlGraphPatternExpression(): Maybe<string>;
 
   abstract toRdfStatements(
-    parameters: Parameters<Type["toRdfExpression"]>[0],
+    parameters: Parameters<Type["toRdfStatements"]>[0],
   ): readonly string[];
 }
