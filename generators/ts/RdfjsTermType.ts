@@ -8,16 +8,20 @@ import { Type } from "./Type.js";
 export abstract class RdfjsTermType<
   RdfjsTermT extends BlankNode | Literal | NamedNode,
 > extends Type {
+  readonly defaultValue: Maybe<RdfjsTermT>;
   readonly hasValue: Maybe<RdfjsTermT>;
   abstract override readonly kind: "IdentifierType" | "LiteralType";
 
   constructor({
+    defaultValue,
     hasValue,
     ...superParameters
   }: {
+    defaultValue: Maybe<RdfjsTermT>;
     hasValue: Maybe<RdfjsTermT>;
   } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
+    this.defaultValue = defaultValue;
     this.hasValue = hasValue;
   }
 
@@ -30,9 +34,9 @@ export abstract class RdfjsTermType<
     return Maybe.empty();
   }
 
-  override toRdfExpression({
+  override toRdfStatements({
     valueVariable,
-  }: Parameters<Type["toRdfExpression"]>[0]): string {
+  }: Parameters<Type["toRdfStatements"]>[0]): string {
     return valueVariable;
   }
 }

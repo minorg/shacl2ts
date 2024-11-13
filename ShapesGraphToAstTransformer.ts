@@ -353,17 +353,8 @@ export class ShapesGraphToAstTransformer {
       );
     }
 
-    const minCount = propertyShape.constraints.minCount
-      .filter((minCount) => minCount >= 0)
-      .orDefault(0);
-
     const property: ast.ObjectType.Property = {
-      defaultValue: propertyShape.constraints.defaultValue,
       inline,
-      maxCount: propertyShape.constraints.maxCount.filter(
-        (maxCount) => maxCount >= minCount,
-      ),
-      minCount,
       name: this.shapeName(propertyShape),
       path,
       type: type.extract() as ast.Type,
@@ -385,179 +376,227 @@ export class ShapesGraphToAstTransformer {
     shape: shaclAst.Shape,
     { inline }: { inline: boolean },
   ): Either<Error, ast.Type> {
-    const hasValue = shape.constraints.hasValue;
+    return ((): Either<Error, ast.Type> => {
+      const defaultValue =
+        shape instanceof shaclAst.PropertyShape
+          ? shape.defaultValue
+          : Maybe.empty();
+      const hasValue = shape.constraints.hasValue;
 
-    // Conjunctions/disjunctions of multiple types
-    if (
-      shape.constraints.and.length > 0 ||
-      shape.constraints.classes.length > 0 ||
-      shape.constraints.nodes.length > 0 ||
-      shape.constraints.or.length > 0
-    ) {
-      let memberTypeEithers: readonly Either<Error, ast.Type>[];
-      let compositeTypeKind: "IntersectionType" | "UnionType";
-      if (shape.constraints.and.length > 0) {
-        memberTypeEithers = shape.constraints.and.map((shape) =>
-          this.propertyShapeAstType(shape, { inline }),
-        );
-        compositeTypeKind = "IntersectionType";
-      } else if (shape.constraints.classes.length > 0) {
-        memberTypeEithers = shape.constraints.classes.map((classIri) =>
-          this.resolveClassAstObjectType(classIri).map((classObjectType) =>
-            inline
-              ? classObjectType
-              : {
-                  hasValue: Maybe.empty(),
-                  kind: "IdentifierType",
-                  nodeKinds: classObjectType.nodeKinds,
-                },
-          ),
-        );
-        compositeTypeKind = "IntersectionType";
-      } else if (shape.constraints.nodes.length > 0) {
-        memberTypeEithers = shape.constraints.nodes.map((nodeShape) =>
-          this.nodeShapeAstType(nodeShape),
-        );
-        compositeTypeKind = "IntersectionType";
-      } else {
-        memberTypeEithers = shape.constraints.or.map((shape) =>
-          this.propertyShapeAstType(shape, { inline }),
-        );
-        compositeTypeKind = "UnionType";
-      }
-      invariant(memberTypeEithers.length > 0);
+      // Conjunctions/disjunctions of multiple types
+      if (
+        shape.constraints.and.length > 0 ||
+        shape.constraints.classes.length > 0 ||
+        shape.constraints.nodes.length > 0 ||
+        shape.constraints.or.length > 0
+      ) {
+        let memberTypeEithers: readonly Either<Error, ast.Type>[];
+        let compositeTypeKind: "IntersectionType" | "UnionType";
+        if (shape.constraints.and.length > 0) {
+          memberTypeEithers = shape.constraints.and.map((shape) =>
+            this.propertyShapeAstType(shape, { inline }),
+          );
+          compositeTypeKind = "IntersectionType";
+        } else if (shape.constraints.classes.length > 0) {
+          memberTypeEithers = shape.constraints.classes.map((classIri) =>
+            this.resolveClassAstObjectType(classIri).map((classObjectType) =>
+              inline
+                ? classObjectType
+                : {
+                    defaultValue: defaultValue.filter(
+                      (term) => term.termType !== "Literal",
+                    ),
+                    hasValue: Maybe.empty(),
+                    kind: "IdentifierType",
+                    nodeKinds: classObjectType.nodeKinds,
+                  },
+            ),
+          );
+          compositeTypeKind = "IntersectionType";
+        } else if (shape.constraints.nodes.length > 0) {
+          memberTypeEithers = shape.constraints.nodes.map((nodeShape) =>
+            this.nodeShapeAstType(nodeShape),
+          );
+          compositeTypeKind = "IntersectionType";
+        } else {
+          memberTypeEithers = shape.constraints.or.map((shape) =>
+            this.propertyShapeAstType(shape, { inline }),
+          );
+          compositeTypeKind = "UnionType";
+        }
+        invariant(memberTypeEithers.length > 0);
 
-      const memberTypes = Either.rights(memberTypeEithers);
-      if (memberTypes.length !== memberTypeEithers.length) {
-        logger.warn(
-          "shape %s composition did not map all composed types successfully",
-          shape,
-        );
-        return memberTypeEithers[0];
-      }
-      invariant(memberTypes.length > 0);
+        const memberTypes = Either.rights(memberTypeEithers);
+        if (memberTypes.length !== memberTypeEithers.length) {
+          logger.warn(
+            "shape %s composition did not map all member types successfully",
+            shape,
+          );
+          return memberTypeEithers[0];
+        }
+        invariant(memberTypes.length > 0);
 
-      if (memberTypes.length === 1) {
-        return Either.of(memberTypes[0]);
+        if (memberTypes.length === 1) {
+          return Either.of(memberTypes[0]);
+        }
+
+        if (
+          hasValue.isNothing() &&
+          memberTypes.every(
+            (compositeType) =>
+              compositeType.kind === "LiteralType" &&
+              compositeType.maxExclusive.isNothing() &&
+              compositeType.maxInclusive.isNothing() &&
+              compositeType.minExclusive.isNothing() &&
+              compositeType.minInclusive.isNothing(),
+          )
+        ) {
+          // Special case: all the member types are Literals without further constraints,
+          // like dash:StringOrLangString
+          return Either.of({
+            datatype: Maybe.empty(),
+            defaultValue: defaultValue.filter(
+              (term) => term.termType === "Literal",
+            ),
+            hasValue: Maybe.empty(),
+            kind: "LiteralType",
+            maxExclusive: Maybe.empty(),
+            maxInclusive: Maybe.empty(),
+            minExclusive: Maybe.empty(),
+            minInclusive: Maybe.empty(),
+          });
+        }
+
+        if (
+          hasValue.isNothing() &&
+          memberTypes.every(
+            (compositeType) => compositeType.kind === "IdentifierType",
+          )
+        ) {
+          // Special case: all member types are blank or named nodes without further constraints
+          return Either.of({
+            defaultValue: defaultValue.filter(
+              (term) => term.termType !== "Literal",
+            ),
+            hasValue: Maybe.empty(),
+            kind: "IdentifierType",
+            nodeKinds: new Set<NodeKind.BLANK_NODE | NodeKind.IRI>(
+              memberTypes
+                .filter(
+                  (compositeType) => compositeType.kind === "IdentifierType",
+                )
+                .flatMap((compositeType) => [...compositeType.nodeKinds]),
+            ),
+          });
+        }
+
+        return Either.of({
+          kind: compositeTypeKind,
+          memberTypes: memberTypes,
+        });
       }
 
       if (
-        hasValue.isNothing() &&
-        memberTypes.every(
-          (compositeType) =>
-            compositeType.kind === "LiteralType" &&
-            compositeType.maxExclusive.isNothing() &&
-            compositeType.maxInclusive.isNothing() &&
-            compositeType.minExclusive.isNothing() &&
-            compositeType.minInclusive.isNothing(),
-        )
+        // Treat any shape with the constraints in the list as a literal type
+        [
+          shape.constraints.datatype,
+          shape.constraints.maxExclusive,
+          shape.constraints.maxInclusive,
+          shape.constraints.minExclusive,
+          shape.constraints.minInclusive,
+        ].some((constraint) => constraint.isJust()) ||
+        // Treat any shape with a literal value as a literal type
+        hasValue.extractNullable()?.termType === "Literal" ||
+        // Treat any shape with a single sh:nodeKind of sh:Literal as a literal type
+        (shape.constraints.nodeKinds.size === 1 &&
+          shape.constraints.nodeKinds.has(shaclAst.NodeKind.LITERAL))
       ) {
-        // Special case: all the composed types are Literals without further constraints,
-        // like dash:StringOrLangString
-        return Either.of({
-          datatype: Maybe.empty(),
-          hasValue: Maybe.empty(),
+        return Either.of<Error, ast.LiteralType>({
+          datatype: shape.constraints.datatype,
+          defaultValue: defaultValue.filter(
+            (term) => term.termType === "Literal",
+          ),
+          hasValue: hasValue.filter((term) => term.termType === "Literal"),
           kind: "LiteralType",
-          maxExclusive: Maybe.empty(),
-          maxInclusive: Maybe.empty(),
-          minExclusive: Maybe.empty(),
-          minInclusive: Maybe.empty(),
+          maxExclusive: shape.constraints.maxExclusive,
+          maxInclusive: shape.constraints.maxInclusive,
+          minExclusive: shape.constraints.minExclusive,
+          minInclusive: shape.constraints.minInclusive,
         });
       }
 
+      // Treat any shape with sh:nodeKind blank node or IRI as an identifier type
+      const identifierDefaultValue = defaultValue.filter(
+        (value) => value.termType !== "Literal",
+      );
+      const hasIdentifierValue = hasValue.filter(
+        (value) => value.termType !== "Literal",
+      );
       if (
-        hasValue.isNothing() &&
-        memberTypes.every(
-          (compositeType) => compositeType.kind === "IdentifierType",
-        )
+        hasIdentifierValue.isJust() ||
+        identifierDefaultValue.isJust() ||
+        (shape.constraints.nodeKinds.size > 0 &&
+          shape.constraints.nodeKinds.size <= 2 &&
+          !shape.constraints.nodeKinds.has(shaclAst.NodeKind.LITERAL))
       ) {
-        // Special case: all composed types are blank or named nodes without further constraints
+        const nodeKinds = hasIdentifierValue
+          .map((value) => {
+            const nodeKinds = new Set<
+              shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
+            >();
+            switch (value.termType) {
+              case "BlankNode":
+                nodeKinds.add(shaclAst.NodeKind.BLANK_NODE);
+                break;
+              case "NamedNode":
+                nodeKinds.add(shaclAst.NodeKind.IRI);
+                break;
+            }
+            return nodeKinds;
+          })
+          .orDefaultLazy(
+            () =>
+              shape.constraints.nodeKinds as Set<
+                shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
+              >,
+          );
+        invariant(nodeKinds.size > 0);
+
         return Either.of({
-          hasValue: Maybe.empty(),
+          defaultValue: identifierDefaultValue,
+          hasValue: hasIdentifierValue,
           kind: "IdentifierType",
-          nodeKinds: new Set<NodeKind.BLANK_NODE | NodeKind.IRI>(
-            memberTypes
-              .filter(
-                (compositeType) => compositeType.kind === "IdentifierType",
-              )
-              .flatMap((compositeType) => [...compositeType.nodeKinds]),
-          ),
+          nodeKinds,
         });
       }
 
-      return Either.of({
-        kind: compositeTypeKind,
-        memberTypes: memberTypes,
-      });
-    }
+      return Left(new Error(`unable to transform type on ${shape}`));
+    })().map((itemType) => {
+      // Handle cardinality constraints
+      const minCount = shape.constraints.minCount
+        .filter((minCount) => minCount >= 0)
+        .orDefault(0);
 
-    if (
-      // Treat any shape with the constraints in the list as a literal type
-      [
-        shape.constraints.datatype,
-        shape.constraints.maxExclusive,
-        shape.constraints.maxInclusive,
-        shape.constraints.minExclusive,
-        shape.constraints.minInclusive,
-      ].some((constraint) => constraint.isJust()) ||
-      // Treat any shape with a literal value as a literal type
-      hasValue.extractNullable()?.termType === "Literal" ||
-      // Treat any shape with a single sh:nodeKind of sh:Literal as a literal type
-      (shape.constraints.nodeKinds.size === 1 &&
-        shape.constraints.nodeKinds.has(shaclAst.NodeKind.LITERAL))
-    ) {
-      return Either.of<Error, ast.LiteralType>({
-        datatype: shape.constraints.datatype,
-        hasValue: hasValue.filter((term) => term.termType === "Literal"),
-        kind: "LiteralType",
-        maxExclusive: shape.constraints.maxExclusive,
-        maxInclusive: shape.constraints.maxInclusive,
-        minExclusive: shape.constraints.minExclusive,
-        minInclusive: shape.constraints.minInclusive,
-      });
-    }
+      const maxCount = shape.constraints.maxCount
+        .filter((maxCount) => maxCount >= minCount)
+        .extractNullable();
 
-    // Treat any shape with sh:nodeKind blank node or IRI as an identifier type
-    const hasIdentifierValue = hasValue.filter(
-      (value) => value.termType !== "Literal",
-    );
-    if (
-      hasIdentifierValue.isJust() ||
-      (shape.constraints.nodeKinds.size > 0 &&
-        shape.constraints.nodeKinds.size <= 2 &&
-        !shape.constraints.nodeKinds.has(shaclAst.NodeKind.LITERAL))
-    ) {
-      const nodeKinds = hasIdentifierValue
-        .map((value) => {
-          const nodeKinds = new Set<
-            shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
-          >();
-          switch (value.termType) {
-            case "BlankNode":
-              nodeKinds.add(shaclAst.NodeKind.BLANK_NODE);
-              break;
-            case "NamedNode":
-              nodeKinds.add(shaclAst.NodeKind.IRI);
-              break;
-          }
-          return nodeKinds;
-        })
-        .orDefaultLazy(
-          () =>
-            shape.constraints.nodeKinds as Set<
-              shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
-            >,
-        );
-      invariant(nodeKinds.size > 0);
+      if (minCount === 0 && maxCount === 1) {
+        return {
+          itemType,
+          kind: "OptionType",
+        };
+      }
 
-      return Either.of({
-        hasValue: hasIdentifierValue,
-        kind: "IdentifierType",
-        nodeKinds,
-      });
-    }
+      if (minCount === 1 && maxCount === 1) {
+        return itemType;
+      }
 
-    return Left(new Error(`unable to transform type on ${shape}`));
+      return {
+        itemType,
+        kind: "SetType",
+      };
+    });
   }
 
   private resolveClassAstObjectType(
