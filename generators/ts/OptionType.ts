@@ -39,10 +39,10 @@ export class OptionType extends Type {
     valueVariable,
   }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `${valueVariable}.ifJust((_${this.name}) => { ${this.type
+      `${valueVariable}.ifJust((value) => { ${this.itemType
         .hashStatements({
           hasherVariable,
-          valueVariable: `_${this.name}`,
+          valueVariable: "value",
         })
         .join("\n")} })`,
     ];
@@ -51,7 +51,19 @@ export class OptionType extends Type {
   override sparqlGraphPatternExpression(parameters: {
     subjectVariable: string;
   }): Maybe<Type.SparqlGraphPatternExpression> {
-    throw new Error("Method not implemented.");
+    return this.itemType
+      .sparqlGraphPatternExpression(parameters)
+      .map((typeSparqlGraphPatternExpression) => {
+        let value = typeSparqlGraphPatternExpression.value;
+        if (typeSparqlGraphPatternExpression.type === "GraphPatterns") {
+          value = `sparqlBuilder.GraphPattern.group(${value})`;
+        }
+        value = `sparqlBuilder.GraphPattern.optional(${value})`;
+        return {
+          type: "GraphPattern",
+          value,
+        };
+      });
   }
 
   override toRdfStatements({

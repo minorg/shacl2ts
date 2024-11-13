@@ -214,10 +214,7 @@ export class ShaclProperty extends Property {
     mutateGraphVariable,
     resourceSetVariable,
     valueVariable,
-  }: Omit<
-    Parameters<Type["toRdfStatements"]>[0],
-    "predicate"
-  >): readonly string[] {
+  }: Parameters<Property["toRdfStatements"]>[0]): readonly string[] {
     const resourceAddValueVariable =
       this.containerType === null ? valueVariable : `${this.name}Value`;
     let resourceAddStatement = `resource.add(${this.pathExpression}, ${this.type.toRdfStatements({ mutateGraphVariable, resourceSetVariable, valueVariable: resourceAddValueVariable })});`;

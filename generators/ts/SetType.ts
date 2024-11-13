@@ -44,10 +44,10 @@ export class SetType extends Type {
     valueVariable: string;
   }): readonly string[] {
     return [
-      `for (const _element of ${valueVariable}) { ${this.itemType
+      `for (const element of ${valueVariable}) { ${this.itemType
         .hashStatements({
           hasherVariable,
-          valueVariable: "_element",
+          valueVariable: "element",
         })
         .join("\n")} }`,
     ];
@@ -56,7 +56,7 @@ export class SetType extends Type {
   override sparqlGraphPatternExpression(parameters: {
     subjectVariable: string;
   }): Maybe<Type.SparqlGraphPatternExpression> {
-    throw new Error("Method not implemented.");
+    return this.itemType.sparqlGraphPatternExpression(parameters);
   }
 
   override toRdfStatements({
