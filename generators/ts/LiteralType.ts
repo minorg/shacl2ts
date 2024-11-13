@@ -4,7 +4,7 @@ import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type";
 
 export class LiteralType extends RdfjsTermType {
-  readonly kind = "Literal";
+  readonly kind = "LiteralType";
 
   override get convertibleFromTypeNames(): readonly string[] {
     return [this.name, "boolean", "Date", "number", "string"];

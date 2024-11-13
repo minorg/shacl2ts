@@ -8,7 +8,7 @@ import { Type } from "./Type.js";
 
 export class ListType extends Type {
   readonly itemType: Type;
-  readonly kind = "List";
+  readonly kind = "ListType";
   private readonly identifierNodeKind: NodeKind.BLANK_NODE | NodeKind.IRI;
   private readonly mintingStrategy: MintingStrategy;
   private readonly rdfType: Maybe<NamedNode>;

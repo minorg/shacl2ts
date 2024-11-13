@@ -63,18 +63,18 @@ function termToJson(term: RdfjsTerm): AstJson.Term {
 
 function typeToJson(type: ast.Type): AstJson.Type {
   switch (type.kind) {
-    case "And":
-    case "Or":
-      return {
-        kind: type.kind,
-        types: type.types.map((type) => typeToJson(type)),
-      };
-    case "Identifier":
+    case "IdentifierType":
       return {
         kind: type.kind,
         nodeKinds: [...type.nodeKinds].map(nodeKindToJson),
       };
-    case "Literal": {
+    case "IntersectionType":
+    case "UnionType":
+      return {
+        kind: type.kind,
+        types: type.types.map((type) => typeToJson(type)),
+      };
+    case "LiteralType": {
       return {
         datatype: type.datatype.extract(),
         kind: type.kind,
@@ -84,7 +84,7 @@ function typeToJson(type: ast.Type): AstJson.Type {
         minInclusive: type.minInclusive.map(termToJson).extract(),
       } satisfies AstJson.Type;
     }
-    case "Object":
+    case "ObjectType":
       return {
         kind: type.kind,
         listItemType: type.listItemType.map(typeToJson).extract(),

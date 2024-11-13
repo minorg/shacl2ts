@@ -41,7 +41,7 @@ export interface ObjectType {
    */
   readonly export: boolean;
 
-  readonly kind: "Object";
+  readonly kind: "ObjectType";
 
   /**
    * If the ObjectType is an RDF list, this is the type of rdf:first.

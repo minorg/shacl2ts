@@ -3,17 +3,17 @@ import type { BlankNode, NamedNode } from "@rdfjs/types";
 import { xsd } from "@tpluscode/rdf-ns-builders";
 import { NodeKind } from "shacl-ast";
 import type * as ast from "../../ast";
-import { AndType } from "./AndType.js";
 import { BooleanType } from "./BooleanType";
 import type { Configuration } from "./Configuration";
 import { IdentifierType } from "./IdentifierType";
+import { IntersectionType } from "./IntersectionType";
 import { ListType } from "./ListType.js";
 import { LiteralType } from "./LiteralType.js";
 import { NumberType } from "./NumberType.js";
 import { ObjectType } from "./ObjectType.js";
-import { OrType } from "./OrType.js";
 import { StringType } from "./StringType.js";
 import type { Type } from "./Type.js";
+import { UnionType } from "./UnionType";
 import { tsName } from "./tsName.js";
 
 export class TypeFactory {
@@ -33,26 +33,19 @@ export class TypeFactory {
 
   createTypeFromAstType(astType: ast.Type): Type {
     switch (astType.kind) {
-      case "And":
-        return new AndType({
-          configuration: this.configuration,
-          types: astType.types.map((astType) =>
-            this.createTypeFromAstType(astType),
-          ),
-        });
-      case "Or":
-        return new OrType({
-          configuration: this.configuration,
-          types: astType.types.map((astType) =>
-            this.createTypeFromAstType(astType),
-          ),
-        });
-      case "Identifier":
+      case "IdentifierType":
         return new IdentifierType({
           configuration: this.configuration,
           nodeKinds: astType.nodeKinds,
         });
-      case "Literal": {
+      case "IntersectionType":
+        return new IntersectionType({
+          configuration: this.configuration,
+          types: astType.types.map((astType) =>
+            this.createTypeFromAstType(astType),
+          ),
+        });
+      case "LiteralType": {
         const datatype = astType.datatype.extractNullable();
         if (datatype !== null) {
           if (datatype.equals(xsd.boolean)) {
@@ -67,7 +60,7 @@ export class TypeFactory {
         }
         return new LiteralType({ configuration: this.configuration });
       }
-      case "Object":
+      case "ObjectType": {
         if (astType.listItemType.isJust()) {
           return new ListType({
             configuration: this.configuration,
@@ -83,6 +76,14 @@ export class TypeFactory {
         }
 
         return this.createObjectTypeFromAstType(astType);
+      }
+      case "UnionType":
+        return new UnionType({
+          configuration: this.configuration,
+          types: astType.types.map((astType) =>
+            this.createTypeFromAstType(astType),
+          ),
+        });
     }
   }
 
@@ -187,7 +188,7 @@ export class TypeFactory {
 
     let type: Type;
     if (
-      astObjectTypeProperty.type.kind === "Object" &&
+      astObjectTypeProperty.type.kind === "ObjectType" &&
       !astObjectTypeProperty.inline
     ) {
       // Non-inlined object type = its identifier
