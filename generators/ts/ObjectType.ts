@@ -3,7 +3,6 @@ import { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import { MintingStrategy } from "../../ast";
 import type { IdentifierType } from "./IdentifierType.js";
-import type { RdfjsTermType } from "./RdfjsTermType";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType";
 
@@ -165,7 +164,7 @@ export class ObjectType extends Type {
   override hashStatements({
     hasherVariable,
     valueVariable,
-  }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
+  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
       `${this.name}.${this.hashFunctionName}(${valueVariable}, ${hasherVariable});`,
     ];

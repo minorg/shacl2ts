@@ -57,6 +57,7 @@ export abstract class Type {
    * An expression that converts a rdfjsResource.Resource.Value to a value of this type.
    */
   abstract fromRdfExpression(parameters: {
+    propertyPath: NamedNode;
     resourceValueVariable: string;
     resourceVariable: string;
   }): string;

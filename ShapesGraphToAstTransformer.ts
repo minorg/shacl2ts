@@ -357,7 +357,6 @@ export class ShapesGraphToAstTransformer {
 
     const property: ast.ObjectType.Property = {
       defaultValue: propertyShape.constraints.defaultValue,
-      hasValue: propertyShape.constraints.hasValue,
       inline,
       maxCount: propertyShape.constraints.maxCount.filter(
         (maxCount) => maxCount >= minCount,
@@ -507,6 +506,7 @@ export class ShapesGraphToAstTransformer {
     ) {
       return Either.of<Error, ast.LiteralType>({
         datatype: shape.constraints.datatype,
+        hasValue: hasValue.filter((term) => term.termType === "Literal"),
         kind: "LiteralType",
         maxExclusive: shape.constraints.maxExclusive,
         maxInclusive: shape.constraints.maxInclusive,

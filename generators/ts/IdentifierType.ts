@@ -5,8 +5,9 @@ import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
 import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type";
+import { rdfjsTermExpression } from "./rdfjsTermExpression";
 
-export class IdentifierType extends RdfjsTermType {
+export class IdentifierType extends RdfjsTermType<BlankNode | NamedNode> {
   readonly kind = "IdentifierType";
   private readonly nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
 
@@ -15,7 +16,7 @@ export class IdentifierType extends RdfjsTermType {
     ...superParameters
   }: {
     nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
-  } & ConstructorParameters<typeof Type>[0]) {
+  } & ConstructorParameters<typeof RdfjsTermType<BlankNode | NamedNode>>[0]) {
     super(superParameters);
     this.nodeKinds = new Set([...nodeKinds]);
     invariant(this.nodeKinds.size > 0);
@@ -53,18 +54,27 @@ export class IdentifierType extends RdfjsTermType {
   }
 
   override fromRdfExpression({
+    propertyPath,
+    resourceVariable,
     resourceValueVariable,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
+    let expression: string;
     switch (this.name) {
       case "rdfjs.BlankNode":
         throw new Error("not implemented");
       case "rdfjs.NamedNode":
-        return `${resourceValueVariable}.toIri()`;
+        expression = `${resourceValueVariable}.toIri()`;
+        break;
       case "rdfjs.BlankNode | rdfjs.NamedNode":
-        return `${resourceValueVariable}.toIdentifier()`;
+        expression = `${resourceValueVariable}.toIdentifier()`;
+        break;
       default:
         throw new Error(`not implemented: ${this.name}`);
     }
+    this.hasValue.ifJust((hasValue) => {
+      expression = `${expression}.chain<rdfjsResource.Resource.ValueError, ${this.name}>(_identifier => _identifier.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${resourceVariable}, predicate: ${rdfjsTermExpression(propertyPath, this.configuration)} })))`;
+    });
+    return expression;
   }
 
   override hashStatements({

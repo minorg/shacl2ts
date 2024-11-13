@@ -10,7 +10,6 @@ import type {
 } from "ts-morph";
 import { Memoize } from "typescript-memoize";
 import type { Type } from "../Type.js";
-import { rdfjsTermExpression } from "../rdfjsTermExpression";
 import { Property } from "./Property.js";
 
 type ContainerType = "Array" | "Maybe" | null;
@@ -18,14 +17,12 @@ type ContainerType = "Array" | "Maybe" | null;
 export class ShaclProperty extends Property {
   readonly type: Type;
   private readonly defaultValue: Maybe<BlankNode | Literal | NamedNode>;
-  private readonly hasValue: Maybe<BlankNode | Literal | NamedNode>;
   private readonly maxCount: Maybe<number>;
   private readonly minCount: number;
   private readonly path: rdfjs.NamedNode;
 
   constructor({
     defaultValue,
-    hasValue,
     maxCount,
     minCount,
     path,
@@ -33,7 +30,6 @@ export class ShaclProperty extends Property {
     ...superParameters
   }: {
     defaultValue: Maybe<BlankNode | Literal | NamedNode>;
-    hasValue: Maybe<BlankNode | Literal | NamedNode>;
     maxCount: Maybe<number>;
     minCount: number;
     path: rdfjs.NamedNode;
@@ -41,7 +37,6 @@ export class ShaclProperty extends Property {
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
     this.defaultValue = defaultValue;
-    this.hasValue = hasValue;
     this.maxCount = maxCount;
     this.minCount = minCount;
     this.path = path;
@@ -211,6 +206,7 @@ export class ShaclProperty extends Property {
   }: Parameters<Property["fromRdfStatements"]>[0]): readonly string[] {
     const resourceValueVariable = "value";
     let valueFromRdfExpression = this.type.fromRdfExpression({
+      propertyPath: this.path,
       resourceVariable,
       resourceValueVariable,
     });
@@ -222,9 +218,6 @@ export class ShaclProperty extends Property {
     }
 
     valueFromRdfExpression = `${resourceVariable}.value(${this.pathExpression}).chain(${resourceValueVariable} => ${valueFromRdfExpression})`;
-    this.hasValue.ifJust((hasValue) => {
-      valueFromRdfExpression = `${valueFromRdfExpression}.chain<rdfjsResource.Resource.ValueError, ${this.type.name}>(_identifier => _identifier.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${resourceVariable}, predicate: ${rdfjsTermExpression(this.path, this.configuration)} })))`;
-    });
 
     switch (this.containerType) {
       case "Maybe":

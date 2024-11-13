@@ -1,6 +1,7 @@
 import TermMap from "@rdfjs/term-map";
 import type { BlankNode, NamedNode } from "@rdfjs/types";
 import { xsd } from "@tpluscode/rdf-ns-builders";
+import { Maybe } from "purify-ts";
 import { NodeKind } from "shacl-ast";
 import type * as ast from "../../ast";
 import { BooleanType } from "./BooleanType";
@@ -36,6 +37,7 @@ export class TypeFactory {
       case "IdentifierType":
         return new IdentifierType({
           configuration: this.configuration,
+          hasValue: astType.hasValue,
           nodeKinds: astType.nodeKinds,
         });
       case "IntersectionType":
@@ -49,16 +51,28 @@ export class TypeFactory {
         const datatype = astType.datatype.extractNullable();
         if (datatype !== null) {
           if (datatype.equals(xsd.boolean)) {
-            return new BooleanType({ configuration: this.configuration });
+            return new BooleanType({
+              configuration: this.configuration,
+              hasValue: astType.hasValue,
+            });
           }
           if (datatype.equals(xsd.integer)) {
-            return new NumberType({ configuration: this.configuration });
+            return new NumberType({
+              configuration: this.configuration,
+              hasValue: astType.hasValue,
+            });
           }
           if (datatype.equals(xsd.anyURI) || datatype.equals(xsd.string)) {
-            return new StringType({ configuration: this.configuration });
+            return new StringType({
+              configuration: this.configuration,
+              hasValue: astType.hasValue,
+            });
           }
         }
-        return new LiteralType({ configuration: this.configuration });
+        return new LiteralType({
+          configuration: this.configuration,
+          hasValue: astType.hasValue,
+        });
       }
       case "ObjectType": {
         if (astType.listItemType.isJust()) {
@@ -99,6 +113,7 @@ export class TypeFactory {
 
     const identifierType = new IdentifierType({
       configuration: this.configuration,
+      hasValue: Maybe.empty(),
       nodeKinds: astType.nodeKinds,
     });
 
@@ -194,6 +209,7 @@ export class TypeFactory {
       // Non-inlined object type = its identifier
       type = new IdentifierType({
         configuration: this.configuration,
+        hasValue: Maybe.empty(),
         nodeKinds: astObjectTypeProperty.type.nodeKinds,
       });
     } else {
@@ -203,7 +219,6 @@ export class TypeFactory {
     const property = new ObjectType.ShaclProperty({
       configuration: this.configuration,
       defaultValue: astObjectTypeProperty.defaultValue,
-      hasValue: astObjectTypeProperty.hasValue,
       maxCount: astObjectTypeProperty.maxCount,
       minCount: astObjectTypeProperty.minCount,
       name: tsName(astObjectTypeProperty.name),

@@ -65,6 +65,7 @@ function typeToJson(type: ast.Type): AstJson.Type {
   switch (type.kind) {
     case "IdentifierType":
       return {
+        hasValue: type.hasValue.map(termToJson).extract(),
         kind: type.kind,
         nodeKinds: [...type.nodeKinds].map(nodeKindToJson),
       };
@@ -77,6 +78,7 @@ function typeToJson(type: ast.Type): AstJson.Type {
     case "LiteralType": {
       return {
         datatype: type.datatype.extract(),
+        hasValue: type.hasValue.map(termToJson).extract(),
         kind: type.kind,
         maxExclusive: type.maxExclusive.map(termToJson).extract(),
         maxInclusive: type.maxInclusive.map(termToJson).extract(),
@@ -106,7 +108,6 @@ export class AstJsonGenerator {
           kind: objectType.kind,
           name: nameToJson(objectType.name),
           properties: objectType.properties.map((property) => ({
-            hasValue: property.hasValue.map(termToJson).extract(),
             maxCount: property.maxCount.extract(),
             minCount: property.minCount,
             name: nameToJson(property.name),

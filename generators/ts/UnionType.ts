@@ -1,7 +1,6 @@
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
-import type { RdfjsTermType } from "./RdfjsTermType";
 import { Type } from "./Type.js";
 
 const syntheticTypeDiscriminatorPropertyName = "type";
@@ -128,7 +127,7 @@ ${this.types
   override hashStatements({
     hasherVariable,
     valueVariable,
-  }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
+  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     const caseBlocks: string[] = [];
     this.types.forEach((type, typeIndex) => {
       if (this.typesSharedDiscriminatorProperty.isJust()) {

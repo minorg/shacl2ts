@@ -3,6 +3,7 @@ import type { Maybe } from "purify-ts";
 
 export interface LiteralType {
   readonly datatype: Maybe<NamedNode>;
+  readonly hasValue: Maybe<Literal>;
   readonly kind: "LiteralType";
   readonly maxExclusive: Maybe<Literal>;
   readonly maxInclusive: Maybe<Literal>;

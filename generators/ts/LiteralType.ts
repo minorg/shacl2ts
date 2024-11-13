@@ -3,7 +3,7 @@ import { Maybe } from "purify-ts";
 import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type";
 
-export class LiteralType extends RdfjsTermType {
+export class LiteralType extends RdfjsTermType<Literal> {
   readonly kind = "LiteralType";
 
   override get convertibleFromTypeNames(): readonly string[] {
@@ -43,7 +43,9 @@ export class LiteralType extends RdfjsTermType {
   override hashStatements({
     hasherVariable,
     valueVariable,
-  }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
+  }: Parameters<
+    RdfjsTermType<Literal>["hashStatements"]
+  >[0]): readonly string[] {
     return [`${hasherVariable}.update(${valueVariable}.value);`];
   }
 }

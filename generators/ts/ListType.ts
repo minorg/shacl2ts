@@ -3,7 +3,6 @@ import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import { NodeKind } from "shacl-ast";
 import { MintingStrategy } from "../../ast";
-import type { RdfjsTermType } from "./RdfjsTermType.js";
 import { Type } from "./Type.js";
 
 export class ListType extends Type {
@@ -61,7 +60,7 @@ export class ListType extends Type {
   override hashStatements({
     hasherVariable,
     valueVariable,
-  }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
+  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
       `for (const _element of ${valueVariable}) { ${this.itemType.hashStatements({ hasherVariable, valueVariable: "_element" }).join("\n")} }`,
     ];
