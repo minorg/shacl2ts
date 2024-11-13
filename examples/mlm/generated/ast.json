@@ -1,7 +1,7 @@
 {
   "objectTypes": [
     {
-      "kind": "Object",
+      "kind": "ObjectType",
       "name": {
         "curie": "anno-mlm:LanguageModel",
         "identifier": {
@@ -28,7 +28,7 @@
               "termType": "NamedNode",
               "value": "http://www.w3.org/2001/XMLSchema#integer"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -48,13 +48,13 @@
               "termType": "NamedNode",
               "value": "http://www.w3.org/2001/XMLSchema#integer"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         }
       ]
     },
     {
-      "kind": "Object",
+      "kind": "ObjectType",
       "name": {
         "curie": "anno-mlm:MachineLearningModel",
         "identifier": {
@@ -81,7 +81,7 @@
               "termType": "NamedNode",
               "value": "http://datashapes.org/dash#StringOrLangString"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -102,7 +102,7 @@
               "termType": "NamedNode",
               "value": "http://www.w3.org/2001/XMLSchema#string"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -118,7 +118,7 @@
           },
           "path": "https://schema.org/isVariantOf",
           "type": {
-            "kind": "Object",
+            "kind": "ObjectType",
             "name": {
               "curie": "anno-mlm:MachineLearningModelFamily",
               "identifier": {
@@ -152,7 +152,7 @@
               "termType": "NamedNode",
               "value": "http://datashapes.org/dash#StringOrLangString"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -172,7 +172,7 @@
               "termType": "NamedNode",
               "value": "http://www.w3.org/2001/XMLSchema#string"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -192,13 +192,13 @@
               "termType": "NamedNode",
               "value": "http://www.w3.org/2001/XMLSchema#anyURI"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         }
       ]
     },
     {
-      "kind": "Object",
+      "kind": "ObjectType",
       "name": {
         "curie": "anno-mlm:MachineLearningModelFamily",
         "identifier": {
@@ -225,7 +225,7 @@
               "termType": "NamedNode",
               "value": "http://datashapes.org/dash#StringOrLangString"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -241,7 +241,7 @@
           },
           "path": "https://schema.org/manufacturer",
           "type": {
-            "kind": "Object",
+            "kind": "ObjectType",
             "name": {
               "curie": "anno-mlm:Organization",
               "identifier": {
@@ -275,7 +275,7 @@
               "termType": "NamedNode",
               "value": "http://datashapes.org/dash#StringOrLangString"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -295,13 +295,13 @@
               "termType": "NamedNode",
               "value": "http://www.w3.org/2001/XMLSchema#anyURI"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         }
       ]
     },
     {
-      "kind": "Object",
+      "kind": "ObjectType",
       "name": {
         "curie": "anno-mlm:Organization",
         "identifier": {
@@ -328,7 +328,7 @@
               "termType": "NamedNode",
               "value": "http://datashapes.org/dash#StringOrLangString"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         }
       ]

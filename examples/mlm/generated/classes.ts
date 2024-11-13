@@ -232,9 +232,10 @@ export namespace MachineLearningModel {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    machineLearningModel: Omit<MachineLearningModel, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
+    machineLearningModel: Omit<
+      MachineLearningModel,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    > & { identifier?: rdfjs.NamedNode },
     hasher: HasherT,
   ): HasherT {
     machineLearningModel.description.ifJust((_description) => {
@@ -481,9 +482,10 @@ export namespace LanguageModel {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    languageModel: Omit<LanguageModel, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
+    languageModel: Omit<
+      LanguageModel,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    > & { identifier?: rdfjs.NamedNode },
     hasher: HasherT,
   ): HasherT {
     MachineLearningModel.hashMachineLearningModel(languageModel, hasher);
@@ -724,7 +726,7 @@ export namespace MachineLearningModelFamily {
   >(
     machineLearningModelFamily: Omit<
       MachineLearningModelFamily,
-      "identifier" | "type"
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
     > & { identifier?: rdfjs.NamedNode },
     hasher: HasherT,
   ): HasherT {
@@ -907,9 +909,10 @@ export namespace Organization {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    organization: Omit<Organization, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
+    organization: Omit<
+      Organization,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    > & { identifier?: rdfjs.NamedNode },
     hasher: HasherT,
   ): HasherT {
     if (typeof organization.identifier !== "undefined") {

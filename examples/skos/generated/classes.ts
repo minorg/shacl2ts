@@ -116,9 +116,10 @@ export namespace Collection {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    collection: Omit<Collection, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
+    collection: Omit<
+      Collection,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    > & { identifier?: rdfjs.NamedNode },
     hasher: HasherT,
   ): HasherT {
     if (typeof collection.identifier !== "undefined") {
@@ -1055,9 +1056,10 @@ export namespace Concept {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    concept: Omit<Concept, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
+    concept: Omit<
+      Concept,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    > & { identifier?: rdfjs.NamedNode },
     hasher: HasherT,
   ): HasherT {
     for (const _element of concept.altLabel) {
@@ -1712,9 +1714,10 @@ export namespace ConceptScheme {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    conceptScheme: Omit<ConceptScheme, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
+    conceptScheme: Omit<
+      ConceptScheme,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    > & { identifier?: rdfjs.NamedNode },
     hasher: HasherT,
   ): HasherT {
     for (const _element of conceptScheme.altLabel) {
@@ -1920,7 +1923,7 @@ export namespace Label {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    label: Omit<Label, "identifier" | "type"> & {
+    label: Omit<Label, "equals" | "hash" | "identifier" | "toRdf" | "type"> & {
       identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
     },
     hasher: HasherT,
@@ -2151,9 +2154,10 @@ export namespace OrderedCollection {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    orderedCollection: Omit<OrderedCollection, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
+    orderedCollection: Omit<
+      OrderedCollection,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    > & { identifier?: rdfjs.NamedNode },
     hasher: HasherT,
   ): HasherT {
     Collection.hashCollection(orderedCollection, hasher);

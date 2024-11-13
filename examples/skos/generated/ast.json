@@ -1,7 +1,7 @@
 {
   "objectTypes": [
     {
-      "kind": "Object",
+      "kind": "ObjectType",
       "name": {
         "curie": "skos-xl:Label",
         "identifier": {
@@ -21,13 +21,13 @@
           },
           "path": "http://www.w3.org/2008/05/skos-xl#literalForm",
           "type": {
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         }
       ]
     },
     {
-      "kind": "Object",
+      "kind": "ObjectType",
       "name": {
         "curie": "skos:Collection",
         "identifier": {
@@ -49,14 +49,14 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#member",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         }
       ]
     },
     {
-      "kind": "Object",
+      "kind": "ObjectType",
       "name": {
         "curie": "skos:Concept",
         "identifier": {
@@ -78,7 +78,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#altLabel",
           "type": {
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -93,7 +93,7 @@
           },
           "path": "http://www.w3.org/2008/05/skos-xl#altLabel",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["BlankNode", "NamedNode"]
           }
         },
@@ -108,7 +108,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#broader",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         },
@@ -123,7 +123,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#broaderTransitive",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         },
@@ -138,7 +138,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#broadMatch",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         },
@@ -153,7 +153,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#changeNote",
           "type": {
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -167,7 +167,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#closeMatch",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         },
@@ -182,7 +182,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#definition",
           "type": {
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -196,7 +196,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#editorialNote",
           "type": {
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -210,7 +210,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#exactMatch",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         },
@@ -225,7 +225,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#example",
           "type": {
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -240,7 +240,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#altLabel",
           "type": {
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -255,7 +255,7 @@
           },
           "path": "http://www.w3.org/2008/05/skos-xl#hiddenLabel",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["BlankNode", "NamedNode"]
           }
         },
@@ -270,7 +270,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#historyNote",
           "type": {
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -284,7 +284,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#inScheme",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         },
@@ -299,7 +299,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#mappingRelation",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         },
@@ -314,7 +314,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#narrower",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         },
@@ -329,7 +329,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#narrowerTransitive",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         },
@@ -344,7 +344,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#narrowMatch",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         },
@@ -363,7 +363,7 @@
               "termType": "NamedNode",
               "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -377,7 +377,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#notation",
           "type": {
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -392,7 +392,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#prefLabel",
           "type": {
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -407,7 +407,7 @@
           },
           "path": "http://www.w3.org/2008/05/skos-xl#prefLabel",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["BlankNode", "NamedNode"]
           }
         },
@@ -422,7 +422,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#related",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         },
@@ -437,7 +437,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#relatedMatch",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         },
@@ -452,7 +452,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#scopeNote",
           "type": {
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -466,7 +466,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#semanticRelation",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         },
@@ -481,14 +481,14 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#topConceptOf",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         }
       ]
     },
     {
-      "kind": "Object",
+      "kind": "ObjectType",
       "name": {
         "curie": "skos:ConceptScheme",
         "identifier": {
@@ -510,7 +510,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#altLabel",
           "type": {
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -525,7 +525,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#altLabel",
           "type": {
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -540,7 +540,7 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#prefLabel",
           "type": {
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
@@ -554,14 +554,14 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#hasTopConcept",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         }
       ]
     },
     {
-      "kind": "Object",
+      "kind": "ObjectType",
       "name": {
         "curie": "skos:OrderedCollection",
         "identifier": {
@@ -584,9 +584,9 @@
           },
           "path": "http://www.w3.org/2004/02/skos/core#memberList",
           "type": {
-            "kind": "Object",
+            "kind": "ObjectType",
             "listItemType": {
-              "kind": "Identifier",
+              "kind": "IdentifierType",
               "nodeKinds": ["NamedNode"]
             },
             "name": {
@@ -608,7 +608,7 @@
       ]
     },
     {
-      "kind": "Object",
+      "kind": "ObjectType",
       "name": {
         "curie": "skos-shacl:OrderedCollectionMemberList",
         "identifier": {
@@ -631,7 +631,7 @@
           },
           "path": "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
           "type": {
-            "kind": "Identifier",
+            "kind": "IdentifierType",
             "nodeKinds": ["NamedNode"]
           }
         },
@@ -648,12 +648,12 @@
           },
           "path": "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
           "type": {
-            "kind": "Or",
+            "kind": "UnionType",
             "types": [
               {
-                "kind": "Object",
+                "kind": "ObjectType",
                 "listItemType": {
-                  "kind": "Identifier",
+                  "kind": "IdentifierType",
                   "nodeKinds": ["NamedNode"]
                 },
                 "name": {
@@ -672,7 +672,11 @@
                 }
               },
               {
-                "kind": "Identifier",
+                "hasValue": {
+                  "termType": "NamedNode",
+                  "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                },
+                "kind": "IdentifierType",
                 "nodeKinds": ["NamedNode"]
               }
             ]
