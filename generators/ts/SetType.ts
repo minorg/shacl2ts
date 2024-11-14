@@ -5,13 +5,19 @@ import { Type } from "./Type.js";
 export class SetType extends Type {
   readonly itemType: Type;
   readonly kind = "SetType";
+  private readonly minCount: number;
 
   constructor({
     itemType,
+    minCount,
     ...superParameters
-  }: ConstructorParameters<typeof Type>[0] & { itemType: Type }) {
+  }: ConstructorParameters<typeof Type>[0] & {
+    itemType: Type;
+    minCount: number;
+  }) {
     super(superParameters);
     this.itemType = itemType;
+    this.minCount = minCount;
   }
 
   override get conversions(): readonly Type.Conversion[] {
@@ -66,7 +72,16 @@ export class SetType extends Type {
   ): Maybe<
     Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression
   > {
-    return this.itemType.sparqlGraphPatternExpression(parameters);
+    return this.itemType
+      .sparqlGraphPatternExpression(parameters)
+      .map((itemTypeSparqlGraphPatternExpression) => {
+        if (this.minCount === 0) {
+          return new Type.SparqlGraphPatternExpression(
+            `sparqlBuilder.GraphPattern.optional(${itemTypeSparqlGraphPatternExpression.toSparqlGraphPatternExpression()})`,
+          );
+        }
+        return itemTypeSparqlGraphPatternExpression;
+      });
   }
 
   override toRdfExpression({

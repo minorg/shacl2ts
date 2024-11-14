@@ -107,6 +107,7 @@ export class TypeFactory {
         return new SetType({
           configuration: this.configuration,
           itemType: this.createTypeFromAstType(astType.itemType),
+          minCount: astType.minCount,
         });
       case "UnionType":
         return new UnionType({

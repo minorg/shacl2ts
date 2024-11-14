@@ -595,6 +595,7 @@ export class ShapesGraphToAstTransformer {
       return {
         itemType,
         kind: "SetType",
+        minCount,
       };
     });
   }

@@ -8,4 +8,5 @@ import type { Type } from "./Type.js";
 export interface SetType {
   readonly itemType: Type;
   readonly kind: "SetType";
+  readonly minCount: number;
 }
