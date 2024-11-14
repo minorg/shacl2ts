@@ -179,7 +179,7 @@ export class ObjectType extends Type {
     Type["sparqlGraphPatternExpression"]
   >[0]): Type.SparqlGraphPatternsExpression {
     return new Type.SparqlGraphPatternsExpression(
-      `new ${this.name}.SparqlGraphPatterns(${variables.subject})`,
+      `${super.sparqlGraphPatternExpression({ variables })}.chainObject(object => new ${this.name}.SparqlGraphPatterns(object))`,
     );
   }
 
