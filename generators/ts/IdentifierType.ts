@@ -22,6 +22,15 @@ export class IdentifierType extends RdfjsTermType<BlankNode | NamedNode> {
     invariant(this.nodeKinds.size > 0);
   }
 
+  override get convertibleFromTypeNames(): Set<string> {
+    const typeNames = new Set<string>();
+    typeNames.add(this.name);
+    if (this.defaultValue.isJust()) {
+      typeNames.add("undefined");
+    }
+    return typeNames;
+  }
+
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
     return Maybe.of({
       name: "termType",
@@ -51,6 +60,17 @@ export class IdentifierType extends RdfjsTermType<BlankNode | NamedNode> {
       names.push("rdfjs.NamedNode");
     }
     return names.join(" | ");
+  }
+
+  override convertToExpression({
+    variables,
+  }: Parameters<Type["convertToExpression"]>[0]): Maybe<string> {
+    return this.defaultValue
+      .map(
+        (defaultValue) =>
+          `(typeof ${variables.value} !== "undefined" ? ${variables.value} : ${rdfjsTermExpression(defaultValue, this.configuration)}`,
+      )
+      .alt(Maybe.of(variables.value));
   }
 
   override fromRdfExpression({

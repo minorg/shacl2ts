@@ -2,12 +2,23 @@ import type { Literal } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type";
+import { rdfjsTermExpression } from "./rdfjsTermExpression";
 
 export class LiteralType extends RdfjsTermType<Literal> {
   readonly kind = "LiteralType";
 
-  override get convertibleFromTypeNames(): readonly string[] {
-    return [this.name, "boolean", "Date", "number", "string"];
+  override get convertibleFromTypeNames(): Set<string> {
+    const typeNames = new Set([
+      this.name,
+      "boolean",
+      "Date",
+      "number",
+      "string",
+    ]);
+    if (this.defaultValue.isJust()) {
+      typeNames.add("undefined");
+    }
+    return typeNames;
   }
 
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
@@ -29,9 +40,11 @@ export class LiteralType extends RdfjsTermType<Literal> {
   override convertToExpression({
     variables,
   }: Parameters<Type["convertToExpression"]>[0]): Maybe<string> {
-    return Maybe.of(
-      `(typeof ${variables.value} === "object" && !(${variables.value} instanceof Date)) ? ${variables.value} : rdfLiteral.toRdf(${variables.value}, ${this.configuration.dataFactoryVariable})`,
-    );
+    let expression = `(typeof ${variables.value} === "object" && !(${variables.value} instanceof Date)) ? ${variables.value} : rdfLiteral.toRdf(${variables.value}, ${this.configuration.dataFactoryVariable})`;
+    this.defaultValue.ifJust((defaultValue) => {
+      expression = `typeof ${variables.value} !== "undefined" ? (${expression}) : ${rdfjsTermExpression(defaultValue, this.configuration)}`;
+    });
+    return Maybe.of(expression);
   }
 
   override fromRdfExpression({

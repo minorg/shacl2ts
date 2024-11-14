@@ -1,10 +1,15 @@
+import type { Literal } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { LiteralType } from "./LiteralType.js";
 import type { Type } from "./Type.js";
 
 export abstract class PrimitiveType extends LiteralType {
-  override get convertibleFromTypeNames(): readonly string[] {
-    return [this.name];
+  override get convertibleFromTypeNames(): Set<string> {
+    const typeNames = new Set<string>();
+    if (this.defaultValue.isJust()) {
+      typeNames.add("undefined");
+    }
+    return typeNames;
   }
 
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
@@ -15,18 +20,31 @@ export abstract class PrimitiveType extends LiteralType {
     return [];
   }
 
-  override convertToExpression(): Maybe<string> {
-    return Maybe.empty();
+  override convertToExpression({
+    variables,
+  }: Parameters<Type["convertToExpression"]>[0]): Maybe<string> {
+    return this.defaultValue
+      .map(
+        (defaultValue) =>
+          `typeof ${variables.value} !== "undefined" ? ${variables.value} : ${this.defaultValueExpression(defaultValue)}`,
+      )
+      .alt(Maybe.of(variables.value));
   }
 
   override equalsFunction(): string {
     return "purifyHelpers.Equatable.strictEquals";
   }
 
-  override valueIsNotDefaultExpression({
-    defaultValue,
+  override toRdfStatements({
     variables,
-  }: Parameters<Type["valueIsNotDefaultExpression"]>[0]): string {
-    return `${variables.value} !== ${this.defaultValueExpression(defaultValue)}`;
+  }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
+    const statement = `${variables.resource}.add(${variables.predicate}, ${variables.value});`;
+    return this.defaultValue
+      .map((defaultValue) => [
+        `if (${variables.value} !== ${this.defaultValueExpression(defaultValue)}) { ${statement} }`,
+      ])
+      .orDefault([statement]);
   }
+
+  protected abstract defaultValueExpression(defaultValue: Literal): string;
 }

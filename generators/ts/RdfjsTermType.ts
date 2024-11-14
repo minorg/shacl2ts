@@ -1,6 +1,7 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { Type } from "./Type.js";
+import { rdfjsTermExpression } from "./rdfjsTermExpression";
 
 /**
  * Abstract base class for IdentifierType and LiteralType.
@@ -37,8 +38,11 @@ export abstract class RdfjsTermType<
   override toRdfStatements({
     variables,
   }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
-    return [
-      `${variables.resource}.add(${variables.predicate}, ${variables.value});`,
-    ];
+    const statement = `${variables.resource}.add(${variables.predicate}, ${variables.value});`;
+    return this.defaultValue
+      .map((defaultValue) => [
+        `if (!${variables.value}.equals(${variables.value}, ${rdfjsTermExpression(defaultValue, this.configuration)})) { ${statement} }`,
+      ])
+      .orDefault([statement]);
   }
 }

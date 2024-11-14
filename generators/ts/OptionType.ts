@@ -1,4 +1,4 @@
-import type { Maybe } from "purify-ts";
+import { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import { Type } from "./Type.js";
 
@@ -14,9 +14,33 @@ export class OptionType extends Type {
     this.itemType = itemType;
   }
 
+  override get convertibleFromTypeNames(): Set<string> {
+    const typeNames = new Set([...this.itemType.convertibleFromTypeNames]);
+    typeNames.add(
+      `purify.Maybe<${[...this.itemType.convertibleFromTypeNames].join("|")}>`,
+    );
+    typeNames.add("undefined");
+    return typeNames;
+  }
+
   @Memoize()
   get name(): string {
     return `purify.Maybe<${this.itemType.name}>`;
+  }
+
+  override convertToExpression({
+    variables,
+  }: Parameters<Type["convertToExpression"]>[0]): Maybe<string> {
+    let expression = `purify.Maybe.isMaybe(${variables.value}) ? ${variables.value} : purify.Maybe.fromNullable(${variables.value})`;
+    this.itemType
+      .convertToExpression({ variables: { value: "value" } })
+      .ifJust((convertToExpression) => {
+        expression = `(${expression}).map(value => ${convertToExpression})`;
+      });
+    // this.defaultValue.ifJust((defaultValue) => {
+    //   expression = `(${expression}).orDefault(${this.type.defaultValueExpression(defaultValue)})`;
+    // });
+    return Maybe.of(expression);
   }
 
   override equalsFunction(): string {

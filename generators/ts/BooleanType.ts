@@ -33,13 +33,4 @@ export class BooleanType extends PrimitiveType {
   }: Parameters<PrimitiveType["hashStatements"]>[0]): readonly string[] {
     return [`${variables.hasher}.update(${variables.value}.toString());`];
   }
-
-  override valueIsNotDefaultExpression({
-    defaultValue,
-    variables,
-  }: Parameters<PrimitiveType["valueIsNotDefaultExpression"]>[0]): string {
-    return this.defaultValueExpression(defaultValue) === "true"
-      ? `!${variables.value}`
-      : `${variables.value}`;
-  }
 }

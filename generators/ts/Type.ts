@@ -1,8 +1,6 @@
-import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import type * as ast from "../../ast";
 import type { Configuration } from "./Configuration.js";
-import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
 export abstract class Type {
   abstract readonly kind: ast.Type["kind"] | "ListType";
@@ -20,8 +18,8 @@ export abstract class Type {
   /**
    * Array of (additional) type names that can be converted to this type.
    */
-  get convertibleFromTypeNames(): readonly string[] {
-    return [this.name];
+  get convertibleFromTypeNames(): Set<string> {
+    return new Set([this.name]);
   }
 
   get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
@@ -37,15 +35,6 @@ export abstract class Type {
    */
   convertToExpression(_: { variables: { value: string } }): Maybe<string> {
     return Maybe.empty();
-  }
-
-  /**
-   * Convert a default value from an RDF/JS term into an expression that can be used in an initializer.
-   */
-  defaultValueExpression(
-    defaultValue: BlankNode | Literal | NamedNode,
-  ): string {
-    return rdfjsTermExpression(defaultValue, this.configuration);
   }
 
   /**
@@ -93,21 +82,6 @@ export abstract class Type {
       value: string;
     };
   }): readonly string[];
-
-  /**
-   * An expression that evaluates to a boolean if the given value is not the default value.
-   */
-  valueIsNotDefaultExpression({
-    defaultValue,
-    variables,
-  }: {
-    defaultValue: BlankNode | Literal | NamedNode;
-    variables: {
-      value: string;
-    };
-  }) {
-    return `!${variables.value}.equals(${rdfjsTermExpression(defaultValue, this.configuration)})`;
-  }
 }
 
 export namespace Type {

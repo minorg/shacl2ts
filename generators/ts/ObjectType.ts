@@ -70,8 +70,8 @@ export class ObjectType extends Type {
     return this.lazyAncestorObjectTypes();
   }
 
-  override get convertibleFromTypeNames(): readonly string[] {
-    return [this.name];
+  override get convertibleFromTypeNames(): Set<string> {
+    return new Set([this.name]);
   }
 
   @Memoize()

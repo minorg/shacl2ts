@@ -42,7 +42,7 @@ export class SetType extends Type {
         .hashStatements({
           variables: {
             hasher: variables.hasher,
-            valueVariable: "element",
+            value: "element",
           },
         })
         .join("\n")} }`,
