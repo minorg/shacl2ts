@@ -22,9 +22,9 @@ export class NumberType extends PrimitiveType {
     return "0";
   }
 
-  override fromRdfExpression({
+  override fromRdfResourceValueExpression({
     variables,
-  }: Parameters<Type["fromRdfExpression"]>[0]): string {
+  }: Parameters<Type["fromRdfResourceValueExpression"]>[0]): string {
     return `${variables.resourceValue}.toNumber()`;
   }
 

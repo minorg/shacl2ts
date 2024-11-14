@@ -1,4 +1,3 @@
-import type { NamedNode } from "@rdfjs/types";
 import type { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import { Type } from "./Type.js";
@@ -15,6 +14,15 @@ export class SetType extends Type {
     this.itemType = itemType;
   }
 
+  override get conversions(): readonly Type.Conversion[] {
+    return [
+      {
+        conversionExpression: () => "[]",
+        sourceTypeName: "undefined",
+      },
+    ];
+  }
+
   @Memoize()
   get name(): string {
     return `readonly (${this.itemType.name})[]`;
@@ -28,10 +36,14 @@ export class SetType extends Type {
     return `(left, right) => purifyHelpers.Arrays.equals(left, right, ${itemTypeEqualsFunction})`;
   }
 
-  override fromRdfExpression({
+  override fromRdfResourceExpression({
     variables,
-  }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    throw new Error("Method not implemented.");
+  }: Parameters<Type["fromRdfResourceExpression"]>[0]): string {
+    return `purify.Either.of([...${variables.resource}.values(${variables.predicate}, { unique: true }).flatMap(resourceValue => (${this.itemType.fromRdfResourceValueExpression({ variables: { ...variables, resourceValue: "resourceValue" } })}}).toMaybe().toList())])`;
+  }
+
+  override fromRdfResourceValueExpression(): string {
+    throw new Error("not implemented");
   }
 
   override hashStatements({
@@ -51,15 +63,15 @@ export class SetType extends Type {
 
   override sparqlGraphPatternExpression(
     parameters: Parameters<Type["sparqlGraphPatternExpression"]>[0],
-  ): Maybe<Type.SparqlGraphPatternExpression> {
+  ): Maybe<
+    Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression
+  > {
     return this.itemType.sparqlGraphPatternExpression(parameters);
   }
 
-  override toRdfStatements({
+  override toRdfExpression({
     variables,
-  }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
-    return [
-      `${variables.value}.forEach((value) => { ${this.itemType.toRdfStatements({ variables: { ...variables, value: "value" } }).join("\n")} });`,
-    ];
+  }: Parameters<Type["toRdfExpression"]>[0]): string {
+    return `${variables.value}.map((value) => ${this.itemType.toRdfExpression({ variables: { ...variables, value: "value" } })}`;
   }
 }

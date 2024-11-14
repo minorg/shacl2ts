@@ -23,7 +23,7 @@ export class IntersectionType extends Type {
     throw new Error("Method not implemented.");
   }
 
-  override fromRdfExpression(): string {
+  override fromRdfResourceValueExpression(): string {
     throw new Error("Method not implemented.");
   }
 
@@ -35,7 +35,7 @@ export class IntersectionType extends Type {
     throw new Error("Method not implemented.");
   }
 
-  override toRdfStatements(): readonly string[] {
+  override toRdfExpression(): string {
     throw new Error("Method not implemented.");
   }
 }

@@ -35,14 +35,14 @@ export abstract class RdfjsTermType<
     return Maybe.empty();
   }
 
-  override toRdfStatements({
+  override toRdfExpression({
     variables,
-  }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
-    const statement = `${variables.resource}.add(${variables.predicate}, ${variables.value});`;
+  }: Parameters<Type["toRdfExpression"]>[0]): string {
     return this.defaultValue
-      .map((defaultValue) => [
-        `if (!${variables.value}.equals(${variables.value}, ${rdfjsTermExpression(defaultValue, this.configuration)})) { ${statement} }`,
-      ])
-      .orDefault([statement]);
+      .map(
+        (defaultValue) =>
+          `(!${variables.value}.equals(${rdfjsTermExpression(defaultValue, this.configuration)}) ? ${variables.value} : undefined`,
+      )
+      .orDefault(variables.value);
   }
 }

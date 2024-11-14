@@ -16,36 +16,52 @@ export abstract class Type {
   }
 
   /**
-   * Array of (additional) type names that can be converted to this type.
+   * Expressions that convert a source type or types to this type.
    */
-  get convertibleFromTypeNames(): Set<string> {
-    return new Set([this.name]);
+  get conversions(): readonly Type.Conversion[] {
+    return [];
   }
 
+  /**
+   * A property that discriminates sub-types of this type e.g., termType on RDF/JS terms.
+   */
   get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
     return Maybe.empty();
   }
 
+  /**
+   * Imports used by other methods on this type.
+   */
   get importStatements(): readonly string[] {
     return [];
   }
 
   /**
-   * An expression that converts any of the convertible-from type names to this type.
-   */
-  convertToExpression(_: { variables: { value: string } }): Maybe<string> {
-    return Maybe.empty();
-  }
-
-  /**
-   * A function (reference or declaration) that conforms to purifyHelpers.Equatable.Equatable.
+   * A function (reference or declaration) that compares two values of this type, returning a
+   * purifyHelpers.Equatable.EqualsResult.
    */
   abstract equalsFunction(): string;
 
   /**
-   * An expression that converts a rdfjsResource.Resource.Value to a value of this type.
+   * An expression that converts a property value/values from an rdfjsResource.Resource to an Either of
+   * value/values of this type.
    */
-  abstract fromRdfExpression(parameters: {
+  fromRdfResourceExpression({
+    variables,
+  }: {
+    variables: {
+      predicate: string;
+      resource: string;
+    };
+  }): string {
+    return `${variables.resource}.value(${variables.predicate}).chain(resourceValue => ${this.fromRdfResourceValueExpression({ variables: { ...variables, resourceValue: "resourceValue" } })})`;
+  }
+
+  /**
+   * An expression that converts a property value/values from an rdfjsResource.Resource.Value to a Either of value/values
+   * of this type.
+   */
+  abstract fromRdfResourceValueExpression(parameters: {
     variables: {
       predicate: string;
       resource: string;
@@ -53,6 +69,9 @@ export abstract class Type {
     };
   }): string;
 
+  /**
+   * Statements that use hasher.update to hash a value of this type.
+   */
   abstract hashStatements(parameters: {
     variables: {
       hasher: string;
@@ -67,13 +86,15 @@ export abstract class Type {
     variables: {
       subject: string;
     };
-  }): Maybe<Type.SparqlGraphPatternExpression>;
+  }): Maybe<
+    Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression
+  >;
 
   /**
-   * An expression that converts a value of this type to an rdfjs.TermType that can be added to
+   * An expression that converts a value of this type to one that that can be .add'd to
    * an rdfjsResource.Resource.
    */
-  abstract toRdfStatements(parameters: {
+  abstract toRdfExpression(parameters: {
     variables: {
       predicate: string;
       mutateGraph: string;
@@ -81,16 +102,52 @@ export abstract class Type {
       resourceSet: string;
       value: string;
     };
-  }): readonly string[];
+  }): string;
 }
 
 export namespace Type {
+  export interface Conversion {
+    readonly conversionExpression: (value: string) => string;
+    readonly sourceTypeCheckExpression?: (value: string) => string;
+    readonly sourceTypeName: string;
+  }
+
   export interface DiscriminatorProperty {
     readonly name: string;
     readonly values: readonly string[];
   }
 
-  export type SparqlGraphPatternExpression =
-    | { type: "GraphPattern"; value: string }
-    | { type: "GraphPatterns"; value: string };
+  export class SparqlGraphPatternExpression {
+    constructor(private readonly value: string) {}
+
+    toSparqlGraphPatternExpression() {
+      return this;
+    }
+
+    toSparqlGraphPatternsExpression() {
+      return new SparqlGraphPatternExpression(`[${this.value}]`);
+    }
+
+    toString() {
+      return this.value;
+    }
+  }
+
+  export class SparqlGraphPatternsExpression {
+    constructor(private readonly value: string) {}
+
+    toSparqlGraphPatternExpression() {
+      return new SparqlGraphPatternExpression(
+        `sparqlBuilder.GraphPattern.group(${this.value})`,
+      );
+    }
+
+    toSparqlGraphPatternsExpression() {
+      return this;
+    }
+
+    toString() {
+      return this.value;
+    }
+  }
 }

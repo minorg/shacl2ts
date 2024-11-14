@@ -108,24 +108,22 @@ export class IdentifierProperty extends Property {
     });
   }
 
-  override classConstructorInitializerExpression({
+  override classConstructorStatements({
     objectType,
-    parameter,
-  }: Parameters<
-    Property["classConstructorInitializerExpression"]
-  >[0]): Maybe<string> {
+    variables,
+  }: Parameters<Property["classConstructorStatements"]>[0]): Maybe<string> {
     return IdentifierProperty.classConstructorMintExpression({
       mintingStrategy: this.mintingStrategy,
       objectType,
     })
-      .map((mintExpression) => `${parameter} ?? ${mintExpression}`)
-      .altLazy(() => Maybe.of(parameter));
+      .map((mintExpression) => `${variables.parameter} ?? ${mintExpression}`)
+      .altLazy(() => Maybe.of(variables.parameter));
   }
 
   override fromRdfStatements({
-    resourceVariable,
+    variables,
   }: Parameters<Property["fromRdfStatements"]>[0]): readonly string[] {
-    return [`const ${this.name} = ${resourceVariable}.identifier`];
+    return [`const ${this.name} = ${variables.resource}.identifier`];
   }
 
   override hashStatements(

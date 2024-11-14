@@ -95,6 +95,16 @@ function typeToJson(type: ast.Type): AstJson.Type {
         nodeKinds: [...type.nodeKinds].map(nodeKindToJson),
         rdfType: type.rdfType.map(termToJson).extract(),
       };
+    case "OptionType":
+      return {
+        itemType: typeToJson(type.itemType),
+        kind: type.kind,
+      };
+    case "SetType":
+      return {
+        itemType: typeToJson(type.itemType),
+        kind: type.kind,
+      };
   }
 }
 
@@ -108,8 +118,6 @@ export class AstJsonGenerator {
           kind: objectType.kind,
           name: nameToJson(objectType.name),
           properties: objectType.properties.map((property) => ({
-            maxCount: property.maxCount.extract(),
-            minCount: property.minCount,
             name: nameToJson(property.name),
             path: property.path.iri.value,
             type: typeToJson(property.type),

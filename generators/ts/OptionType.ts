@@ -1,4 +1,4 @@
-import { Maybe } from "purify-ts";
+import type { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import { Type } from "./Type.js";
 
@@ -14,33 +14,31 @@ export class OptionType extends Type {
     this.itemType = itemType;
   }
 
-  override get convertibleFromTypeNames(): Set<string> {
-    const typeNames = new Set([...this.itemType.convertibleFromTypeNames]);
-    typeNames.add(
-      `purify.Maybe<${[...this.itemType.convertibleFromTypeNames].join("|")}>`,
-    );
-    typeNames.add("undefined");
-    return typeNames;
+  override get conversions(): readonly Type.Conversion[] {
+    const conversions: Type.Conversion[] = [];
+    for (const itemTypeConversion of this.itemType.conversions) {
+      conversions.push({
+        ...itemTypeConversion,
+        conversionExpression: (value) =>
+          `purify.Maybe.of(${itemTypeConversion.conversionExpression(value)})`,
+      });
+    }
+    if (
+      !conversions.some(
+        (conversion) => conversion.sourceTypeName === "undefined",
+      )
+    ) {
+      conversions.push({
+        conversionExpression: () => "purify.Maybe.empty()",
+        sourceTypeName: "undefined",
+      });
+    }
+    return conversions;
   }
 
   @Memoize()
   get name(): string {
     return `purify.Maybe<${this.itemType.name}>`;
-  }
-
-  override convertToExpression({
-    variables,
-  }: Parameters<Type["convertToExpression"]>[0]): Maybe<string> {
-    let expression = `purify.Maybe.isMaybe(${variables.value}) ? ${variables.value} : purify.Maybe.fromNullable(${variables.value})`;
-    this.itemType
-      .convertToExpression({ variables: { value: "value" } })
-      .ifJust((convertToExpression) => {
-        expression = `(${expression}).map(value => ${convertToExpression})`;
-      });
-    // this.defaultValue.ifJust((defaultValue) => {
-    //   expression = `(${expression}).orDefault(${this.type.defaultValueExpression(defaultValue)})`;
-    // });
-    return Maybe.of(expression);
   }
 
   override equalsFunction(): string {
@@ -54,9 +52,17 @@ export class OptionType extends Type {
     return `(left, right) => purifyHelpers.Maybes.equals(left, right, ${itemTypeEqualsFunction})`;
   }
 
-  override fromRdfExpression({
-    variables,
-  }: Parameters<Type["fromRdfExpression"]>[0]): string {}
+  override fromRdfResourceExpression(
+    parameters: Parameters<Type["fromRdfResourceExpression"]>[0],
+  ): string {
+    return `purify.Either.of(${this.itemType.fromRdfResourceExpression(parameters)}.toMaybe())`;
+  }
+
+  override fromRdfResourceValueExpression(
+    _: Parameters<Type["fromRdfResourceValueExpression"]>[0],
+  ): string {
+    throw new Error("not implemented");
+  }
 
   override hashStatements({
     variables,
@@ -78,24 +84,17 @@ export class OptionType extends Type {
   ): Maybe<Type.SparqlGraphPatternExpression> {
     return this.itemType
       .sparqlGraphPatternExpression(parameters)
-      .map((typeSparqlGraphPatternExpression) => {
-        let value = typeSparqlGraphPatternExpression.value;
-        if (typeSparqlGraphPatternExpression.type === "GraphPatterns") {
-          value = `sparqlBuilder.GraphPattern.group(${value})`;
-        }
-        value = `sparqlBuilder.GraphPattern.optional(${value})`;
-        return {
-          type: "GraphPattern",
-          value,
-        };
-      });
+      .map(
+        (itemTypeSparqlGraphPatternExpression) =>
+          new Type.SparqlGraphPatternExpression(
+            `sparqlBuilder.GraphPattern.optional(${itemTypeSparqlGraphPatternExpression.toSparqlGraphPatternExpression()})`,
+          ),
+      );
   }
 
-  override toRdfStatements({
+  override toRdfExpression({
     variables,
-  }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
-    return [
-      `${variables.value}.ifJust((value) => { ${this.itemType.toRdfStatements({ variables: { ...variables, value: "value" } }).join("\n")} });`,
-    ];
+  }: Parameters<Type["toRdfExpression"]>[0]): string {
+    return `${variables.value}.map((value) => ${this.itemType.toRdfExpression({ variables: { ...variables, value: "value" } })});`;
   }
 }

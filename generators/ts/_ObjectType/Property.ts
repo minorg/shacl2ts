@@ -33,13 +33,17 @@ export abstract class Property {
     return [];
   }
 
-  abstract classConstructorInitializerExpression(parameters: {
-    parameter: string;
+  abstract classConstructorStatements(parameters: {
     objectType: ObjectType;
-  }): Maybe<string>;
+    variables: {
+      parameter: string;
+    };
+  }): readonly string[];
 
   abstract fromRdfStatements(parameters: {
-    resourceVariable: string;
+    variables: {
+      resource: string;
+    };
   }): readonly string[];
 
   abstract hashStatements(
@@ -48,10 +52,10 @@ export abstract class Property {
 
   abstract sparqlGraphPatternExpression(): Maybe<string>;
 
-  abstract toRdfStatements(
-    parameters: Omit<
-      Parameters<Type["toRdfStatements"]>[0],
-      "predicateVariable"
-    >,
-  ): readonly string[];
+  abstract toRdfStatements(parameters: {
+    variables: Omit<
+      Parameters<Type["toRdfExpression"]>[0]["variables"],
+      "predicate"
+    >;
+  }): readonly string[];
 }

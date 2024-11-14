@@ -54,8 +54,8 @@ export class TypeDiscriminatorProperty extends Property {
     };
   }
 
-  override classConstructorInitializerExpression(): Maybe<string> {
-    return Maybe.empty();
+  override classConstructorStatements(): readonly string[] {
+    return [];
   }
 
   override fromRdfStatements(): readonly string[] {

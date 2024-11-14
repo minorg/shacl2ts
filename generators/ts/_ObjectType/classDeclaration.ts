@@ -33,16 +33,12 @@ function constructorDeclaration(
     }
   }
   for (const property of this.properties) {
-    property
-      .classConstructorInitializerExpression({
-        objectType: this,
-        parameter: `parameters.${property.name}`,
-      })
-      .ifJust((classConstructorInitializer) =>
-        statements.push(
-          `this.${property.name} = ${classConstructorInitializer};`,
-        ),
-      );
+    for (const statement of property.classConstructorStatements({
+      objectType: this,
+      variables: { parameter: `parameters.${property.name}` },
+    })) {
+      statements.push(statement);
+    }
   }
 
   let constructorParametersType = `{ ${this.properties
@@ -165,32 +161,34 @@ function hashMethodDeclaration(
 function toRdfMethodDeclaration(
   this: ObjectType,
 ): OptionalKind<MethodDeclarationStructure> {
-  const ignoreRdfTypeVariable = "ignoreRdfType";
-  const mutateGraphVariable = "mutateGraph";
-  const resourceVariable = "resource";
-  const resourceSetVariable = "resourceSet";
+  const variables = {
+    ignoreRdfType: "ignoreRdfType",
+    mutateGraph: "mutateGraph",
+    resource: "resource",
+    resourceSet: "resourceSet",
+  };
 
   let usedIgnoreRdfTypeVariable = false;
 
   const statements: string[] = [];
   if (this.parentObjectTypes.length > 0) {
     statements.push(
-      `const ${resourceVariable} = super.toRdf({ ${mutateGraphVariable}, ${ignoreRdfTypeVariable}: true, ${resourceSetVariable} });`,
+      `const ${variables.resource} = super.toRdf({ ${variables.mutateGraph}, ${variables.ignoreRdfType}: true, ${variables.resourceSet} });`,
     );
     usedIgnoreRdfTypeVariable = true;
   } else if (this.identifierType.isNamedNodeKind) {
     statements.push(
-      `const ${resourceVariable} = ${resourceSetVariable}.mutableNamedResource({ identifier: this.${this.configuration.objectTypeIdentifierPropertyName}, ${mutateGraphVariable} });`,
+      `const ${variables.resource} = ${variables.resourceSet}.mutableNamedResource({ identifier: this.${this.configuration.objectTypeIdentifierPropertyName}, ${variables.mutateGraph} });`,
     );
   } else {
     statements.push(
-      `const ${resourceVariable} = ${resourceSetVariable}.mutableResource({ identifier: this.${this.configuration.objectTypeIdentifierPropertyName}, ${mutateGraphVariable} });`,
+      `const ${variables.resource} = ${variables.resourceSet}.mutableResource({ identifier: this.${this.configuration.objectTypeIdentifierPropertyName}, ${variables.mutateGraph} });`,
     );
   }
 
   this.rdfType.ifJust((rdfType) => {
     statements.push(
-      `if (!${ignoreRdfTypeVariable}) { ${resourceVariable}.add(${resourceVariable}.dataFactory.namedNode("${rdf.type.value}"), ${resourceVariable}.dataFactory.namedNode("${rdfType.value}")); }`,
+      `if (!${variables.ignoreRdfType}) { ${variables.resource}.add(${variables.resource}.dataFactory.namedNode("${rdf.type.value}"), ${variables.resource}.dataFactory.namedNode("${rdfType.value}")); }`,
     );
     usedIgnoreRdfTypeVariable = true;
   });
@@ -198,22 +196,20 @@ function toRdfMethodDeclaration(
   for (const property of this.properties) {
     statements.push(
       ...property.toRdfStatements({
-        mutateGraphVariable,
-        valueVariable: `this.${property.name}`,
-        resourceSetVariable,
+        variables: { ...variables, value: `this.${property.name}` },
       }),
     );
   }
 
-  statements.push(`return ${resourceVariable};`);
+  statements.push(`return ${variables.resource};`);
 
   return {
     hasOverrideKeyword: this.parentObjectTypes.length > 0,
     name: "toRdf",
     parameters: [
       {
-        name: `{ ${usedIgnoreRdfTypeVariable ? `${ignoreRdfTypeVariable},` : ""} ${mutateGraphVariable}, ${resourceSetVariable} }`,
-        type: `{ ${ignoreRdfTypeVariable}?: boolean; ${mutateGraphVariable}: rdfjsResource.MutableResource.MutateGraph, ${resourceSetVariable}: rdfjsResource.MutableResourceSet }`,
+        name: `{ ${usedIgnoreRdfTypeVariable ? `${variables.ignoreRdfType},` : ""} ${variables.mutateGraph}, ${variables.resourceSet} }`,
+        type: `{ ${variables.ignoreRdfType}?: boolean; ${variables.mutateGraph}: rdfjsResource.MutableResource.MutateGraph, ${variables.resourceSet}: rdfjsResource.MutableResourceSet }`,
       },
     ],
     returnType: this.rdfjsResourceType({ mutable: true }).name,

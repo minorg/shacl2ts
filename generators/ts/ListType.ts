@@ -50,10 +50,10 @@ export class ListType extends Type {
     return `(left, right) => purifyHelpers.Arrays.equals(left, right, ${this.itemType.equalsFunction()})`;
   }
 
-  override fromRdfExpression({
+  override fromRdfResourceValueExpression({
     variables,
-  }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `${variables.resourceValue}.toList().map(values => values.flatMap(value => ${this.itemType.fromRdfExpression({ variables: { ...variables, resourceValue: "value" } })}.toMaybe().toList()))`;
+  }: Parameters<Type["fromRdfResourceValueExpression"]>[0]): string {
+    return `${variables.resourceValue}.toList().map(values => values.flatMap(value => ${this.itemType.fromRdfResourceValueExpression({ variables: { ...variables, resourceValue: "value" } })}.toMaybe().toList()))`;
   }
 
   override hashStatements({
@@ -68,29 +68,30 @@ export class ListType extends Type {
     variables,
   }: Parameters<
     Type["sparqlGraphPatternExpression"]
-  >[0]): Maybe<Type.SparqlGraphPatternExpression> {
+  >[0]): Maybe<Type.SparqlGraphPatternsExpression> {
     const itemVariable = "itemVariable";
     return this.itemType
       .sparqlGraphPatternExpression({
         variables: { subject: itemVariable },
       })
-      .map((itemSparqlGraphPatternExpression) => {
-        return {
-          type: "GraphPatterns" as const,
-          value: `new sparqlBuilder.RdfListGraphPatterns({ itemGraphPatterns: (itemVariable) => ${itemSparqlGraphPatternExpression.type === "GraphPatterns" ? itemSparqlGraphPatternExpression.value : `[${itemSparqlGraphPatternExpression.value}]`}, rdfList: ${variables.subject} })`,
-        };
-      })
+      .map(
+        (itemSparqlGraphPatternExpression) =>
+          new Type.SparqlGraphPatternsExpression(
+            `new sparqlBuilder.RdfListGraphPatterns({ itemGraphPatterns: (itemVariable) => ${itemSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()}, rdfList: ${variables.subject} })`,
+          ),
+      )
       .altLazy(() =>
-        Maybe.of({
-          type: "GraphPatterns" as const,
-          value: `new sparqlBuilder.RdfListGraphPatterns({ rdfList: ${variables.subject} })`,
-        }),
+        Maybe.of(
+          new Type.SparqlGraphPatternsExpression(
+            `new sparqlBuilder.RdfListGraphPatterns({ rdfList: ${variables.subject} })`,
+          ),
+        ),
       );
   }
 
-  override toRdfStatements({
+  override toRdfExpression({
     variables,
-  }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
+  }: Parameters<Type["toRdfExpression"]>[0]): string {
     let listIdentifier: string;
     let mutableResourceTypeName: string;
     let resourceSetMethodName: string;
@@ -127,8 +128,7 @@ export class ListType extends Type {
       }
     }
 
-    return [
-      `${variables.resource}.add(${variables.predicate}, ${variables.value}.reduce(({ currentSubListResource, listResource }, item, itemIndex) => {
+    return `${variables.value}.reduce(({ currentSubListResource, listResource }, item, itemIndex) => {
     if (itemIndex === 0) {
       currentSubListResource = listResource;
     } else {
@@ -142,7 +142,7 @@ export class ListType extends Type {
     
     ${this.rdfType.map((rdfType) => `currentSubListResource.add(dataFactory.namedNode("${rdf.type.value}"), dataFactory.namedNode("${rdfType.value}"))`).orDefault("")}
         
-    ${this.itemType.toRdfStatements({ variables: { mutateGraph: variables.mutateGraph, predicate: `dataFactory.namedNode("${rdf.first.value}")`, resource: "currentSubListResource", resourceSet: variables.resourceSet, value: "item" } })}
+    ${this.itemType.toRdfExpression({ variables: { mutateGraph: variables.mutateGraph, predicate: `dataFactory.namedNode("${rdf.first.value}")`, resource: "currentSubListResource", resourceSet: variables.resourceSet, value: "item" } })}
 
     if (itemIndex + 1 === ${variables.value}.length) {
       currentSubListResource.add(dataFactory.namedNode("${rdf.rest.value}"), dataFactory.namedNode("${rdf.nil.value}"));
@@ -160,7 +160,6 @@ export class ListType extends Type {
     currentSubListResource: ${mutableResourceTypeName} | null;
     listResource: ${mutableResourceTypeName};
   },
-).listResource.identifier);`,
-    ];
+).listResource.identifier);`;
   }
 }

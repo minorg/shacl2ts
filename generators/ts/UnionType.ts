@@ -106,12 +106,12 @@ ${this.memberTypes
 }`;
   }
 
-  override fromRdfExpression(
-    parameters: Parameters<Type["fromRdfExpression"]>[0],
+  override fromRdfResourceValueExpression(
+    parameters: Parameters<Type["fromRdfResourceValueExpression"]>[0],
   ): string {
     let expression = "";
     this.memberTypes.forEach((type, typeIndex) => {
-      let typeExpression = type.fromRdfExpression(parameters);
+      let typeExpression = type.fromRdfResourceValueExpression(parameters);
       if (!this.typesSharedDiscriminatorProperty.isJust()) {
         typeExpression = `${typeExpression}.map(value => ({ type: "${typeIndex}-${type.name}" as const, value }) as (${this.name}))`;
       }
@@ -160,70 +160,72 @@ ${this.memberTypes
 
   override sparqlGraphPatternExpression(
     parameters: Parameters<Type["sparqlGraphPatternExpression"]>[0],
-  ): Maybe<Type.SparqlGraphPatternExpression> {
+  ): Maybe<
+    Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression
+  > {
     const typeSparqlGraphPatternExpressions = this.memberTypes.flatMap((type) =>
       type.sparqlGraphPatternExpression(parameters).toList(),
     );
     switch (typeSparqlGraphPatternExpressions.length) {
       case 0:
         return Maybe.empty();
-      case 1: {
-        switch (typeSparqlGraphPatternExpressions[0].type) {
-          case "GraphPattern":
-            return Maybe.of({
-              type: "GraphPattern",
-              value: `sparqlBuilder.GraphPattern.optional(${typeSparqlGraphPatternExpressions[0].value})`,
-            });
-          case "GraphPatterns":
-            return Maybe.of({
-              type: "GraphPattern",
-              value: `sparqlBuilder.GraphPattern.optional(sparqlBuilder.GraphPattern.group(${typeSparqlGraphPatternExpressions[0].value}))`,
-            });
-        }
-        // @ts-expect-error This is actually unreachable code but the compiler has a bug that complains about the switch if this is not present.
-        break;
-      }
+      case 1:
+        return Maybe.of(
+          new Type.SparqlGraphPatternExpression(
+            `sparqlBuilder.GraphPattern.optional(${typeSparqlGraphPatternExpressions[0].toSparqlGraphPatternExpression()}))`,
+          ),
+        );
       default:
         invariant(
           typeSparqlGraphPatternExpressions.length === this.memberTypes.length,
           "all types must be represented in the SPARQL UNION",
         );
-        return Maybe.of({
-          type: "GraphPattern",
-          value: `sparqlBuilder.GraphPattern.union(${typeSparqlGraphPatternExpressions
-            .map((typeSparqlGraphPatternExpression) => {
-              switch (typeSparqlGraphPatternExpression.type) {
-                case "GraphPattern":
-                  return typeSparqlGraphPatternExpression.value;
-                case "GraphPatterns":
-                  return `sparqlBuilder.GraphPattern.group(${typeSparqlGraphPatternExpression.value})`;
-              }
-            })
-            .join(", ")})`,
-        });
+        return Maybe.of(
+          new Type.SparqlGraphPatternExpression(
+            `sparqlBuilder.GraphPattern.union(${typeSparqlGraphPatternExpressions
+              .map((typeSparqlGraphPatternExpression) =>
+                typeSparqlGraphPatternExpression
+                  .toSparqlGraphPatternExpression()
+                  .toString(),
+              )
+              .join(", ")})`,
+          ),
+        );
     }
   }
 
-  override toRdfStatements({
+  override toRdfExpression({
     variables,
-  }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
-    const statements: string[] = [];
+  }: Parameters<Type["toRdfExpression"]>[0]): string {
+    let expression = "";
     this.memberTypes.forEach((type, typeIndex) => {
-      const typeStatements = type.toRdfStatements({ variables }).join("\n");
-      this.typesSharedDiscriminatorProperty
-        .ifJust((typeShareDiscriminatorProperty) => {
-          for (const typeDiscriminatorValue of typeShareDiscriminatorProperty.values) {
-            statements.push(
-              `if (${variables.value}.${typeShareDiscriminatorProperty.name} === "${typeDiscriminatorValue}") { ${typeStatements} }`,
-            );
-          }
-        })
-        .ifNothing(() => {
-          statements.push(
-            `if (${variables.value}.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") { ${typeStatements} }`,
-          );
-        });
+      if (this.typesSharedDiscriminatorProperty.isJust()) {
+        if (expression.length === 0) {
+          expression = type.toRdfExpression({
+            variables,
+          });
+        } else {
+          expression = `(${type.discriminatorProperty
+            .unsafeCoerce()
+            .values.map(
+              (value) =>
+                `${variables.value}.${this.typesSharedDiscriminatorProperty.unsafeCoerce().name} === "${value}"`,
+            )
+            .join(
+              " || ",
+            )}) ? ${type.toRdfExpression({ variables })} : ${expression}`;
+        }
+      } else {
+        if (expression.length === 0) {
+          expression = type.toRdfExpression({
+            variables: { ...variables, value: `${variables.value}.value` },
+          });
+        } else {
+          // No shared type discriminator between the types, use the one we synthesized
+          expression = `(${variables.value}.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") ? (${type.toRdfExpression({ variables: { ...variables, value: `${variables.value}.value` } })}) : (${expression})`;
+        }
+      }
     });
-    return statements;
+    return expression;
   }
 }

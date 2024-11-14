@@ -22,13 +22,16 @@ export class IdentifierType extends RdfjsTermType<BlankNode | NamedNode> {
     invariant(this.nodeKinds.size > 0);
   }
 
-  override get convertibleFromTypeNames(): Set<string> {
-    const typeNames = new Set<string>();
-    typeNames.add(this.name);
-    if (this.defaultValue.isJust()) {
-      typeNames.add("undefined");
-    }
-    return typeNames;
+  override get conversions(): readonly Type.Conversion[] {
+    return this.defaultValue
+      .map((defaultValue) => [
+        {
+          conversionExpression: (value: string) =>
+            `(typeof ${value} !== "undefined" ? ${value} : ${rdfjsTermExpression(defaultValue, this.configuration)}`,
+          sourceTypeName: "undefined",
+        },
+      ])
+      .orDefault([]);
   }
 
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
@@ -62,20 +65,9 @@ export class IdentifierType extends RdfjsTermType<BlankNode | NamedNode> {
     return names.join(" | ");
   }
 
-  override convertToExpression({
+  override fromRdfResourceValueExpression({
     variables,
-  }: Parameters<Type["convertToExpression"]>[0]): Maybe<string> {
-    return this.defaultValue
-      .map(
-        (defaultValue) =>
-          `(typeof ${variables.value} !== "undefined" ? ${variables.value} : ${rdfjsTermExpression(defaultValue, this.configuration)}`,
-      )
-      .alt(Maybe.of(variables.value));
-  }
-
-  override fromRdfExpression({
-    variables,
-  }: Parameters<Type["fromRdfExpression"]>[0]): string {
+  }: Parameters<Type["fromRdfResourceValueExpression"]>[0]): string {
     let expression: string;
     switch (this.name) {
       case "rdfjs.BlankNode":

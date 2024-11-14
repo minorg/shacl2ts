@@ -7,18 +7,41 @@ import { rdfjsTermExpression } from "./rdfjsTermExpression";
 export class LiteralType extends RdfjsTermType<Literal> {
   readonly kind = "LiteralType";
 
-  override get convertibleFromTypeNames(): Set<string> {
-    const typeNames = new Set([
-      this.name,
-      "boolean",
-      "Date",
-      "number",
-      "string",
-    ]);
-    if (this.defaultValue.isJust()) {
-      typeNames.add("undefined");
-    }
-    return typeNames;
+  override get conversions(): readonly Type.Conversion[] {
+    const conversions: Type.Conversion[] = [];
+
+    conversions.push({
+      conversionExpression: (value) => `rdfLiteral.toRdf(${value})`,
+      sourceTypeName: "boolean",
+    });
+
+    conversions.push({
+      conversionExpression: (value) => `rdfLiteral.toRdf(${value})`,
+      sourceTypeCheckExpression: (value) =>
+        `typeof ${value} === "object" && ${value} instanceof Date`,
+      sourceTypeName: "Date",
+    });
+
+    conversions.push({
+      conversionExpression: (value) => `rdfLiteral.toRdf(${value})`,
+      sourceTypeName: "number",
+    });
+
+    conversions.push({
+      conversionExpression: (value) =>
+        `${this.configuration.dataFactoryVariable}.literal(${value})`,
+      sourceTypeName: "string",
+    });
+
+    this.defaultValue.ifJust((defaultValue) => {
+      conversions.push({
+        conversionExpression: () =>
+          rdfjsTermExpression(defaultValue, this.configuration),
+        sourceTypeName: "undefined",
+      });
+    });
+
+    return conversions;
   }
 
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
@@ -37,19 +60,9 @@ export class LiteralType extends RdfjsTermType<Literal> {
     return "rdfjs.Literal";
   }
 
-  override convertToExpression({
+  override fromRdfResourceValueExpression({
     variables,
-  }: Parameters<Type["convertToExpression"]>[0]): Maybe<string> {
-    let expression = `(typeof ${variables.value} === "object" && !(${variables.value} instanceof Date)) ? ${variables.value} : rdfLiteral.toRdf(${variables.value}, ${this.configuration.dataFactoryVariable})`;
-    this.defaultValue.ifJust((defaultValue) => {
-      expression = `typeof ${variables.value} !== "undefined" ? (${expression}) : ${rdfjsTermExpression(defaultValue, this.configuration)}`;
-    });
-    return Maybe.of(expression);
-  }
-
-  override fromRdfExpression({
-    variables,
-  }: Parameters<Type["fromRdfExpression"]>[0]): string {
+  }: Parameters<Type["fromRdfResourceValueExpression"]>[0]): string {
     return `${variables.resourceValue}.toLiteral()`;
   }
 
