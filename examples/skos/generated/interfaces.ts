@@ -3,8 +3,6 @@ import type * as rdfjs from "@rdfjs/types";
 import { DataFactory as dataFactory } from "n3";
 import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
-// @ts-ignore
-import * as rdfLiteral from "rdf-literal";
 import * as rdfjsResource from "rdfjs-resource";
 
 export interface Collection {
@@ -52,14 +50,22 @@ export namespace Collection {
     }
 
     const identifier = resource.identifier;
-    const member = [
+    const _memberEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#member"),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_memberEither.isLeft()) {
+      return _memberEither;
+    }
+
+    const member = _memberEither.unsafeCoerce();
     const type = "Collection" as const;
     return purify.Either.of({ identifier, member, type });
   }
@@ -69,19 +75,11 @@ export namespace Collection {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    collection: Omit<Collection, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
+    collection: Omit<Collection, "identifier" | "type">,
     hasher: HasherT,
   ): HasherT {
-    if (typeof collection.identifier !== "undefined") {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(collection.identifier),
-      );
-    }
-
-    for (const _element of collection.member) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of collection.member) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
     return hasher;
@@ -143,13 +141,10 @@ export namespace Collection {
       );
     }
 
-    for (const memberValue of collection.member) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#member"),
-        memberValue,
-      );
-    }
-
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#member"),
+      collection.member,
+    );
     return resource;
   }
 }
@@ -387,31 +382,62 @@ export namespace Concept {
       );
     }
 
-    const altLabel = [
+    const _altLabelEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
-    const altLabelXl = [
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_altLabelEither.isLeft()) {
+      return _altLabelEither;
+    }
+
+    const altLabel = _altLabelEither.unsafeCoerce();
+    const _altLabelXlEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly (rdfjs.BlankNode | rdfjs.NamedNode)[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#altLabel"),
           { unique: true },
         )
-        .flatMap((value) => value.toIdentifier().toMaybe().toList()),
-    ];
-    const broader = [
+        .flatMap((resourceValue) =>
+          resourceValue.toIdentifier().toMaybe().toList(),
+        ),
+    ]);
+    if (_altLabelXlEither.isLeft()) {
+      return _altLabelXlEither;
+    }
+
+    const altLabelXl = _altLabelXlEither.unsafeCoerce();
+    const _broaderEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#broader"),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
-    const broaderTransitive = [
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_broaderEither.isLeft()) {
+      return _broaderEither;
+    }
+
+    const broader = _broaderEither.unsafeCoerce();
+    const _broaderTransitiveEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -419,9 +445,17 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
-    const broadMatch = [
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_broaderTransitiveEither.isLeft()) {
+      return _broaderTransitiveEither;
+    }
+
+    const broaderTransitive = _broaderTransitiveEither.unsafeCoerce();
+    const _broadMatchEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -429,9 +463,17 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
-    const changeNote = [
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_broadMatchEither.isLeft()) {
+      return _broadMatchEither;
+    }
+
+    const broadMatch = _broadMatchEither.unsafeCoerce();
+    const _changeNoteEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -439,9 +481,19 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
-    const closeMatch = [
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_changeNoteEither.isLeft()) {
+      return _changeNoteEither;
+    }
+
+    const changeNote = _changeNoteEither.unsafeCoerce();
+    const _closeMatchEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -449,9 +501,17 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
-    const definition = [
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_closeMatchEither.isLeft()) {
+      return _closeMatchEither;
+    }
+
+    const closeMatch = _closeMatchEither.unsafeCoerce();
+    const _definitionEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -459,9 +519,19 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
-    const editorialNote = [
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_definitionEither.isLeft()) {
+      return _definitionEither;
+    }
+
+    const definition = _definitionEither.unsafeCoerce();
+    const _editorialNoteEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -469,9 +539,19 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
-    const exactMatch = [
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_editorialNoteEither.isLeft()) {
+      return _editorialNoteEither;
+    }
+
+    const editorialNote = _editorialNoteEither.unsafeCoerce();
+    const _exactMatchEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -479,25 +559,53 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
-    const example = [
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_exactMatchEither.isLeft()) {
+      return _exactMatchEither;
+    }
+
+    const exactMatch = _exactMatchEither.unsafeCoerce();
+    const _exampleEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#example"),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
-    const hiddenLabel = [
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_exampleEither.isLeft()) {
+      return _exampleEither;
+    }
+
+    const example = _exampleEither.unsafeCoerce();
+    const _hiddenLabelEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
-    const hiddenLabelXl = [
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_hiddenLabelEither.isLeft()) {
+      return _hiddenLabelEither;
+    }
+
+    const hiddenLabel = _hiddenLabelEither.unsafeCoerce();
+    const _hiddenLabelXlEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly (rdfjs.BlankNode | rdfjs.NamedNode)[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -505,9 +613,19 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toIdentifier().toMaybe().toList()),
-    ];
-    const historyNote = [
+        .flatMap((resourceValue) =>
+          resourceValue.toIdentifier().toMaybe().toList(),
+        ),
+    ]);
+    if (_hiddenLabelXlEither.isLeft()) {
+      return _hiddenLabelXlEither;
+    }
+
+    const hiddenLabelXl = _hiddenLabelXlEither.unsafeCoerce();
+    const _historyNoteEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -515,18 +633,36 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_historyNoteEither.isLeft()) {
+      return _historyNoteEither;
+    }
+
+    const historyNote = _historyNoteEither.unsafeCoerce();
     const identifier = resource.identifier;
-    const inScheme = [
+    const _inSchemeEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#inScheme"),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
-    const mappingRelation = [
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_inSchemeEither.isLeft()) {
+      return _inSchemeEither;
+    }
+
+    const inScheme = _inSchemeEither.unsafeCoerce();
+    const _mappingRelationEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -534,17 +670,33 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
-    const narrower = [
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_mappingRelationEither.isLeft()) {
+      return _mappingRelationEither;
+    }
+
+    const mappingRelation = _mappingRelationEither.unsafeCoerce();
+    const _narrowerEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#narrower"),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
-    const narrowerTransitive = [
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_narrowerEither.isLeft()) {
+      return _narrowerEither;
+    }
+
+    const narrower = _narrowerEither.unsafeCoerce();
+    const _narrowerTransitiveEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -552,9 +704,17 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
-    const narrowMatch = [
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_narrowerTransitiveEither.isLeft()) {
+      return _narrowerTransitiveEither;
+    }
+
+    const narrowerTransitive = _narrowerTransitiveEither.unsafeCoerce();
+    const _narrowMatchEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -562,25 +722,53 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
-    const notation = [
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_narrowMatchEither.isLeft()) {
+      return _narrowMatchEither;
+    }
+
+    const narrowMatch = _narrowMatchEither.unsafeCoerce();
+    const _notationEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
-    const note = [
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_notationEither.isLeft()) {
+      return _notationEither;
+    }
+
+    const notation = _notationEither.unsafeCoerce();
+    const _noteEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
-    const prefLabel = [
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_noteEither.isLeft()) {
+      return _noteEither;
+    }
+
+    const note = _noteEither.unsafeCoerce();
+    const _prefLabelEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -588,25 +776,53 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
-    const prefLabelXl = [
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_prefLabelEither.isLeft()) {
+      return _prefLabelEither;
+    }
+
+    const prefLabel = _prefLabelEither.unsafeCoerce();
+    const _prefLabelXlEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly (rdfjs.BlankNode | rdfjs.NamedNode)[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#prefLabel"),
           { unique: true },
         )
-        .flatMap((value) => value.toIdentifier().toMaybe().toList()),
-    ];
-    const related = [
+        .flatMap((resourceValue) =>
+          resourceValue.toIdentifier().toMaybe().toList(),
+        ),
+    ]);
+    if (_prefLabelXlEither.isLeft()) {
+      return _prefLabelXlEither;
+    }
+
+    const prefLabelXl = _prefLabelXlEither.unsafeCoerce();
+    const _relatedEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#related"),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
-    const relatedMatch = [
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_relatedEither.isLeft()) {
+      return _relatedEither;
+    }
+
+    const related = _relatedEither.unsafeCoerce();
+    const _relatedMatchEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -614,9 +830,17 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
-    const scopeNote = [
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_relatedMatchEither.isLeft()) {
+      return _relatedMatchEither;
+    }
+
+    const relatedMatch = _relatedMatchEither.unsafeCoerce();
+    const _scopeNoteEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -624,9 +848,19 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
-    const semanticRelation = [
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_scopeNoteEither.isLeft()) {
+      return _scopeNoteEither;
+    }
+
+    const scopeNote = _scopeNoteEither.unsafeCoerce();
+    const _semanticRelationEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -634,9 +868,17 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
-    const topConceptOf = [
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_semanticRelationEither.isLeft()) {
+      return _semanticRelationEither;
+    }
+
+    const semanticRelation = _semanticRelationEither.unsafeCoerce();
+    const _topConceptOfEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -644,8 +886,13 @@ export namespace Concept {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_topConceptOfEither.isLeft()) {
+      return _topConceptOfEither;
+    }
+
+    const topConceptOf = _topConceptOfEither.unsafeCoerce();
     const type = "Concept" as const;
     return purify.Either.of({
       altLabel,
@@ -685,128 +932,117 @@ export namespace Concept {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(
-    concept: Omit<Concept, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
-    hasher: HasherT,
-  ): HasherT {
-    for (const _element of concept.altLabel) {
-      hasher.update(_element.value);
+  >(concept: Omit<Concept, "identifier" | "type">, hasher: HasherT): HasherT {
+    for (const element of concept.altLabel) {
+      hasher.update(element.value);
     }
 
-    for (const _element of concept.altLabelXl) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.altLabelXl) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.broader) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.broader) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.broaderTransitive) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.broaderTransitive) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.broadMatch) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.broadMatch) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.changeNote) {
-      hasher.update(_element.value);
+    for (const element of concept.changeNote) {
+      hasher.update(element.value);
     }
 
-    for (const _element of concept.closeMatch) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.closeMatch) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.definition) {
-      hasher.update(_element.value);
+    for (const element of concept.definition) {
+      hasher.update(element.value);
     }
 
-    for (const _element of concept.editorialNote) {
-      hasher.update(_element.value);
+    for (const element of concept.editorialNote) {
+      hasher.update(element.value);
     }
 
-    for (const _element of concept.exactMatch) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.exactMatch) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.example) {
-      hasher.update(_element.value);
+    for (const element of concept.example) {
+      hasher.update(element.value);
     }
 
-    for (const _element of concept.hiddenLabel) {
-      hasher.update(_element.value);
+    for (const element of concept.hiddenLabel) {
+      hasher.update(element.value);
     }
 
-    for (const _element of concept.hiddenLabelXl) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.hiddenLabelXl) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.historyNote) {
-      hasher.update(_element.value);
+    for (const element of concept.historyNote) {
+      hasher.update(element.value);
     }
 
-    if (typeof concept.identifier !== "undefined") {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(concept.identifier),
-      );
+    for (const element of concept.inScheme) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.inScheme) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.mappingRelation) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.mappingRelation) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.narrower) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.narrower) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.narrowerTransitive) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.narrowerTransitive) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.narrowMatch) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.narrowMatch) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.notation) {
+      hasher.update(element.value);
     }
 
-    for (const _element of concept.notation) {
-      hasher.update(_element.value);
+    for (const element of concept.note) {
+      hasher.update(element.value);
     }
 
-    for (const _element of concept.note) {
-      hasher.update(_element.value);
+    for (const element of concept.prefLabel) {
+      hasher.update(element.value);
     }
 
-    for (const _element of concept.prefLabel) {
-      hasher.update(_element.value);
+    for (const element of concept.prefLabelXl) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.prefLabelXl) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.related) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.related) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.relatedMatch) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.relatedMatch) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.scopeNote) {
+      hasher.update(element.value);
     }
 
-    for (const _element of concept.scopeNote) {
-      hasher.update(_element.value);
+    for (const element of concept.semanticRelation) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of concept.semanticRelation) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
-    }
-
-    for (const _element of concept.topConceptOf) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of concept.topConceptOf) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
     return hasher;
@@ -1165,220 +1401,128 @@ export namespace Concept {
       );
     }
 
-    for (const altLabelValue of concept.altLabel) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
-        altLabelValue,
-      );
-    }
-
-    for (const altLabelXlValue of concept.altLabelXl) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#altLabel"),
-        altLabelXlValue,
-      );
-    }
-
-    for (const broaderValue of concept.broader) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#broader"),
-        broaderValue,
-      );
-    }
-
-    for (const broaderTransitiveValue of concept.broaderTransitive) {
-      resource.add(
-        dataFactory.namedNode(
-          "http://www.w3.org/2004/02/skos/core#broaderTransitive",
-        ),
-        broaderTransitiveValue,
-      );
-    }
-
-    for (const broadMatchValue of concept.broadMatch) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#broadMatch"),
-        broadMatchValue,
-      );
-    }
-
-    for (const changeNoteValue of concept.changeNote) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#changeNote"),
-        changeNoteValue,
-      );
-    }
-
-    for (const closeMatchValue of concept.closeMatch) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#closeMatch"),
-        closeMatchValue,
-      );
-    }
-
-    for (const definitionValue of concept.definition) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#definition"),
-        definitionValue,
-      );
-    }
-
-    for (const editorialNoteValue of concept.editorialNote) {
-      resource.add(
-        dataFactory.namedNode(
-          "http://www.w3.org/2004/02/skos/core#editorialNote",
-        ),
-        editorialNoteValue,
-      );
-    }
-
-    for (const exactMatchValue of concept.exactMatch) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#exactMatch"),
-        exactMatchValue,
-      );
-    }
-
-    for (const exampleValue of concept.example) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#example"),
-        exampleValue,
-      );
-    }
-
-    for (const hiddenLabelValue of concept.hiddenLabel) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
-        hiddenLabelValue,
-      );
-    }
-
-    for (const hiddenLabelXlValue of concept.hiddenLabelXl) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#hiddenLabel"),
-        hiddenLabelXlValue,
-      );
-    }
-
-    for (const historyNoteValue of concept.historyNote) {
-      resource.add(
-        dataFactory.namedNode(
-          "http://www.w3.org/2004/02/skos/core#historyNote",
-        ),
-        historyNoteValue,
-      );
-    }
-
-    for (const inSchemeValue of concept.inScheme) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#inScheme"),
-        inSchemeValue,
-      );
-    }
-
-    for (const mappingRelationValue of concept.mappingRelation) {
-      resource.add(
-        dataFactory.namedNode(
-          "http://www.w3.org/2004/02/skos/core#mappingRelation",
-        ),
-        mappingRelationValue,
-      );
-    }
-
-    for (const narrowerValue of concept.narrower) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#narrower"),
-        narrowerValue,
-      );
-    }
-
-    for (const narrowerTransitiveValue of concept.narrowerTransitive) {
-      resource.add(
-        dataFactory.namedNode(
-          "http://www.w3.org/2004/02/skos/core#narrowerTransitive",
-        ),
-        narrowerTransitiveValue,
-      );
-    }
-
-    for (const narrowMatchValue of concept.narrowMatch) {
-      resource.add(
-        dataFactory.namedNode(
-          "http://www.w3.org/2004/02/skos/core#narrowMatch",
-        ),
-        narrowMatchValue,
-      );
-    }
-
-    for (const notationValue of concept.notation) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
-        notationValue,
-      );
-    }
-
-    for (const noteValue of concept.note) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
-        noteValue,
-      );
-    }
-
-    for (const prefLabelValue of concept.prefLabel) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#prefLabel"),
-        prefLabelValue,
-      );
-    }
-
-    for (const prefLabelXlValue of concept.prefLabelXl) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#prefLabel"),
-        prefLabelXlValue,
-      );
-    }
-
-    for (const relatedValue of concept.related) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#related"),
-        relatedValue,
-      );
-    }
-
-    for (const relatedMatchValue of concept.relatedMatch) {
-      resource.add(
-        dataFactory.namedNode(
-          "http://www.w3.org/2004/02/skos/core#relatedMatch",
-        ),
-        relatedMatchValue,
-      );
-    }
-
-    for (const scopeNoteValue of concept.scopeNote) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#scopeNote"),
-        scopeNoteValue,
-      );
-    }
-
-    for (const semanticRelationValue of concept.semanticRelation) {
-      resource.add(
-        dataFactory.namedNode(
-          "http://www.w3.org/2004/02/skos/core#semanticRelation",
-        ),
-        semanticRelationValue,
-      );
-    }
-
-    for (const topConceptOfValue of concept.topConceptOf) {
-      resource.add(
-        dataFactory.namedNode(
-          "http://www.w3.org/2004/02/skos/core#topConceptOf",
-        ),
-        topConceptOfValue,
-      );
-    }
-
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
+      concept.altLabel,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#altLabel"),
+      concept.altLabelXl,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#broader"),
+      concept.broader,
+    );
+    resource.add(
+      dataFactory.namedNode(
+        "http://www.w3.org/2004/02/skos/core#broaderTransitive",
+      ),
+      concept.broaderTransitive,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#broadMatch"),
+      concept.broadMatch,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#changeNote"),
+      concept.changeNote,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#closeMatch"),
+      concept.closeMatch,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#definition"),
+      concept.definition,
+    );
+    resource.add(
+      dataFactory.namedNode(
+        "http://www.w3.org/2004/02/skos/core#editorialNote",
+      ),
+      concept.editorialNote,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#exactMatch"),
+      concept.exactMatch,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#example"),
+      concept.example,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
+      concept.hiddenLabel,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#hiddenLabel"),
+      concept.hiddenLabelXl,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#historyNote"),
+      concept.historyNote,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#inScheme"),
+      concept.inScheme,
+    );
+    resource.add(
+      dataFactory.namedNode(
+        "http://www.w3.org/2004/02/skos/core#mappingRelation",
+      ),
+      concept.mappingRelation,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#narrower"),
+      concept.narrower,
+    );
+    resource.add(
+      dataFactory.namedNode(
+        "http://www.w3.org/2004/02/skos/core#narrowerTransitive",
+      ),
+      concept.narrowerTransitive,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#narrowMatch"),
+      concept.narrowMatch,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
+      concept.notation,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
+      concept.note,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#prefLabel"),
+      concept.prefLabel,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#prefLabel"),
+      concept.prefLabelXl,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#related"),
+      concept.related,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#relatedMatch"),
+      concept.relatedMatch,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#scopeNote"),
+      concept.scopeNote,
+    );
+    resource.add(
+      dataFactory.namedNode(
+        "http://www.w3.org/2004/02/skos/core#semanticRelation",
+      ),
+      concept.semanticRelation,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#topConceptOf"),
+      concept.topConceptOf,
+    );
     return resource;
   }
 }
@@ -1450,15 +1594,28 @@ export namespace ConceptScheme {
       );
     }
 
-    const altLabel = [
+    const _altLabelEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
-    const hasTopConcept = [
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_altLabelEither.isLeft()) {
+      return _altLabelEither;
+    }
+
+    const altLabel = _altLabelEither.unsafeCoerce();
+    const _hasTopConceptEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.NamedNode[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -1466,18 +1623,36 @@ export namespace ConceptScheme {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toIri().toMaybe().toList()),
-    ];
-    const hiddenLabel = [
+        .flatMap((resourceValue) => resourceValue.toIri().toMaybe().toList()),
+    ]);
+    if (_hasTopConceptEither.isLeft()) {
+      return _hasTopConceptEither;
+    }
+
+    const hasTopConcept = _hasTopConceptEither.unsafeCoerce();
+    const _hiddenLabelEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_hiddenLabelEither.isLeft()) {
+      return _hiddenLabelEither;
+    }
+
+    const hiddenLabel = _hiddenLabelEither.unsafeCoerce();
     const identifier = resource.identifier;
-    const prefLabel = [
+    const _prefLabelEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -1485,8 +1660,15 @@ export namespace ConceptScheme {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_prefLabelEither.isLeft()) {
+      return _prefLabelEither;
+    }
+
+    const prefLabel = _prefLabelEither.unsafeCoerce();
     const type = "ConceptScheme" as const;
     return purify.Either.of({
       altLabel,
@@ -1503,31 +1685,23 @@ export namespace ConceptScheme {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    conceptScheme: Omit<ConceptScheme, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
+    conceptScheme: Omit<ConceptScheme, "identifier" | "type">,
     hasher: HasherT,
   ): HasherT {
-    for (const _element of conceptScheme.altLabel) {
-      hasher.update(_element.value);
+    for (const element of conceptScheme.altLabel) {
+      hasher.update(element.value);
     }
 
-    for (const _element of conceptScheme.hasTopConcept) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of conceptScheme.hasTopConcept) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
-    for (const _element of conceptScheme.hiddenLabel) {
-      hasher.update(_element.value);
+    for (const element of conceptScheme.hiddenLabel) {
+      hasher.update(element.value);
     }
 
-    if (typeof conceptScheme.identifier !== "undefined") {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(conceptScheme.identifier),
-      );
-    }
-
-    for (const _element of conceptScheme.prefLabel) {
-      hasher.update(_element.value);
+    for (const element of conceptScheme.prefLabel) {
+      hasher.update(element.value);
     }
 
     return hasher;
@@ -1624,36 +1798,24 @@ export namespace ConceptScheme {
       );
     }
 
-    for (const altLabelValue of conceptScheme.altLabel) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
-        altLabelValue,
-      );
-    }
-
-    for (const hasTopConceptValue of conceptScheme.hasTopConcept) {
-      resource.add(
-        dataFactory.namedNode(
-          "http://www.w3.org/2004/02/skos/core#hasTopConcept",
-        ),
-        hasTopConceptValue,
-      );
-    }
-
-    for (const hiddenLabelValue of conceptScheme.hiddenLabel) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
-        hiddenLabelValue,
-      );
-    }
-
-    for (const prefLabelValue of conceptScheme.prefLabel) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#prefLabel"),
-        prefLabelValue,
-      );
-    }
-
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
+      conceptScheme.altLabel,
+    );
+    resource.add(
+      dataFactory.namedNode(
+        "http://www.w3.org/2004/02/skos/core#hasTopConcept",
+      ),
+      conceptScheme.hasTopConcept,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
+      conceptScheme.hiddenLabel,
+    );
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#prefLabel"),
+      conceptScheme.prefLabel,
+    );
     return resource;
   }
 }
@@ -1703,7 +1865,10 @@ export namespace Label {
     }
 
     const identifier = resource.identifier;
-    const skos$j$xl_literalForm = [
+    const _skos$j$xl_literalFormEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      readonly rdfjs.Literal[]
+    > = purify.Either.of([
       ...resource
         .values(
           dataFactory.namedNode(
@@ -1711,8 +1876,15 @@ export namespace Label {
           ),
           { unique: true },
         )
-        .flatMap((value) => value.toLiteral().toMaybe().toList()),
-    ];
+        .flatMap((resourceValue) =>
+          resourceValue.toLiteral().toMaybe().toList(),
+        ),
+    ]);
+    if (_skos$j$xl_literalFormEither.isLeft()) {
+      return _skos$j$xl_literalFormEither;
+    }
+
+    const skos$j$xl_literalForm = _skos$j$xl_literalFormEither.unsafeCoerce();
     const type = "Label" as const;
     return purify.Either.of({ identifier, skos$j$xl_literalForm, type });
   }
@@ -1721,20 +1893,9 @@ export namespace Label {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(
-    label: Omit<Label, "identifier" | "type"> & {
-      identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
-    },
-    hasher: HasherT,
-  ): HasherT {
-    if (typeof label.identifier !== "undefined") {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(label.identifier),
-      );
-    }
-
-    for (const _element of label.skos$j$xl_literalForm) {
-      hasher.update(_element.value);
+  >(label: Omit<Label, "identifier" | "type">, hasher: HasherT): HasherT {
+    for (const element of label.skos$j$xl_literalForm) {
+      hasher.update(element.value);
     }
 
     return hasher;
@@ -1794,13 +1955,10 @@ export namespace Label {
       );
     }
 
-    for (const skos$j$xl_literalFormValue of label.skos$j$xl_literalForm) {
-      resource.add(
-        dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#literalForm"),
-        skos$j$xl_literalFormValue,
-      );
-    }
-
+    resource.add(
+      dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#literalForm"),
+      label.skos$j$xl_literalForm,
+    );
     return resource;
   }
 }
@@ -1852,14 +2010,17 @@ export namespace OrderedCollection {
             }),
           );
         }
-        const _memberListEither = resource
+        const _memberListEither: purify.Either<
+          rdfjsResource.Resource.ValueError,
+          readonly rdfjs.NamedNode[]
+        > = resource
           .value(
             dataFactory.namedNode(
               "http://www.w3.org/2004/02/skos/core#memberList",
             ),
           )
-          .chain((value) =>
-            value
+          .chain((resourceValue) =>
+            resourceValue
               .toList()
               .map((values) =>
                 values.flatMap((value) => value.toIri().toMaybe().toList()),
@@ -1885,9 +2046,7 @@ export namespace OrderedCollection {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    orderedCollection: Omit<OrderedCollection, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
+    orderedCollection: Omit<OrderedCollection, "identifier" | "type">,
     hasher: HasherT,
   ): HasherT {
     Collection.hashCollection(orderedCollection, hasher);
@@ -1924,8 +2083,8 @@ export namespace OrderedCollection {
             ),
             this.variable("MemberList"),
           ).chainObject(
-            (memberList) =>
-              new sparqlBuilder.RdfListGraphPatterns({ rdfList: memberList }),
+            (object) =>
+              new sparqlBuilder.RdfListGraphPatterns({ rdfList: object }),
           ),
         ),
       );

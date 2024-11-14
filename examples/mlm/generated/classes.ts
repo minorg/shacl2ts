@@ -355,7 +355,14 @@ export namespace MachineLearningModel {
       );
       this.add(
         sparqlBuilder.GraphPattern.group(
-          new MachineLearningModelFamily.SparqlGraphPatterns(this.subject),
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("https://schema.org/isVariantOf"),
+            this.variable("IsVariantOf"),
+          ).chainObject(
+            (object) =>
+              new MachineLearningModelFamily.SparqlGraphPatterns(object),
+          ),
         ),
       );
       this.add(
@@ -902,7 +909,13 @@ export namespace MachineLearningModelFamily {
       );
       this.add(
         sparqlBuilder.GraphPattern.group(
-          new Organization.SparqlGraphPatterns(this.subject),
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("https://schema.org/manufacturer"),
+            this.variable("Manufacturer"),
+          ).chainObject(
+            (object) => new Organization.SparqlGraphPatterns(object),
+          ),
         ),
       );
       this.add(

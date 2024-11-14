@@ -201,10 +201,12 @@ export namespace MachineLearningModel {
       }
 
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("https://schema.org/description"),
-          this.variable("Description"),
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("https://schema.org/description"),
+            this.variable("Description"),
+          ),
         ),
       );
       this.add(
@@ -214,8 +216,8 @@ export namespace MachineLearningModel {
             dataFactory.namedNode("https://schema.org/isVariantOf"),
             this.variable("IsVariantOf"),
           ).chainObject(
-            (isVariantOf) =>
-              new MachineLearningModelFamily.SparqlGraphPatterns(isVariantOf),
+            (object) =>
+              new MachineLearningModelFamily.SparqlGraphPatterns(object),
           ),
         ),
       );
@@ -234,19 +236,23 @@ export namespace MachineLearningModel {
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://purl.annotize.ai/ontology/mlm#trainingDataCutoff",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://purl.annotize.ai/ontology/mlm#trainingDataCutoff",
+            ),
+            this.variable("TrainingDataCutoff"),
           ),
-          this.variable("TrainingDataCutoff"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("https://schema.org/url"),
-          this.variable("Url"),
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("https://schema.org/url"),
+            this.variable("Url"),
+          ),
         ),
       );
     }
@@ -447,12 +453,14 @@ export namespace LanguageModel {
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
+            ),
+            this.variable("MaxTokenOutput"),
           ),
-          this.variable("MaxTokenOutput"),
         ),
       );
     }
@@ -663,10 +671,12 @@ export namespace MachineLearningModelFamily {
       }
 
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("https://schema.org/description"),
-          this.variable("Description"),
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("https://schema.org/description"),
+            this.variable("Description"),
+          ),
         ),
       );
       this.add(
@@ -676,8 +686,7 @@ export namespace MachineLearningModelFamily {
             dataFactory.namedNode("https://schema.org/manufacturer"),
             this.variable("Manufacturer"),
           ).chainObject(
-            (manufacturer) =>
-              new Organization.SparqlGraphPatterns(manufacturer),
+            (object) => new Organization.SparqlGraphPatterns(object),
           ),
         ),
       );
@@ -689,10 +698,12 @@ export namespace MachineLearningModelFamily {
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("https://schema.org/url"),
-          this.variable("Url"),
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("https://schema.org/url"),
+            this.variable("Url"),
+          ),
         ),
       );
     }
