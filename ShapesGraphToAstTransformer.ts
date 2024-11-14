@@ -440,15 +440,27 @@ export class ShapesGraphToAstTransformer {
           return Either.of(memberTypes[0]);
         }
 
+        // Get the type underlying a set or option
+        const memberItemTypes = memberTypes.map((memberType) => {
+          switch (memberType.kind) {
+            case "SetType":
+              return memberType.itemType;
+            case "OptionType":
+              return memberType.itemType;
+            default:
+              return memberType;
+          }
+        });
+
         if (
           hasValue.isNothing() &&
-          memberTypes.every(
-            (compositeType) =>
-              compositeType.kind === "LiteralType" &&
-              compositeType.maxExclusive.isNothing() &&
-              compositeType.maxInclusive.isNothing() &&
-              compositeType.minExclusive.isNothing() &&
-              compositeType.minInclusive.isNothing(),
+          memberItemTypes.every(
+            (memberItemType) =>
+              memberItemType.kind === "LiteralType" &&
+              memberItemType.maxExclusive.isNothing() &&
+              memberItemType.maxInclusive.isNothing() &&
+              memberItemType.minExclusive.isNothing() &&
+              memberItemType.minInclusive.isNothing(),
           )
         ) {
           // Special case: all the member types are Literals without further constraints,
@@ -469,8 +481,8 @@ export class ShapesGraphToAstTransformer {
 
         if (
           hasValue.isNothing() &&
-          memberTypes.every(
-            (compositeType) => compositeType.kind === "IdentifierType",
+          memberItemTypes.every(
+            (memberItemType) => memberItemType.kind === "IdentifierType",
           )
         ) {
           // Special case: all member types are blank or named nodes without further constraints
@@ -481,11 +493,11 @@ export class ShapesGraphToAstTransformer {
             hasValue: Maybe.empty(),
             kind: "IdentifierType",
             nodeKinds: new Set<NodeKind.BLANK_NODE | NodeKind.IRI>(
-              memberTypes
+              memberItemTypes
                 .filter(
-                  (compositeType) => compositeType.kind === "IdentifierType",
+                  (memberItemType) => memberItemType.kind === "IdentifierType",
                 )
-                .flatMap((compositeType) => [...compositeType.nodeKinds]),
+                .flatMap((memberItemType) => [...memberItemType.nodeKinds]),
             ),
           });
         }
