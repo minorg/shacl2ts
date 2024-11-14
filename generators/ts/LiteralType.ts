@@ -27,25 +27,24 @@ export class LiteralType extends RdfjsTermType<Literal> {
   }
 
   override convertToExpression({
-    valueVariable,
-  }: { valueVariable: string }): Maybe<string> {
+    variables,
+  }: Parameters<Type["convertToExpression"]>[0]): Maybe<string> {
     return Maybe.of(
-      `(typeof ${valueVariable} === "object" && !(${valueVariable} instanceof Date)) ? ${valueVariable} : rdfLiteral.toRdf(${valueVariable}, ${this.configuration.dataFactoryVariable})`,
+      `(typeof ${variables.value} === "object" && !(${variables.value} instanceof Date)) ? ${variables.value} : rdfLiteral.toRdf(${variables.value}, ${this.configuration.dataFactoryVariable})`,
     );
   }
 
   override fromRdfExpression({
-    resourceValueVariable,
+    variables,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `${resourceValueVariable}.toLiteral()`;
+    return `${variables.resourceValue}.toLiteral()`;
   }
 
   override hashStatements({
-    hasherVariable,
-    valueVariable,
+    variables,
   }: Parameters<
     RdfjsTermType<Literal>["hashStatements"]
   >[0]): readonly string[] {
-    return [`${hasherVariable}.update(${valueVariable}.value);`];
+    return [`${variables.hasher}.update(${variables.value}.value);`];
   }
 }

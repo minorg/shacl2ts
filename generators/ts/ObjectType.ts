@@ -139,10 +139,10 @@ export class ObjectType extends Type {
   }
 
   override convertToExpression({
-    valueVariable,
-  }: { valueVariable: string }): Maybe<string> {
+    variables,
+  }: Parameters<Type["convertToExpression"]>[0]): Maybe<string> {
     return Maybe.of(
-      `${valueVariable} instanceof ${this.name} ? ${valueVariable} : new ${this.name}(${valueVariable})`,
+      `${variables.value} instanceof ${this.name} ? ${variables.value} : new ${this.name}(${variables.value})`,
     );
   }
 
@@ -156,17 +156,16 @@ export class ObjectType extends Type {
   }
 
   override fromRdfExpression({
-    resourceValueVariable,
+    variables,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.name}.fromRdf(resource))`;
+    return `${variables.resourceValue}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.name}.fromRdf(resource))`;
   }
 
   override hashStatements({
-    hasherVariable,
-    valueVariable,
+    variables,
   }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `${this.name}.${this.hashFunctionName}(${valueVariable}, ${hasherVariable});`,
+      `${this.name}.${this.hashFunctionName}(${variables.value}, ${variables.hasher});`,
     ];
   }
 
@@ -187,31 +186,27 @@ export class ObjectType extends Type {
   }
 
   override sparqlGraphPatternExpression({
-    subjectVariable,
+    variables,
   }: Parameters<
     Type["sparqlGraphPatternExpression"]
   >[0]): Maybe<Type.SparqlGraphPatternExpression> {
     return Maybe.of({
       type: "GraphPatterns",
-      value: `new ${this.name}.SparqlGraphPatterns(${subjectVariable})`,
+      value: `new ${this.name}.SparqlGraphPatterns(${variables.subject})`,
     });
   }
 
   override toRdfStatements({
-    predicateVariable,
-    mutateGraphVariable,
-    resourceVariable,
-    resourceSetVariable,
-    valueVariable,
+    variables,
   }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
     switch (this.configuration.objectTypeDeclarationType) {
       case "class":
         return [
-          `${resourceVariable}.add(${predicateVariable}, ${valueVariable}.toRdf({ mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier);`,
+          `${variables.resource}.add(${variables.predicate}, ${variables.value}.toRdf({ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier);`,
         ];
       case "interface":
         return [
-          `${resourceVariable}.add(${predicateVariable}, ${this.name}.toRdf(${valueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier);`,
+          `${variables.resource}.add(${variables.predicate}, ${this.name}.toRdf(${variables.value}, { mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier);`,
         ];
     }
   }

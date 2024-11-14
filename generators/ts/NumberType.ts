@@ -23,15 +23,14 @@ export class NumberType extends PrimitiveType {
   }
 
   override fromRdfExpression({
-    resourceValueVariable,
+    variables,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `${resourceValueVariable}.toNumber()`;
+    return `${variables.resourceValue}.toNumber()`;
   }
 
   override hashStatements({
-    hasherVariable,
-    valueVariable,
+    variables,
   }: Parameters<PrimitiveType["hashStatements"]>[0]): readonly string[] {
-    return [`${hasherVariable}.update(${valueVariable}.toString());`];
+    return [`${variables.hasher}.update(${variables.value}.toString());`];
   }
 }

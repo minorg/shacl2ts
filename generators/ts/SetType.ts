@@ -28,43 +28,38 @@ export class SetType extends Type {
     return `(left, right) => purifyHelpers.Arrays.equals(left, right, ${itemTypeEqualsFunction})`;
   }
 
-  override fromRdfExpression(parameters: {
-    propertyPath: NamedNode;
-    resourceValueVariable: string;
-    resourceVariable: string;
-  }): string {
+  override fromRdfExpression({
+    variables,
+  }: Parameters<Type["fromRdfExpression"]>[0]): string {
     throw new Error("Method not implemented.");
   }
 
   override hashStatements({
-    hasherVariable,
-    valueVariable,
-  }: {
-    hasherVariable: string;
-    valueVariable: string;
-  }): readonly string[] {
+    variables,
+  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `for (const element of ${valueVariable}) { ${this.itemType
+      `for (const element of ${variables.value}) { ${this.itemType
         .hashStatements({
-          hasherVariable,
-          valueVariable: "element",
+          variables: {
+            hasher: variables.hasher,
+            valueVariable: "element",
+          },
         })
         .join("\n")} }`,
     ];
   }
 
-  override sparqlGraphPatternExpression(parameters: {
-    subjectVariable: string;
-  }): Maybe<Type.SparqlGraphPatternExpression> {
+  override sparqlGraphPatternExpression(
+    parameters: Parameters<Type["sparqlGraphPatternExpression"]>[0],
+  ): Maybe<Type.SparqlGraphPatternExpression> {
     return this.itemType.sparqlGraphPatternExpression(parameters);
   }
 
   override toRdfStatements({
-    valueVariable,
-    ...otherParameters
+    variables,
   }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
     return [
-      `${valueVariable}.forEach((value) => { ${this.itemType.toRdfStatements({ ...otherParameters, valueVariable: "value" }).join("\n")} });`,
+      `${variables.value}.forEach((value) => { ${this.itemType.toRdfStatements({ variables: { ...variables, value: "value" } }).join("\n")} });`,
     ];
   }
 }

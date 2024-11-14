@@ -125,8 +125,7 @@ ${this.memberTypes
   }
 
   override hashStatements({
-    hasherVariable,
-    valueVariable,
+    variables,
   }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     const caseBlocks: string[] = [];
     this.memberTypes.forEach((type, typeIndex) => {
@@ -135,8 +134,7 @@ ${this.memberTypes
           .values) {
           caseBlocks.push(
             `case "${typeDiscriminatorPropertyValue}": { ${type.hashStatements({
-              hasherVariable,
-              valueVariable,
+              variables,
             })}; break; }`,
           );
         }
@@ -145,28 +143,26 @@ ${this.memberTypes
           `case "${syntheticTypeDiscriminatorValue({
             type,
             typeIndex,
-          })}": { ${type.hashStatements({ hasherVariable, valueVariable: `${valueVariable}.value` })}; break; }`,
+          })}": { ${type.hashStatements({ variables: { hasher: variables.hasher, value: `${variables}.value` } })}; break; }`,
         );
       }
     });
     const switchValue = this.typesSharedDiscriminatorProperty
       .map(
         (typeSharedDiscriminatorProperty) =>
-          `${valueVariable}.${typeSharedDiscriminatorProperty.name}`,
+          `${variables.value}.${typeSharedDiscriminatorProperty.name}`,
       )
       .orDefaultLazy(
-        () => `${valueVariable}.${syntheticTypeDiscriminatorPropertyName}`,
+        () => `${variables.value}.${syntheticTypeDiscriminatorPropertyName}`,
       );
     return [`switch (${switchValue}) { ${caseBlocks.join("\n")} }`];
   }
 
-  override sparqlGraphPatternExpression({
-    subjectVariable,
-  }: Parameters<
-    Type["sparqlGraphPatternExpression"]
-  >[0]): Maybe<Type.SparqlGraphPatternExpression> {
+  override sparqlGraphPatternExpression(
+    parameters: Parameters<Type["sparqlGraphPatternExpression"]>[0],
+  ): Maybe<Type.SparqlGraphPatternExpression> {
     const typeSparqlGraphPatternExpressions = this.memberTypes.flatMap((type) =>
-      type.sparqlGraphPatternExpression({ subjectVariable }).toList(),
+      type.sparqlGraphPatternExpression(parameters).toList(),
     );
     switch (typeSparqlGraphPatternExpressions.length) {
       case 0:
@@ -209,25 +205,22 @@ ${this.memberTypes
   }
 
   override toRdfStatements({
-    valueVariable,
-    ...otherParameters
+    variables,
   }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
     const statements: string[] = [];
     this.memberTypes.forEach((type, typeIndex) => {
-      const typeStatements = type
-        .toRdfStatements({ valueVariable, ...otherParameters })
-        .join("\n");
+      const typeStatements = type.toRdfStatements({ variables }).join("\n");
       this.typesSharedDiscriminatorProperty
         .ifJust((typeShareDiscriminatorProperty) => {
           for (const typeDiscriminatorValue of typeShareDiscriminatorProperty.values) {
             statements.push(
-              `if (${valueVariable}.${typeShareDiscriminatorProperty.name} === "${typeDiscriminatorValue}") { ${typeStatements} }`,
+              `if (${variables.value}.${typeShareDiscriminatorProperty.name} === "${typeDiscriminatorValue}") { ${typeStatements} }`,
             );
           }
         })
         .ifNothing(() => {
           statements.push(
-            `if (${valueVariable}.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") { ${typeStatements} }`,
+            `if (${variables.value}.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") { ${typeStatements} }`,
           );
         });
     });

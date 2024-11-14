@@ -1,4 +1,3 @@
-import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { LiteralType } from "./LiteralType.js";
 import type { Type } from "./Type.js";
@@ -16,7 +15,7 @@ export abstract class PrimitiveType extends LiteralType {
     return [];
   }
 
-  override convertToExpression(_: { valueVariable: string }): Maybe<string> {
+  override convertToExpression(): Maybe<string> {
     return Maybe.empty();
   }
 
@@ -26,11 +25,8 @@ export abstract class PrimitiveType extends LiteralType {
 
   override valueIsNotDefaultExpression({
     defaultValue,
-    valueVariable,
-  }: {
-    defaultValue: BlankNode | Literal | NamedNode;
-    valueVariable: string;
-  }): string {
-    return `${valueVariable} !== ${this.defaultValueExpression(defaultValue)}`;
+    variables,
+  }: Parameters<Type["valueIsNotDefaultExpression"]>[0]): string {
+    return `${variables.value} !== ${this.defaultValueExpression(defaultValue)}`;
   }
 }

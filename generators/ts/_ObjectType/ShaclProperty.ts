@@ -1,5 +1,4 @@
 import type * as rdfjs from "@rdfjs/types";
-import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { pascalCase } from "change-case";
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
@@ -146,7 +145,7 @@ export class ShaclProperty extends Property {
   }: Parameters<Property["fromRdfStatements"]>[0]): readonly string[] {
     const resourceValueVariable = "value";
     let valueFromRdfExpression = this.type.fromRdfExpression({
-      propertyPath: this.path,
+      predicateVariable: this.pathExpression,
       resourceVariable,
       resourceValueVariable,
     });

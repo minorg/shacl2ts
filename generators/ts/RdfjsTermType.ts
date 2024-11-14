@@ -35,10 +35,10 @@ export abstract class RdfjsTermType<
   }
 
   override toRdfStatements({
-    predicateVariable,
-    resourceVariable,
-    valueVariable,
+    variables,
   }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
-    return [`${resourceVariable}.add(${predicateVariable}, ${valueVariable});`];
+    return [
+      `${variables.resource}.add(${variables.predicate}, ${variables.value});`,
+    ];
   }
 }

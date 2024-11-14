@@ -23,27 +23,23 @@ export class BooleanType extends PrimitiveType {
   }
 
   override fromRdfExpression({
-    resourceValueVariable,
+    variables,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `${resourceValueVariable}.toBoolean()`;
+    return `${variables.resourceValue}.toBoolean()`;
   }
 
   override hashStatements({
-    hasherVariable,
-    valueVariable,
+    variables,
   }: Parameters<PrimitiveType["hashStatements"]>[0]): readonly string[] {
-    return [`${hasherVariable}.update(${valueVariable}.toString());`];
+    return [`${variables.hasher}.update(${variables.value}.toString());`];
   }
 
   override valueIsNotDefaultExpression({
     defaultValue,
-    valueVariable,
-  }: {
-    defaultValue: BlankNode | Literal | NamedNode;
-    valueVariable: string;
-  }): string {
+    variables,
+  }: Parameters<PrimitiveType["valueIsNotDefaultExpression"]>[0]): string {
     return this.defaultValueExpression(defaultValue) === "true"
-      ? `!${valueVariable}`
-      : `${valueVariable}`;
+      ? `!${variables.value}`
+      : `${variables.value}`;
   }
 }

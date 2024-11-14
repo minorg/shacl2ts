@@ -35,7 +35,7 @@ export abstract class Type {
   /**
    * An expression that converts any of the convertible-from type names to this type.
    */
-  convertToExpression(_: { valueVariable: string }): Maybe<string> {
+  convertToExpression(_: { variables: { value: string } }): Maybe<string> {
     return Maybe.empty();
   }
 
@@ -57,21 +57,27 @@ export abstract class Type {
    * An expression that converts a rdfjsResource.Resource.Value to a value of this type.
    */
   abstract fromRdfExpression(parameters: {
-    propertyPath: NamedNode;
-    resourceValueVariable: string;
-    resourceVariable: string;
+    variables: {
+      predicate: string;
+      resource: string;
+      resourceValue: string;
+    };
   }): string;
 
   abstract hashStatements(parameters: {
-    hasherVariable: string;
-    valueVariable: string;
+    variables: {
+      hasher: string;
+      value: string;
+    };
   }): readonly string[];
 
   /**
    * An optional sparqlBuilder.GraphPattern to chain to the basic pattern for a property.
    */
   abstract sparqlGraphPatternExpression(parameters: {
-    subjectVariable: string;
+    variables: {
+      subject: string;
+    };
   }): Maybe<Type.SparqlGraphPatternExpression>;
 
   /**
@@ -79,11 +85,13 @@ export abstract class Type {
    * an rdfjsResource.Resource.
    */
   abstract toRdfStatements(parameters: {
-    mutateGraphVariable: string;
-    predicateVariable: string;
-    resourceVariable: string;
-    resourceSetVariable: string;
-    valueVariable: string;
+    variables: {
+      predicate: string;
+      mutateGraph: string;
+      resource: string;
+      resourceSet: string;
+      value: string;
+    };
   }): readonly string[];
 
   /**
@@ -91,12 +99,14 @@ export abstract class Type {
    */
   valueIsNotDefaultExpression({
     defaultValue,
-    valueVariable,
+    variables,
   }: {
     defaultValue: BlankNode | Literal | NamedNode;
-    valueVariable: string;
+    variables: {
+      value: string;
+    };
   }) {
-    return `!${valueVariable}.equals(${rdfjsTermExpression(defaultValue, this.configuration)})`;
+    return `!${variables.value}.equals(${rdfjsTermExpression(defaultValue, this.configuration)})`;
   }
 }
 

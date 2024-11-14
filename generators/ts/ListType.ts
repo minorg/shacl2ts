@@ -51,51 +51,45 @@ export class ListType extends Type {
   }
 
   override fromRdfExpression({
-    resourceValueVariable,
-    ...otherParameters
+    variables,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `${resourceValueVariable}.toList().map(values => values.flatMap(value => ${this.itemType.fromRdfExpression({ resourceValueVariable: "value", ...otherParameters })}.toMaybe().toList()))`;
+    return `${variables.resourceValue}.toList().map(values => values.flatMap(value => ${this.itemType.fromRdfExpression({ variables: { ...variables, resourceValue: "value" } })}.toMaybe().toList()))`;
   }
 
   override hashStatements({
-    hasherVariable,
-    valueVariable,
+    variables,
   }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `for (const _element of ${valueVariable}) { ${this.itemType.hashStatements({ hasherVariable, valueVariable: "_element" }).join("\n")} }`,
+      `for (const _element of ${variables.value}) { ${this.itemType.hashStatements({ variables: { ...variables, value: "_element" } }).join("\n")} }`,
     ];
   }
 
   override sparqlGraphPatternExpression({
-    subjectVariable,
+    variables,
   }: Parameters<
     Type["sparqlGraphPatternExpression"]
   >[0]): Maybe<Type.SparqlGraphPatternExpression> {
     const itemVariable = "itemVariable";
     return this.itemType
       .sparqlGraphPatternExpression({
-        subjectVariable: itemVariable,
+        variables: { subject: itemVariable },
       })
       .map((itemSparqlGraphPatternExpression) => {
         return {
           type: "GraphPatterns" as const,
-          value: `new sparqlBuilder.RdfListGraphPatterns({ itemGraphPatterns: (itemVariable) => ${itemSparqlGraphPatternExpression.type === "GraphPatterns" ? itemSparqlGraphPatternExpression.value : `[${itemSparqlGraphPatternExpression.value}]`}, rdfList: ${subjectVariable} })`,
+          value: `new sparqlBuilder.RdfListGraphPatterns({ itemGraphPatterns: (itemVariable) => ${itemSparqlGraphPatternExpression.type === "GraphPatterns" ? itemSparqlGraphPatternExpression.value : `[${itemSparqlGraphPatternExpression.value}]`}, rdfList: ${variables.subject} })`,
         };
       })
       .altLazy(() =>
         Maybe.of({
           type: "GraphPatterns" as const,
-          value: `new sparqlBuilder.RdfListGraphPatterns({ rdfList: ${subjectVariable} })`,
+          value: `new sparqlBuilder.RdfListGraphPatterns({ rdfList: ${variables.subject} })`,
         }),
       );
   }
 
   override toRdfStatements({
-    mutateGraphVariable,
-    predicateVariable,
-    resourceSetVariable,
-    resourceVariable,
-    valueVariable,
+    variables,
   }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
     let listIdentifier: string;
     let mutableResourceTypeName: string;
@@ -111,9 +105,9 @@ export class ListType extends Type {
       case NodeKind.IRI: {
         switch (this.mintingStrategy) {
           case MintingStrategy.SHA256:
-            listIdentifier = `dataFactory.namedNode(\`urn:shaclmate:list:\${${valueVariable}.reduce(
+            listIdentifier = `dataFactory.namedNode(\`urn:shaclmate:list:\${${variables.value}.reduce(
         (hasher, item) => {
-          ${this.itemType.hashStatements({ hasherVariable: "hasher", valueVariable: "item" })}
+          ${this.itemType.hashStatements({ variables: { hasher: "hasher", value: "item" } })}
           return hasher;
         },
         sha256.create(),
@@ -134,13 +128,13 @@ export class ListType extends Type {
     }
 
     return [
-      `${resourceVariable}.add(${predicateVariable}, ${valueVariable}.reduce(({ currentSubListResource, listResource }, item, itemIndex) => {
+      `${variables.resource}.add(${variables.predicate}, ${variables.value}.reduce(({ currentSubListResource, listResource }, item, itemIndex) => {
     if (itemIndex === 0) {
       currentSubListResource = listResource;
     } else {
-      const newSubListResource = ${resourceSetVariable}.${resourceSetMethodName}({
+      const newSubListResource = ${variables.resourceSet}.${resourceSetMethodName}({
         identifier: ${subListIdentifier},
-        mutateGraph: ${mutateGraphVariable},
+        mutateGraph: ${variables.mutateGraph},
       });
       currentSubListResource!.add(dataFactory.namedNode("${rdf.rest.value}"), newSubListResource.identifier);
       currentSubListResource = newSubListResource;
@@ -148,9 +142,9 @@ export class ListType extends Type {
     
     ${this.rdfType.map((rdfType) => `currentSubListResource.add(dataFactory.namedNode("${rdf.type.value}"), dataFactory.namedNode("${rdfType.value}"))`).orDefault("")}
         
-    ${this.itemType.toRdfStatements({ mutateGraphVariable, predicateVariable: `dataFactory.namedNode("${rdf.first.value}")`, resourceVariable: "currentSubListResource", resourceSetVariable, valueVariable: "item" })}
+    ${this.itemType.toRdfStatements({ variables: { mutateGraph: variables.mutateGraph, predicate: `dataFactory.namedNode("${rdf.first.value}")`, resource: "currentSubListResource", resourceSet: variables.resourceSet, value: "item" } })}
 
-    if (itemIndex + 1 === ${valueVariable}.length) {
+    if (itemIndex + 1 === ${variables.value}.length) {
       currentSubListResource.add(dataFactory.namedNode("${rdf.rest.value}"), dataFactory.namedNode("${rdf.nil.value}"));
     }
     
@@ -160,7 +154,7 @@ export class ListType extends Type {
     currentSubListResource: null,
     listResource: resourceSet.${resourceSetMethodName}({
       identifier: ${listIdentifier},
-      mutateGraph: ${mutateGraphVariable}
+      mutateGraph: ${variables.mutateGraph}
     }),
   } as {
     currentSubListResource: ${mutableResourceTypeName} | null;

@@ -30,27 +30,28 @@ export class OptionType extends Type {
     return `(left, right) => purifyHelpers.Maybes.equals(left, right, ${itemTypeEqualsFunction})`;
   }
 
-  override fromRdfExpression(
-    parameters: Parameters<Type["fromRdfExpression"]>[0],
-  ): string {}
+  override fromRdfExpression({
+    variables,
+  }: Parameters<Type["fromRdfExpression"]>[0]): string {}
 
   override hashStatements({
-    hasherVariable,
-    valueVariable,
+    variables,
   }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `${valueVariable}.ifJust((value) => { ${this.itemType
+      `${variables.value}.ifJust((value) => { ${this.itemType
         .hashStatements({
-          hasherVariable,
-          valueVariable: "value",
+          variables: {
+            hasher: variables.hasher,
+            value: "value",
+          },
         })
         .join("\n")} })`,
     ];
   }
 
-  override sparqlGraphPatternExpression(parameters: {
-    subjectVariable: string;
-  }): Maybe<Type.SparqlGraphPatternExpression> {
+  override sparqlGraphPatternExpression(
+    parameters: Parameters<Type["sparqlGraphPatternExpression"]>[0],
+  ): Maybe<Type.SparqlGraphPatternExpression> {
     return this.itemType
       .sparqlGraphPatternExpression(parameters)
       .map((typeSparqlGraphPatternExpression) => {
@@ -67,11 +68,10 @@ export class OptionType extends Type {
   }
 
   override toRdfStatements({
-    valueVariable,
-    ...otherParameters
+    variables,
   }: Parameters<Type["toRdfStatements"]>[0]): readonly string[] {
     return [
-      `${valueVariable}.ifJust((value) => { ${this.itemType.toRdfStatements({ ...otherParameters, valueVariable: "value" }).join("\n")} });`,
+      `${variables.value}.ifJust((value) => { ${this.itemType.toRdfStatements({ variables: { ...variables, value: "value" } }).join("\n")} });`,
     ];
   }
 }

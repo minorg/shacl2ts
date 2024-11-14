@@ -54,35 +54,32 @@ export class IdentifierType extends RdfjsTermType<BlankNode | NamedNode> {
   }
 
   override fromRdfExpression({
-    propertyPath,
-    resourceVariable,
-    resourceValueVariable,
+    variables,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
     let expression: string;
     switch (this.name) {
       case "rdfjs.BlankNode":
         throw new Error("not implemented");
       case "rdfjs.NamedNode":
-        expression = `${resourceValueVariable}.toIri()`;
+        expression = `${variables.resourceValue}.toIri()`;
         break;
       case "rdfjs.BlankNode | rdfjs.NamedNode":
-        expression = `${resourceValueVariable}.toIdentifier()`;
+        expression = `${variables.resourceValue}.toIdentifier()`;
         break;
       default:
         throw new Error(`not implemented: ${this.name}`);
     }
     this.hasValue.ifJust((hasValue) => {
-      expression = `${expression}.chain<rdfjsResource.Resource.ValueError, ${this.name}>(_identifier => _identifier.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${resourceVariable}, predicate: ${rdfjsTermExpression(propertyPath, this.configuration)} })))`;
+      expression = `${expression}.chain<rdfjsResource.Resource.ValueError, ${this.name}>(_identifier => _identifier.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${variables.resource}, predicate: ${variables.predicate})))`;
     });
     return expression;
   }
 
   override hashStatements({
-    hasherVariable,
-    valueVariable,
+    variables,
   }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `${hasherVariable}.update(rdfjsResource.Resource.Identifier.toString(${valueVariable}));`,
+      `${variables.hasher}.update(rdfjsResource.Resource.Identifier.toString(${variables.value}));`,
     ];
   }
 }
