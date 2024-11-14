@@ -13,7 +13,7 @@ else
   echo "MLM shapes original file $MLM_SHAPES_TTL_ORIGINAL_FILE_PATH not found, using copy"
 fi
 #./cli.sh show-ast-json examples/mlm/mlm.shapes.ttl examples/mlm/mlm.shaclmate.ttl >examples/mlm/generated/ast.json
-#./cli.sh generate --object-type-declaration-type class examples/mlm/mlm.shapes.ttl examples/mlm/mlm.shaclmate.ttl >examples/mlm/generated/classes.ts
+./cli.sh generate --object-type-declaration-type class examples/mlm/mlm.shapes.ttl examples/mlm/mlm.shaclmate.ttl >examples/mlm/generated/classes.ts
 ./cli.sh generate --object-type-declaration-type interface examples/mlm/mlm.shapes.ttl examples/mlm/mlm.shaclmate.ttl >examples/mlm/generated/interfaces.ts
 
 ## SDO

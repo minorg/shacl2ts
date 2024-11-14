@@ -165,22 +165,12 @@ export namespace MachineLearningModel {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    machineLearningModel: Omit<MachineLearningModel, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
+    machineLearningModel: Omit<MachineLearningModel, "identifier" | "type">,
     hasher: HasherT,
   ): HasherT {
     machineLearningModel.description.ifJust((value) => {
       hasher.update(value.value);
     });
-    if (typeof machineLearningModel.identifier !== "undefined") {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(
-          machineLearningModel.identifier,
-        ),
-      );
-    }
-
     MachineLearningModelFamily.hash(machineLearningModel.isVariantOf, hasher);
     hasher.update(machineLearningModel.localIdentifier);
     hasher.update(machineLearningModel.name.value);
@@ -419,9 +409,7 @@ export namespace LanguageModel {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    languageModel: Omit<LanguageModel, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
+    languageModel: Omit<LanguageModel, "identifier" | "type">,
     hasher: HasherT,
   ): HasherT {
     MachineLearningModel.hashMachineLearningModel(languageModel, hasher);
@@ -643,20 +631,12 @@ export namespace MachineLearningModelFamily {
     machineLearningModelFamily: Omit<
       MachineLearningModelFamily,
       "identifier" | "type"
-    > & { identifier?: rdfjs.NamedNode },
+    >,
     hasher: HasherT,
   ): HasherT {
     machineLearningModelFamily.description.ifJust((value) => {
       hasher.update(value.value);
     });
-    if (typeof machineLearningModelFamily.identifier !== "undefined") {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(
-          machineLearningModelFamily.identifier,
-        ),
-      );
-    }
-
     Organization.hash(machineLearningModelFamily.manufacturer, hasher);
     hasher.update(machineLearningModelFamily.name.value);
     machineLearningModelFamily.url.ifJust((value) => {
@@ -830,17 +810,9 @@ export namespace Organization {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    organization: Omit<Organization, "identifier" | "type"> & {
-      identifier?: rdfjs.NamedNode;
-    },
+    organization: Omit<Organization, "identifier" | "type">,
     hasher: HasherT,
   ): HasherT {
-    if (typeof organization.identifier !== "undefined") {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(organization.identifier),
-      );
-    }
-
     hasher.update(organization.name.value);
     return hasher;
   }

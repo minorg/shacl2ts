@@ -294,20 +294,12 @@ export namespace MachineLearningModel {
     machineLearningModel: Omit<
       MachineLearningModel,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
-    > & { identifier?: rdfjs.NamedNode },
+    >,
     hasher: HasherT,
   ): HasherT {
     machineLearningModel.description.ifJust((value) => {
       hasher.update(value.value);
     });
-    if (typeof machineLearningModel.identifier !== "undefined") {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(
-          machineLearningModel.identifier,
-        ),
-      );
-    }
-
     MachineLearningModelFamily.hash(machineLearningModel.isVariantOf, hasher);
     hasher.update(machineLearningModel.localIdentifier);
     hasher.update(machineLearningModel.name.value);
@@ -550,7 +542,7 @@ export namespace LanguageModel {
     languageModel: Omit<
       LanguageModel,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
-    > & { identifier?: rdfjs.NamedNode },
+    >,
     hasher: HasherT,
   ): HasherT {
     MachineLearningModel.hashMachineLearningModel(languageModel, hasher);
@@ -837,20 +829,12 @@ export namespace MachineLearningModelFamily {
     machineLearningModelFamily: Omit<
       MachineLearningModelFamily,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
-    > & { identifier?: rdfjs.NamedNode },
+    >,
     hasher: HasherT,
   ): HasherT {
     machineLearningModelFamily.description.ifJust((value) => {
       hasher.update(value.value);
     });
-    if (typeof machineLearningModelFamily.identifier !== "undefined") {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(
-          machineLearningModelFamily.identifier,
-        ),
-      );
-    }
-
     Organization.hash(machineLearningModelFamily.manufacturer, hasher);
     hasher.update(machineLearningModelFamily.name.value);
     machineLearningModelFamily.url.ifJust((value) => {
@@ -1031,15 +1015,9 @@ export namespace Organization {
     organization: Omit<
       Organization,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
-    > & { identifier?: rdfjs.NamedNode },
+    >,
     hasher: HasherT,
   ): HasherT {
-    if (typeof organization.identifier !== "undefined") {
-      hasher.update(
-        rdfjsResource.Resource.Identifier.toString(organization.identifier),
-      );
-    }
-
     hasher.update(organization.name.value);
     return hasher;
   }
