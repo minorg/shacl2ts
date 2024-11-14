@@ -192,7 +192,7 @@ export class ObjectType extends Type {
       case "class":
         return `${variables.value}.toRdf({ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier`;
       case "interface":
-        return `${variables.resource}.add(${variables.predicate}, ${this.name}.toRdf(${variables.value}, { mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier`;
+        return `${this.name}.toRdf(${variables.value}, { mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier`;
     }
   }
 
