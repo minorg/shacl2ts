@@ -21,7 +21,7 @@
     "purify-ts": "^2.1.0",
     "rdfjs-resource": "1.0.10",
     "reserved-identifiers": "^1.0.0",
-    "shacl-ast": "2.0.8",
+    "shacl-ast": "2.0.9",
     "ts-invariant": "^0.10.3",
     "ts-morph": "^24.0.0",
     "typescript-memoize": "^1.1.1"
@@ -62,5 +62,5 @@
   },
   "type": "module",
   "types": "index.d.ts",
-  "version": "2.0.8"
+  "version": "2.0.9"
 }
