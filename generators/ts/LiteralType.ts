@@ -41,6 +41,12 @@ export class LiteralType extends RdfjsTermType<Literal> {
       });
     });
 
+    conversions.push({
+      conversionExpression: (value) => value,
+      sourceTypeCheckExpression: (value) => `typeof ${value} === "object"`,
+      sourceTypeName: this.name,
+    });
+
     return conversions;
   }
 

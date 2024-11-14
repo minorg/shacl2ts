@@ -11,8 +11,17 @@ export abstract class PrimitiveType extends LiteralType {
           conversionExpression: () => this.defaultValueExpression(defaultValue),
           sourceTypeName: "undefined",
         },
+        {
+          conversionExpression: (value: string) => value,
+          sourceTypeName: this.name,
+        },
       ])
-      .orDefault([]);
+      .orDefault([
+        {
+          conversionExpression: (value) => value,
+          sourceTypeName: this.name,
+        },
+      ]);
   }
 
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {

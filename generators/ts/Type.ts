@@ -16,10 +16,15 @@ export abstract class Type {
   }
 
   /**
-   * Expressions that convert a source type or types to this type.
+   * Expressions that convert a source type or types to this type. It should include the type itself.
    */
   get conversions(): readonly Type.Conversion[] {
-    return [];
+    return [
+      {
+        conversionExpression: (value) => value,
+        sourceTypeName: this.name,
+      },
+    ];
   }
 
   /**

@@ -24,15 +24,18 @@ export class MachineLearningModel {
       | boolean
       | number
       | purify.Maybe<rdfjs.Literal>
+      | rdfjs.Literal
       | string;
     readonly identifier: rdfjs.NamedNode;
     readonly isVariantOf: MachineLearningModelFamily;
     readonly localIdentifier: string;
     readonly name: Date | boolean | number | rdfjs.Literal | string;
-    readonly trainingDataCutoff?: purify.Maybe<string>;
-    readonly url?: purify.Maybe<string>;
+    readonly trainingDataCutoff?: purify.Maybe<string> | string;
+    readonly url?: purify.Maybe<string> | string;
   }) {
-    if (typeof parameters.description === "boolean") {
+    if (purify.Maybe.isMaybe(parameters.description)) {
+      this.description = parameters.description;
+    } else if (typeof parameters.description === "boolean") {
       this.description = purify.Maybe.of(
         rdfLiteral.toRdf(parameters.description),
       );
@@ -51,10 +54,12 @@ export class MachineLearningModel {
       this.description = purify.Maybe.of(
         dataFactory.literal(parameters.description),
       );
+    } else if (typeof parameters.description === "object") {
+      this.description = purify.Maybe.of(parameters.description);
     } else if (typeof parameters.description === "undefined") {
       this.description = purify.Maybe.empty();
     } else {
-      this.description = parameters.description;
+      this.description = parameters.description; // never
     }
 
     this.identifier = parameters.identifier;
@@ -71,20 +76,30 @@ export class MachineLearningModel {
       this.name = rdfLiteral.toRdf(parameters.name);
     } else if (typeof parameters.name === "string") {
       this.name = dataFactory.literal(parameters.name);
-    } else {
+    } else if (typeof parameters.name === "object") {
       this.name = parameters.name;
+    } else {
+      this.name = parameters.name; // never
     }
 
-    if (typeof parameters.trainingDataCutoff === "undefined") {
+    if (purify.Maybe.isMaybe(parameters.trainingDataCutoff)) {
+      this.trainingDataCutoff = parameters.trainingDataCutoff;
+    } else if (typeof parameters.trainingDataCutoff === "string") {
+      this.trainingDataCutoff = purify.Maybe.of(parameters.trainingDataCutoff);
+    } else if (typeof parameters.trainingDataCutoff === "undefined") {
       this.trainingDataCutoff = purify.Maybe.empty();
     } else {
-      this.trainingDataCutoff = parameters.trainingDataCutoff;
+      this.trainingDataCutoff = parameters.trainingDataCutoff; // never
     }
 
-    if (typeof parameters.url === "undefined") {
+    if (purify.Maybe.isMaybe(parameters.url)) {
+      this.url = parameters.url;
+    } else if (typeof parameters.url === "string") {
+      this.url = purify.Maybe.of(parameters.url);
+    } else if (typeof parameters.url === "undefined") {
       this.url = purify.Maybe.empty();
     } else {
-      this.url = parameters.url;
+      this.url = parameters.url; // never
     }
   }
 
@@ -330,22 +345,17 @@ export namespace MachineLearningModel {
       }
 
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("https://schema.org/description"),
-          this.variable("Description"),
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("https://schema.org/description"),
+            this.variable("Description"),
+          ),
         ),
       );
       this.add(
         sparqlBuilder.GraphPattern.group(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("https://schema.org/isVariantOf"),
-            this.variable("IsVariantOf"),
-          ).chainObject(
-            (isVariantOf) =>
-              new MachineLearningModelFamily.SparqlGraphPatterns(isVariantOf),
-          ),
+          new MachineLearningModelFamily.SparqlGraphPatterns(this.subject),
         ),
       );
       this.add(
@@ -363,19 +373,23 @@ export namespace MachineLearningModel {
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://purl.annotize.ai/ontology/mlm#trainingDataCutoff",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://purl.annotize.ai/ontology/mlm#trainingDataCutoff",
+            ),
+            this.variable("TrainingDataCutoff"),
           ),
-          this.variable("TrainingDataCutoff"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("https://schema.org/url"),
-          this.variable("Url"),
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("https://schema.org/url"),
+            this.variable("Url"),
+          ),
         ),
       );
     }
@@ -390,15 +404,19 @@ export class LanguageModel extends MachineLearningModel {
   constructor(
     parameters: {
       readonly contextWindow: number;
-      readonly maxTokenOutput?: purify.Maybe<number>;
+      readonly maxTokenOutput?: number | purify.Maybe<number>;
     } & ConstructorParameters<typeof MachineLearningModel>[0],
   ) {
     super(parameters);
     this.contextWindow = parameters.contextWindow;
-    if (typeof parameters.maxTokenOutput === "undefined") {
+    if (purify.Maybe.isMaybe(parameters.maxTokenOutput)) {
+      this.maxTokenOutput = parameters.maxTokenOutput;
+    } else if (typeof parameters.maxTokenOutput === "number") {
+      this.maxTokenOutput = purify.Maybe.of(parameters.maxTokenOutput);
+    } else if (typeof parameters.maxTokenOutput === "undefined") {
       this.maxTokenOutput = purify.Maybe.empty();
     } else {
-      this.maxTokenOutput = parameters.maxTokenOutput;
+      this.maxTokenOutput = parameters.maxTokenOutput; // never
     }
   }
 
@@ -580,12 +598,14 @@ export namespace LanguageModel {
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode(
-            "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode(
+              "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
+            ),
+            this.variable("MaxTokenOutput"),
           ),
-          this.variable("MaxTokenOutput"),
         ),
       );
     }
@@ -606,13 +626,16 @@ export class MachineLearningModelFamily {
       | boolean
       | number
       | purify.Maybe<rdfjs.Literal>
+      | rdfjs.Literal
       | string;
     readonly identifier: rdfjs.NamedNode;
     readonly manufacturer: Organization;
     readonly name: Date | boolean | number | rdfjs.Literal | string;
-    readonly url?: purify.Maybe<string>;
+    readonly url?: purify.Maybe<string> | string;
   }) {
-    if (typeof parameters.description === "boolean") {
+    if (purify.Maybe.isMaybe(parameters.description)) {
+      this.description = parameters.description;
+    } else if (typeof parameters.description === "boolean") {
       this.description = purify.Maybe.of(
         rdfLiteral.toRdf(parameters.description),
       );
@@ -631,10 +654,12 @@ export class MachineLearningModelFamily {
       this.description = purify.Maybe.of(
         dataFactory.literal(parameters.description),
       );
+    } else if (typeof parameters.description === "object") {
+      this.description = purify.Maybe.of(parameters.description);
     } else if (typeof parameters.description === "undefined") {
       this.description = purify.Maybe.empty();
     } else {
-      this.description = parameters.description;
+      this.description = parameters.description; // never
     }
 
     this.identifier = parameters.identifier;
@@ -650,14 +675,20 @@ export class MachineLearningModelFamily {
       this.name = rdfLiteral.toRdf(parameters.name);
     } else if (typeof parameters.name === "string") {
       this.name = dataFactory.literal(parameters.name);
-    } else {
+    } else if (typeof parameters.name === "object") {
       this.name = parameters.name;
+    } else {
+      this.name = parameters.name; // never
     }
 
-    if (typeof parameters.url === "undefined") {
+    if (purify.Maybe.isMaybe(parameters.url)) {
+      this.url = parameters.url;
+    } else if (typeof parameters.url === "string") {
+      this.url = purify.Maybe.of(parameters.url);
+    } else if (typeof parameters.url === "undefined") {
       this.url = purify.Maybe.empty();
     } else {
-      this.url = parameters.url;
+      this.url = parameters.url; // never
     }
   }
 
@@ -861,22 +892,17 @@ export namespace MachineLearningModelFamily {
       }
 
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("https://schema.org/description"),
-          this.variable("Description"),
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("https://schema.org/description"),
+            this.variable("Description"),
+          ),
         ),
       );
       this.add(
         sparqlBuilder.GraphPattern.group(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("https://schema.org/manufacturer"),
-            this.variable("Manufacturer"),
-          ).chainObject(
-            (manufacturer) =>
-              new Organization.SparqlGraphPatterns(manufacturer),
-          ),
+          new Organization.SparqlGraphPatterns(this.subject),
         ),
       );
       this.add(
@@ -887,10 +913,12 @@ export namespace MachineLearningModelFamily {
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("https://schema.org/url"),
-          this.variable("Url"),
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("https://schema.org/url"),
+            this.variable("Url"),
+          ),
         ),
       );
     }
@@ -918,8 +946,10 @@ export class Organization {
       this.name = rdfLiteral.toRdf(parameters.name);
     } else if (typeof parameters.name === "string") {
       this.name = dataFactory.literal(parameters.name);
-    } else {
+    } else if (typeof parameters.name === "object") {
       this.name = parameters.name;
+    } else {
+      this.name = parameters.name; // never
     }
   }
 

@@ -25,6 +25,11 @@ export class SetType extends Type {
         conversionExpression: () => "[]",
         sourceTypeName: "undefined",
       },
+      {
+        conversionExpression: (value) => value,
+        sourceTypeCheckExpression: (value) => `Array.isArray(${value})`,
+        sourceTypeName: this.name,
+      },
     ];
   }
 

@@ -15,6 +15,11 @@ export class OptionType extends Type {
 
   override get conversions(): readonly Type.Conversion[] {
     const conversions: Type.Conversion[] = [];
+    conversions.push({
+      conversionExpression: (value) => value,
+      sourceTypeCheckExpression: (value) => `purify.Maybe.isMaybe(${value})`,
+      sourceTypeName: this.name,
+    });
     for (const itemTypeConversion of this.itemType.conversions) {
       conversions.push({
         ...itemTypeConversion,

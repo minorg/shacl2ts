@@ -24,14 +24,23 @@ export class IdentifierType extends RdfjsTermType<BlankNode | NamedNode> {
 
   override get conversions(): readonly Type.Conversion[] {
     return this.defaultValue
-      .map((defaultValue) => [
-        {
-          conversionExpression: (value: string) =>
-            `(typeof ${value} !== "undefined" ? ${value} : ${rdfjsTermExpression(defaultValue, this.configuration)}`,
-          sourceTypeName: "undefined",
-        },
-      ])
-      .orDefault([]);
+      .map(
+        (defaultValue) =>
+          [
+            {
+              conversionExpression: () =>
+                rdfjsTermExpression(defaultValue, this.configuration),
+              sourceTypeName: "undefined",
+            },
+            {
+              conversionExpression: (value: string) => value,
+              sourceTypeCheck: (value: string) =>
+                `typeof ${value} === "object"`,
+              sourceTypeName: this.name,
+            },
+          ] as readonly Type.Conversion[],
+      )
+      .orDefault(super.conversions);
   }
 
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {

@@ -40,7 +40,6 @@ export class ShaclProperty extends Property {
         typeNames.add(conversion.sourceTypeName);
       }
     }
-    typeNames.add(this.type.name);
 
     return Maybe.of({
       hasQuestionToken,
@@ -83,19 +82,21 @@ export class ShaclProperty extends Property {
   override classConstructorStatements({
     variables,
   }: Parameters<Property["classConstructorStatements"]>[0]): readonly string[] {
+    const typeConversions = this.type.conversions;
+    if (typeConversions.length === 1) {
+      return [`this.${this.name} = ${variables.parameter};`];
+    }
     const statements: string[] = [];
     for (const conversion of this.type.conversions) {
       statements.push(
-        `${statements.length > 0 ? " else " : ""}if (${conversion.sourceTypeCheckExpression ? conversion.sourceTypeCheckExpression(variables.parameter) : `typeof ${variables.parameter} === ${conversion.sourceTypeName}`}) { this.${this.name} = ${conversion.conversionExpression(variables.parameter)}; }`,
+        `if (${conversion.sourceTypeCheckExpression ? conversion.sourceTypeCheckExpression(variables.parameter) : `typeof ${variables.parameter} === ${conversion.sourceTypeName}`}) { this.${this.name} = ${conversion.conversionExpression(variables.parameter)}; }`,
       );
     }
-    const elseStatement = `this.${this.name} = ${variables.parameter};`;
-    if (statements.length > 0) {
-      statements.push(` else { ${elseStatement} }`);
-    } else {
-      statements.push(elseStatement);
-    }
-    return [statements.join(" ")];
+    // We shouldn't need this else, since the parameter now has the never type, but have to add it to appease the TypeScript compiler
+    statements.push(
+      `{ this.${this.name} = ${variables.parameter}; // never\n }`,
+    );
+    return [statements.join(" else ")];
   }
 
   override fromRdfStatements({
