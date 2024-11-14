@@ -95,6 +95,12 @@ export class OptionType extends Type {
   override toRdfExpression({
     variables,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
-    return `${variables.value}.map((value) => ${this.itemType.toRdfExpression({ variables: { ...variables, value: "value" } })});`;
+    const itemTypeToRdfExpression = this.itemType.toRdfExpression({
+      variables: { ...variables, value: "value" },
+    });
+    if (itemTypeToRdfExpression === "value") {
+      return variables.value;
+    }
+    return `${variables.value}.map((value) => ${itemTypeToRdfExpression})`;
   }
 }

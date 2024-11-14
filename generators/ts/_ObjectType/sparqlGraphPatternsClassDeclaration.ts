@@ -31,7 +31,7 @@ export function sparqlGraphPatternsClassDeclaration(
     property
       .sparqlGraphPatternExpression()
       .ifJust((sparqlGraphPattern) =>
-        constructorStatements.push(`this.add(${sparqlGraphPattern})`),
+        constructorStatements.push(`this.add(${sparqlGraphPattern});`),
       );
   }
 

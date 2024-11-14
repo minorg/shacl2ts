@@ -40,6 +40,7 @@ export class ShaclProperty extends Property {
         typeNames.add(conversion.sourceTypeName);
       }
     }
+    typeNames.add(this.type.name);
 
     return Maybe.of({
       hasQuestionToken,
@@ -120,7 +121,7 @@ export class ShaclProperty extends Property {
         variables: { subject: this.name },
       })
       .ifJust((typeSparqlGraphPatternExpression) => {
-        expression = `sparqlBuilder.GraphPattern.group(${expression}.chainObject(${this.name} => ${typeSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()})`;
+        expression = `sparqlBuilder.GraphPattern.group(${expression}.chainObject(${this.name} => ${typeSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()}))`;
       });
     return Maybe.of(expression);
   }
@@ -133,7 +134,7 @@ export class ShaclProperty extends Property {
         {
           variables: { ...variables, predicate: this.pathExpression },
         },
-      )})`,
+      )});`,
     ];
   }
 }

@@ -101,12 +101,12 @@ export class TypeFactory {
       case "OptionType":
         return new OptionType({
           configuration: this.configuration,
-          itemType: this.createTypeFromAstType(astType),
+          itemType: this.createTypeFromAstType(astType.itemType),
         });
       case "SetType":
         return new SetType({
           configuration: this.configuration,
-          itemType: this.createTypeFromAstType(astType),
+          itemType: this.createTypeFromAstType(astType.itemType),
         });
       case "UnionType":
         return new UnionType({
