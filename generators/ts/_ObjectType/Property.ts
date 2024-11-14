@@ -1,18 +1,20 @@
 import type { Maybe } from "purify-ts";
 import type {
+  GetAccessorDeclarationStructure,
   OptionalKind,
   PropertyDeclarationStructure,
   PropertySignatureStructure,
 } from "ts-morph";
 import type { Configuration } from "../Configuration.js";
-import type { ObjectType } from "../ObjectType.js";
 import type { Type } from "../Type.js";
 
 export abstract class Property {
   abstract readonly classConstructorParametersPropertySignature: Maybe<
     OptionalKind<PropertySignatureStructure>
   >;
-  abstract readonly classPropertyDeclaration: OptionalKind<PropertyDeclarationStructure>;
+  abstract readonly classDeclaration:
+    | GetAccessorDeclarationStructure
+    | PropertyDeclarationStructure;
   abstract readonly equalsFunction: string;
   abstract readonly interfacePropertySignature: OptionalKind<PropertySignatureStructure>;
   readonly name: string;
@@ -34,7 +36,6 @@ export abstract class Property {
   }
 
   abstract classConstructorStatements(parameters: {
-    objectType: ObjectType;
     variables: {
       parameter: string;
     };

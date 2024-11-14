@@ -1,10 +1,11 @@
 import type * as rdfjs from "@rdfjs/types";
 import { pascalCase } from "change-case";
 import { Maybe } from "purify-ts";
-import type {
-  OptionalKind,
-  PropertyDeclarationStructure,
-  PropertySignatureStructure,
+import {
+  type OptionalKind,
+  type PropertyDeclarationStructure,
+  type PropertySignatureStructure,
+  StructureKind,
 } from "ts-morph";
 import { Memoize } from "typescript-memoize";
 import type { Type } from "../Type.js";
@@ -48,9 +49,10 @@ export class ShaclProperty extends Property {
     });
   }
 
-  override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
+  override get classDeclaration(): PropertyDeclarationStructure {
     return {
       isReadonly: true,
+      kind: StructureKind.Property,
       name: this.name,
       type: this.type.name,
     };

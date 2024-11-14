@@ -1,15 +1,14 @@
-import { camelCase } from "change-case";
 import { Maybe } from "purify-ts";
-import type {
-  OptionalKind,
-  PropertyDeclarationStructure,
-  PropertySignatureStructure,
+import {
+  type GetAccessorDeclarationStructure,
+  type OptionalKind,
+  type PropertyDeclarationStructure,
+  type PropertySignatureStructure,
+  StructureKind,
 } from "ts-morph";
 import { MintingStrategy } from "../../../ast";
 import type { IdentifierType } from "../IdentifierType.js";
-import type { ObjectType } from "../ObjectType.js";
 import { Property } from "./Property.js";
-import { TypeDiscriminatorProperty } from "./TypeDiscriminatorProperty.js";
 
 export class IdentifierProperty extends Property {
   readonly equalsFunction = "purifyHelpers.Equatable.booleanEquals";
@@ -40,11 +39,37 @@ export class IdentifierProperty extends Property {
     });
   }
 
-  override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
+  override get classDeclaration():
+    | GetAccessorDeclarationStructure
+    | PropertyDeclarationStructure {
+    if (this.mintingStrategy.isNothing()) {
+      return {
+        kind: StructureKind.Property,
+        isReadonly: true,
+        name: this.name,
+        type: this.type.name,
+      };
+    }
+
+    let mintIdentifier: string;
+    switch (this.mintingStrategy.unsafeCoerce()) {
+      case MintingStrategy.SHA256:
+        mintIdentifier =
+          "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${this.hash(sha256.create())}`)";
+        break;
+      case MintingStrategy.UUIDv4:
+        mintIdentifier =
+          "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${uuid.v4()}`)";
+        break;
+    }
+
     return {
-      isReadonly: true,
+      kind: StructureKind.GetAccessor,
       name: this.name,
-      type: this.type.name,
+      returnType: this.type.name,
+      statements: [
+        `if (typeof this._${this.name} === "undefined") { this._${this.name} = ${mintIdentifier}; } return this._${this.name};`,
+      ],
     };
   }
 
@@ -56,68 +81,12 @@ export class IdentifierProperty extends Property {
     };
   }
 
-  static classConstructorMintExpression({
-    mintingStrategy,
-    objectType,
-  }: {
-    mintingStrategy: Maybe<MintingStrategy>;
-    objectType: ObjectType;
-  }): Maybe<string> {
-    return mintingStrategy.map((mintingStrategy) => {
-      switch (mintingStrategy) {
-        case MintingStrategy.SHA256: {
-          // Mint an IRI by hashing the non-identifier, non-type discriminator properties.
-          const hashProperties: string[] = [];
-          // If none of the parameters need to be converted to the interface type we can just use the parameters object
-          // Otherwise we have to construct an anonymous object with converted values.
-          let hashParameters = true;
-          for (const property of objectType.properties.concat(
-            objectType.ancestorObjectTypes.flatMap(
-              (ancestorObjectType) => ancestorObjectType.properties,
-            ),
-          )) {
-            if (
-              property instanceof IdentifierProperty ||
-              property instanceof TypeDiscriminatorProperty
-            ) {
-              continue;
-            }
-            const parameter = `parameters.${property.name}`;
-            const classConstructorInitializerExpression = property
-              .classConstructorInitializerExpression({
-                objectType,
-                parameter,
-              })
-              .orDefault("");
-            if (classConstructorInitializerExpression.length === 0) {
-              continue;
-            }
-            hashProperties.push(
-              `${property.name}: ${classConstructorInitializerExpression}`,
-            );
-            if (classConstructorInitializerExpression !== parameter) {
-              hashParameters = false;
-            }
-          }
-
-          return `dataFactory.namedNode(\`urn:shaclmate:object:${camelCase(objectType.name)}:\${${objectType.name}.${objectType.hashFunctionName}(${hashParameters ? "parameters" : `{ ${hashProperties.join(", ")} }`}, sha256.create())}\`)`;
-        }
-        case MintingStrategy.UUIDv4:
-          return `dataFactory.namedNode(\`urn:shaclmate:object:${camelCase(objectType.name)}:\${uuid.v4()}\`)`;
-      }
-    });
-  }
-
   override classConstructorStatements({
-    objectType,
     variables,
-  }: Parameters<Property["classConstructorStatements"]>[0]): Maybe<string> {
-    return IdentifierProperty.classConstructorMintExpression({
-      mintingStrategy: this.mintingStrategy,
-      objectType,
-    })
-      .map((mintExpression) => `${variables.parameter} ?? ${mintExpression}`)
-      .altLazy(() => Maybe.of(variables.parameter));
+  }: Parameters<Property["classConstructorStatements"]>[0]): readonly string[] {
+    return [
+      `this.${this.mintingStrategy.isJust() ? "_" : ""}${this.name} = ${variables.parameter};`,
+    ];
   }
 
   override fromRdfStatements({

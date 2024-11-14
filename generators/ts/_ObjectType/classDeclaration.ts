@@ -2,6 +2,7 @@ import { rdf } from "@tpluscode/rdf-ns-builders";
 import {
   type ClassDeclarationStructure,
   type ConstructorDeclarationStructure,
+  type GetAccessorDeclarationStructure,
   type MethodDeclarationStructure,
   type OptionalKind,
   type PropertyDeclarationStructure,
@@ -9,7 +10,6 @@ import {
   StructureKind,
 } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
-import { IdentifierProperty } from "./IdentifierProperty.js";
 import { hasherTypeConstraint } from "./hashFunctionDeclaration.js";
 
 function constructorDeclaration(
@@ -17,24 +17,11 @@ function constructorDeclaration(
 ): OptionalKind<ConstructorDeclarationStructure> {
   const statements: (string | StatementStructures)[] = [];
 
-  const mintIdentifier = IdentifierProperty.classConstructorMintExpression({
-    mintingStrategy: this.mintingStrategy,
-    objectType: this,
-  });
-
   if (this.parentObjectTypes.length > 0) {
-    if (mintIdentifier.isJust()) {
-      // Have to mint the identifier in the subclass being instantiated in case the minting needs to hash all members
-      statements.push(
-        `super({...parameters, ${this.configuration.objectTypeIdentifierPropertyName}: parameters.${this.configuration.objectTypeIdentifierPropertyName} ?? ${mintIdentifier.unsafeCoerce()} });`,
-      );
-    } else {
-      statements.push("super(parameters);");
-    }
+    statements.push("super(parameters);");
   }
   for (const property of this.properties) {
     for (const statement of property.classConstructorStatements({
-      objectType: this,
       variables: { parameter: `parameters.${property.name}` },
     })) {
       statements.push(statement);
@@ -52,17 +39,7 @@ function constructorDeclaration(
     })
     .join(", ")} }`;
   if (this.parentObjectTypes.length > 0) {
-    let parentConstructorParametersType = `ConstructorParameters<typeof ${this.parentObjectTypes[0].name}>[0]`;
-    if (mintIdentifier.isJust()) {
-      // If identifier is not specified we're always going to mint it in the subclass, so we can ignore
-      // the type of the parent's identifier.
-      parentConstructorParametersType = `Omit<${parentConstructorParametersType}, "${this.configuration.objectTypeIdentifierPropertyName}">`;
-    }
-    constructorParametersType = `${constructorParametersType} & ${parentConstructorParametersType}`;
-    if (mintIdentifier.isJust()) {
-      // See note above.
-      constructorParametersType = `${constructorParametersType} & { ${this.configuration.objectTypeIdentifierPropertyName}?: ${this.identifierType.name} }`;
-    }
+    constructorParametersType = `${constructorParametersType} & ConstructorParameters<typeof ${this.parentObjectTypes[0].name}>[0]`;
   }
 
   return {
@@ -90,8 +67,19 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
     methods.push(toRdfMethodDeclaration.bind(this)());
   }
 
-  const properties: OptionalKind<PropertyDeclarationStructure>[] =
-    this.properties.map((property) => property.classPropertyDeclaration);
+  const getAccessors: GetAccessorDeclarationStructure[] = [];
+  const properties: PropertyDeclarationStructure[] = [];
+  for (const property of this.properties) {
+    const propertyDeclaration = property.classDeclaration;
+    switch (propertyDeclaration.kind) {
+      case StructureKind.GetAccessor:
+        getAccessors.push(propertyDeclaration);
+        break;
+      case StructureKind.Property:
+        properties.push(propertyDeclaration);
+        break;
+    }
+  }
 
   return {
     ctors:
@@ -102,6 +90,7 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
       this.parentObjectTypes.length > 0
         ? this.parentObjectTypes[0].name
         : undefined,
+    getAccessors,
     isAbstract: this.abstract,
     kind: StructureKind.Class,
     isExported: this.export_,
