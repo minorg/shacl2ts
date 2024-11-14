@@ -115,15 +115,18 @@ export class ShaclProperty extends Property {
   }
 
   override sparqlGraphPatternExpression(): Maybe<string> {
-    let expression = `sparqlBuilder.GraphPattern.basic(this.subject, ${this.pathExpression}, this.variable("${pascalCase(this.name)}"))`;
-    this.type
-      .sparqlGraphPatternExpression({
-        variables: { subject: this.name },
-      })
-      .ifJust((typeSparqlGraphPatternExpression) => {
-        expression = `sparqlBuilder.GraphPattern.group(${expression}.chainObject(${this.name} => ${typeSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()}))`;
-      });
-    return Maybe.of(expression);
+    return Maybe.of(
+      this.type
+        .sparqlGraphPatternExpression({
+          variables: {
+            object: `this.variable("${pascalCase(this.name)}")`,
+            predicate: this.pathExpression,
+            subject: "this.subject",
+          },
+        })
+        .toSparqlGraphPatternExpression()
+        .toString(),
+    );
   }
 
   override toRdfStatements({

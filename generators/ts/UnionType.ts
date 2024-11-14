@@ -160,38 +160,17 @@ ${this.memberTypes
 
   override sparqlGraphPatternExpression(
     parameters: Parameters<Type["sparqlGraphPatternExpression"]>[0],
-  ): Maybe<
-    Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression
-  > {
-    const typeSparqlGraphPatternExpressions = this.memberTypes.flatMap((type) =>
-      type.sparqlGraphPatternExpression(parameters).toList(),
+  ): Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression {
+    return new Type.SparqlGraphPatternExpression(
+      `sparqlBuilder.GraphPattern.union(${this.memberTypes
+        .map((type) =>
+          type
+            .sparqlGraphPatternExpression(parameters)
+            .toSparqlGraphPatternExpression()
+            .toString(),
+        )
+        .join(", ")})`,
     );
-    switch (typeSparqlGraphPatternExpressions.length) {
-      case 0:
-        return Maybe.empty();
-      case 1:
-        return Maybe.of(
-          new Type.SparqlGraphPatternExpression(
-            `sparqlBuilder.GraphPattern.optional(${typeSparqlGraphPatternExpressions[0].toSparqlGraphPatternExpression()}))`,
-          ),
-        );
-      default:
-        invariant(
-          typeSparqlGraphPatternExpressions.length === this.memberTypes.length,
-          "all types must be represented in the SPARQL UNION",
-        );
-        return Maybe.of(
-          new Type.SparqlGraphPatternExpression(
-            `sparqlBuilder.GraphPattern.union(${typeSparqlGraphPatternExpressions
-              .map((typeSparqlGraphPatternExpression) =>
-                typeSparqlGraphPatternExpression
-                  .toSparqlGraphPatternExpression()
-                  .toString(),
-              )
-              .join(", ")})`,
-          ),
-        );
-    }
   }
 
   override toRdfExpression({

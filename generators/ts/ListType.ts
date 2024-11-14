@@ -68,25 +68,27 @@ export class ListType extends Type {
     variables,
   }: Parameters<
     Type["sparqlGraphPatternExpression"]
-  >[0]): Maybe<Type.SparqlGraphPatternsExpression> {
-    const itemVariable = "itemVariable";
-    return this.itemType
-      .sparqlGraphPatternExpression({
-        variables: { subject: itemVariable },
-      })
-      .map(
-        (itemSparqlGraphPatternExpression) =>
-          new Type.SparqlGraphPatternsExpression(
-            `new sparqlBuilder.RdfListGraphPatterns({ itemGraphPatterns: (itemVariable) => ${itemSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()}, rdfList: ${variables.subject} })`,
-          ),
-      )
-      .altLazy(() =>
-        Maybe.of(
-          new Type.SparqlGraphPatternsExpression(
-            `new sparqlBuilder.RdfListGraphPatterns({ rdfList: ${variables.subject} })`,
-          ),
-        ),
-      );
+  >[0]): Type.SparqlGraphPatternsExpression {
+    let itemGraphPatterns = "";
+    const itemTypeSparqlGraphPatternsExpression =
+      this.itemType.sparqlGraphPatternExpression({
+        variables: {
+          predicate: "SHOULDNOTBEUSED",
+          object: "SHOULDNOTBEUSED",
+          subject: "itemVariable",
+        },
+      });
+    if (
+      itemTypeSparqlGraphPatternsExpression instanceof
+      Type.SparqlGraphPatternsExpression
+    ) {
+      itemGraphPatterns = `(itemVariable) => ${itemTypeSparqlGraphPatternsExpression},`;
+    }
+
+    // (itemVariable) => ${itemSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()},
+    return new Type.SparqlGraphPatternsExpression(
+      `${super.sparqlGraphPatternExpression({ variables })}.chainObject(object => new sparqlBuilder.RdfListGraphPatterns({ ${itemGraphPatterns} rdfList: object }))`,
+    );
   }
 
   override toRdfExpression({
@@ -160,6 +162,6 @@ export class ListType extends Type {
     currentSubListResource: ${mutableResourceTypeName} | null;
     listResource: ${mutableResourceTypeName};
   },
-).listResource.identifier);`;
+).listResource.identifier`;
   }
 }

@@ -1,4 +1,3 @@
-import type { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import { Type } from "./Type.js";
 
@@ -31,7 +30,7 @@ export class IntersectionType extends Type {
     throw new Error("Method not implemented.");
   }
 
-  override sparqlGraphPatternExpression(): Maybe<Type.SparqlGraphPatternExpression> {
+  override sparqlGraphPatternExpression(): Type.SparqlGraphPatternExpression {
     throw new Error("Method not implemented.");
   }
 

@@ -1,5 +1,5 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
-import { Maybe } from "purify-ts";
+import type { Maybe } from "purify-ts";
 import { Type } from "./Type.js";
 import { rdfjsTermExpression } from "./rdfjsTermExpression";
 
@@ -28,11 +28,6 @@ export abstract class RdfjsTermType<
 
   override equalsFunction(): string {
     return "purifyHelpers.Equatable.booleanEquals";
-  }
-
-  override sparqlGraphPatternExpression(): Maybe<Type.SparqlGraphPatternExpression> {
-    // Don't add any additional graph patterns for terms
-    return Maybe.empty();
   }
 
   override toRdfExpression({

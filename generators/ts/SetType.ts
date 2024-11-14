@@ -1,4 +1,3 @@
-import type { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import { Type } from "./Type.js";
 
@@ -45,7 +44,7 @@ export class SetType extends Type {
   override fromRdfResourceExpression({
     variables,
   }: Parameters<Type["fromRdfResourceExpression"]>[0]): string {
-    return `purify.Either.of([...${variables.resource}.values(${variables.predicate}, { unique: true }).flatMap(resourceValue => (${this.itemType.fromRdfResourceValueExpression({ variables: { ...variables, resourceValue: "resourceValue" } })}}).toMaybe().toList())])`;
+    return `purify.Either.of([...${variables.resource}.values(${variables.predicate}, { unique: true }).flatMap(resourceValue => (${this.itemType.fromRdfResourceValueExpression({ variables: { ...variables, resourceValue: "resourceValue" } })}).toMaybe().toList())])`;
   }
 
   override fromRdfResourceValueExpression(): string {
@@ -69,24 +68,24 @@ export class SetType extends Type {
 
   override sparqlGraphPatternExpression(
     parameters: Parameters<Type["sparqlGraphPatternExpression"]>[0],
-  ): Maybe<
-    Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression
-  > {
-    return this.itemType
-      .sparqlGraphPatternExpression(parameters)
-      .map((itemTypeSparqlGraphPatternExpression) => {
-        if (this.minCount === 0) {
-          return new Type.SparqlGraphPatternExpression(
-            `sparqlBuilder.GraphPattern.optional(${itemTypeSparqlGraphPatternExpression.toSparqlGraphPatternExpression()})`,
-          );
-        }
-        return itemTypeSparqlGraphPatternExpression;
-      });
+  ): Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression {
+    if (this.minCount === 0) {
+      return new Type.SparqlGraphPatternExpression(
+        `sparqlBuilder.GraphPattern.optional(${this.itemType.sparqlGraphPatternExpression(parameters).toSparqlGraphPatternExpression()})`,
+      );
+    }
+    return this.itemType.sparqlGraphPatternExpression(parameters);
   }
 
   override toRdfExpression({
     variables,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
-    return `${variables.value}.map((value) => ${this.itemType.toRdfExpression({ variables: { ...variables, value: "value" } })}`;
+    const itemTypeToRdfExpression = this.itemType.toRdfExpression({
+      variables: { ...variables, value: "value" },
+    });
+    if (itemTypeToRdfExpression === "value") {
+      return variables.value;
+    }
+    return `${variables.value}.map((value) => ${itemTypeToRdfExpression})`;
   }
 }

@@ -2,6 +2,7 @@ import type PrefixMap from "@rdfjs/prefix-map/PrefixMap.js";
 import TermMap from "@rdfjs/term-map";
 import TermSet from "@rdfjs/term-set";
 import type * as rdfjs from "@rdfjs/types";
+import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { dash, owl, rdf, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
@@ -341,7 +342,12 @@ export class ShapesGraphToAstTransformer {
       .chain((value) => value.toBoolean())
       .orDefault(false);
 
-    const type = this.propertyShapeAstType(propertyShape, { inline });
+    const type = this.propertyShapeAstType(propertyShape, {
+      defaultValue: Maybe.empty(),
+      inline,
+      maxCount: Maybe.empty(),
+      minCount: Maybe.empty(),
+    });
     if (type.isLeft()) {
       return type;
     }
@@ -374,15 +380,27 @@ export class ShapesGraphToAstTransformer {
    */
   private propertyShapeAstType(
     shape: shaclAst.Shape,
-    { inline }: { inline: boolean },
+    inherited: {
+      defaultValue: Maybe<BlankNode | Literal | NamedNode>;
+      inline: boolean;
+      maxCount: Maybe<number>;
+      minCount: Maybe<number>;
+    },
   ): Either<Error, ast.Type> {
-    return ((): Either<Error, ast.Type> => {
-      const defaultValue =
-        shape instanceof shaclAst.PropertyShape
-          ? shape.defaultValue
-          : Maybe.empty();
-      const hasValue = shape.constraints.hasValue;
+    const defaultValue = (
+      shape instanceof shaclAst.PropertyShape
+        ? shape.defaultValue
+        : Maybe.empty()
+    ).alt(inherited.defaultValue);
+    const hasValue = shape.constraints.hasValue;
+    const minCount = shape.constraints.minCount
+      .filter((minCount) => minCount >= 0)
+      .alt(inherited.minCount);
+    const maxCount = shape.constraints.maxCount
+      .filter((maxCount) => maxCount >= minCount.orDefault(0))
+      .alt(inherited.maxCount);
 
+    return ((): Either<Error, ast.Type> => {
       // Conjunctions/disjunctions of multiple types
       if (
         shape.constraints.and.length > 0 ||
@@ -393,14 +411,19 @@ export class ShapesGraphToAstTransformer {
         let memberTypeEithers: readonly Either<Error, ast.Type>[];
         let compositeTypeKind: "IntersectionType" | "UnionType";
         if (shape.constraints.and.length > 0) {
-          memberTypeEithers = shape.constraints.and.map((shape) =>
-            this.propertyShapeAstType(shape, { inline }),
+          memberTypeEithers = shape.constraints.and.map((memberShape) =>
+            this.propertyShapeAstType(memberShape, {
+              defaultValue,
+              inline: inherited.inline,
+              maxCount,
+              minCount,
+            }),
           );
           compositeTypeKind = "IntersectionType";
         } else if (shape.constraints.classes.length > 0) {
           memberTypeEithers = shape.constraints.classes.map((classIri) =>
             this.resolveClassAstObjectType(classIri).map((classObjectType) =>
-              inline
+              inherited.inline
                 ? classObjectType
                 : {
                     defaultValue: defaultValue.filter(
@@ -419,8 +442,13 @@ export class ShapesGraphToAstTransformer {
           );
           compositeTypeKind = "IntersectionType";
         } else {
-          memberTypeEithers = shape.constraints.or.map((shape) =>
-            this.propertyShapeAstType(shape, { inline }),
+          memberTypeEithers = shape.constraints.or.map((memberShape) =>
+            this.propertyShapeAstType(memberShape, {
+              defaultValue,
+              inline: inherited.inline,
+              maxCount,
+              minCount,
+            }),
           );
           compositeTypeKind = "UnionType";
         }
@@ -585,29 +613,22 @@ export class ShapesGraphToAstTransformer {
       return Left(new Error(`unable to transform type on ${shape}`));
     })().map((itemType) => {
       // Handle cardinality constraints
-      const minCount = shape.constraints.minCount
-        .filter((minCount) => minCount >= 0)
-        .orDefault(0);
 
-      const maxCount = shape.constraints.maxCount
-        .filter((maxCount) => maxCount >= minCount)
-        .extractNullable();
-
-      if (minCount === 0 && maxCount === 1) {
+      if (minCount.orDefault(0) === 0 && maxCount.extractNullable() === 1) {
         return {
           itemType,
           kind: "OptionType",
         };
       }
 
-      if (minCount === 1 && maxCount === 1) {
+      if (minCount.orDefault(0) === 1 && maxCount.extractNullable() === 1) {
         return itemType;
       }
 
       return {
         itemType,
         kind: "SetType",
-        minCount,
+        minCount: minCount.orDefault(0),
       };
     });
   }

@@ -177,11 +177,9 @@ export class ObjectType extends Type {
     variables,
   }: Parameters<
     Type["sparqlGraphPatternExpression"]
-  >[0]): Maybe<Type.SparqlGraphPatternsExpression> {
-    return Maybe.of(
-      new Type.SparqlGraphPatternsExpression(
-        `new ${this.name}.SparqlGraphPatterns(${variables.subject})`,
-      ),
+  >[0]): Type.SparqlGraphPatternsExpression {
+    return new Type.SparqlGraphPatternsExpression(
+      `new ${this.name}.SparqlGraphPatterns(${variables.subject})`,
     );
   }
 

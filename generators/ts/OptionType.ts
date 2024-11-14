@@ -1,4 +1,3 @@
-import type { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import { Type } from "./Type.js";
 
@@ -81,15 +80,10 @@ export class OptionType extends Type {
 
   override sparqlGraphPatternExpression(
     parameters: Parameters<Type["sparqlGraphPatternExpression"]>[0],
-  ): Maybe<Type.SparqlGraphPatternExpression> {
-    return this.itemType
-      .sparqlGraphPatternExpression(parameters)
-      .map(
-        (itemTypeSparqlGraphPatternExpression) =>
-          new Type.SparqlGraphPatternExpression(
-            `sparqlBuilder.GraphPattern.optional(${itemTypeSparqlGraphPatternExpression.toSparqlGraphPatternExpression()})`,
-          ),
-      );
+  ): Type.SparqlGraphPatternExpression {
+    return new Type.SparqlGraphPatternExpression(
+      `sparqlBuilder.GraphPattern.optional(${this.itemType.sparqlGraphPatternExpression(parameters).toSparqlGraphPatternExpression()})`,
+    );
   }
 
   override toRdfExpression({

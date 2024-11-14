@@ -82,13 +82,19 @@ export abstract class Type {
   /**
    * An optional sparqlBuilder.GraphPattern to chain to the basic pattern for a property.
    */
-  abstract sparqlGraphPatternExpression(parameters: {
+  sparqlGraphPatternExpression({
+    variables,
+  }: {
     variables: {
+      object: string;
+      predicate: string;
       subject: string;
     };
-  }): Maybe<
-    Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression
-  >;
+  }): Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression {
+    return new Type.SparqlGraphPatternExpression(
+      `sparqlBuilder.GraphPattern.basic(${variables.subject}, ${variables.predicate}, ${variables.object})`,
+    );
+  }
 
   /**
    * An expression that converts a value of this type to one that that can be .add'd to
