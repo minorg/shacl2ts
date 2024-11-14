@@ -17,8 +17,10 @@ export class Collection {
     this.identifier = parameters.identifier;
     if (typeof parameters.member === "undefined") {
       this.member = [];
-    } else {
+    } else if (Array.isArray(parameters.member)) {
       this.member = parameters.member;
+    } else {
+      this.member = parameters.member; // never
     }
   }
 
@@ -230,171 +232,227 @@ export class Concept {
   }) {
     if (typeof parameters.altLabel === "undefined") {
       this.altLabel = [];
-    } else {
+    } else if (Array.isArray(parameters.altLabel)) {
       this.altLabel = parameters.altLabel;
+    } else {
+      this.altLabel = parameters.altLabel; // never
     }
 
     if (typeof parameters.altLabelXl === "undefined") {
       this.altLabelXl = [];
-    } else {
+    } else if (Array.isArray(parameters.altLabelXl)) {
       this.altLabelXl = parameters.altLabelXl;
+    } else {
+      this.altLabelXl = parameters.altLabelXl; // never
     }
 
     if (typeof parameters.broader === "undefined") {
       this.broader = [];
-    } else {
+    } else if (Array.isArray(parameters.broader)) {
       this.broader = parameters.broader;
+    } else {
+      this.broader = parameters.broader; // never
     }
 
     if (typeof parameters.broaderTransitive === "undefined") {
       this.broaderTransitive = [];
-    } else {
+    } else if (Array.isArray(parameters.broaderTransitive)) {
       this.broaderTransitive = parameters.broaderTransitive;
+    } else {
+      this.broaderTransitive = parameters.broaderTransitive; // never
     }
 
     if (typeof parameters.broadMatch === "undefined") {
       this.broadMatch = [];
-    } else {
+    } else if (Array.isArray(parameters.broadMatch)) {
       this.broadMatch = parameters.broadMatch;
+    } else {
+      this.broadMatch = parameters.broadMatch; // never
     }
 
     if (typeof parameters.changeNote === "undefined") {
       this.changeNote = [];
-    } else {
+    } else if (Array.isArray(parameters.changeNote)) {
       this.changeNote = parameters.changeNote;
+    } else {
+      this.changeNote = parameters.changeNote; // never
     }
 
     if (typeof parameters.closeMatch === "undefined") {
       this.closeMatch = [];
-    } else {
+    } else if (Array.isArray(parameters.closeMatch)) {
       this.closeMatch = parameters.closeMatch;
+    } else {
+      this.closeMatch = parameters.closeMatch; // never
     }
 
     if (typeof parameters.definition === "undefined") {
       this.definition = [];
-    } else {
+    } else if (Array.isArray(parameters.definition)) {
       this.definition = parameters.definition;
+    } else {
+      this.definition = parameters.definition; // never
     }
 
     if (typeof parameters.editorialNote === "undefined") {
       this.editorialNote = [];
-    } else {
+    } else if (Array.isArray(parameters.editorialNote)) {
       this.editorialNote = parameters.editorialNote;
+    } else {
+      this.editorialNote = parameters.editorialNote; // never
     }
 
     if (typeof parameters.exactMatch === "undefined") {
       this.exactMatch = [];
-    } else {
+    } else if (Array.isArray(parameters.exactMatch)) {
       this.exactMatch = parameters.exactMatch;
+    } else {
+      this.exactMatch = parameters.exactMatch; // never
     }
 
     if (typeof parameters.example === "undefined") {
       this.example = [];
-    } else {
+    } else if (Array.isArray(parameters.example)) {
       this.example = parameters.example;
+    } else {
+      this.example = parameters.example; // never
     }
 
     if (typeof parameters.hiddenLabel === "undefined") {
       this.hiddenLabel = [];
-    } else {
+    } else if (Array.isArray(parameters.hiddenLabel)) {
       this.hiddenLabel = parameters.hiddenLabel;
+    } else {
+      this.hiddenLabel = parameters.hiddenLabel; // never
     }
 
     if (typeof parameters.hiddenLabelXl === "undefined") {
       this.hiddenLabelXl = [];
-    } else {
+    } else if (Array.isArray(parameters.hiddenLabelXl)) {
       this.hiddenLabelXl = parameters.hiddenLabelXl;
+    } else {
+      this.hiddenLabelXl = parameters.hiddenLabelXl; // never
     }
 
     if (typeof parameters.historyNote === "undefined") {
       this.historyNote = [];
-    } else {
+    } else if (Array.isArray(parameters.historyNote)) {
       this.historyNote = parameters.historyNote;
+    } else {
+      this.historyNote = parameters.historyNote; // never
     }
 
     this.identifier = parameters.identifier;
     if (typeof parameters.inScheme === "undefined") {
       this.inScheme = [];
-    } else {
+    } else if (Array.isArray(parameters.inScheme)) {
       this.inScheme = parameters.inScheme;
+    } else {
+      this.inScheme = parameters.inScheme; // never
     }
 
     if (typeof parameters.mappingRelation === "undefined") {
       this.mappingRelation = [];
-    } else {
+    } else if (Array.isArray(parameters.mappingRelation)) {
       this.mappingRelation = parameters.mappingRelation;
+    } else {
+      this.mappingRelation = parameters.mappingRelation; // never
     }
 
     if (typeof parameters.narrower === "undefined") {
       this.narrower = [];
-    } else {
+    } else if (Array.isArray(parameters.narrower)) {
       this.narrower = parameters.narrower;
+    } else {
+      this.narrower = parameters.narrower; // never
     }
 
     if (typeof parameters.narrowerTransitive === "undefined") {
       this.narrowerTransitive = [];
-    } else {
+    } else if (Array.isArray(parameters.narrowerTransitive)) {
       this.narrowerTransitive = parameters.narrowerTransitive;
+    } else {
+      this.narrowerTransitive = parameters.narrowerTransitive; // never
     }
 
     if (typeof parameters.narrowMatch === "undefined") {
       this.narrowMatch = [];
-    } else {
+    } else if (Array.isArray(parameters.narrowMatch)) {
       this.narrowMatch = parameters.narrowMatch;
+    } else {
+      this.narrowMatch = parameters.narrowMatch; // never
     }
 
     if (typeof parameters.notation === "undefined") {
       this.notation = [];
-    } else {
+    } else if (Array.isArray(parameters.notation)) {
       this.notation = parameters.notation;
+    } else {
+      this.notation = parameters.notation; // never
     }
 
     if (typeof parameters.note === "undefined") {
       this.note = [];
-    } else {
+    } else if (Array.isArray(parameters.note)) {
       this.note = parameters.note;
+    } else {
+      this.note = parameters.note; // never
     }
 
     if (typeof parameters.prefLabel === "undefined") {
       this.prefLabel = [];
-    } else {
+    } else if (Array.isArray(parameters.prefLabel)) {
       this.prefLabel = parameters.prefLabel;
+    } else {
+      this.prefLabel = parameters.prefLabel; // never
     }
 
     if (typeof parameters.prefLabelXl === "undefined") {
       this.prefLabelXl = [];
-    } else {
+    } else if (Array.isArray(parameters.prefLabelXl)) {
       this.prefLabelXl = parameters.prefLabelXl;
+    } else {
+      this.prefLabelXl = parameters.prefLabelXl; // never
     }
 
     if (typeof parameters.related === "undefined") {
       this.related = [];
-    } else {
+    } else if (Array.isArray(parameters.related)) {
       this.related = parameters.related;
+    } else {
+      this.related = parameters.related; // never
     }
 
     if (typeof parameters.relatedMatch === "undefined") {
       this.relatedMatch = [];
-    } else {
+    } else if (Array.isArray(parameters.relatedMatch)) {
       this.relatedMatch = parameters.relatedMatch;
+    } else {
+      this.relatedMatch = parameters.relatedMatch; // never
     }
 
     if (typeof parameters.scopeNote === "undefined") {
       this.scopeNote = [];
-    } else {
+    } else if (Array.isArray(parameters.scopeNote)) {
       this.scopeNote = parameters.scopeNote;
+    } else {
+      this.scopeNote = parameters.scopeNote; // never
     }
 
     if (typeof parameters.semanticRelation === "undefined") {
       this.semanticRelation = [];
-    } else {
+    } else if (Array.isArray(parameters.semanticRelation)) {
       this.semanticRelation = parameters.semanticRelation;
+    } else {
+      this.semanticRelation = parameters.semanticRelation; // never
     }
 
     if (typeof parameters.topConceptOf === "undefined") {
       this.topConceptOf = [];
-    } else {
+    } else if (Array.isArray(parameters.topConceptOf)) {
       this.topConceptOf = parameters.topConceptOf;
+    } else {
+      this.topConceptOf = parameters.topConceptOf; // never
     }
   }
 
@@ -1766,27 +1824,35 @@ export class ConceptScheme {
   }) {
     if (typeof parameters.altLabel === "undefined") {
       this.altLabel = [];
-    } else {
+    } else if (Array.isArray(parameters.altLabel)) {
       this.altLabel = parameters.altLabel;
+    } else {
+      this.altLabel = parameters.altLabel; // never
     }
 
     if (typeof parameters.hasTopConcept === "undefined") {
       this.hasTopConcept = [];
-    } else {
+    } else if (Array.isArray(parameters.hasTopConcept)) {
       this.hasTopConcept = parameters.hasTopConcept;
+    } else {
+      this.hasTopConcept = parameters.hasTopConcept; // never
     }
 
     if (typeof parameters.hiddenLabel === "undefined") {
       this.hiddenLabel = [];
-    } else {
+    } else if (Array.isArray(parameters.hiddenLabel)) {
       this.hiddenLabel = parameters.hiddenLabel;
+    } else {
+      this.hiddenLabel = parameters.hiddenLabel; // never
     }
 
     this.identifier = parameters.identifier;
     if (typeof parameters.prefLabel === "undefined") {
       this.prefLabel = [];
-    } else {
+    } else if (Array.isArray(parameters.prefLabel)) {
       this.prefLabel = parameters.prefLabel;
+    } else {
+      this.prefLabel = parameters.prefLabel; // never
     }
   }
 
@@ -2092,8 +2158,10 @@ export class Label {
     this.identifier = parameters.identifier;
     if (typeof parameters.skos$j$xl_literalForm === "undefined") {
       this.skos$j$xl_literalForm = [];
-    } else {
+    } else if (Array.isArray(parameters.skos$j$xl_literalForm)) {
       this.skos$j$xl_literalForm = parameters.skos$j$xl_literalForm;
+    } else {
+      this.skos$j$xl_literalForm = parameters.skos$j$xl_literalForm; // never
     }
   }
 
@@ -2330,7 +2398,12 @@ export class OrderedCollection extends Collection {
             ),
           );
 
-          item;
+          currentSubListResource.add(
+            dataFactory.namedNode(
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
+            ),
+            item,
+          );
 
           if (itemIndex + 1 === this.memberList.length) {
             currentSubListResource.add(
