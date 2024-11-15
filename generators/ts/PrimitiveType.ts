@@ -1,14 +1,13 @@
-import type { Literal } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { LiteralType } from "./LiteralType.js";
 import type { Type } from "./Type.js";
 
 export abstract class PrimitiveType extends LiteralType {
   override get conversions(): readonly Type.Conversion[] {
-    return this.defaultValue
-      .map((defaultValue) => [
+    return this.defaultValueExpression()
+      .map((defaultValueExpression) => [
         {
-          conversionExpression: () => this.defaultValueExpression(defaultValue),
+          conversionExpression: () => defaultValueExpression,
           sourceTypeName: "undefined",
         },
         {
@@ -32,6 +31,8 @@ export abstract class PrimitiveType extends LiteralType {
     return [];
   }
 
+  abstract override defaultValueExpression(): Maybe<string>;
+
   override equalsFunction(): string {
     return "purifyHelpers.Equatable.strictEquals";
   }
@@ -39,13 +40,6 @@ export abstract class PrimitiveType extends LiteralType {
   override toRdfExpression({
     variables,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
-    return this.defaultValue
-      .map(
-        (defaultValue) =>
-          `(${variables.value} !== ${this.defaultValueExpression(defaultValue)}) ? ${variables.value} : undefined`,
-      )
-      .orDefault(variables.value);
+    return variables.value;
   }
-
-  protected abstract defaultValueExpression(defaultValue: Literal): string;
 }

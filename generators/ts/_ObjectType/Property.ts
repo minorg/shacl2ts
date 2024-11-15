@@ -12,9 +12,10 @@ export abstract class Property {
   abstract readonly classConstructorParametersPropertySignature: Maybe<
     OptionalKind<PropertySignatureStructure>
   >;
-  abstract readonly classDeclaration:
-    | GetAccessorDeclarationStructure
-    | PropertyDeclarationStructure;
+  abstract readonly classGetAccessorDeclaration: Maybe<
+    OptionalKind<GetAccessorDeclarationStructure>
+  >;
+  abstract readonly classPropertyDeclaration: OptionalKind<PropertyDeclarationStructure>;
   abstract readonly equalsFunction: string;
   abstract readonly interfacePropertySignature: OptionalKind<PropertySignatureStructure>;
   readonly name: string;

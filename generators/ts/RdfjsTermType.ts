@@ -26,6 +26,12 @@ export abstract class RdfjsTermType<
     this.hasValue = hasValue;
   }
 
+  override defaultValueExpression(): Maybe<string> {
+    return this.defaultValue.map((defaultValue) =>
+      rdfjsTermExpression(defaultValue, this.configuration),
+    );
+  }
+
   override equalsFunction(): string {
     return "purifyHelpers.Equatable.booleanEquals";
   }
@@ -33,11 +39,6 @@ export abstract class RdfjsTermType<
   override toRdfExpression({
     variables,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
-    return this.defaultValue
-      .map(
-        (defaultValue) =>
-          `(!${variables.value}.equals(${rdfjsTermExpression(defaultValue, this.configuration)}) ? ${variables.value} : undefined`,
-      )
-      .orDefault(variables.value);
+    return variables.value;
   }
 }

@@ -82,7 +82,7 @@ export class ListType extends Type {
       itemTypeSparqlGraphPatternsExpression instanceof
       Type.SparqlGraphPatternsExpression
     ) {
-      itemGraphPatterns = `(itemVariable) => ${itemTypeSparqlGraphPatternsExpression},`;
+      itemGraphPatterns = `itemGraphPatterns: (itemVariable) => ${itemTypeSparqlGraphPatternsExpression},`;
     }
 
     // (itemVariable) => ${itemSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()},

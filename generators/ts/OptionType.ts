@@ -1,3 +1,4 @@
+import type { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import { Type } from "./Type.js";
 
@@ -43,6 +44,15 @@ export class OptionType extends Type {
   @Memoize()
   get name(): string {
     return `purify.Maybe<${this.itemType.name}>`;
+  }
+
+  override defaultValueExpression(): Maybe<string> {
+    return this.itemType
+      .defaultValueExpression()
+      .map(
+        (defaultValueExpression) =>
+          `purify.Maybe.of(${defaultValueExpression})`,
+      );
   }
 
   override equalsFunction(): string {

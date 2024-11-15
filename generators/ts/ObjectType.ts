@@ -70,6 +70,17 @@ export class ObjectType extends Type {
     return this.lazyAncestorObjectTypes();
   }
 
+  override get conversions(): readonly Type.Conversion[] {
+    return [
+      {
+        conversionExpression: (value) => value,
+        sourceTypeCheckExpression: (value) =>
+          `typeof ${value} === "object" && ${value} instanceof ${this.name}`,
+        sourceTypeName: this.name,
+      },
+    ];
+  }
+
   @Memoize()
   get descendantObjectTypes(): readonly ObjectType[] {
     return this.lazyDescendantObjectTypes();

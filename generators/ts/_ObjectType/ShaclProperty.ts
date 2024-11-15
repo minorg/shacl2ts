@@ -1,11 +1,11 @@
 import type * as rdfjs from "@rdfjs/types";
 import { pascalCase } from "change-case";
 import { Maybe } from "purify-ts";
-import {
-  type OptionalKind,
-  type PropertyDeclarationStructure,
-  type PropertySignatureStructure,
-  StructureKind,
+import type {
+  GetAccessorDeclarationStructure,
+  OptionalKind,
+  PropertyDeclarationStructure,
+  PropertySignatureStructure,
 } from "ts-morph";
 import { Memoize } from "typescript-memoize";
 import type { Type } from "../Type.js";
@@ -49,10 +49,15 @@ export class ShaclProperty extends Property {
     });
   }
 
-  override get classDeclaration(): PropertyDeclarationStructure {
+  override get classGetAccessorDeclaration(): Maybe<
+    OptionalKind<GetAccessorDeclarationStructure>
+  > {
+    return Maybe.empty();
+  }
+
+  override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
     return {
       isReadonly: true,
-      kind: StructureKind.Property,
       name: this.name,
       type: this.type.name,
     };
@@ -89,7 +94,7 @@ export class ShaclProperty extends Property {
     const statements: string[] = [];
     for (const conversion of this.type.conversions) {
       statements.push(
-        `if (${conversion.sourceTypeCheckExpression ? conversion.sourceTypeCheckExpression(variables.parameter) : `typeof ${variables.parameter} === ${conversion.sourceTypeName}`}) { this.${this.name} = ${conversion.conversionExpression(variables.parameter)}; }`,
+        `if (${conversion.sourceTypeCheckExpression ? conversion.sourceTypeCheckExpression(variables.parameter) : `typeof ${variables.parameter} === "${conversion.sourceTypeName}"`}) { this.${this.name} = ${conversion.conversionExpression(variables.parameter)}; }`,
       );
     }
     // We shouldn't need this else, since the parameter now has the never type, but have to add it to appease the TypeScript compiler
@@ -133,12 +138,14 @@ export class ShaclProperty extends Property {
   override toRdfStatements({
     variables,
   }: Parameters<Property["toRdfStatements"]>[0]): readonly string[] {
-    return [
-      `${variables.resource}.add(${this.pathExpression}, ${this.type.toRdfExpression(
-        {
-          variables: { ...variables, predicate: this.pathExpression },
-        },
-      )});`,
-    ];
+    let statement = `${variables.resource}.add(${this.pathExpression}, ${this.type.toRdfExpression(
+      {
+        variables: { ...variables, predicate: this.pathExpression },
+      },
+    )});`;
+    this.type.defaultValueExpression().ifJust((defaultValueExpression) => {
+      statement = `if ((${this.type.equalsFunction()})(${variables.value}, ${defaultValueExpression}) !== true) { ${statement}; }`;
+    });
+    return [statement];
   }
 }

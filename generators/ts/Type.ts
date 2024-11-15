@@ -42,6 +42,13 @@ export abstract class Type {
   }
 
   /**
+   * The type's default value as an expression.
+   */
+  defaultValueExpression(): Maybe<string> {
+    return Maybe.empty();
+  }
+
+  /**
    * A function (reference or declaration) that compares two values of this type, returning a
    * purifyHelpers.Equatable.EqualsResult.
    */

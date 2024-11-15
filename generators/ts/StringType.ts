@@ -1,4 +1,4 @@
-import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
+import type { Maybe } from "purify-ts";
 import { fromRdf } from "rdf-literal";
 import { PrimitiveType } from "./PrimitiveType.js";
 import type { Type } from "./Type";
@@ -8,18 +8,16 @@ export class StringType extends PrimitiveType {
     return "string";
   }
 
-  override defaultValueExpression(
-    defaultValue: BlankNode | Literal | NamedNode,
-  ): string {
-    if (defaultValue.termType === "Literal") {
+  override defaultValueExpression(): Maybe<string> {
+    return this.defaultValue.map((defaultValue) => {
       try {
         const defaultValueExpression = fromRdf(defaultValue, true);
         if (typeof defaultValueExpression === "string") {
           return JSON.stringify(defaultValueExpression);
         }
       } catch {}
-    }
-    return "false";
+      return '""';
+    });
   }
 
   override fromRdfResourceValueExpression({

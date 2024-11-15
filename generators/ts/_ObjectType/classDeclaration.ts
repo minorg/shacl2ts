@@ -14,7 +14,11 @@ import { hasherTypeConstraint } from "./hashFunctionDeclaration.js";
 
 function constructorDeclaration(
   this: ObjectType,
-): OptionalKind<ConstructorDeclarationStructure> {
+): OptionalKind<ConstructorDeclarationStructure> | null {
+  if (this.properties.length === 0) {
+    return null;
+  }
+
   const statements: (string | StatementStructures)[] = [];
 
   if (this.parentObjectTypes.length > 0) {
@@ -28,16 +32,22 @@ function constructorDeclaration(
     }
   }
 
-  let constructorParametersType = `{ ${this.properties
-    .flatMap((property) => {
-      return property.classConstructorParametersPropertySignature
+  const constructorParameterPropertySignatures = this.properties.flatMap(
+    (property) =>
+      property.classConstructorParametersPropertySignature
         .map(
           (propertySignature) =>
             `readonly ${propertySignature.name}${propertySignature.hasQuestionToken ? "?" : ""}: ${propertySignature.type}`,
         )
-        .toList();
-    })
-    .join(", ")} }`;
+        .toList(),
+  );
+  if (constructorParameterPropertySignatures.length === 0) {
+    return null;
+  }
+
+  let constructorParametersType = `{ ${constructorParameterPropertySignatures.join(
+    ", ",
+  )} }`;
   if (this.parentObjectTypes.length > 0) {
     constructorParametersType = `${constructorParametersType} & ConstructorParameters<typeof ${this.parentObjectTypes[0].name}>[0]`;
   }
@@ -56,6 +66,8 @@ function constructorDeclaration(
 export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
   this.ensureAtMostOneSuperObjectType();
 
+  const constructorDeclaration_ = constructorDeclaration.bind(this)();
+
   const methods: OptionalKind<MethodDeclarationStructure>[] = [];
   if (this.configuration.features.has("equals")) {
     methods.push(equalsMethodDeclaration.bind(this)());
@@ -67,25 +79,18 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
     methods.push(toRdfMethodDeclaration.bind(this)());
   }
 
-  const getAccessors: GetAccessorDeclarationStructure[] = [];
-  const properties: PropertyDeclarationStructure[] = [];
+  const getAccessors: OptionalKind<GetAccessorDeclarationStructure>[] = [];
+  const properties: OptionalKind<PropertyDeclarationStructure>[] = [];
   for (const property of this.properties) {
-    const propertyDeclaration = property.classDeclaration;
-    switch (propertyDeclaration.kind) {
-      case StructureKind.GetAccessor:
-        getAccessors.push(propertyDeclaration);
-        break;
-      case StructureKind.Property:
-        properties.push(propertyDeclaration);
-        break;
-    }
+    properties.push(property.classPropertyDeclaration);
+    property.classGetAccessorDeclaration.ifJust((getAccessor) =>
+      getAccessors.push(getAccessor),
+    );
   }
 
   return {
     ctors:
-      this.properties.length > 0
-        ? [constructorDeclaration.bind(this)()]
-        : undefined,
+      constructorDeclaration_ !== null ? [constructorDeclaration_] : undefined,
     extends:
       this.parentObjectTypes.length > 0
         ? this.parentObjectTypes[0].name

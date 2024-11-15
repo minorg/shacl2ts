@@ -1,9 +1,9 @@
 import { Maybe } from "purify-ts";
-import {
-  type OptionalKind,
-  type PropertyDeclarationStructure,
-  type PropertySignatureStructure,
-  StructureKind,
+import type {
+  GetAccessorDeclarationStructure,
+  OptionalKind,
+  PropertyDeclarationStructure,
+  PropertySignatureStructure,
 } from "ts-morph";
 import { Property } from "./Property.js";
 
@@ -37,10 +37,15 @@ export class TypeDiscriminatorProperty extends Property {
     return Maybe.empty();
   }
 
-  override get classDeclaration(): PropertyDeclarationStructure {
+  override get classGetAccessorDeclaration(): Maybe<
+    OptionalKind<GetAccessorDeclarationStructure>
+  > {
+    return Maybe.empty();
+  }
+
+  override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
     return {
       hasOverrideKeyword: this.override,
-      kind: StructureKind.Property,
       initializer: `"${this.value}"`,
       isReadonly: true,
       name: this.name,

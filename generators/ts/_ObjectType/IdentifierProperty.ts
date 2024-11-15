@@ -4,7 +4,7 @@ import {
   type OptionalKind,
   type PropertyDeclarationStructure,
   type PropertySignatureStructure,
-  StructureKind,
+  Scope,
 } from "ts-morph";
 import { MintingStrategy } from "../../../ast";
 import type { IdentifierType } from "../IdentifierType.js";
@@ -39,16 +39,11 @@ export class IdentifierProperty extends Property {
     });
   }
 
-  override get classDeclaration():
-    | GetAccessorDeclarationStructure
-    | PropertyDeclarationStructure {
-    if (this.mintingStrategy.isNothing()) {
-      return {
-        kind: StructureKind.Property,
-        isReadonly: true,
-        name: this.name,
-        type: this.type.name,
-      };
+  override get classGetAccessorDeclaration(): Maybe<
+    OptionalKind<GetAccessorDeclarationStructure>
+  > {
+    if (!this.mintingStrategy.isJust()) {
+      return Maybe.empty();
     }
 
     let mintIdentifier: string;
@@ -63,13 +58,28 @@ export class IdentifierProperty extends Property {
         break;
     }
 
-    return {
-      kind: StructureKind.GetAccessor,
+    return Maybe.of({
       name: this.name,
       returnType: this.type.name,
       statements: [
         `if (typeof this._${this.name} === "undefined") { this._${this.name} = ${mintIdentifier}; } return this._${this.name};`,
       ],
+    });
+  }
+
+  override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
+    if (this.mintingStrategy.isJust()) {
+      // Mutable _identifier that will be lazily initialized by the getter
+      return {
+        name: `_${this.name}`,
+        scope: Scope.Private,
+        type: `${this.type.name} | undefined`,
+      } satisfies OptionalKind<PropertyDeclarationStructure>;
+    }
+    return {
+      isReadonly: true,
+      name: this.name,
+      type: this.type.name,
     };
   }
 
