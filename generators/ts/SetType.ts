@@ -55,7 +55,7 @@ export class SetType extends Type {
   override fromRdfResourceExpression({
     variables,
   }: Parameters<Type["fromRdfResourceExpression"]>[0]): string {
-    return `purify.Either.of([...${variables.resource}.values(${variables.predicate}, { unique: true }).flatMap(resourceValue => (${this.itemType.fromRdfResourceValueExpression({ variables: { ...variables, resourceValue: "resourceValue" } })}).toMaybe().toList())])`;
+    return `purify.Either.of([...${variables.resource}.values(${variables.predicate}, { unique: true }).flatMap(value => (${this.itemType.fromRdfResourceValueExpression({ variables: { ...variables, resourceValue: "value" } })}).toMaybe().toList())])`;
   }
 
   override fromRdfResourceValueExpression(): string {
