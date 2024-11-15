@@ -177,6 +177,17 @@ export class TypeFactory {
         } // Else parent will have the identifier property
 
         // Type discriminator property
+        const typeDiscriminatorValues = new Set<string>();
+        if (!astType.abstract) {
+          typeDiscriminatorValues.add(objectType.discriminatorValue);
+        }
+        for (const descendantObjectType of objectType.descendantObjectTypes) {
+          if (!descendantObjectType.abstract) {
+            typeDiscriminatorValues.add(
+              descendantObjectType.discriminatorValue,
+            );
+          }
+        }
         properties.push(
           new ObjectType.TypeDiscriminatorProperty({
             abstract: astType.abstract,
@@ -186,15 +197,7 @@ export class TypeFactory {
               objectType.parentObjectTypes.length > 0 &&
               !objectType.parentObjectTypes[0].abstract,
             type: {
-              name: [
-                ...new Set(
-                  [objectType.discriminatorValue].concat(
-                    objectType.descendantObjectTypes.map(
-                      (objectType) => objectType.discriminatorValue,
-                    ),
-                  ),
-                ),
-              ]
+              name: [...typeDiscriminatorValues]
                 .sort()
                 .map((name) => `"${name}"`)
                 .join("|"),

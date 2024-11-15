@@ -167,7 +167,6 @@ export interface Labeled {
     | "Collection"
     | "Concept"
     | "ConceptScheme"
-    | "Labeled"
     | "OrderedCollection";
 }
 
