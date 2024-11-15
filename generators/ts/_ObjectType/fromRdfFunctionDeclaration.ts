@@ -13,11 +13,13 @@ export function fromRdfFunctionDeclaration(
 ): FunctionDeclarationStructure {
   this.ensureAtMostOneSuperObjectType();
 
-  const properties: {
-    initializer?: string;
-    name: string;
-    type: string;
-  }[] = [];
+  const propertiesByName: Record<
+    string,
+    {
+      initializer?: string;
+      type: string;
+    }
+  > = {};
   let statements: string[] = [];
 
   this.rdfType.ifJust((rdfType) => {
@@ -29,11 +31,10 @@ export function fromRdfFunctionDeclaration(
   for (const ancestorObjectType of this.ancestorObjectTypes) {
     for (const property of ancestorObjectType.properties) {
       if (property.fromRdfStatements({ variables }).length > 0) {
-        properties.push({
+        propertiesByName[property.name] = {
           initializer: `_super.${property.name}`,
-          name: property.name,
-          type: property.interfacePropertySignature.type as string,
-        });
+          type: property.type.name,
+        };
       }
     }
   }
@@ -43,29 +44,27 @@ export function fromRdfFunctionDeclaration(
       variables,
     });
     if (propertyFromRdfStatements.length > 0) {
-      properties.push({
-        name: property.name,
-        type: property.interfacePropertySignature.type as string,
-      });
+      propertiesByName[property.name] = {
+        type: property.type.name,
+      };
       statements.push(...propertyFromRdfStatements);
     }
   }
 
-  let construction = `{ ${properties
-    .map((property) =>
-      property.initializer
-        ? `${property.name}: ${property.initializer}`
-        : property.name,
+  let construction = `{ ${Object.entries(propertiesByName)
+    .map(([name, { initializer }]) =>
+      initializer ? `${name}: ${initializer}` : name,
     )
     .join(", ")} }`;
-  let returnType = this.name;
-  if (this.configuration.objectTypeDeclarationType === "class") {
-    if (!this.abstract) {
-      construction = `new ${this.name}(${construction})`;
-    } else {
-      // Return an interface
-      returnType = `{ ${properties.map((property) => `${property.name}: ${property.type}`).join(", ")} }`;
-    }
+  let returnType = `{ ${Object.entries(propertiesByName)
+    .map(([name, { type }]) => `${name}: ${type}`)
+    .join(", ")} }`;
+  if (
+    this.configuration.objectTypeDeclarationType === "class" &&
+    !this.abstract
+  ) {
+    construction = `new ${this.name}(${construction})`;
+    returnType = this.name;
   }
 
   statements.push(`return purify.Either.of(${construction})`);

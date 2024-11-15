@@ -11,13 +11,11 @@ import { Memoize } from "typescript-memoize";
 import type { Type } from "../Type.js";
 import { Property } from "./Property.js";
 
-export class ShaclProperty extends Property {
-  readonly type: Type;
+export class ShaclProperty extends Property<Type> {
   private readonly path: rdfjs.NamedNode;
 
   constructor({
     path,
-    type,
     ...superParameters
   }: {
     path: rdfjs.NamedNode;
@@ -25,7 +23,6 @@ export class ShaclProperty extends Property {
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
     this.path = path;
-    this.type = type;
   }
 
   override get classConstructorParametersPropertySignature(): Maybe<
@@ -86,7 +83,9 @@ export class ShaclProperty extends Property {
 
   override classConstructorStatements({
     variables,
-  }: Parameters<Property["classConstructorStatements"]>[0]): readonly string[] {
+  }: Parameters<
+    Property<Type>["classConstructorStatements"]
+  >[0]): readonly string[] {
     const typeConversions = this.type.conversions;
     if (typeConversions.length === 1) {
       return [`this.${this.name} = ${variables.parameter};`];
@@ -106,7 +105,7 @@ export class ShaclProperty extends Property {
 
   override fromRdfStatements({
     variables,
-  }: Parameters<Property["fromRdfStatements"]>[0]): readonly string[] {
+  }: Parameters<Property<Type>["fromRdfStatements"]>[0]): readonly string[] {
     return [
       `const _${this.name}Either: purify.Either<rdfjsResource.Resource.ValueError, ${this.type.name}> = ${this.type.fromRdfResourceExpression({ variables: { ...variables, predicate: this.pathExpression } })};`,
       `if (_${this.name}Either.isLeft()) { return _${this.name}Either; }`,
@@ -115,7 +114,7 @@ export class ShaclProperty extends Property {
   }
 
   override hashStatements(
-    parameters: Parameters<Property["hashStatements"]>[0],
+    parameters: Parameters<Property<Type>["hashStatements"]>[0],
   ): readonly string[] {
     return this.type.hashStatements(parameters);
   }
@@ -137,7 +136,7 @@ export class ShaclProperty extends Property {
 
   override toRdfStatements({
     variables,
-  }: Parameters<Property["toRdfStatements"]>[0]): readonly string[] {
+  }: Parameters<Property<Type>["toRdfStatements"]>[0]): readonly string[] {
     let statement = `${variables.resource}.add(${this.pathExpression}, ${this.type.toRdfExpression(
       {
         variables: { ...variables, predicate: this.pathExpression },

@@ -10,14 +10,12 @@ import { MintingStrategy } from "../../../ast";
 import type { IdentifierType } from "../IdentifierType.js";
 import { Property } from "./Property.js";
 
-export class IdentifierProperty extends Property {
+export class IdentifierProperty extends Property<IdentifierType> {
   readonly equalsFunction = "purifyHelpers.Equatable.booleanEquals";
-  readonly type: IdentifierType;
   private readonly mintingStrategy: Maybe<MintingStrategy>;
 
   constructor({
     mintingStrategy,
-    type,
     ...superParameters
   }: {
     mintingStrategy: Maybe<MintingStrategy>;
@@ -25,7 +23,6 @@ export class IdentifierProperty extends Property {
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
     this.mintingStrategy = mintingStrategy;
-    this.type = type;
   }
 
   override get classConstructorParametersPropertySignature(): Maybe<
@@ -93,7 +90,9 @@ export class IdentifierProperty extends Property {
 
   override classConstructorStatements({
     variables,
-  }: Parameters<Property["classConstructorStatements"]>[0]): readonly string[] {
+  }: Parameters<
+    Property<IdentifierType>["classConstructorStatements"]
+  >[0]): readonly string[] {
     return [
       `this.${this.mintingStrategy.isJust() ? "_" : ""}${this.name} = ${variables.parameter};`,
     ];
@@ -101,12 +100,14 @@ export class IdentifierProperty extends Property {
 
   override fromRdfStatements({
     variables,
-  }: Parameters<Property["fromRdfStatements"]>[0]): readonly string[] {
+  }: Parameters<
+    Property<IdentifierType>["fromRdfStatements"]
+  >[0]): readonly string[] {
     return [`const ${this.name} = ${variables.resource}.identifier`];
   }
 
   override hashStatements(
-    parameters: Parameters<Property["hashStatements"]>[0],
+    parameters: Parameters<Property<IdentifierType>["hashStatements"]>[0],
   ): readonly string[] {
     return this.type.hashStatements(parameters);
   }

@@ -8,7 +8,7 @@ import type {
 import type { Configuration } from "../Configuration.js";
 import type { Type } from "../Type.js";
 
-export abstract class Property {
+export abstract class Property<TypeT extends { readonly name: string }> {
   abstract readonly classConstructorParametersPropertySignature: Maybe<
     OptionalKind<PropertySignatureStructure>
   >;
@@ -19,17 +19,21 @@ export abstract class Property {
   abstract readonly equalsFunction: string;
   abstract readonly interfacePropertySignature: OptionalKind<PropertySignatureStructure>;
   readonly name: string;
+  readonly type: TypeT;
   protected readonly configuration: Configuration;
 
   constructor({
     configuration,
     name,
+    type,
   }: {
     configuration: Configuration;
     name: string;
+    type: TypeT;
   }) {
     this.configuration = configuration;
     this.name = name;
+    this.type = type;
   }
 
   get importStatements(): readonly string[] {

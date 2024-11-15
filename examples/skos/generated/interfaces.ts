@@ -31,7 +31,14 @@ export namespace Label {
   export function fromRdf(
     resource: rdfjsResource.Resource,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, Label> {
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+      literalForm: readonly rdfjs.Literal[];
+      type: "Label";
+    }
+  > {
     if (
       !_options?.ignoreRdfType &&
       !resource.isInstanceOf(
@@ -214,7 +221,18 @@ namespace Labeled {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, Labeled> {
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      altLabel: readonly rdfjs.Literal[];
+      altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      hiddenLabel: readonly rdfjs.Literal[];
+      hiddenLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      identifier: rdfjs.NamedNode;
+      prefLabel: readonly rdfjs.Literal[];
+      prefLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+    }
+  > {
     if (
       !_options?.ignoreRdfType &&
       !resource.isInstanceOf(
@@ -555,7 +573,20 @@ export namespace Collection {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, Collection> {
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      altLabel: readonly rdfjs.Literal[];
+      altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      hiddenLabel: readonly rdfjs.Literal[];
+      hiddenLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      identifier: rdfjs.NamedNode;
+      prefLabel: readonly rdfjs.Literal[];
+      prefLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      member: readonly rdfjs.NamedNode[];
+      type: "Collection" | "OrderedCollection";
+    }
+  > {
     return Labeled.fromRdf(resource, { ignoreRdfType: true }).chain(
       (_super) => {
         if (
@@ -865,7 +896,41 @@ export namespace Concept {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, Concept> {
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      altLabel: readonly rdfjs.Literal[];
+      altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      hiddenLabel: readonly rdfjs.Literal[];
+      hiddenLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      identifier: rdfjs.NamedNode;
+      prefLabel: readonly rdfjs.Literal[];
+      prefLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      broader: readonly rdfjs.NamedNode[];
+      broaderTransitive: readonly rdfjs.NamedNode[];
+      broadMatch: readonly rdfjs.NamedNode[];
+      changeNote: readonly rdfjs.Literal[];
+      closeMatch: readonly rdfjs.NamedNode[];
+      definition: readonly rdfjs.Literal[];
+      editorialNote: readonly rdfjs.Literal[];
+      exactMatch: readonly rdfjs.NamedNode[];
+      example: readonly rdfjs.Literal[];
+      historyNote: readonly rdfjs.Literal[];
+      inScheme: readonly rdfjs.NamedNode[];
+      mappingRelation: readonly rdfjs.NamedNode[];
+      narrower: readonly rdfjs.NamedNode[];
+      narrowerTransitive: readonly rdfjs.NamedNode[];
+      narrowMatch: readonly rdfjs.NamedNode[];
+      notation: readonly rdfjs.Literal[];
+      note: readonly rdfjs.Literal[];
+      related: readonly rdfjs.NamedNode[];
+      relatedMatch: readonly rdfjs.NamedNode[];
+      scopeNote: readonly rdfjs.Literal[];
+      semanticRelation: readonly rdfjs.NamedNode[];
+      topConceptOf: readonly rdfjs.NamedNode[];
+      type: "Concept";
+    }
+  > {
     return Labeled.fromRdf(resource, { ignoreRdfType: true }).chain(
       (_super) => {
         if (
@@ -1856,7 +1921,20 @@ export namespace ConceptScheme {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, ConceptScheme> {
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      altLabel: readonly rdfjs.Literal[];
+      altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      hiddenLabel: readonly rdfjs.Literal[];
+      hiddenLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      identifier: rdfjs.NamedNode;
+      prefLabel: readonly rdfjs.Literal[];
+      prefLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      hasTopConcept: readonly rdfjs.NamedNode[];
+      type: "ConceptScheme";
+    }
+  > {
     return Labeled.fromRdf(resource, { ignoreRdfType: true }).chain(
       (_super) => {
         if (
@@ -2023,7 +2101,21 @@ export namespace OrderedCollection {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, OrderedCollection> {
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      member: readonly rdfjs.NamedNode[];
+      type: "OrderedCollection";
+      altLabel: readonly rdfjs.Literal[];
+      altLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      hiddenLabel: readonly rdfjs.Literal[];
+      hiddenLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      identifier: rdfjs.NamedNode;
+      prefLabel: readonly rdfjs.Literal[];
+      prefLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+      memberList: readonly rdfjs.NamedNode[];
+    }
+  > {
     return Collection.fromRdf(resource, { ignoreRdfType: true }).chain(
       (_super) => {
         if (
@@ -2067,6 +2159,7 @@ export namespace OrderedCollection {
         const type = "OrderedCollection" as const;
         return purify.Either.of({
           member: _super.member,
+          type,
           altLabel: _super.altLabel,
           altLabelXl: _super.altLabelXl,
           hiddenLabel: _super.hiddenLabel,
@@ -2075,7 +2168,6 @@ export namespace OrderedCollection {
           prefLabel: _super.prefLabel,
           prefLabelXl: _super.prefLabelXl,
           memberList,
-          type,
         });
       },
     );

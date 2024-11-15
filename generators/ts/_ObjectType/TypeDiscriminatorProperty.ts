@@ -7,11 +7,8 @@ import type {
 } from "ts-morph";
 import { Property } from "./Property.js";
 
-export class TypeDiscriminatorProperty extends Property {
+export class TypeDiscriminatorProperty extends Property<TypeDiscriminatorProperty.Type> {
   readonly equalsFunction = "purifyHelpers.Equatable.strictEquals";
-  readonly type: {
-    readonly name: string;
-  };
   readonly value: string;
   private readonly abstract: boolean;
   private readonly override: boolean;
@@ -19,19 +16,16 @@ export class TypeDiscriminatorProperty extends Property {
   constructor({
     abstract,
     override,
-    type,
     value,
     ...superParameters
   }: {
     abstract: boolean;
     override: boolean;
-    type: TypeDiscriminatorProperty["type"];
     value: string;
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
     this.abstract = abstract;
     this.override = override;
-    this.type = type;
     this.value = value;
   }
 
@@ -87,5 +81,11 @@ export class TypeDiscriminatorProperty extends Property {
 
   override toRdfStatements(): readonly string[] {
     return [];
+  }
+}
+
+export namespace TypeDiscriminatorProperty {
+  export interface Type {
+    readonly name: string;
   }
 }
