@@ -38,6 +38,12 @@ export class SetType extends Type {
     return `readonly (${this.itemType.name})[]`;
   }
 
+  override chainSparqlGraphPatternExpression(
+    parameters: Parameters<Type["chainSparqlGraphPatternExpression"]>[0],
+  ): ReturnType<Type["chainSparqlGraphPatternExpression"]> {
+    return this.itemType.chainSparqlGraphPatternExpression(parameters);
+  }
+
   override equalsFunction(): string {
     const itemTypeEqualsFunction = this.itemType.equalsFunction();
     if (itemTypeEqualsFunction === "purifyHelpers.Equatable.equals") {
@@ -71,15 +77,15 @@ export class SetType extends Type {
     ];
   }
 
-  override sparqlGraphPatternExpression(
-    parameters: Parameters<Type["sparqlGraphPatternExpression"]>[0],
+  override propertySparqlGraphPatternExpression(
+    parameters: Parameters<Type["propertySparqlGraphPatternExpression"]>[0],
   ): Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression {
     if (this.minCount === 0) {
       return new Type.SparqlGraphPatternExpression(
-        `sparqlBuilder.GraphPattern.optional(${this.itemType.sparqlGraphPatternExpression(parameters).toSparqlGraphPatternExpression()})`,
+        `sparqlBuilder.GraphPattern.optional(${this.itemType.propertySparqlGraphPatternExpression(parameters).toSparqlGraphPatternExpression()})`,
       );
     }
-    return this.itemType.sparqlGraphPatternExpression(parameters);
+    return this.itemType.propertySparqlGraphPatternExpression(parameters);
   }
 
   override toRdfExpression({

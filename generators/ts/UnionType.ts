@@ -158,14 +158,14 @@ ${this.memberTypes
     return [`switch (${switchValue}) { ${caseBlocks.join("\n")} }`];
   }
 
-  override sparqlGraphPatternExpression(
-    parameters: Parameters<Type["sparqlGraphPatternExpression"]>[0],
+  override propertySparqlGraphPatternExpression(
+    parameters: Parameters<Type["propertySparqlGraphPatternExpression"]>[0],
   ): Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression {
     return new Type.SparqlGraphPatternExpression(
       `sparqlBuilder.GraphPattern.union(${this.memberTypes
         .map((type) =>
           type
-            .sparqlGraphPatternExpression(parameters)
+            .propertySparqlGraphPatternExpression(parameters)
             .toSparqlGraphPatternExpression()
             .toString(),
         )

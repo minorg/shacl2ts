@@ -122,7 +122,7 @@ export class ShaclProperty extends Property<Type> {
   override sparqlGraphPatternExpression(): Maybe<string> {
     return Maybe.of(
       this.type
-        .sparqlGraphPatternExpression({
+        .propertySparqlGraphPatternExpression({
           variables: {
             object: `this.variable("${pascalCase(this.name)}")`,
             predicate: this.pathExpression,

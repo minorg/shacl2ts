@@ -55,6 +55,22 @@ export abstract class Type {
   }
 
   /**
+   * An optional sparqlBuilder.GraphPattern expression that's chained to the object of another pattern, such as a list item.
+   *
+   * If the type is e.g., an RDF/JS term it won't have additional graph patterns beyond the basic (s, p, o), and this
+   * method will return nothing.
+   */
+  chainSparqlGraphPatternExpression(_: {
+    variables: {
+      subject: string;
+    };
+  }): Maybe<
+    Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression
+  > {
+    return Maybe.empty();
+  }
+
+  /**
    * The type's default value as an expression.
    */
   defaultValueExpression(): Maybe<string> {
@@ -112,9 +128,9 @@ export abstract class Type {
   }): readonly string[];
 
   /**
-   * An optional sparqlBuilder.GraphPattern to chain to the basic pattern for a property.
+   * An sparqlBuilder.GraphPattern expression for a property, typically building a basic graph pattern.
    */
-  sparqlGraphPatternExpression({
+  propertySparqlGraphPatternExpression({
     variables,
   }: {
     variables: {
@@ -124,6 +140,11 @@ export abstract class Type {
     };
   }): Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression {
     let expression = `sparqlBuilder.GraphPattern.basic(${variables.subject}, ${variables.predicate}, ${variables.object})`;
+    this.chainSparqlGraphPatternExpression({
+      variables: { subject: "object" },
+    }).ifJust((chainSparqlGraphPatternExpression) => {
+      expression = `sparqlBuilder.GraphPattern.group(${expression}.chainObject(object => ${chainSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()}))`;
+    });
     if (this.defaultValueExpression().isJust()) {
       expression = `sparqlBuilder.GraphPattern.optional(${expression})`;
     }

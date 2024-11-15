@@ -30,10 +30,6 @@ export class IntersectionType extends Type {
     throw new Error("Method not implemented.");
   }
 
-  override sparqlGraphPatternExpression(): Type.SparqlGraphPatternExpression {
-    throw new Error("Method not implemented.");
-  }
-
   override toRdfExpression(): string {
     throw new Error("Method not implemented.");
   }

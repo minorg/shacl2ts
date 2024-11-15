@@ -46,6 +46,12 @@ export class OptionType extends Type {
     return `purify.Maybe<${this.itemType.name}>`;
   }
 
+  override chainSparqlGraphPatternExpression(
+    parameters: Parameters<Type["chainSparqlGraphPatternExpression"]>[0],
+  ): ReturnType<Type["chainSparqlGraphPatternExpression"]> {
+    return this.itemType.chainSparqlGraphPatternExpression(parameters);
+  }
+
   override defaultValueExpression(): Maybe<string> {
     return this.itemType
       .defaultValueExpression()
@@ -93,11 +99,11 @@ export class OptionType extends Type {
     ];
   }
 
-  override sparqlGraphPatternExpression(
-    parameters: Parameters<Type["sparqlGraphPatternExpression"]>[0],
+  override propertySparqlGraphPatternExpression(
+    parameters: Parameters<Type["propertySparqlGraphPatternExpression"]>[0],
   ): Type.SparqlGraphPatternExpression {
     return new Type.SparqlGraphPatternExpression(
-      `sparqlBuilder.GraphPattern.optional(${this.itemType.sparqlGraphPatternExpression(parameters).toSparqlGraphPatternExpression()})`,
+      `sparqlBuilder.GraphPattern.optional(${this.itemType.propertySparqlGraphPatternExpression(parameters).toSparqlGraphPatternExpression()})`,
     );
   }
 

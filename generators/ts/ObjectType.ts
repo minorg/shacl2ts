@@ -145,6 +145,18 @@ export class ObjectType extends Type {
     return properties;
   }
 
+  override chainSparqlGraphPatternExpression({
+    variables,
+  }: Parameters<
+    Type["chainSparqlGraphPatternExpression"]
+  >[0]): Maybe<Type.SparqlGraphPatternsExpression> {
+    return Maybe.of(
+      new Type.SparqlGraphPatternsExpression(
+        `new ${this.name}.SparqlGraphPatterns(${variables.subject})`,
+      ),
+    );
+  }
+
   override equalsFunction(): string {
     switch (this.configuration.objectTypeDeclarationType) {
       case "class":
@@ -182,16 +194,6 @@ export class ObjectType extends Type {
       name: `rdfjsResource.${options?.mutable ? "Mutable" : ""}Resource${this.identifierType.isNamedNodeKind ? "<rdfjs.NamedNode>" : ""}`,
       named: this.identifierType.isNamedNodeKind,
     };
-  }
-
-  override sparqlGraphPatternExpression({
-    variables,
-  }: Parameters<
-    Type["sparqlGraphPatternExpression"]
-  >[0]): Type.SparqlGraphPatternsExpression {
-    return new Type.SparqlGraphPatternsExpression(
-      `${super.sparqlGraphPatternExpression({ variables })}.chainObject(object => new ${this.name}.SparqlGraphPatterns(object))`,
-    );
   }
 
   override toRdfExpression({

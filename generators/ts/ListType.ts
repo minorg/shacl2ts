@@ -46,6 +46,28 @@ export class ListType extends Type {
     return `readonly ${this.itemType.name}[]`;
   }
 
+  override chainSparqlGraphPatternExpression({
+    variables,
+  }: Parameters<
+    Type["chainSparqlGraphPatternExpression"]
+  >[0]): Maybe<Type.SparqlGraphPatternsExpression> {
+    return Maybe.of(
+      new Type.SparqlGraphPatternsExpression(
+        `new sparqlBuilder.RdfListGraphPatterns({ ${this.itemType
+          .chainSparqlGraphPatternExpression({
+            variables: {
+              subject: "itemVariable",
+            },
+          })
+          .map(
+            (itemSparqlGraphPatternsExpression) =>
+              `itemGraphPatterns: (itemVariable) => ${itemSparqlGraphPatternsExpression.toSparqlGraphPatternsExpression()}, `,
+          )
+          .orDefault("")} rdfList: ${variables.subject} })`,
+      ),
+    );
+  }
+
   override equalsFunction(): string {
     return `(left, right) => purifyHelpers.Arrays.equals(left, right, ${this.itemType.equalsFunction()})`;
   }
@@ -62,33 +84,6 @@ export class ListType extends Type {
     return [
       `for (const _element of ${variables.value}) { ${this.itemType.hashStatements({ variables: { ...variables, value: "_element" } }).join("\n")} }`,
     ];
-  }
-
-  override sparqlGraphPatternExpression({
-    variables,
-  }: Parameters<
-    Type["sparqlGraphPatternExpression"]
-  >[0]): Type.SparqlGraphPatternsExpression {
-    let itemGraphPatterns = "";
-    const itemTypeSparqlGraphPatternsExpression =
-      this.itemType.sparqlGraphPatternExpression({
-        variables: {
-          predicate: '"SHOULDNOTBEUSED"',
-          object: '"SHOULDNOTBEUSED"',
-          subject: "itemVariable",
-        },
-      });
-    if (
-      itemTypeSparqlGraphPatternsExpression instanceof
-      Type.SparqlGraphPatternsExpression
-    ) {
-      itemGraphPatterns = `itemGraphPatterns: (itemVariable) => ${itemTypeSparqlGraphPatternsExpression},`;
-    }
-
-    // (itemVariable) => ${itemSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()},
-    return new Type.SparqlGraphPatternsExpression(
-      `${super.sparqlGraphPatternExpression({ variables })}.chainObject(object => new sparqlBuilder.RdfListGraphPatterns({ ${itemGraphPatterns} rdfList: object }))`,
-    );
   }
 
   override toRdfExpression({
