@@ -204,7 +204,9 @@ export class TypeFactory {
           );
         }
 
-        return properties;
+        return properties.sort((left, right) =>
+          left.name.localeCompare(right.name),
+        );
       },
       mintingStrategy: astType.mintingStrategy,
       name: tsName(astType.name),
