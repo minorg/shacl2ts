@@ -13,19 +13,23 @@ export class TypeDiscriminatorProperty extends Property {
     readonly name: string;
   };
   readonly value: string;
+  private readonly abstract: boolean;
   private readonly override: boolean;
 
   constructor({
+    abstract,
     override,
     type,
     value,
     ...superParameters
   }: {
+    abstract: boolean;
     override: boolean;
     type: TypeDiscriminatorProperty["type"];
     value: string;
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
+    this.abstract = abstract;
     this.override = override;
     this.type = type;
     this.value = value;
@@ -45,8 +49,9 @@ export class TypeDiscriminatorProperty extends Property {
 
   override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
     return {
+      isAbstract: this.abstract,
       hasOverrideKeyword: this.override,
-      initializer: `"${this.value}"`,
+      initializer: !this.abstract ? `"${this.value}"` : undefined,
       isReadonly: true,
       name: this.name,
       type: this.type.name,
@@ -66,7 +71,8 @@ export class TypeDiscriminatorProperty extends Property {
   }
 
   override fromRdfStatements(): readonly string[] {
-    return this.configuration.objectTypeDeclarationType === "interface"
+    return !this.abstract &&
+      this.configuration.objectTypeDeclarationType === "interface"
       ? [`const ${this.name} = "${this.value}" as const`]
       : [];
   }

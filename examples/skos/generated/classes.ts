@@ -174,6 +174,12 @@ abstract class Labeled {
   readonly identifier: rdfjs.NamedNode;
   readonly prefLabel: readonly rdfjs.Literal[];
   readonly prefLabelXl: readonly (rdfjs.BlankNode | rdfjs.NamedNode)[];
+  abstract readonly type:
+    | "Collection"
+    | "Concept"
+    | "ConceptScheme"
+    | "Labeled"
+    | "OrderedCollection";
 
   constructor(parameters: {
     readonly altLabel?: readonly rdfjs.Literal[];
@@ -273,6 +279,7 @@ abstract class Labeled {
           right,
           purifyHelpers.Equatable.booleanEquals,
         ),
+      type: purifyHelpers.Equatable.strictEquals,
     });
   }
 

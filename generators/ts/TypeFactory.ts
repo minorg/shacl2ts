@@ -177,32 +177,31 @@ export class TypeFactory {
         } // Else parent will have the identifier property
 
         // Type discriminator property
-        if (!objectType.abstract) {
-          properties.push(
-            new ObjectType.TypeDiscriminatorProperty({
-              configuration: this.configuration,
-              name: this.configuration.objectTypeDiscriminatorPropertyName,
-              override:
-                objectType.parentObjectTypes.length > 0 &&
-                !objectType.parentObjectTypes[0].abstract,
-              type: {
-                name: [
-                  ...new Set(
-                    [objectType.discriminatorValue].concat(
-                      objectType.descendantObjectTypes.map(
-                        (objectType) => objectType.discriminatorValue,
-                      ),
+        properties.push(
+          new ObjectType.TypeDiscriminatorProperty({
+            abstract: astType.abstract,
+            configuration: this.configuration,
+            name: this.configuration.objectTypeDiscriminatorPropertyName,
+            override:
+              objectType.parentObjectTypes.length > 0 &&
+              !objectType.parentObjectTypes[0].abstract,
+            type: {
+              name: [
+                ...new Set(
+                  [objectType.discriminatorValue].concat(
+                    objectType.descendantObjectTypes.map(
+                      (objectType) => objectType.discriminatorValue,
                     ),
                   ),
-                ]
-                  .sort()
-                  .map((name) => `"${name}"`)
-                  .join("|"),
-              },
-              value: objectType.discriminatorValue,
-            }),
-          );
-        }
+                ),
+              ]
+                .sort()
+                .map((name) => `"${name}"`)
+                .join("|"),
+            },
+            value: objectType.discriminatorValue,
+          }),
+        );
 
         return properties.sort((left, right) =>
           left.name.localeCompare(right.name),

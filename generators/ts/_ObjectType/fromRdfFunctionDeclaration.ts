@@ -13,7 +13,11 @@ export function fromRdfFunctionDeclaration(
 ): FunctionDeclarationStructure {
   this.ensureAtMostOneSuperObjectType();
 
-  const propertyInitializers: string[] = [];
+  const properties: {
+    initializer?: string;
+    name: string;
+    type: string;
+  }[] = [];
   let statements: string[] = [];
 
   this.rdfType.ifJust((rdfType) => {
@@ -25,7 +29,11 @@ export function fromRdfFunctionDeclaration(
   for (const ancestorObjectType of this.ancestorObjectTypes) {
     for (const property of ancestorObjectType.properties) {
       if (property.fromRdfStatements({ variables }).length > 0) {
-        propertyInitializers.push(`${property.name}: _super.${property.name}`);
+        properties.push({
+          initializer: `_super.${property.name}`,
+          name: property.name,
+          type: property.interfacePropertySignature.type as string,
+        });
       }
     }
   }
@@ -35,29 +43,28 @@ export function fromRdfFunctionDeclaration(
       variables,
     });
     if (propertyFromRdfStatements.length > 0) {
-      propertyInitializers.push(property.name);
+      properties.push({
+        name: property.name,
+        type: property.interfacePropertySignature.type as string,
+      });
       statements.push(...propertyFromRdfStatements);
     }
   }
 
-  let construction = `{ ${propertyInitializers.join(", ")} }`;
+  let construction = `{ ${properties
+    .map((property) =>
+      property.initializer
+        ? `${property.name}: ${property.initializer}`
+        : property.name,
+    )
+    .join(", ")} }`;
   let returnType = this.name;
   if (this.configuration.objectTypeDeclarationType === "class") {
     if (!this.abstract) {
       construction = `new ${this.name}(${construction})`;
     } else {
       // Return an interface
-      returnType = `{ ${this.properties
-        .concat(
-          this.ancestorObjectTypes.flatMap(
-            (ancestorObjectType) => ancestorObjectType.properties,
-          ),
-        )
-        .map((property) => property.interfacePropertySignature)
-        .map(
-          (interfacePropertySignature) =>
-            `${interfacePropertySignature.name}: ${interfacePropertySignature.type}`,
-        )} }`;
+      returnType = `{ ${properties.map((property) => `${property.name}: ${property.type}`).join(", ")} }`;
     }
   }
 
