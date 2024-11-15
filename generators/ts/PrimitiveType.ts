@@ -4,23 +4,7 @@ import type { Type } from "./Type.js";
 
 export abstract class PrimitiveType extends LiteralType {
   override get conversions(): readonly Type.Conversion[] {
-    return this.defaultValueExpression()
-      .map((defaultValueExpression) => [
-        {
-          conversionExpression: () => defaultValueExpression,
-          sourceTypeName: "undefined",
-        },
-        {
-          conversionExpression: (value: string) => value,
-          sourceTypeName: this.name,
-        },
-      ])
-      .orDefault([
-        {
-          conversionExpression: (value) => value,
-          sourceTypeName: this.name,
-        },
-      ]);
+    return this.defaultConversions;
   }
 
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {

@@ -601,6 +601,12 @@ export class ShapesGraphToAstTransformer {
       return Left(new Error(`unable to transform type on ${shape}`));
     })().map((itemType) => {
       // Handle cardinality constraints
+
+      if (defaultValue.isJust()) {
+        // Ignore other cardinality constraints if there's a default value and treat the type as minCount=maxCount=1
+        return itemType;
+      }
+
       const maxCount = shape.constraints.maxCount;
       const minCount = shape.constraints.minCount;
 

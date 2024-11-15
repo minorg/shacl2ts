@@ -144,7 +144,7 @@ export class ShaclProperty extends Property {
       },
     )});`;
     this.type.defaultValueExpression().ifJust((defaultValueExpression) => {
-      statement = `if ((${this.type.equalsFunction()})(${variables.value}, ${defaultValueExpression}) !== true) { ${statement}; }`;
+      statement = `if ((${this.type.equalsFunction()})(${variables.value}, ${defaultValueExpression}).extract() !== true) { ${statement}; }`;
     });
     return [statement];
   }

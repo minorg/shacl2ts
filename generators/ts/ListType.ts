@@ -73,8 +73,8 @@ export class ListType extends Type {
     const itemTypeSparqlGraphPatternsExpression =
       this.itemType.sparqlGraphPatternExpression({
         variables: {
-          predicate: "SHOULDNOTBEUSED",
-          object: "SHOULDNOTBEUSED",
+          predicate: '"SHOULDNOTBEUSED"',
+          object: '"SHOULDNOTBEUSED"',
           subject: "itemVariable",
         },
       });

@@ -51,7 +51,13 @@ export class TypeFactory {
           ),
         });
       case "LiteralType": {
-        const datatype = astType.datatype.extractNullable();
+        const datatype = astType.datatype
+          .altLazy(() =>
+            astType.defaultValue.map((defaultValue) => defaultValue.datatype),
+          )
+          .altLazy(() => astType.hasValue.map((hasValue) => hasValue.datatype))
+          .extractNullable();
+
         if (datatype !== null) {
           if (datatype.equals(xsd.boolean)) {
             return new BooleanType({

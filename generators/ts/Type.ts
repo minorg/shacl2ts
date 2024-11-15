@@ -19,12 +19,7 @@ export abstract class Type {
    * Expressions that convert a source type or types to this type. It should include the type itself.
    */
   get conversions(): readonly Type.Conversion[] {
-    return [
-      {
-        conversionExpression: (value) => value,
-        sourceTypeName: this.name,
-      },
-    ];
+    return this.defaultConversions;
   }
 
   /**
@@ -39,6 +34,24 @@ export abstract class Type {
    */
   get importStatements(): readonly string[] {
     return [];
+  }
+
+  protected get defaultConversions(): readonly Type.Conversion[] {
+    const conversions: Type.Conversion[] = [
+      {
+        conversionExpression: (value) => value,
+        sourceTypeName: this.name,
+      },
+    ];
+
+    this.defaultValueExpression().ifJust((defaultValueExpression) =>
+      conversions.push({
+        conversionExpression: () => defaultValueExpression,
+        sourceTypeName: "undefined",
+      }),
+    );
+
+    return conversions;
   }
 
   /**

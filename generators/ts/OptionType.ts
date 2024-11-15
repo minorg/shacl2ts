@@ -61,7 +61,7 @@ export class OptionType extends Type {
       return "purifyHelpers.Equatable.maybeEquals";
     }
     if (itemTypeEqualsFunction === "purifyHelpers.Equatable.strictEquals") {
-      return "(left, right) => left.equals(right)"; // Use Maybe.equals
+      return "purifyHelpers.Equatable.booleanEquals"; // Use Maybe.equals
     }
     return `(left, right) => purifyHelpers.Maybes.equals(left, right, ${itemTypeEqualsFunction})`;
   }
