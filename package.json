@@ -29,7 +29,7 @@
   "description": "Generate TypeScript from SHACL shapes",
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "@kos-kit/sparql-builder": "2.0.91",
+    "@kos-kit/sparql-builder": "2.0.92",
     "@tsconfig/strictest": "^2.0.5",
     "js-sha256": "^0.11.0",
     "purify-ts-helpers": "1.0.7",
