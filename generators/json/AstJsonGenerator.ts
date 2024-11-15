@@ -91,7 +91,10 @@ function typeToJson(type: ast.Type): AstJson.Type {
         kind: type.kind,
         listItemType: type.listItemType.map(typeToJson).extract(),
         name: nameToJson(type.name),
-        parentObjectTypes: type.parentObjectTypes.map(typeToJson),
+        parentObjectTypes:
+          type.parentObjectTypes.length > 0
+            ? type.parentObjectTypes.map((type) => nameToJson(type.name))
+            : undefined,
         nodeKinds: [...type.nodeKinds].map(nodeKindToJson),
         rdfType: type.rdfType.map(termToJson).extract(),
       };

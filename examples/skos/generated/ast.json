@@ -663,7 +663,6 @@
               },
               "shName": "OrderedCollectionMemberList"
             },
-            "parentObjectTypes": [],
             "nodeKinds": ["BlankNode", "NamedNode"],
             "rdfType": {
               "termType": "NamedNode",
@@ -726,7 +725,6 @@
                   },
                   "shName": "OrderedCollectionMemberList"
                 },
-                "parentObjectTypes": [],
                 "nodeKinds": ["BlankNode", "NamedNode"],
                 "rdfType": {
                   "termType": "NamedNode",

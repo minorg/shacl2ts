@@ -70,6 +70,13 @@ function descendantClassIris(
   return [...descendantClassIris];
 }
 
+function shaclmateInline(shape: shaclAst.Shape): Maybe<boolean> {
+  return shape.resource
+    .value(shaclmate.inline)
+    .chain((value) => value.toBoolean())
+    .toMaybe();
+}
+
 function shaclmateName(shape: shaclAst.Shape): Maybe<string> {
   return shape.resource
     .value(shaclmate.name)
@@ -337,17 +344,7 @@ export class ShapesGraphToAstTransformer {
       }
     }
 
-    const inline = propertyShape.resource
-      .value(shaclmate.inline)
-      .chain((value) => value.toBoolean())
-      .orDefault(false);
-
-    const type = this.propertyShapeAstType(propertyShape, {
-      defaultValue: Maybe.empty(),
-      inline,
-      maxCount: Maybe.empty(),
-      minCount: Maybe.empty(),
-    });
+    const type = this.propertyShapeAstType(propertyShape, null);
     if (type.isLeft()) {
       return type;
     }
@@ -360,7 +357,7 @@ export class ShapesGraphToAstTransformer {
     }
 
     const property: ast.ObjectType.Property = {
-      inline,
+      inline: shaclmateInline(propertyShape).orDefault(false),
       name: this.shapeName(propertyShape),
       path,
       type: type.extract() as ast.Type,
@@ -382,23 +379,18 @@ export class ShapesGraphToAstTransformer {
     shape: shaclAst.Shape,
     inherited: {
       defaultValue: Maybe<BlankNode | Literal | NamedNode>;
-      inline: boolean;
-      maxCount: Maybe<number>;
-      minCount: Maybe<number>;
-    },
+      inline: Maybe<boolean>;
+    } | null,
   ): Either<Error, ast.Type> {
     const defaultValue = (
       shape instanceof shaclAst.PropertyShape
         ? shape.defaultValue
         : Maybe.empty()
-    ).alt(inherited.defaultValue);
+    ).alt(inherited !== null ? inherited.defaultValue : Maybe.empty());
     const hasValue = shape.constraints.hasValue;
-    const minCount = shape.constraints.minCount
-      .filter((minCount) => minCount >= 0)
-      .alt(inherited.minCount);
-    const maxCount = shape.constraints.maxCount
-      .filter((maxCount) => maxCount >= minCount.orDefault(0))
-      .alt(inherited.maxCount);
+    const inline = shaclmateInline(shape).alt(
+      inherited !== null ? inherited.inline : Maybe.empty(),
+    );
 
     return ((): Either<Error, ast.Type> => {
       // Conjunctions/disjunctions of multiple types
@@ -414,16 +406,14 @@ export class ShapesGraphToAstTransformer {
           memberTypeEithers = shape.constraints.and.map((memberShape) =>
             this.propertyShapeAstType(memberShape, {
               defaultValue,
-              inline: inherited.inline,
-              maxCount,
-              minCount,
+              inline,
             }),
           );
           compositeTypeKind = "IntersectionType";
         } else if (shape.constraints.classes.length > 0) {
           memberTypeEithers = shape.constraints.classes.map((classIri) =>
             this.resolveClassAstObjectType(classIri).map((classObjectType) =>
-              inherited.inline
+              inline.orDefault(false)
                 ? classObjectType
                 : {
                     defaultValue: defaultValue.filter(
@@ -445,9 +435,7 @@ export class ShapesGraphToAstTransformer {
           memberTypeEithers = shape.constraints.or.map((memberShape) =>
             this.propertyShapeAstType(memberShape, {
               defaultValue,
-              inline: inherited.inline,
-              maxCount,
-              minCount,
+              inline,
             }),
           );
           compositeTypeKind = "UnionType";
@@ -613,6 +601,25 @@ export class ShapesGraphToAstTransformer {
       return Left(new Error(`unable to transform type on ${shape}`));
     })().map((itemType) => {
       // Handle cardinality constraints
+      const maxCount = shape.constraints.maxCount;
+      const minCount = shape.constraints.minCount;
+
+      if (maxCount.isNothing() && minCount.isNothing()) {
+        // The shape has no cardinality constraints
+        if (inherited === null) {
+          // The shape is top-level (not an sh:or/sh:and of a top-level shape)
+          // Treat it as a Set, the default in RDF.
+          // We want Set to be the outermost type unless it's explicitly requested with sh:minCount 0.
+          return {
+            itemType,
+            kind: "SetType",
+            minCount: 0,
+          };
+        }
+        // else the shape is not top-level
+        // We want Set to be the outermost type, so just return the itemType here
+        return itemType;
+      }
 
       if (minCount.orDefault(0) === 0 && maxCount.extractNullable() === 1) {
         return {
@@ -625,6 +632,8 @@ export class ShapesGraphToAstTransformer {
         return itemType;
       }
 
+      invariant(minCount.isJust() || maxCount.isJust());
+      // There are cardinality constraints for a Set. It may be an inner type.
       return {
         itemType,
         kind: "SetType",
