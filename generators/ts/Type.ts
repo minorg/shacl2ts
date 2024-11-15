@@ -79,7 +79,14 @@ export abstract class Type {
       resource: string;
     };
   }): string {
-    return `${variables.resource}.value(${variables.predicate}).chain(resourceValue => ${this.fromRdfResourceValueExpression({ variables: { ...variables, resourceValue: "resourceValue" } })})`;
+    const chain: string[] = [
+      `${variables.resource}.value(${variables.predicate})`,
+      `chain(value => ${this.fromRdfResourceValueExpression({ variables: { ...variables, resourceValue: "value" } })})`,
+    ];
+    this.defaultValueExpression().ifJust((defaultValueExpression) => {
+      chain.push(`alt(purify.Either.of(${defaultValueExpression}))`);
+    });
+    return chain.join(".");
   }
 
   /**
@@ -116,9 +123,11 @@ export abstract class Type {
       subject: string;
     };
   }): Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression {
-    return new Type.SparqlGraphPatternExpression(
-      `sparqlBuilder.GraphPattern.basic(${variables.subject}, ${variables.predicate}, ${variables.object})`,
-    );
+    let expression = `sparqlBuilder.GraphPattern.basic(${variables.subject}, ${variables.predicate}, ${variables.object})`;
+    if (this.defaultValueExpression().isJust()) {
+      expression = `sparqlBuilder.GraphPattern.optional(${expression})`;
+    }
+    return new Type.SparqlGraphPatternExpression(expression);
   }
 
   /**
