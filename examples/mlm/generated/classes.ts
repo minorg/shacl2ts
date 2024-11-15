@@ -115,9 +115,9 @@ export class MachineLearningModel {
       isVariantOf: purifyHelpers.Equatable.equals,
       localIdentifier: purifyHelpers.Equatable.strictEquals,
       name: purifyHelpers.Equatable.booleanEquals,
-      trainingDataCutoff: (left, right) => left.equals(right),
+      trainingDataCutoff: purifyHelpers.Equatable.booleanEquals,
       type: purifyHelpers.Equatable.strictEquals,
-      url: (left, right) => left.equals(right),
+      url: purifyHelpers.Equatable.booleanEquals,
     });
   }
 
@@ -210,7 +210,7 @@ export namespace MachineLearningModel {
     > = purify.Either.of(
       resource
         .value(dataFactory.namedNode("https://schema.org/description"))
-        .chain((resourceValue) => resourceValue.toLiteral())
+        .chain((value) => value.toLiteral())
         .toMaybe(),
     );
     if (_descriptionEither.isLeft()) {
@@ -224,8 +224,8 @@ export namespace MachineLearningModel {
       MachineLearningModelFamily
     > = resource
       .value(dataFactory.namedNode("https://schema.org/isVariantOf"))
-      .chain((resourceValue) =>
-        resourceValue
+      .chain((value) =>
+        value
           .toNamedResource()
           .chain((resource) => MachineLearningModelFamily.fromRdf(resource)),
       );
@@ -239,7 +239,7 @@ export namespace MachineLearningModel {
       string
     > = resource
       .value(dataFactory.namedNode("https://schema.org/identifier"))
-      .chain((resourceValue) => resourceValue.toString());
+      .chain((value) => value.toString());
     if (_localIdentifierEither.isLeft()) {
       return _localIdentifierEither;
     }
@@ -250,7 +250,7 @@ export namespace MachineLearningModel {
       rdfjs.Literal
     > = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
-      .chain((resourceValue) => resourceValue.toLiteral());
+      .chain((value) => value.toLiteral());
     if (_nameEither.isLeft()) {
       return _nameEither;
     }
@@ -266,7 +266,7 @@ export namespace MachineLearningModel {
             "http://purl.annotize.ai/ontology/mlm#trainingDataCutoff",
           ),
         )
-        .chain((resourceValue) => resourceValue.toString())
+        .chain((value) => value.toString())
         .toMaybe(),
     );
     if (_trainingDataCutoffEither.isLeft()) {
@@ -280,7 +280,7 @@ export namespace MachineLearningModel {
     > = purify.Either.of(
       resource
         .value(dataFactory.namedNode("https://schema.org/url"))
-        .chain((resourceValue) => resourceValue.toString())
+        .chain((value) => value.toString())
         .toMaybe(),
     );
     if (_urlEither.isLeft()) {
@@ -431,7 +431,7 @@ export class LanguageModel extends MachineLearningModel {
     return super.equals(other).chain(() =>
       purifyHelpers.Equatable.objectEquals(this, other, {
         contextWindow: purifyHelpers.Equatable.strictEquals,
-        maxTokenOutput: (left, right) => left.equals(right),
+        maxTokenOutput: purifyHelpers.Equatable.booleanEquals,
         type: purifyHelpers.Equatable.strictEquals,
       }),
     );
@@ -521,7 +521,7 @@ export namespace LanguageModel {
             "http://purl.annotize.ai/ontology/mlm#contextWindow",
           ),
         )
-        .chain((resourceValue) => resourceValue.toNumber());
+        .chain((value) => value.toNumber());
       if (_contextWindowEither.isLeft()) {
         return _contextWindowEither;
       }
@@ -536,7 +536,7 @@ export namespace LanguageModel {
               "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
             ),
           )
-          .chain((resourceValue) => resourceValue.toNumber())
+          .chain((value) => value.toNumber())
           .toMaybe(),
       );
       if (_maxTokenOutputEither.isLeft()) {
@@ -713,7 +713,7 @@ export class MachineLearningModelFamily {
       manufacturer: purifyHelpers.Equatable.equals,
       name: purifyHelpers.Equatable.booleanEquals,
       type: purifyHelpers.Equatable.strictEquals,
-      url: (left, right) => left.equals(right),
+      url: purifyHelpers.Equatable.booleanEquals,
     });
   }
 
@@ -799,7 +799,7 @@ export namespace MachineLearningModelFamily {
     > = purify.Either.of(
       resource
         .value(dataFactory.namedNode("https://schema.org/description"))
-        .chain((resourceValue) => resourceValue.toLiteral())
+        .chain((value) => value.toLiteral())
         .toMaybe(),
     );
     if (_descriptionEither.isLeft()) {
@@ -813,8 +813,8 @@ export namespace MachineLearningModelFamily {
       Organization
     > = resource
       .value(dataFactory.namedNode("https://schema.org/manufacturer"))
-      .chain((resourceValue) =>
-        resourceValue
+      .chain((value) =>
+        value
           .toNamedResource()
           .chain((resource) => Organization.fromRdf(resource)),
       );
@@ -828,7 +828,7 @@ export namespace MachineLearningModelFamily {
       rdfjs.Literal
     > = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
-      .chain((resourceValue) => resourceValue.toLiteral());
+      .chain((value) => value.toLiteral());
     if (_nameEither.isLeft()) {
       return _nameEither;
     }
@@ -840,7 +840,7 @@ export namespace MachineLearningModelFamily {
     > = purify.Either.of(
       resource
         .value(dataFactory.namedNode("https://schema.org/url"))
-        .chain((resourceValue) => resourceValue.toString())
+        .chain((value) => value.toString())
         .toMaybe(),
     );
     if (_urlEither.isLeft()) {
@@ -1041,7 +1041,7 @@ export namespace Organization {
       rdfjs.Literal
     > = resource
       .value(dataFactory.namedNode("https://schema.org/name"))
-      .chain((resourceValue) => resourceValue.toLiteral());
+      .chain((value) => value.toLiteral());
     if (_nameEither.isLeft()) {
       return _nameEither;
     }
