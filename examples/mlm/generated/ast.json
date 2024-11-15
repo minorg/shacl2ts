@@ -123,7 +123,6 @@
               },
               "shName": "MachineLearningModelFamily"
             },
-            "parentObjectTypes": [],
             "nodeKinds": ["NamedNode"],
             "rdfType": {
               "termType": "NamedNode",
@@ -245,7 +244,6 @@
               },
               "shName": "Organization"
             },
-            "parentObjectTypes": [],
             "nodeKinds": ["NamedNode"],
             "rdfType": {
               "termType": "NamedNode",
