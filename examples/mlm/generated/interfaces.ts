@@ -43,7 +43,19 @@ export namespace MachineLearningModel {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, MachineLearningModel> {
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      description: purify.Maybe<rdfjs.Literal>;
+      identifier: rdfjs.NamedNode;
+      isVariantOf: MachineLearningModelFamily;
+      localIdentifier: string;
+      name: rdfjs.Literal;
+      trainingDataCutoff: purify.Maybe<string>;
+      type: "LanguageModel" | "MachineLearningModel";
+      url: purify.Maybe<string>;
+    }
+  > {
     if (
       !_options?.ignoreRdfType &&
       !resource.isInstanceOf(
@@ -68,7 +80,10 @@ export namespace MachineLearningModel {
       purify.Maybe<rdfjs.Literal>
     > = purify.Either.of(
       resource
-        .value(dataFactory.namedNode("https://schema.org/description"))
+        .values(dataFactory.namedNode("https://schema.org/description"), {
+          unique: true,
+        })
+        .head()
         .chain((value) => value.toLiteral())
         .toMaybe(),
     );
@@ -82,12 +97,12 @@ export namespace MachineLearningModel {
       rdfjsResource.Resource.ValueError,
       MachineLearningModelFamily
     > = resource
-      .value(dataFactory.namedNode("https://schema.org/isVariantOf"))
-      .chain((value) =>
-        value
-          .toNamedResource()
-          .chain((resource) => MachineLearningModelFamily.fromRdf(resource)),
-      );
+      .values(dataFactory.namedNode("https://schema.org/isVariantOf"), {
+        unique: true,
+      })
+      .head()
+      .chain((value) => value.toNamedResource())
+      .chain((resource) => MachineLearningModelFamily.fromRdf(resource));
     if (_isVariantOfEither.isLeft()) {
       return _isVariantOfEither;
     }
@@ -97,8 +112,11 @@ export namespace MachineLearningModel {
       rdfjsResource.Resource.ValueError,
       string
     > = resource
-      .value(dataFactory.namedNode("https://schema.org/identifier"))
-      .chain((value) => value.toString());
+      .values(dataFactory.namedNode("https://schema.org/identifier"), {
+        unique: true,
+      })
+      .head()
+      .chain((value) => valuetoString());
     if (_localIdentifierEither.isLeft()) {
       return _localIdentifierEither;
     }
@@ -108,7 +126,10 @@ export namespace MachineLearningModel {
       rdfjsResource.Resource.ValueError,
       rdfjs.Literal
     > = resource
-      .value(dataFactory.namedNode("https://schema.org/name"))
+      .values(dataFactory.namedNode("https://schema.org/name"), {
+        unique: true,
+      })
+      .head()
       .chain((value) => value.toLiteral());
     if (_nameEither.isLeft()) {
       return _nameEither;
@@ -120,12 +141,14 @@ export namespace MachineLearningModel {
       purify.Maybe<string>
     > = purify.Either.of(
       resource
-        .value(
+        .values(
           dataFactory.namedNode(
             "http://purl.annotize.ai/ontology/mlm#trainingDataCutoff",
           ),
+          { unique: true },
         )
-        .chain((value) => value.toString())
+        .head()
+        .chain((value) => valuetoString())
         .toMaybe(),
     );
     if (_trainingDataCutoffEither.isLeft()) {
@@ -139,8 +162,11 @@ export namespace MachineLearningModel {
       purify.Maybe<string>
     > = purify.Either.of(
       resource
-        .value(dataFactory.namedNode("https://schema.org/url"))
-        .chain((value) => value.toString())
+        .values(dataFactory.namedNode("https://schema.org/url"), {
+          unique: true,
+        })
+        .head()
+        .chain((value) => valuetoString())
         .toMaybe(),
     );
     if (_urlEither.isLeft()) {
@@ -341,7 +367,21 @@ export namespace LanguageModel {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, LanguageModel> {
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      description: purify.Maybe<rdfjs.Literal>;
+      identifier: rdfjs.NamedNode;
+      isVariantOf: MachineLearningModelFamily;
+      localIdentifier: string;
+      name: rdfjs.Literal;
+      trainingDataCutoff: purify.Maybe<string>;
+      type: "LanguageModel";
+      url: purify.Maybe<string>;
+      contextWindow: number;
+      maxTokenOutput: purify.Maybe<number>;
+    }
+  > {
     return MachineLearningModel.fromRdf(resource, {
       ignoreRdfType: true,
     }).chain((_super) => {
@@ -367,11 +407,13 @@ export namespace LanguageModel {
         rdfjsResource.Resource.ValueError,
         number
       > = resource
-        .value(
+        .values(
           dataFactory.namedNode(
             "http://purl.annotize.ai/ontology/mlm#contextWindow",
           ),
+          { unique: true },
         )
+        .head()
         .chain((value) => value.toNumber());
       if (_contextWindowEither.isLeft()) {
         return _contextWindowEither;
@@ -382,11 +424,13 @@ export namespace LanguageModel {
         purify.Maybe<number>
       > = purify.Either.of(
         resource
-          .value(
+          .values(
             dataFactory.namedNode(
               "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
             ),
+            { unique: true },
           )
+          .head()
           .chain((value) => value.toNumber())
           .toMaybe(),
       );
@@ -402,10 +446,10 @@ export namespace LanguageModel {
         localIdentifier: _super.localIdentifier,
         name: _super.name,
         trainingDataCutoff: _super.trainingDataCutoff,
+        type,
         url: _super.url,
         contextWindow,
         maxTokenOutput,
-        type,
       });
     });
   }
@@ -544,7 +588,14 @@ export namespace MachineLearningModelFamily {
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
-    MachineLearningModelFamily
+    {
+      description: purify.Maybe<rdfjs.Literal>;
+      identifier: rdfjs.NamedNode;
+      manufacturer: Organization;
+      name: rdfjs.Literal;
+      type: "MachineLearningModelFamily";
+      url: purify.Maybe<string>;
+    }
   > {
     if (
       !_options?.ignoreRdfType &&
@@ -570,7 +621,10 @@ export namespace MachineLearningModelFamily {
       purify.Maybe<rdfjs.Literal>
     > = purify.Either.of(
       resource
-        .value(dataFactory.namedNode("https://schema.org/description"))
+        .values(dataFactory.namedNode("https://schema.org/description"), {
+          unique: true,
+        })
+        .head()
         .chain((value) => value.toLiteral())
         .toMaybe(),
     );
@@ -584,12 +638,12 @@ export namespace MachineLearningModelFamily {
       rdfjsResource.Resource.ValueError,
       Organization
     > = resource
-      .value(dataFactory.namedNode("https://schema.org/manufacturer"))
-      .chain((value) =>
-        value
-          .toNamedResource()
-          .chain((resource) => Organization.fromRdf(resource)),
-      );
+      .values(dataFactory.namedNode("https://schema.org/manufacturer"), {
+        unique: true,
+      })
+      .head()
+      .chain((value) => value.toNamedResource())
+      .chain((resource) => Organization.fromRdf(resource));
     if (_manufacturerEither.isLeft()) {
       return _manufacturerEither;
     }
@@ -599,7 +653,10 @@ export namespace MachineLearningModelFamily {
       rdfjsResource.Resource.ValueError,
       rdfjs.Literal
     > = resource
-      .value(dataFactory.namedNode("https://schema.org/name"))
+      .values(dataFactory.namedNode("https://schema.org/name"), {
+        unique: true,
+      })
+      .head()
       .chain((value) => value.toLiteral());
     if (_nameEither.isLeft()) {
       return _nameEither;
@@ -612,8 +669,11 @@ export namespace MachineLearningModelFamily {
       purify.Maybe<string>
     > = purify.Either.of(
       resource
-        .value(dataFactory.namedNode("https://schema.org/url"))
-        .chain((value) => value.toString())
+        .values(dataFactory.namedNode("https://schema.org/url"), {
+          unique: true,
+        })
+        .head()
+        .chain((value) => valuetoString())
         .toMaybe(),
     );
     if (_urlEither.isLeft()) {
@@ -780,7 +840,10 @@ export namespace Organization {
   export function fromRdf(
     resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, Organization> {
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    { identifier: rdfjs.NamedNode; name: rdfjs.Literal; type: "Organization" }
+  > {
     if (
       !_options?.ignoreRdfType &&
       !resource.isInstanceOf(
@@ -805,7 +868,10 @@ export namespace Organization {
       rdfjsResource.Resource.ValueError,
       rdfjs.Literal
     > = resource
-      .value(dataFactory.namedNode("https://schema.org/name"))
+      .values(dataFactory.namedNode("https://schema.org/name"), {
+        unique: true,
+      })
+      .head()
       .chain((value) => value.toLiteral());
     if (_nameEither.isLeft()) {
       return _nameEither;
