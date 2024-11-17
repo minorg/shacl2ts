@@ -8,7 +8,7 @@ export class StringType extends PrimitiveType {
   override fromRdfResourceValueExpression({
     variables,
   }: Parameters<PrimitiveType["fromRdfResourceValueExpression"]>[0]): string {
-    return `${variables.resourceValue}toString()`;
+    return `${variables.resourceValue}.toString()`;
   }
 
   override hashStatements({

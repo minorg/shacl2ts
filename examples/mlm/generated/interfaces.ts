@@ -116,7 +116,7 @@ export namespace MachineLearningModel {
         unique: true,
       })
       .head()
-      .chain((value) => valuetoString());
+      .chain((value) => value.toString());
     if (_localIdentifierEither.isLeft()) {
       return _localIdentifierEither;
     }
@@ -148,7 +148,7 @@ export namespace MachineLearningModel {
           { unique: true },
         )
         .head()
-        .chain((value) => valuetoString())
+        .chain((value) => value.toString())
         .toMaybe(),
     );
     if (_trainingDataCutoffEither.isLeft()) {
@@ -166,7 +166,7 @@ export namespace MachineLearningModel {
           unique: true,
         })
         .head()
-        .chain((value) => valuetoString())
+        .chain((value) => value.toString())
         .toMaybe(),
     );
     if (_urlEither.isLeft()) {
@@ -673,7 +673,7 @@ export namespace MachineLearningModelFamily {
           unique: true,
         })
         .head()
-        .chain((value) => valuetoString())
+        .chain((value) => value.toString())
         .toMaybe(),
     );
     if (_urlEither.isLeft()) {
