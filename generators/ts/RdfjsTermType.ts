@@ -32,10 +32,8 @@ export abstract class RdfjsTermType<
 
   override fromRdfExpression({
     variables,
-  }: {
-    variables: { predicate: string; resource: string; resourceValues: string };
-  }): string {
-    const chain: string[] = [`${variables.resource}.head()`];
+  }: Parameters<Type["fromRdfExpression"]>[0]): string {
+    const chain: string[] = [`${variables.resourceValues}.head()`];
     this.hasValue.ifJust((hasValue) => {
       chain.push(
         `chain<rdfjsResource.Resource.ValueError, ${this.name}>(_identifier => _identifier.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${variables.resource}, predicate: ${variables.predicate})))`,
@@ -56,9 +54,9 @@ export abstract class RdfjsTermType<
 
   override propertySparqlGraphPatternExpression({
     variables,
-  }: {
-    variables: { object: string; predicate: string; subject: string };
-  }): Type.SparqlGraphPatternExpression {
+  }: Parameters<
+    Type["propertySparqlGraphPatternExpression"]
+  >[0]): Type.SparqlGraphPatternExpression {
     let expression = super
       .propertySparqlGraphPatternExpression({
         variables,
