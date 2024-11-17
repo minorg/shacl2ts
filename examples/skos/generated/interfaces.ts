@@ -68,8 +68,13 @@ export namespace Label {
           ),
           { unique: true },
         )
-        .flatMap((resourceValue) =>
-          resourceValue.toLiteral().toMaybe().toList(),
+        .flatMap((value) =>
+          value
+            .toValues()
+            .head()
+            .chain((value) => value.toLiteral())
+            .toMaybe()
+            .toList(),
         ),
     ]);
     if (_literalFormEither.isLeft()) {
@@ -258,8 +263,13 @@ namespace Labeled {
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
           { unique: true },
         )
-        .flatMap((resourceValue) =>
-          resourceValue.toLiteral().toMaybe().toList(),
+        .flatMap((value) =>
+          value
+            .toValues()
+            .head()
+            .chain((value) => value.toLiteral())
+            .toMaybe()
+            .toList(),
         ),
     ]);
     if (_altLabelEither.isLeft()) {
@@ -276,8 +286,13 @@ namespace Labeled {
           dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#altLabel"),
           { unique: true },
         )
-        .flatMap((resourceValue) =>
-          resourceValue.toIdentifier().toMaybe().toList(),
+        .flatMap((value) =>
+          value
+            .toValues()
+            .head()
+            .chain((value) => value.toIdentifier())
+            .toMaybe()
+            .toList(),
         ),
     ]);
     if (_altLabelXlEither.isLeft()) {
@@ -296,8 +311,13 @@ namespace Labeled {
           ),
           { unique: true },
         )
-        .flatMap((resourceValue) =>
-          resourceValue.toLiteral().toMaybe().toList(),
+        .flatMap((value) =>
+          value
+            .toValues()
+            .head()
+            .chain((value) => value.toLiteral())
+            .toMaybe()
+            .toList(),
         ),
     ]);
     if (_hiddenLabelEither.isLeft()) {
@@ -316,8 +336,13 @@ namespace Labeled {
           ),
           { unique: true },
         )
-        .flatMap((resourceValue) =>
-          resourceValue.toIdentifier().toMaybe().toList(),
+        .flatMap((value) =>
+          value
+            .toValues()
+            .head()
+            .chain((value) => value.toIdentifier())
+            .toMaybe()
+            .toList(),
         ),
     ]);
     if (_hiddenLabelXlEither.isLeft()) {
@@ -337,8 +362,13 @@ namespace Labeled {
           ),
           { unique: true },
         )
-        .flatMap((resourceValue) =>
-          resourceValue.toLiteral().toMaybe().toList(),
+        .flatMap((value) =>
+          value
+            .toValues()
+            .head()
+            .chain((value) => value.toLiteral())
+            .toMaybe()
+            .toList(),
         ),
     ]);
     if (_prefLabelEither.isLeft()) {
@@ -355,8 +385,13 @@ namespace Labeled {
           dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#prefLabel"),
           { unique: true },
         )
-        .flatMap((resourceValue) =>
-          resourceValue.toIdentifier().toMaybe().toList(),
+        .flatMap((value) =>
+          value
+            .toValues()
+            .head()
+            .chain((value) => value.toIdentifier())
+            .toMaybe()
+            .toList(),
         ),
     ]);
     if (_prefLabelXlEither.isLeft()) {
@@ -617,8 +652,13 @@ export namespace Collection {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_memberEither.isLeft()) {
@@ -961,8 +1001,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_broaderEither.isLeft()) {
@@ -980,8 +1025,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_broaderTransitiveEither.isLeft()) {
@@ -999,8 +1049,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_broadMatchEither.isLeft()) {
@@ -1018,8 +1073,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toLiteral().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toLiteral())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_changeNoteEither.isLeft()) {
@@ -1037,8 +1097,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_closeMatchEither.isLeft()) {
@@ -1056,8 +1121,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toLiteral().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toLiteral())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_definitionEither.isLeft()) {
@@ -1075,8 +1145,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toLiteral().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toLiteral())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_editorialNoteEither.isLeft()) {
@@ -1094,8 +1169,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_exactMatchEither.isLeft()) {
@@ -1113,8 +1193,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toLiteral().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toLiteral())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_exampleEither.isLeft()) {
@@ -1132,8 +1217,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toLiteral().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toLiteral())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_historyNoteEither.isLeft()) {
@@ -1151,8 +1241,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_inSchemeEither.isLeft()) {
@@ -1170,8 +1265,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_mappingRelationEither.isLeft()) {
@@ -1189,8 +1289,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_narrowerEither.isLeft()) {
@@ -1208,8 +1313,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_narrowerTransitiveEither.isLeft()) {
@@ -1227,8 +1337,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_narrowMatchEither.isLeft()) {
@@ -1246,8 +1361,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toLiteral().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toLiteral())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_notationEither.isLeft()) {
@@ -1265,8 +1385,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toLiteral().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toLiteral())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_noteEither.isLeft()) {
@@ -1284,8 +1409,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_relatedEither.isLeft()) {
@@ -1303,8 +1433,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_relatedMatchEither.isLeft()) {
@@ -1322,8 +1457,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toLiteral().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toLiteral())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_scopeNoteEither.isLeft()) {
@@ -1341,8 +1481,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_semanticRelationEither.isLeft()) {
@@ -1360,8 +1505,13 @@ export namespace Concept {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_topConceptOfEither.isLeft()) {
@@ -1965,8 +2115,13 @@ export namespace ConceptScheme {
               ),
               { unique: true },
             )
-            .flatMap((resourceValue) =>
-              resourceValue.toIri().toMaybe().toList(),
+            .flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
             ),
         ]);
         if (_hasTopConceptEither.isLeft()) {
@@ -2139,17 +2294,23 @@ export namespace OrderedCollection {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = resource
-          .value(
+          .values(
             dataFactory.namedNode(
               "http://www.w3.org/2004/02/skos/core#memberList",
             ),
+            { unique: true },
           )
-          .chain((value) =>
-            value
-              .toList()
-              .map((values) =>
-                values.flatMap((value) => value.toIri().toMaybe().toList()),
-              ),
+          .head()
+          .chain((value) => value.toList())
+          .map((values) =>
+            values.flatMap((value) =>
+              value
+                .toValues()
+                .head()
+                .chain((value) => value.toIri())
+                .toMaybe()
+                .toList(),
+            ),
           );
         if (_memberListEither.isLeft()) {
           return _memberListEither;
@@ -2181,8 +2342,8 @@ export namespace OrderedCollection {
     hasher: HasherT,
   ): HasherT {
     Collection.hashCollection(orderedCollection, hasher);
-    for (const _element of orderedCollection.memberList) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+    for (const element of orderedCollection.memberList) {
+      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
     }
 
     return hasher;
