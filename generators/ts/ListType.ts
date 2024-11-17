@@ -82,7 +82,7 @@ export class ListType extends Type {
     variables,
   }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `for (const element of ${variables.value}) { ${this.itemType.hashStatements({ variables: { ...variables, value: "_element" } }).join("\n")} }`,
+      `for (const element of ${variables.value}) { ${this.itemType.hashStatements({ variables: { ...variables, value: "element" } }).join("\n")} }`,
     ];
   }
 
