@@ -41,7 +41,7 @@ export abstract class RdfjsTermType<
     });
     this.defaultValue.ifJust((defaultValue) => {
       chain.push(
-        `alt(purify.Either.of(${rdfjsTermExpression(defaultValue, this.configuration)}))`,
+        `alt(purify.Either.of(new rdfjsResource.Resource.Value({ subject: ${variables.resource}, predicate: ${variables.predicate}, object: ${rdfjsTermExpression(defaultValue, this.configuration)} })))`,
       );
     });
     chain.push(
