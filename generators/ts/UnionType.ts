@@ -106,12 +106,12 @@ ${this.memberTypes
 }`;
   }
 
-  override fromRdfResourceValueExpression(
-    parameters: Parameters<Type["fromRdfResourceValueExpression"]>[0],
+  override fromRdfExpression(
+    parameters: Parameters<Type["fromRdfExpression"]>[0],
   ): string {
     let expression = "";
     this.memberTypes.forEach((type, typeIndex) => {
-      let typeExpression = type.fromRdfResourceValueExpression(parameters);
+      let typeExpression = type.fromRdfExpression(parameters);
       if (!this.typesSharedDiscriminatorProperty.isJust()) {
         typeExpression = `${typeExpression}.map(value => ({ type: "${typeIndex}-${type.name}" as const, value }) as (${this.name}))`;
       }

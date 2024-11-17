@@ -52,14 +52,10 @@ export class SetType extends Type {
     return `(left, right) => purifyHelpers.Arrays.equals(left, right, ${itemTypeEqualsFunction})`;
   }
 
-  override fromRdfResourceExpression({
+  override fromRdfExpression({
     variables,
-  }: Parameters<Type["fromRdfResourceExpression"]>[0]): string {
-    return `purify.Either.of([...${variables.resource}.values(${variables.predicate}, { unique: true }).flatMap(value => (${this.itemType.fromRdfResourceValueExpression({ variables: { ...variables, resourceValue: "value" } })}).toMaybe().toList())])`;
-  }
-
-  override fromRdfResourceValueExpression(): string {
-    throw new Error("not implemented");
+  }: Parameters<Type["fromRdfExpression"]>[0]): string {
+    return `purify.Either.of([...${variables.resourceValues}.flatMap(value => ${this.itemType.fromRdfExpression({ variables: { ...variables, resourceValues: "value.toValues()" } })}).toMaybe().toList())])`;
   }
 
   override hashStatements({

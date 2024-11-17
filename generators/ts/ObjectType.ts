@@ -166,10 +166,10 @@ export class ObjectType extends Type {
     }
   }
 
-  override fromRdfResourceValueExpression({
+  override fromRdfExpression({
     variables,
-  }: Parameters<Type["fromRdfResourceValueExpression"]>[0]): string {
-    return `${variables.resourceValue}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.name}.fromRdf(resource))`;
+  }: Parameters<Type["fromRdfExpression"]>[0]): string {
+    return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(resource => ${this.name}.fromRdf(resource))`;
   }
 
   override hashStatements({

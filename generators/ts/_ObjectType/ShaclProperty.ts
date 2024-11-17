@@ -107,7 +107,7 @@ export class ShaclProperty extends Property<Type> {
     variables,
   }: Parameters<Property<Type>["fromRdfStatements"]>[0]): readonly string[] {
     return [
-      `const _${this.name}Either: purify.Either<rdfjsResource.Resource.ValueError, ${this.type.name}> = ${this.type.fromRdfResourceExpression({ variables: { ...variables, predicate: this.pathExpression } })};`,
+      `const _${this.name}Either: purify.Either<rdfjsResource.Resource.ValueError, ${this.type.name}> = ${this.type.fromRdfExpression({ variables: { ...variables, predicate: this.pathExpression, resourceValues: `${variables.resource}.values(${this.pathExpression})` } })};`,
       `if (_${this.name}Either.isLeft()) { return _${this.name}Either; }`,
       `const ${this.name} = _${this.name}Either.unsafeCoerce();`,
     ];
@@ -137,14 +137,12 @@ export class ShaclProperty extends Property<Type> {
   override toRdfStatements({
     variables,
   }: Parameters<Property<Type>["toRdfStatements"]>[0]): readonly string[] {
-    let statement = `${variables.resource}.add(${this.pathExpression}, ${this.type.toRdfExpression(
-      {
-        variables: { ...variables, predicate: this.pathExpression },
-      },
-    )});`;
-    this.type.defaultValueExpression().ifJust((defaultValueExpression) => {
-      statement = `if ((${this.type.equalsFunction()})(${variables.value}, ${defaultValueExpression}).extract() !== true) { ${statement}; }`;
-    });
-    return [statement];
+    return [
+      `${variables.resource}.add(${this.pathExpression}, ${this.type.toRdfExpression(
+        {
+          variables: { ...variables, predicate: this.pathExpression },
+        },
+      )});`,
+    ];
   }
 }

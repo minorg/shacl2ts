@@ -19,7 +19,12 @@ export abstract class Type {
    * Expressions that convert a source type or types to this type. It should include the type itself.
    */
   get conversions(): readonly Type.Conversion[] {
-    return this.defaultConversions;
+    return [
+      {
+        conversionExpression: (value) => value,
+        sourceTypeName: this.name,
+      },
+    ];
   }
 
   /**
@@ -34,24 +39,6 @@ export abstract class Type {
    */
   get importStatements(): readonly string[] {
     return [];
-  }
-
-  protected get defaultConversions(): readonly Type.Conversion[] {
-    const conversions: Type.Conversion[] = [
-      {
-        conversionExpression: (value) => value,
-        sourceTypeName: this.name,
-      },
-    ];
-
-    this.defaultValueExpression().ifJust((defaultValueExpression) =>
-      conversions.push({
-        conversionExpression: () => defaultValueExpression,
-        sourceTypeName: "undefined",
-      }),
-    );
-
-    return conversions;
   }
 
   /**
@@ -71,49 +58,20 @@ export abstract class Type {
   }
 
   /**
-   * The type's default value as an expression.
-   */
-  defaultValueExpression(): Maybe<string> {
-    return Maybe.empty();
-  }
-
-  /**
    * A function (reference or declaration) that compares two values of this type, returning a
    * purifyHelpers.Equatable.EqualsResult.
    */
   abstract equalsFunction(): string;
 
   /**
-   * An expression that converts a property value/values from an rdfjsResource.Resource to an Either of
-   * value/values of this type.
-   */
-  fromRdfResourceExpression({
-    variables,
-  }: {
-    variables: {
-      predicate: string;
-      resource: string;
-    };
-  }): string {
-    const chain: string[] = [
-      `${variables.resource}.value(${variables.predicate})`,
-      `chain(value => ${this.fromRdfResourceValueExpression({ variables: { ...variables, resourceValue: "value" } })})`,
-    ];
-    this.defaultValueExpression().ifJust((defaultValueExpression) => {
-      chain.push(`alt(purify.Either.of(${defaultValueExpression}))`);
-    });
-    return chain.join(".");
-  }
-
-  /**
-   * An expression that converts a property value/values from an rdfjsResource.Resource.Value to a Either of value/values
+   * An expression that converts a rdfjsResource.Resource.Values to an Either of value/values
    * of this type.
    */
-  abstract fromRdfResourceValueExpression(parameters: {
+  abstract fromRdfExpression(parameters: {
     variables: {
       predicate: string;
       resource: string;
-      resourceValue: string;
+      resourceValues: string;
     };
   }): string;
 
@@ -145,9 +103,6 @@ export abstract class Type {
     }).ifJust((chainSparqlGraphPatternExpression) => {
       expression = `sparqlBuilder.GraphPattern.group(${expression}.chainObject(object => ${chainSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()}))`;
     });
-    if (this.defaultValueExpression().isJust()) {
-      expression = `sparqlBuilder.GraphPattern.optional(${expression})`;
-    }
     return new Type.SparqlGraphPatternExpression(expression);
   }
 

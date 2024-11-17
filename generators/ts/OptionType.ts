@@ -1,4 +1,3 @@
-import type { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import { Type } from "./Type.js";
 
@@ -52,15 +51,6 @@ export class OptionType extends Type {
     return this.itemType.chainSparqlGraphPatternExpression(parameters);
   }
 
-  override defaultValueExpression(): Maybe<string> {
-    return this.itemType
-      .defaultValueExpression()
-      .map(
-        (defaultValueExpression) =>
-          `purify.Maybe.of(${defaultValueExpression})`,
-      );
-  }
-
   override equalsFunction(): string {
     const itemTypeEqualsFunction = this.itemType.equalsFunction();
     if (itemTypeEqualsFunction === "purifyHelpers.Equatable.equals") {
@@ -72,16 +62,10 @@ export class OptionType extends Type {
     return `(left, right) => purifyHelpers.Maybes.equals(left, right, ${itemTypeEqualsFunction})`;
   }
 
-  override fromRdfResourceExpression(
-    parameters: Parameters<Type["fromRdfResourceExpression"]>[0],
+  override fromRdfExpression(
+    parameters: Parameters<Type["fromRdfExpression"]>[0],
   ): string {
-    return `purify.Either.of(${this.itemType.fromRdfResourceExpression(parameters)}.toMaybe())`;
-  }
-
-  override fromRdfResourceValueExpression(
-    _: Parameters<Type["fromRdfResourceValueExpression"]>[0],
-  ): string {
-    throw new Error("not implemented");
+    return `purify.Either.of(${this.itemType.fromRdfExpression(parameters)}.toMaybe())`;
   }
 
   override hashStatements({

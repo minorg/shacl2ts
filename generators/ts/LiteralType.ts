@@ -68,7 +68,9 @@ export class LiteralType extends RdfjsTermType<Literal> {
 
   override fromRdfResourceValueExpression({
     variables,
-  }: Parameters<Type["fromRdfResourceValueExpression"]>[0]): string {
+  }: Parameters<
+    RdfjsTermType<Literal>["fromRdfResourceValueExpression"]
+  >[0]): string {
     return `${variables.resourceValue}.toLiteral()`;
   }
 

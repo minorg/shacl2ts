@@ -72,17 +72,17 @@ export class ListType extends Type {
     return `(left, right) => purifyHelpers.Arrays.equals(left, right, ${this.itemType.equalsFunction()})`;
   }
 
-  override fromRdfResourceValueExpression({
+  override fromRdfExpression({
     variables,
-  }: Parameters<Type["fromRdfResourceValueExpression"]>[0]): string {
-    return `${variables.resourceValue}.toList().map(values => values.flatMap(value => ${this.itemType.fromRdfResourceValueExpression({ variables: { ...variables, resourceValue: "value" } })}.toMaybe().toList()))`;
+  }: Parameters<Type["fromRdfExpression"]>[0]): string {
+    return `${variables.resourceValues}.head().chain(value => value.toList()).map(values => values.flatMap(value => ${this.itemType.fromRdfExpression({ variables: { ...variables, resourceValues: "value.toValues()" } })}.toMaybe().toList()))`;
   }
 
   override hashStatements({
     variables,
   }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `for (const _element of ${variables.value}) { ${this.itemType.hashStatements({ variables: { ...variables, value: "_element" } }).join("\n")} }`,
+      `for (const element of ${variables.value}) { ${this.itemType.hashStatements({ variables: { ...variables, value: "_element" } }).join("\n")} }`,
     ];
   }
 

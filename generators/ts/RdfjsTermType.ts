@@ -26,19 +26,63 @@ export abstract class RdfjsTermType<
     this.hasValue = hasValue;
   }
 
-  override defaultValueExpression(): Maybe<string> {
-    return this.defaultValue.map((defaultValue) =>
-      rdfjsTermExpression(defaultValue, this.configuration),
-    );
-  }
-
   override equalsFunction(): string {
     return "purifyHelpers.Equatable.booleanEquals";
+  }
+
+  override fromRdfExpression({
+    variables,
+  }: {
+    variables: { predicate: string; resource: string; resourceValues: string };
+  }): string {
+    const chain: string[] = [`${variables.resource}.head()`];
+    this.hasValue.ifJust((hasValue) => {
+      chain.push(
+        `chain<rdfjsResource.Resource.ValueError, ${this.name}>(_identifier => _identifier.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${variables.resource}, predicate: ${variables.predicate})))`,
+      );
+    });
+    this.defaultValue.ifJust((defaultValue) => {
+      chain.push(
+        `alt(purify.Either.of(${rdfjsTermExpression(defaultValue, this.configuration)}))`,
+      );
+    });
+    chain.push(
+      `chain(value => ${this.fromRdfResourceValueExpression({
+        variables: { resourceValue: "value" },
+      })})`,
+    );
+    return chain.join(".");
+  }
+
+  override propertySparqlGraphPatternExpression({
+    variables,
+  }: {
+    variables: { object: string; predicate: string; subject: string };
+  }): Type.SparqlGraphPatternExpression {
+    let expression = super
+      .propertySparqlGraphPatternExpression({
+        variables,
+      })
+      .toSparqlGraphPatternExpression()
+      .toString();
+    if (this.defaultValue.isJust()) {
+      expression = `sparqlBuilder.GraphPattern.optional(${expression})`;
+    }
+    return new Type.SparqlGraphPatternExpression(expression);
   }
 
   override toRdfExpression({
     variables,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
-    return variables.value;
+    return this.defaultValue
+      .map(
+        (defaultValue) =>
+          `!${variables.value}.equals(${rdfjsTermExpression(defaultValue, this.configuration)}) ? ${variables.value} : undefined`,
+      )
+      .orDefault(variables.value);
   }
+
+  protected abstract fromRdfResourceValueExpression({
+    variables,
+  }: { variables: { resourceValue: string } }): string;
 }
