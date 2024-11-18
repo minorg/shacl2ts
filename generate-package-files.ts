@@ -153,7 +153,7 @@ for (const package_ of packages) {
         },
         type: "module",
         types: "index.d.ts",
-        version: "2.0.94",
+        version: VERSION,
       },
       undefined,
       2,
