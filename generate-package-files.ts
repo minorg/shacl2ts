@@ -17,7 +17,6 @@ interface Package {
     external?: Record<string, string>;
     internal?: readonly string[];
   };
-  files?: readonly string[];
   linkableDependencies?: readonly string[];
   name: PackageName;
 }
@@ -102,6 +101,7 @@ for (const package_ of packages) {
   for (const internalDependency of package_.dependencies?.internal ?? []) {
     internalDependencies[`@shaclmate/${internalDependency}`] = VERSION;
   }
+
   const internalDevDependencies: Record<string, string> = {};
   for (const internalDevDependency of package_.devDependencies?.internal ??
     []) {
@@ -111,6 +111,28 @@ for (const package_ of packages) {
   const packageDirectoryPath = path.join(myDirPath, "packages", package_.name);
 
   fs.mkdirSync(packageDirectoryPath, { recursive: true });
+
+  const files = new Set<string>();
+  for (const dirent of fs.readdirSync(packageDirectoryPath, {
+    withFileTypes: true,
+    recursive: true,
+  })) {
+    if (
+      !dirent.name.endsWith(".ts") ||
+      !dirent.isFile() ||
+      dirent.path.startsWith(path.join(packageDirectoryPath, "__tests__"))
+    ) {
+      continue;
+    }
+    for (const fileNameGlob of ["*.js", "*.d.ts"]) {
+      files.add(
+        path.join(
+          path.relative(packageDirectoryPath, dirent.parentPath),
+          fileNameGlob,
+        ),
+      );
+    }
+  }
 
   fs.writeFileSync(
     path.join(packageDirectoryPath, "package.json"),
@@ -125,8 +147,8 @@ for (const package_ of packages) {
           ...internalDevDependencies,
           ...package_.devDependencies?.external,
         },
+        files: [...files].sort(),
         main: "index.js",
-        files: package_.files ?? ["*.d.ts", "*.js"],
         license: "Apache-2.0",
         name: `@shaclmate/${package_.name}`,
         scripts: {
@@ -135,7 +157,7 @@ for (const package_ of packages) {
           "check:write": "biome check --write",
           "check:write:unsafe": "biome check --write --unsafe",
           clean:
-            "rimraf *.d.ts* *.js *.js.map __tests__/*.d.ts* __tests__/*.js __tests__/*.js.map tsconfig.tsbuildinfo",
+            "rimraf -g **/*.d.ts* **/*.js **/*.js.map tsconfig.tsbuildinfo",
           format: "biome format",
           "format:write": "biome format --write",
           "format:write:unsafe": "biome format --write --unsafe",

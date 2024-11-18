@@ -8,11 +8,11 @@
     "pino": "^9.1.0"
   },
   "devDependencies": {},
-  "main": "index.js",
   "files": [
     "*.d.ts",
     "*.js"
   ],
+  "main": "index.js",
   "license": "Apache-2.0",
   "name": "@shaclmate/cli",
   "scripts": {
@@ -20,7 +20,7 @@
     "check": "biome check",
     "check:write": "biome check --write",
     "check:write:unsafe": "biome check --write --unsafe",
-    "clean": "rimraf *.d.ts* *.js *.js.map __tests__/*.d.ts* __tests__/*.js __tests__/*.js.map tsconfig.tsbuildinfo",
+    "clean": "rimraf -g **/*.d.ts* **/*.js **/*.js.map tsconfig.tsbuildinfo",
     "format": "biome format",
     "format:write": "biome format --write",
     "format:write:unsafe": "biome format --write --unsafe",

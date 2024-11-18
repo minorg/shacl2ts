@@ -22,11 +22,23 @@
   "devDependencies": {
     "@shaclmate/runtime": "2.0.12"
   },
-  "main": "index.js",
   "files": [
     "*.d.ts",
-    "*.js"
+    "*.js",
+    "ast/*.d.ts",
+    "ast/*.js",
+    "generators/*.d.ts",
+    "generators/*.js",
+    "generators/json/*.d.ts",
+    "generators/json/*.js",
+    "generators/ts/*.d.ts",
+    "generators/ts/*.js",
+    "generators/ts/_ObjectType/*.d.ts",
+    "generators/ts/_ObjectType/*.js",
+    "vocabularies/*.d.ts",
+    "vocabularies/*.js"
   ],
+  "main": "index.js",
   "license": "Apache-2.0",
   "name": "@shaclmate/compiler",
   "scripts": {
@@ -34,7 +46,7 @@
     "check": "biome check",
     "check:write": "biome check --write",
     "check:write:unsafe": "biome check --write --unsafe",
-    "clean": "rimraf *.d.ts* *.js *.js.map __tests__/*.d.ts* __tests__/*.js __tests__/*.js.map tsconfig.tsbuildinfo",
+    "clean": "rimraf -g **/*.d.ts* **/*.js **/*.js.map tsconfig.tsbuildinfo",
     "format": "biome format",
     "format:write": "biome format --write",
     "format:write:unsafe": "biome format --write --unsafe",
