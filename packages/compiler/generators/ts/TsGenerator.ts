@@ -5,19 +5,19 @@ import {
   StructureKind,
 } from "ts-morph";
 import type * as ast from "../../ast";
-import { Configuration } from "./Configuration.js";
+import { Configuration as GlobalConfiguration } from "./Configuration.js";
 import type { ObjectType } from "./ObjectType.js";
 import { TypeFactory } from "./TypeFactory.js";
 import { tsName } from "./tsName.js";
 
 export class TsGenerator {
-  protected readonly configuration: Configuration;
+  protected readonly configuration: TsGenerator.Configuration;
 
   constructor(
     private ast: ast.Ast,
-    configuration?: Configuration,
+    configuration?: TsGenerator.Configuration,
   ) {
-    this.configuration = configuration ?? new Configuration();
+    this.configuration = configuration ?? new TsGenerator.Configuration();
   }
 
   generate(): string {
@@ -170,4 +170,9 @@ export class TsGenerator {
     }
     sourceFile.addStatements([...typeImportStatements]);
   }
+}
+
+export namespace TsGenerator {
+  export const Configuration = GlobalConfiguration;
+  export type Configuration = GlobalConfiguration;
 }
