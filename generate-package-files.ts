@@ -23,9 +23,10 @@ interface Package {
 }
 
 const externalDependencyVersions = {
-  n3: "^1.21.3",
   "@rdfjs/types": "^1.1.0",
   "@types/n3": "^1.21.1",
+  n3: "^1.21.3",
+  pino: "^9.1.0",
 };
 
 const packages: readonly Package[] = [
@@ -36,6 +37,7 @@ const packages: readonly Package[] = [
     dependencies: {
       external: {
         "cmd-ts": "^0.13.0",
+        pino: externalDependencyVersions["pino"],
       },
       internal: ["compiler"],
     },
@@ -56,6 +58,7 @@ const packages: readonly Package[] = [
         "@types/rdfjs__term-set": "^2.0.9",
         "change-case": "^5.4.4",
         n3: externalDependencyVersions["n3"],
+        pino: externalDependencyVersions["pino"],
         "reserved-identifiers": "^1.0.0",
         "shacl-ast": "2.0.12",
         "ts-invariant": "^0.10.3",

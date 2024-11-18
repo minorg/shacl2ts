@@ -12,6 +12,7 @@
     "@types/rdfjs__term-set": "^2.0.9",
     "change-case": "^5.4.4",
     "n3": "^1.21.3",
+    "pino": "^9.1.0",
     "reserved-identifiers": "^1.0.0",
     "shacl-ast": "2.0.12",
     "ts-invariant": "^0.10.3",
@@ -54,5 +55,5 @@
   },
   "type": "module",
   "types": "index.d.ts",
-  "version": "2.0.94"
+  "version": "2.0.12"
 }

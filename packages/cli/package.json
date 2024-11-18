@@ -4,7 +4,8 @@
   },
   "dependencies": {
     "@shaclmate/compiler": "2.0.12",
-    "cmd-ts": "^0.13.0"
+    "cmd-ts": "^0.13.0",
+    "pino": "^9.1.0"
   },
   "devDependencies": {},
   "main": "index.js",
@@ -40,5 +41,5 @@
   },
   "type": "module",
   "types": "index.d.ts",
-  "version": "2.0.94"
+  "version": "2.0.12"
 }

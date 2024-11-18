@@ -18,7 +18,6 @@ import { ShapesGraphToAstTransformer } from "./ShapesGraphToAstTransformer.js";
 import type { Ast } from "./ast";
 import * as generators from "./generators";
 import { Configuration } from "./generators/ts/Configuration";
-import { logger } from "./logger.js";
 import { dashDataset } from "./vocabularies/dashDataset";
 
 const inputFilePaths = restPositionals({
@@ -26,6 +25,17 @@ const inputFilePaths = restPositionals({
   description: "paths to RDF files containing SHACL shapes",
   type: ExistingPath,
 });
+
+const logger = pino(
+  {
+    level:
+      process.env["NODE_ENV"] === "development" ||
+      process.env["NODE_ENV"] === "test"
+        ? "debug"
+        : "info",
+  },
+  pino["destination"] ? pino.destination(2) : undefined,
+);
 
 const outputFilePath = option({
   defaultValue: () => "",
