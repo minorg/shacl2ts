@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import url from "node:url";
 import { stringify as stringifyYaml } from "yaml";
 
 const VERSION = "2.0.12";
@@ -91,6 +92,8 @@ const packages: readonly Package[] = [
   },
 ];
 
+const myDirPath = path.dirname(url.fileURLToPath(import.meta.url));
+
 for (const package_ of packages) {
   const internalDependencies: Record<string, string> = {};
   for (const internalDependency of package_.dependencies?.internal ?? []) {
@@ -102,7 +105,7 @@ for (const package_ of packages) {
     internalDevDependencies[`@shaclmate/${internalDevDependency}`] = VERSION;
   }
 
-  const packageDirectoryPath = path.join(__dirname, "packages", package_.name);
+  const packageDirectoryPath = path.join(myDirPath, "packages", package_.name);
 
   fs.mkdirSync(packageDirectoryPath, { recursive: true });
 
@@ -158,7 +161,7 @@ for (const package_ of packages) {
   );
 
   for (const fileName of ["biome.json", "LICENSE", "tsconfig.json"]) {
-    // const rootFilePath = path.resolve(__dirname, fileName);
+    // const rootFilePath = path.resolve(myDirPath, fileName);
     const packageFilePath = path.resolve(packageDirectoryPath, fileName);
     if (fs.existsSync(packageFilePath)) {
       continue;
@@ -169,7 +172,7 @@ for (const package_ of packages) {
 
 // Root package.json
 fs.writeFileSync(
-  path.join(__dirname, "package.json"),
+  path.join(myDirPath, "package.json"),
   `${JSON.stringify(
     {
       devDependencies: {
@@ -221,7 +224,7 @@ fs.writeFileSync(
 
 // Continuous Integration workflow file
 fs.writeFileSync(
-  path.join(__dirname, ".github", "workflows", "continuous-integration.yml"),
+  path.join(myDirPath, ".github", "workflows", "continuous-integration.yml"),
   stringifyYaml({
     name: "Continuous Integration",
     on: {
@@ -260,7 +263,7 @@ fs.writeFileSync(
           ...packages
             .filter((package_) =>
               fs.existsSync(
-                path.join(__dirname, "packages", package_.name, "__tests__"),
+                path.join(myDirPath, "packages", package_.name, "__tests__"),
               ),
             )
             .map((package_) => {

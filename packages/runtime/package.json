@@ -1,0 +1,48 @@
+{
+  "dependencies": {
+    "@kos-kit/sparql-builder": "2.0.94",
+    "@rdfjs/types": "^1.1.0",
+    "@types/n3": "^1.21.1",
+    "js-sha256": "^0.11.0",
+    "n3": "^1.21.3",
+    "purify-ts": "^2.1.0",
+    "purify-ts-helpers": "1.0.7",
+    "rdf-literal": "^1.3.2",
+    "rdfjs-resource": "1.0.12"
+  },
+  "devDependencies": {},
+  "main": "index.js",
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
+  "license": "Apache-2.0",
+  "name": "@shaclmate/runtime",
+  "scripts": {
+    "build": "tsc -b",
+    "check": "biome check",
+    "check:write": "biome check --write",
+    "check:write:unsafe": "biome check --write --unsafe",
+    "clean": "rimraf *.d.ts* *.js *.js.map __tests__/*.d.ts* __tests__/*.js __tests__/*.js.map tsconfig.tsbuildinfo",
+    "format": "biome format",
+    "format:write": "biome format --write",
+    "format:write:unsafe": "biome format --write --unsafe",
+    "rebuild": "run-s clean build",
+    "link-dependencies": "npm link purify-ts-helpers rdfjs-resource",
+    "lint": "biome lint",
+    "lint:write": "biome lint --write",
+    "lint:write:unsafe": "biome lint --write --unsafe",
+    "test": "biome check && vitest run",
+    "test:coverage": "biome check && vitest run --coverage",
+    "test:watch": "vitest watch",
+    "unlink": "npm unlink -g @shaclmate/runtime",
+    "watch": "tsc -w --preserveWatchOutput"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/minorg/shaclmate"
+  },
+  "type": "module",
+  "types": "index.d.ts",
+  "version": "2.0.94"
+}

@@ -1,0 +1,58 @@
+{
+  "dependencies": {
+    "@rdfjs/prefix-map": "^0.1.2",
+    "@rdfjs/term-map": "^2.0.2",
+    "@rdfjs/term-set": "^2.0.3",
+    "@rdfjs/types": "^1.1.0",
+    "@sindresorhus/base62": "^0.1.0",
+    "@tpluscode/rdf-ns-builders": "^4.3.0",
+    "@types/n3": "^1.21.1",
+    "@types/rdfjs__prefix-map": "^0.1.5",
+    "@types/rdfjs__term-map": "^2.0.10",
+    "@types/rdfjs__term-set": "^2.0.9",
+    "change-case": "^5.4.4",
+    "n3": "^1.21.3",
+    "reserved-identifiers": "^1.0.0",
+    "shacl-ast": "2.0.12",
+    "ts-invariant": "^0.10.3",
+    "ts-morph": "^24.0.0",
+    "typescript-memoize": "^1.1.1"
+  },
+  "devDependencies": {
+    "@shaclmate/runtime": "2.0.12"
+  },
+  "main": "index.js",
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
+  "license": "Apache-2.0",
+  "name": "@shaclmate/compiler",
+  "scripts": {
+    "build": "tsc -b",
+    "check": "biome check",
+    "check:write": "biome check --write",
+    "check:write:unsafe": "biome check --write --unsafe",
+    "clean": "rimraf *.d.ts* *.js *.js.map __tests__/*.d.ts* __tests__/*.js __tests__/*.js.map tsconfig.tsbuildinfo",
+    "format": "biome format",
+    "format:write": "biome format --write",
+    "format:write:unsafe": "biome format --write --unsafe",
+    "rebuild": "run-s clean build",
+    "link-dependencies": "npm link purify-ts-helpers rdfjs-resource",
+    "lint": "biome lint",
+    "lint:write": "biome lint --write",
+    "lint:write:unsafe": "biome lint --write --unsafe",
+    "test": "biome check && vitest run",
+    "test:coverage": "biome check && vitest run --coverage",
+    "test:watch": "vitest watch",
+    "unlink": "npm unlink -g @shaclmate/compiler",
+    "watch": "tsc -w --preserveWatchOutput"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/minorg/shaclmate"
+  },
+  "type": "module",
+  "types": "index.d.ts",
+  "version": "2.0.94"
+}
