@@ -148,8 +148,8 @@ for (const package_ of packages) {
           ...internalDevDependencies,
           ...package_.devDependencies?.external,
         },
-        files: [...files].sort(),
-        main: "index.js",
+        files: files.size > 0 ? [...files].sort() : undefined,
+        main: files.size > 0 ? "index.js" : undefined,
         license: "Apache-2.0",
         name: `@shaclmate/${package_.name}`,
         scripts: {
