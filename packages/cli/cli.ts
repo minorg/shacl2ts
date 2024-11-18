@@ -1,5 +1,9 @@
 import * as fs from "node:fs";
 import PrefixMap, { type PrefixMapInit } from "@rdfjs/prefix-map/PrefixMap";
+import { ShapesGraphToAstTransformer } from "@shaclmate/compiler/ShapesGraphToAstTransformer.js";
+import type { Ast } from "@shaclmate/compiler/ast";
+import * as generators from "@shaclmate/compiler/generators";
+import { dashDataset } from "@shaclmate/compiler/vocabularies/dashDataset.js";
 import {
   array,
   command,
@@ -13,19 +17,25 @@ import {
 } from "cmd-ts";
 import { ExistingPath } from "cmd-ts/dist/esm/batteries/fs.js";
 import { DataFactory, Parser, Store } from "n3";
+import pino from "pino";
 import { ShapesGraph } from "shacl-ast";
-import { ShapesGraphToAstTransformer } from "./ShapesGraphToAstTransformer.js";
-import type { Ast } from "./ast";
-import * as generators from "./generators";
-import { Configuration } from "./generators/ts/Configuration";
-import { logger } from "./logger.js";
-import { dashDataset } from "./vocabularies/dashDataset";
 
 const inputFilePaths = restPositionals({
   displayName: "inputFilePaths",
   description: "paths to RDF files containing SHACL shapes",
   type: ExistingPath,
 });
+
+const logger = pino(
+  {
+    level:
+      process.env["NODE_ENV"] === "development" ||
+      process.env["NODE_ENV"] === "test"
+        ? "debug"
+        : "info",
+  },
+  pino["destination"] ? pino.destination(2) : undefined,
+);
 
 const outputFilePath = option({
   defaultValue: () => "",
@@ -105,13 +115,17 @@ run(
         description: "generate TypeScript for the SHACL Shapes Graph AST",
         args: {
           dataFactoryImport: option({
-            defaultValue: () => Configuration.Defaults.dataFactoryImport,
+            defaultValue: () =>
+              generators.ts.TsGenerator.Configuration.Defaults
+                .dataFactoryImport,
             description: "import line to get an RDF/JS DataFactory",
             long: "data-factory-import",
             type: string,
           }),
           dataFactoryVariable: option({
-            defaultValue: () => Configuration.Defaults.dataFactoryVariable,
+            defaultValue: () =>
+              generators.ts.TsGenerator.Configuration.Defaults
+                .dataFactoryVariable,
             description: "variable of the RDF/JS DataFactory that was imported",
             long: "data-factory-variable",
             type: string,
@@ -133,13 +147,15 @@ run(
           outputFilePath,
           objectTypeDeclarationType: option({
             defaultValue: () =>
-              Configuration.Defaults.objectTypeDeclarationType,
+              generators.ts.TsGenerator.Configuration.Defaults
+                .objectTypeDeclarationType,
             long: "object-type-declaration-type",
             type: oneOf(["class", "interface"]),
           }),
           objectTypeDiscriminatorPropertyName: option({
             defaultValue: () =>
-              Configuration.Defaults.objectTypeDiscriminatorPropertyName,
+              generators.ts.TsGenerator.Configuration.Defaults
+                .objectTypeDiscriminatorPropertyName,
             description:
               "name of a property to add to generated object types to discriminate them with a string enum",
             long: "object-type-discriminator-property-name",
@@ -147,7 +163,8 @@ run(
           }),
           objectTypeIdentifierPropertyName: option({
             defaultValue: () =>
-              Configuration.Defaults.objectTypeIdentifierPropertyName,
+              generators.ts.TsGenerator.Configuration.Defaults
+                .objectTypeIdentifierPropertyName,
             description:
               "name of a property to add to generated object types to discriminate them with a string enum",
             long: "object-type-discriminator-property-name",
@@ -167,12 +184,14 @@ run(
           writeOutput(
             new generators.ts.TsGenerator(
               readInput(inputFilePaths),
-              new Configuration({
+              new generators.ts.TsGenerator.Configuration({
                 dataFactoryImport,
                 dataFactoryVariable,
-                features: new Set(features) as Configuration["features"],
+                features: new Set(
+                  features,
+                ) as generators.ts.TsGenerator.Configuration["features"],
                 objectTypeDeclarationType:
-                  objectTypeDeclarationType as Configuration["objectTypeDeclarationType"],
+                  objectTypeDeclarationType as generators.ts.TsGenerator.Configuration["objectTypeDeclarationType"],
                 objectTypeDiscriminatorPropertyName,
                 objectTypeIdentifierPropertyName,
               }),

@@ -10,10 +10,10 @@ import {
   type Resource,
 } from "rdfjs-resource";
 import { type ExpectStatic, beforeAll, describe, it } from "vitest";
-import * as mlmClasses from "../../../examples/mlm/generated/classes.js";
-import * as mlmInterfaces from "../../../examples/mlm/generated/interfaces.js";
-import * as skosClasses from "../../../examples/skos/generated/classes.js";
-import * as skosInterfaces from "../../../examples/skos/generated/interfaces.js";
+import * as mlmClasses from "../../../../../examples/mlm/generated/classes.js";
+import * as mlmInterfaces from "../../../../../examples/mlm/generated/interfaces.js";
+import * as skosClasses from "../../../../../examples/skos/generated/classes.js";
+import * as skosInterfaces from "../../../../../examples/skos/generated/interfaces.js";
 
 describe("TsGenerator", () => {
   let mlmLanguageModel: mlmClasses.LanguageModel;
