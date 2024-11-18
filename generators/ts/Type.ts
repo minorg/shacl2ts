@@ -1,8 +1,6 @@
-import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import type * as ast from "../../ast";
 import type { Configuration } from "./Configuration.js";
-import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
 export abstract class Type {
   abstract readonly kind: ast.Type["kind"] | "ListType";
@@ -18,92 +16,154 @@ export abstract class Type {
   }
 
   /**
-   * Array of (additional) type names that can be converted to this type.
+   * Expressions that convert a source type or types to this type. It should include the type itself.
    */
-  get convertibleFromTypeNames(): readonly string[] {
-    return [this.name];
+  get conversions(): readonly Type.Conversion[] {
+    return [
+      {
+        conversionExpression: (value) => value,
+        sourceTypeName: this.name,
+      },
+    ];
   }
 
+  /**
+   * A property that discriminates sub-types of this type e.g., termType on RDF/JS terms.
+   */
   get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
     return Maybe.empty();
   }
 
+  /**
+   * Imports used by other methods on this type.
+   */
   get importStatements(): readonly string[] {
     return [];
   }
 
   /**
-   * An expression that converts any of the convertible-from type names to this type.
+   * An optional sparqlBuilder.GraphPattern expression that's chained to the object of another pattern, such as a list item.
+   *
+   * If the type is e.g., an RDF/JS term it won't have additional graph patterns beyond the basic (s, p, o), and this
+   * method will return nothing.
    */
-  convertToExpression(_: { valueVariable: string }): Maybe<string> {
+  chainSparqlGraphPatternExpression(_: {
+    variables: {
+      subject: string;
+    };
+  }): Maybe<
+    Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression
+  > {
     return Maybe.empty();
   }
 
   /**
-   * Convert a default value from an RDF/JS term into an expression that can be used in an initializer.
-   */
-  defaultValueExpression(
-    defaultValue: BlankNode | Literal | NamedNode,
-  ): string {
-    return rdfjsTermExpression(defaultValue, this.configuration);
-  }
-
-  /**
-   * A function (reference or declaration) that conforms to purifyHelpers.Equatable.Equatable.
+   * A function (reference or declaration) that compares two values of this type, returning a
+   * purifyHelpers.Equatable.EqualsResult.
    */
   abstract equalsFunction(): string;
 
   /**
-   * An expression that converts a rdfjsResource.Resource.Value to a value of this type.
+   * An expression that converts a rdfjsResource.Resource.Values to an Either of value/values
+   * of this type.
    */
   abstract fromRdfExpression(parameters: {
-    resourceValueVariable: string;
-    resourceVariable: string;
+    variables: {
+      predicate: string;
+      resource: string;
+      resourceValues: string;
+    };
   }): string;
 
+  /**
+   * Statements that use hasher.update to hash a value of this type.
+   */
   abstract hashStatements(parameters: {
-    hasherVariable: string;
-    valueVariable: string;
+    variables: {
+      hasher: string;
+      value: string;
+    };
   }): readonly string[];
 
   /**
-   * An optional sparqlBuilder.GraphPattern to chain to the basic pattern for a property.
+   * An sparqlBuilder.GraphPattern expression for a property, typically building a basic graph pattern.
    */
-  abstract sparqlGraphPatternExpression(parameters: {
-    subjectVariable: string;
-  }): Maybe<Type.SparqlGraphPatternExpression>;
+  propertySparqlGraphPatternExpression({
+    variables,
+  }: {
+    variables: {
+      object: string;
+      predicate: string;
+      subject: string;
+    };
+  }): Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression {
+    let expression = `sparqlBuilder.GraphPattern.basic(${variables.subject}, ${variables.predicate}, ${variables.object})`;
+    this.chainSparqlGraphPatternExpression({
+      variables: { subject: "object" },
+    }).ifJust((chainSparqlGraphPatternExpression) => {
+      expression = `sparqlBuilder.GraphPattern.group(${expression}.chainObject(object => ${chainSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()}))`;
+    });
+    return new Type.SparqlGraphPatternExpression(expression);
+  }
 
   /**
-   * An expression that converts a value of this type to an rdfjs.TermType that can be added to
+   * An expression that converts a value of this type to one that that can be .add'd to
    * an rdfjsResource.Resource.
    */
   abstract toRdfExpression(parameters: {
-    mutateGraphVariable: string;
-    resourceSetVariable: string;
-    valueVariable: string;
+    variables: {
+      predicate: string;
+      mutateGraph: string;
+      resource: string;
+      resourceSet: string;
+      value: string;
+    };
   }): string;
-
-  /**
-   * An expression that evaluates to a boolean if the given value is not the default value.
-   */
-  valueIsNotDefaultExpression({
-    defaultValue,
-    valueVariable,
-  }: {
-    defaultValue: BlankNode | Literal | NamedNode;
-    valueVariable: string;
-  }) {
-    return `!${valueVariable}.equals(${rdfjsTermExpression(defaultValue, this.configuration)})`;
-  }
 }
 
 export namespace Type {
+  export interface Conversion {
+    readonly conversionExpression: (value: string) => string;
+    readonly sourceTypeCheckExpression?: (value: string) => string;
+    readonly sourceTypeName: string;
+  }
+
   export interface DiscriminatorProperty {
     readonly name: string;
     readonly values: readonly string[];
   }
 
-  export type SparqlGraphPatternExpression =
-    | { type: "GraphPattern"; value: string }
-    | { type: "GraphPatterns"; value: string };
+  export class SparqlGraphPatternExpression {
+    constructor(private readonly value: string) {}
+
+    toSparqlGraphPatternExpression() {
+      return this;
+    }
+
+    toSparqlGraphPatternsExpression() {
+      return new SparqlGraphPatternExpression(`[${this.value}]`);
+    }
+
+    toString() {
+      return this.value;
+    }
+  }
+
+  export class SparqlGraphPatternsExpression {
+    constructor(private readonly value: string) {}
+
+    toSparqlGraphPatternExpression() {
+      return new SparqlGraphPatternExpression(
+        `sparqlBuilder.GraphPattern.group(${this.value})`,
+      );
+    }
+
+    toSparqlGraphPatternsExpression() {
+      return this;
+    }
+
+    toString() {
+      return this.value;
+    }
+  }
 }

@@ -34,8 +34,10 @@ export function hashFunctionDeclaration(
   for (const property of this.properties) {
     const propertyValueVariable = `${thisVariable}.${property.name}`;
     const propertyHashStatements = property.hashStatements({
-      hasherVariable,
-      valueVariable: propertyValueVariable,
+      variables: {
+        hasher: hasherVariable,
+        value: propertyValueVariable,
+      },
     });
 
     if (propertyHashStatements.length === 0) {
@@ -44,11 +46,7 @@ export function hashFunctionDeclaration(
     }
 
     if (property.name === this.configuration.objectTypeIdentifierPropertyName) {
-      if (this.parentObjectTypes.length === 0) {
-        statements.push(
-          `if (typeof ${propertyValueVariable} !== "undefined") { ${propertyHashStatements.join("\n")} }`,
-        );
-      }
+      // Don't hash the identifier since we may be using hash to calculate the identifier, leading to infinite recursion
       continue;
     }
 
@@ -67,7 +65,7 @@ export function hashFunctionDeclaration(
     parameters: [
       {
         name: thisVariable,
-        type: `Omit<${this.name}, ${omitPropertyNames.map((propertyName) => `"${propertyName}"`).join(" | ")}> & { ${this.configuration.objectTypeIdentifierPropertyName}?: ${this.identifierType.name} }`,
+        type: `Omit<${this.name}, ${omitPropertyNames.map((propertyName) => `"${propertyName}"`).join(" | ")}>`,
       },
       {
         name: hasherVariable,

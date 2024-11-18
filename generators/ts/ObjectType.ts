@@ -3,7 +3,6 @@ import { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
 import { MintingStrategy } from "../../ast";
 import type { IdentifierType } from "./IdentifierType.js";
-import type { RdfjsTermType } from "./RdfjsTermType";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType";
 
@@ -71,8 +70,15 @@ export class ObjectType extends Type {
     return this.lazyAncestorObjectTypes();
   }
 
-  override get convertibleFromTypeNames(): readonly string[] {
-    return [this.name];
+  override get conversions(): readonly Type.Conversion[] {
+    return [
+      {
+        conversionExpression: (value) => value,
+        sourceTypeCheckExpression: (value) =>
+          `typeof ${value} === "object" && ${value} instanceof ${this.name}`,
+        sourceTypeName: this.name,
+      },
+    ];
   }
 
   @Memoize()
@@ -139,11 +145,15 @@ export class ObjectType extends Type {
     return properties;
   }
 
-  override convertToExpression({
-    valueVariable,
-  }: { valueVariable: string }): Maybe<string> {
+  override chainSparqlGraphPatternExpression({
+    variables,
+  }: Parameters<
+    Type["chainSparqlGraphPatternExpression"]
+  >[0]): Maybe<Type.SparqlGraphPatternsExpression> {
     return Maybe.of(
-      `${valueVariable} instanceof ${this.name} ? ${valueVariable} : new ${this.name}(${valueVariable})`,
+      new Type.SparqlGraphPatternsExpression(
+        `new ${this.name}.SparqlGraphPatterns(${variables.subject})`,
+      ),
     );
   }
 
@@ -157,17 +167,16 @@ export class ObjectType extends Type {
   }
 
   override fromRdfExpression({
-    resourceValueVariable,
+    variables,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `${resourceValueVariable}.to${this.rdfjsResourceType().named ? "Named" : ""}Resource().chain(resource => ${this.name}.fromRdf(resource))`;
+    return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(resource => ${this.name}.fromRdf(resource))`;
   }
 
   override hashStatements({
-    hasherVariable,
-    valueVariable,
-  }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
+    variables,
+  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `${this.name}.${this.hashFunctionName}(${valueVariable}, ${hasherVariable});`,
+      `${this.name}.${this.hashFunctionName}(${variables.value}, ${variables.hasher});`,
     ];
   }
 
@@ -187,27 +196,14 @@ export class ObjectType extends Type {
     };
   }
 
-  override sparqlGraphPatternExpression({
-    subjectVariable,
-  }: Parameters<
-    Type["sparqlGraphPatternExpression"]
-  >[0]): Maybe<Type.SparqlGraphPatternExpression> {
-    return Maybe.of({
-      type: "GraphPatterns",
-      value: `new ${this.name}.SparqlGraphPatterns(${subjectVariable})`,
-    });
-  }
-
   override toRdfExpression({
-    mutateGraphVariable,
-    resourceSetVariable,
-    valueVariable,
+    variables,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
     switch (this.configuration.objectTypeDeclarationType) {
       case "class":
-        return `${valueVariable}.toRdf({ mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
+        return `${variables.value}.toRdf({ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier`;
       case "interface":
-        return `${this.name}.toRdf(${valueVariable}, { mutateGraph: ${mutateGraphVariable}, resourceSet: ${resourceSetVariable} }).identifier`;
+        return `${this.name}.toRdf(${variables.value}, { mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier`;
     }
   }
 
@@ -224,7 +220,7 @@ export namespace ObjectType {
   export const IdentifierProperty = _ObjectType.IdentifierProperty;
   export type IdentifierProperty = _ObjectType.IdentifierProperty;
   export const Property = _ObjectType.Property;
-  export type Property = _ObjectType.Property;
+  export type Property = _ObjectType.Property<any>;
   export const ShaclProperty = _ObjectType.ShaclProperty;
   export type ShaclProperty = _ObjectType.ShaclProperty;
   export const TypeDiscriminatorProperty =

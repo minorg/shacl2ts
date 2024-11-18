@@ -2,6 +2,7 @@ import { rdf } from "@tpluscode/rdf-ns-builders";
 import {
   type ClassDeclarationStructure,
   type ConstructorDeclarationStructure,
+  type GetAccessorDeclarationStructure,
   type MethodDeclarationStructure,
   type OptionalKind,
   type PropertyDeclarationStructure,
@@ -9,64 +10,46 @@ import {
   StructureKind,
 } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
-import { IdentifierProperty } from "./IdentifierProperty.js";
 import { hasherTypeConstraint } from "./hashFunctionDeclaration.js";
 
 function constructorDeclaration(
   this: ObjectType,
-): OptionalKind<ConstructorDeclarationStructure> {
+): OptionalKind<ConstructorDeclarationStructure> | null {
+  if (this.properties.length === 0) {
+    return null;
+  }
+
   const statements: (string | StatementStructures)[] = [];
 
-  const mintIdentifier = IdentifierProperty.classConstructorMintExpression({
-    mintingStrategy: this.mintingStrategy,
-    objectType: this,
-  });
-
   if (this.parentObjectTypes.length > 0) {
-    if (mintIdentifier.isJust()) {
-      // Have to mint the identifier in the subclass being instantiated in case the minting needs to hash all members
-      statements.push(
-        `super({...parameters, ${this.configuration.objectTypeIdentifierPropertyName}: parameters.${this.configuration.objectTypeIdentifierPropertyName} ?? ${mintIdentifier.unsafeCoerce()} });`,
-      );
-    } else {
-      statements.push("super(parameters);");
-    }
+    statements.push("super(parameters);");
   }
   for (const property of this.properties) {
-    property
-      .classConstructorInitializerExpression({
-        objectType: this,
-        parameter: `parameters.${property.name}`,
-      })
-      .ifJust((classConstructorInitializer) =>
-        statements.push(
-          `this.${property.name} = ${classConstructorInitializer};`,
-        ),
-      );
+    for (const statement of property.classConstructorStatements({
+      variables: { parameter: `parameters.${property.name}` },
+    })) {
+      statements.push(statement);
+    }
   }
 
-  let constructorParametersType = `{ ${this.properties
-    .flatMap((property) => {
-      return property.classConstructorParametersPropertySignature
+  const constructorParameterPropertySignatures = this.properties.flatMap(
+    (property) =>
+      property.classConstructorParametersPropertySignature
         .map(
           (propertySignature) =>
             `readonly ${propertySignature.name}${propertySignature.hasQuestionToken ? "?" : ""}: ${propertySignature.type}`,
         )
-        .toList();
-    })
-    .join(", ")} }`;
+        .toList(),
+  );
+  if (constructorParameterPropertySignatures.length === 0) {
+    return null;
+  }
+
+  let constructorParametersType = `{ ${constructorParameterPropertySignatures.join(
+    ", ",
+  )} }`;
   if (this.parentObjectTypes.length > 0) {
-    let parentConstructorParametersType = `ConstructorParameters<typeof ${this.parentObjectTypes[0].name}>[0]`;
-    if (mintIdentifier.isJust()) {
-      // If identifier is not specified we're always going to mint it in the subclass, so we can ignore
-      // the type of the parent's identifier.
-      parentConstructorParametersType = `Omit<${parentConstructorParametersType}, "${this.configuration.objectTypeIdentifierPropertyName}">`;
-    }
-    constructorParametersType = `${constructorParametersType} & ${parentConstructorParametersType}`;
-    if (mintIdentifier.isJust()) {
-      // See note above.
-      constructorParametersType = `${constructorParametersType} & { ${this.configuration.objectTypeIdentifierPropertyName}?: ${this.identifierType.name} }`;
-    }
+    constructorParametersType = `${constructorParametersType} & ConstructorParameters<typeof ${this.parentObjectTypes[0].name}>[0]`;
   }
 
   return {
@@ -83,6 +66,8 @@ function constructorDeclaration(
 export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
   this.ensureAtMostOneSuperObjectType();
 
+  const constructorDeclaration_ = constructorDeclaration.bind(this)();
+
   const methods: OptionalKind<MethodDeclarationStructure>[] = [];
   if (this.configuration.features.has("equals")) {
     methods.push(equalsMethodDeclaration.bind(this)());
@@ -94,18 +79,23 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
     methods.push(toRdfMethodDeclaration.bind(this)());
   }
 
-  const properties: OptionalKind<PropertyDeclarationStructure>[] =
-    this.properties.map((property) => property.classPropertyDeclaration);
+  const getAccessors: OptionalKind<GetAccessorDeclarationStructure>[] = [];
+  const properties: OptionalKind<PropertyDeclarationStructure>[] = [];
+  for (const property of this.properties) {
+    properties.push(property.classPropertyDeclaration);
+    property.classGetAccessorDeclaration.ifJust((getAccessor) =>
+      getAccessors.push(getAccessor),
+    );
+  }
 
   return {
     ctors:
-      this.properties.length > 0
-        ? [constructorDeclaration.bind(this)()]
-        : undefined,
+      constructorDeclaration_ !== null ? [constructorDeclaration_] : undefined,
     extends:
       this.parentObjectTypes.length > 0
         ? this.parentObjectTypes[0].name
         : undefined,
+    getAccessors,
     isAbstract: this.abstract,
     kind: StructureKind.Class,
     isExported: this.export_,
@@ -165,32 +155,34 @@ function hashMethodDeclaration(
 function toRdfMethodDeclaration(
   this: ObjectType,
 ): OptionalKind<MethodDeclarationStructure> {
-  const ignoreRdfTypeVariable = "ignoreRdfType";
-  const mutateGraphVariable = "mutateGraph";
-  const resourceVariable = "resource";
-  const resourceSetVariable = "resourceSet";
+  const variables = {
+    ignoreRdfType: "ignoreRdfType",
+    mutateGraph: "mutateGraph",
+    resource: "resource",
+    resourceSet: "resourceSet",
+  };
 
   let usedIgnoreRdfTypeVariable = false;
 
   const statements: string[] = [];
   if (this.parentObjectTypes.length > 0) {
     statements.push(
-      `const ${resourceVariable} = super.toRdf({ ${mutateGraphVariable}, ${ignoreRdfTypeVariable}: true, ${resourceSetVariable} });`,
+      `const ${variables.resource} = super.toRdf({ ${variables.mutateGraph}, ${variables.ignoreRdfType}: true, ${variables.resourceSet} });`,
     );
     usedIgnoreRdfTypeVariable = true;
   } else if (this.identifierType.isNamedNodeKind) {
     statements.push(
-      `const ${resourceVariable} = ${resourceSetVariable}.mutableNamedResource({ identifier: this.${this.configuration.objectTypeIdentifierPropertyName}, ${mutateGraphVariable} });`,
+      `const ${variables.resource} = ${variables.resourceSet}.mutableNamedResource({ identifier: this.${this.configuration.objectTypeIdentifierPropertyName}, ${variables.mutateGraph} });`,
     );
   } else {
     statements.push(
-      `const ${resourceVariable} = ${resourceSetVariable}.mutableResource({ identifier: this.${this.configuration.objectTypeIdentifierPropertyName}, ${mutateGraphVariable} });`,
+      `const ${variables.resource} = ${variables.resourceSet}.mutableResource({ identifier: this.${this.configuration.objectTypeIdentifierPropertyName}, ${variables.mutateGraph} });`,
     );
   }
 
   this.rdfType.ifJust((rdfType) => {
     statements.push(
-      `if (!${ignoreRdfTypeVariable}) { ${resourceVariable}.add(${resourceVariable}.dataFactory.namedNode("${rdf.type.value}"), ${resourceVariable}.dataFactory.namedNode("${rdfType.value}")); }`,
+      `if (!${variables.ignoreRdfType}) { ${variables.resource}.add(${variables.resource}.dataFactory.namedNode("${rdf.type.value}"), ${variables.resource}.dataFactory.namedNode("${rdfType.value}")); }`,
     );
     usedIgnoreRdfTypeVariable = true;
   });
@@ -198,22 +190,20 @@ function toRdfMethodDeclaration(
   for (const property of this.properties) {
     statements.push(
       ...property.toRdfStatements({
-        mutateGraphVariable,
-        valueVariable: `this.${property.name}`,
-        resourceSetVariable,
+        variables: { ...variables, value: `this.${property.name}` },
       }),
     );
   }
 
-  statements.push(`return ${resourceVariable};`);
+  statements.push(`return ${variables.resource};`);
 
   return {
     hasOverrideKeyword: this.parentObjectTypes.length > 0,
     name: "toRdf",
     parameters: [
       {
-        name: `{ ${usedIgnoreRdfTypeVariable ? `${ignoreRdfTypeVariable},` : ""} ${mutateGraphVariable}, ${resourceSetVariable} }`,
-        type: `{ ${ignoreRdfTypeVariable}?: boolean; ${mutateGraphVariable}: rdfjsResource.MutableResource.MutateGraph, ${resourceSetVariable}: rdfjsResource.MutableResourceSet }`,
+        name: `{ ${usedIgnoreRdfTypeVariable ? `${variables.ignoreRdfType},` : ""} ${variables.mutateGraph}, ${variables.resourceSet} }`,
+        type: `{ ${variables.ignoreRdfType}?: boolean; ${variables.mutateGraph}: rdfjsResource.MutableResource.MutateGraph, ${variables.resourceSet}: rdfjsResource.MutableResourceSet }`,
       },
     ],
     returnType: this.rdfjsResourceType({ mutable: true }).name,

@@ -2,12 +2,52 @@ import type { Literal } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type";
+import { rdfjsTermExpression } from "./rdfjsTermExpression";
 
-export class LiteralType extends RdfjsTermType {
+export class LiteralType extends RdfjsTermType<Literal> {
   readonly kind = "LiteralType";
 
-  override get convertibleFromTypeNames(): readonly string[] {
-    return [this.name, "boolean", "Date", "number", "string"];
+  override get conversions(): readonly Type.Conversion[] {
+    const conversions: Type.Conversion[] = [];
+
+    conversions.push({
+      conversionExpression: (value) => `rdfLiteral.toRdf(${value})`,
+      sourceTypeName: "boolean",
+    });
+
+    conversions.push({
+      conversionExpression: (value) => `rdfLiteral.toRdf(${value})`,
+      sourceTypeCheckExpression: (value) =>
+        `typeof ${value} === "object" && ${value} instanceof Date`,
+      sourceTypeName: "Date",
+    });
+
+    conversions.push({
+      conversionExpression: (value) => `rdfLiteral.toRdf(${value})`,
+      sourceTypeName: "number",
+    });
+
+    conversions.push({
+      conversionExpression: (value) =>
+        `${this.configuration.dataFactoryVariable}.literal(${value})`,
+      sourceTypeName: "string",
+    });
+
+    this.defaultValue.ifJust((defaultValue) => {
+      conversions.push({
+        conversionExpression: () =>
+          rdfjsTermExpression(defaultValue, this.configuration),
+        sourceTypeName: "undefined",
+      });
+    });
+
+    conversions.push({
+      conversionExpression: (value) => value,
+      sourceTypeCheckExpression: (value) => `typeof ${value} === "object"`,
+      sourceTypeName: this.name,
+    });
+
+    return conversions;
   }
 
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
@@ -26,24 +66,19 @@ export class LiteralType extends RdfjsTermType {
     return "rdfjs.Literal";
   }
 
-  override convertToExpression({
-    valueVariable,
-  }: { valueVariable: string }): Maybe<string> {
-    return Maybe.of(
-      `(typeof ${valueVariable} === "object" && !(${valueVariable} instanceof Date)) ? ${valueVariable} : rdfLiteral.toRdf(${valueVariable}, ${this.configuration.dataFactoryVariable})`,
-    );
-  }
-
-  override fromRdfExpression({
-    resourceValueVariable,
-  }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `${resourceValueVariable}.toLiteral()`;
+  override fromRdfResourceValueExpression({
+    variables,
+  }: Parameters<
+    RdfjsTermType<Literal>["fromRdfResourceValueExpression"]
+  >[0]): string {
+    return `${variables.resourceValue}.toLiteral()`;
   }
 
   override hashStatements({
-    hasherVariable,
-    valueVariable,
-  }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
-    return [`${hasherVariable}.update(${valueVariable}.value);`];
+    variables,
+  }: Parameters<
+    RdfjsTermType<Literal>["hashStatements"]
+  >[0]): readonly string[] {
+    return [`${variables.hasher}.update(${variables.value}.value);`];
   }
 }

@@ -5,5 +5,5 @@ import type { Type } from "./Type.js";
  */
 export interface UnionType {
   readonly kind: "UnionType";
-  readonly types: readonly Type[];
+  readonly memberTypes: readonly Type[];
 }

@@ -1,51 +1,28 @@
 import type * as rdfjs from "@rdfjs/types";
-import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { pascalCase } from "change-case";
 import { Maybe } from "purify-ts";
-import { invariant } from "ts-invariant";
 import type {
+  GetAccessorDeclarationStructure,
   OptionalKind,
   PropertyDeclarationStructure,
   PropertySignatureStructure,
 } from "ts-morph";
 import { Memoize } from "typescript-memoize";
 import type { Type } from "../Type.js";
-import { rdfjsTermExpression } from "../rdfjsTermExpression";
 import { Property } from "./Property.js";
 
-type ContainerType = "Array" | "Maybe" | null;
-
-export class ShaclProperty extends Property {
-  readonly type: Type;
-  private readonly defaultValue: Maybe<BlankNode | Literal | NamedNode>;
-  private readonly hasValue: Maybe<BlankNode | Literal | NamedNode>;
-  private readonly maxCount: Maybe<number>;
-  private readonly minCount: number;
+export class ShaclProperty extends Property<Type> {
   private readonly path: rdfjs.NamedNode;
 
   constructor({
-    defaultValue,
-    hasValue,
-    maxCount,
-    minCount,
     path,
-    type,
     ...superParameters
   }: {
-    defaultValue: Maybe<BlankNode | Literal | NamedNode>;
-    hasValue: Maybe<BlankNode | Literal | NamedNode>;
-    maxCount: Maybe<number>;
-    minCount: number;
     path: rdfjs.NamedNode;
     type: Type;
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
-    this.defaultValue = defaultValue;
-    this.hasValue = hasValue;
-    this.maxCount = maxCount;
-    this.minCount = minCount;
     this.path = path;
-    this.type = type;
   }
 
   override get classConstructorParametersPropertySignature(): Maybe<
@@ -53,37 +30,11 @@ export class ShaclProperty extends Property {
   > {
     let hasQuestionToken = false;
     const typeNames = new Set<string>(); // Remove duplicates with a set
-
-    switch (this.containerType) {
-      case "Array": {
-        hasQuestionToken = true; // Allow undefined
-        typeNames.add(this.typeName);
-        break;
-      }
-      case "Maybe": {
-        hasQuestionToken = true; // Allow undefined
-
-        // Allow Maybe<string> | string
-        typeNames.add(
-          `purify.Maybe<${this.type.convertibleFromTypeNames.join("|")}>`,
-        );
-        for (const typeName of this.type.convertibleFromTypeNames) {
-          typeNames.add(typeName);
-        }
-        break;
-      }
-      case null: {
-        if (this.defaultValue.isJust()) {
-          // Required property with default value
-          // Allow undefined
-          // Could also support Maybe here but why bother?
-          hasQuestionToken = true;
-        }
-        typeNames.add(this.typeName);
-        for (const typeName of this.type.convertibleFromTypeNames) {
-          typeNames.add(typeName);
-        }
-        break;
+    for (const conversion of this.type.conversions) {
+      if (conversion.sourceTypeName === "undefined") {
+        hasQuestionToken = true;
+      } else {
+        typeNames.add(conversion.sourceTypeName);
       }
     }
 
@@ -95,37 +46,22 @@ export class ShaclProperty extends Property {
     });
   }
 
+  override get classGetAccessorDeclaration(): Maybe<
+    OptionalKind<GetAccessorDeclarationStructure>
+  > {
+    return Maybe.empty();
+  }
+
   override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
     return {
       isReadonly: true,
       name: this.name,
-      type: this.typeName,
+      type: this.type.name,
     };
   }
 
-  // biome-ignore lint/suspicious/useGetterReturn: <explanation>
   override get equalsFunction(): string {
-    const typeEqualsFunction = this.type.equalsFunction();
-    const signature = "(left, right)";
-    switch (this.containerType) {
-      case "Array": {
-        if (typeEqualsFunction === "purifyHelpers.Equatable.equals") {
-          return "purifyHelpers.Equatable.arrayEquals";
-        }
-        return `${signature} => purifyHelpers.Arrays.equals(left, right, ${typeEqualsFunction})`;
-      }
-      case "Maybe": {
-        if (typeEqualsFunction === "purifyHelpers.Equatable.equals") {
-          return "purifyHelpers.Equatable.maybeEquals";
-        }
-        if (typeEqualsFunction === "purifyHelpers.Equatable.strictEquals") {
-          return `${signature} => left.equals(right)`; // Use Maybe.equals
-        }
-        return `${signature} => purifyHelpers.Maybes.equals(left, right, ${typeEqualsFunction})`;
-      }
-      case null:
-        return typeEqualsFunction;
-    }
+    return this.type.equalsFunction();
   }
 
   override get importStatements(): readonly string[] {
@@ -136,20 +72,8 @@ export class ShaclProperty extends Property {
     return {
       isReadonly: true,
       name: this.name,
-      type: this.typeName,
+      type: this.type.name,
     };
-  }
-
-  @Memoize()
-  private get containerType(): ContainerType {
-    const maxCount = this.maxCount.extractNullable();
-    if (this.minCount === 0 && maxCount === 1) {
-      return this.defaultValue.isJust() ? null : "Maybe";
-    }
-    if (this.minCount === 1 && maxCount === 1) {
-      return null;
-    }
-    return "Array";
   }
 
   @Memoize()
@@ -157,177 +81,68 @@ export class ShaclProperty extends Property {
     return `${this.configuration.dataFactoryVariable}.namedNode("${this.path.value}")`;
   }
 
-  private get typeName(): string {
-    switch (this.containerType) {
-      case "Array":
-        return `readonly (${this.type.name})[]`;
-      case "Maybe":
-        return `purify.Maybe<${this.type.name}>`;
-      case null:
-        return this.type.name;
-      default:
-        throw new Error("should never reach this");
-    }
-  }
-
-  override classConstructorInitializerExpression({
-    parameter,
+  override classConstructorStatements({
+    variables,
   }: Parameters<
-    Property["classConstructorInitializerExpression"]
-  >[0]): Maybe<string> {
-    switch (this.containerType) {
-      case "Array": {
-        // Don't try to do conversions or default value here
-        return Maybe.of(
-          `(typeof ${parameter} !== "undefined" ? ${parameter} : [])`,
-        );
-      }
-      case "Maybe": {
-        let expression = `purify.Maybe.isMaybe(${parameter}) ? ${parameter} : purify.Maybe.fromNullable(${parameter})`;
-        this.type
-          .convertToExpression({ valueVariable: "value" })
-          .ifJust((convertToExpression) => {
-            expression = `(${expression}).map(value => ${convertToExpression})`;
-          });
-        this.defaultValue.ifJust((defaultValue) => {
-          expression = `(${expression}).orDefault(${this.type.defaultValueExpression(defaultValue)})`;
-        });
-        return Maybe.of(expression);
-      }
-      case null: {
-        let expression = this.type
-          .convertToExpression({ valueVariable: parameter })
-          .orDefault(parameter);
-        this.defaultValue.ifJust((defaultValue) => {
-          expression = `typeof ${parameter} !== "undefined" ? (${expression}) : ${this.type.defaultValueExpression(defaultValue)}`;
-        });
-        return Maybe.of(expression);
-      }
+    Property<Type>["classConstructorStatements"]
+  >[0]): readonly string[] {
+    const typeConversions = this.type.conversions;
+    if (typeConversions.length === 1) {
+      return [`this.${this.name} = ${variables.parameter};`];
     }
+    const statements: string[] = [];
+    for (const conversion of this.type.conversions) {
+      statements.push(
+        `if (${conversion.sourceTypeCheckExpression ? conversion.sourceTypeCheckExpression(variables.parameter) : `typeof ${variables.parameter} === "${conversion.sourceTypeName}"`}) { this.${this.name} = ${conversion.conversionExpression(variables.parameter)}; }`,
+      );
+    }
+    // We shouldn't need this else, since the parameter now has the never type, but have to add it to appease the TypeScript compiler
+    statements.push(
+      `{ this.${this.name} = ${variables.parameter}; // never\n }`,
+    );
+    return [statements.join(" else ")];
   }
 
   override fromRdfStatements({
-    resourceVariable,
-  }: Parameters<Property["fromRdfStatements"]>[0]): readonly string[] {
-    const resourceValueVariable = "value";
-    let valueFromRdfExpression = this.type.fromRdfExpression({
-      resourceVariable,
-      resourceValueVariable,
-    });
-
-    if (this.containerType === "Array") {
-      return [
-        `const ${this.name} = [...${resourceVariable}.values(${this.pathExpression}, { unique: true }).flatMap(${resourceValueVariable} => (${valueFromRdfExpression}).toMaybe().toList())];`,
-      ];
-    }
-
-    valueFromRdfExpression = `${resourceVariable}.value(${this.pathExpression}).chain(${resourceValueVariable} => ${valueFromRdfExpression})`;
-    this.hasValue.ifJust((hasValue) => {
-      valueFromRdfExpression = `${valueFromRdfExpression}.chain<rdfjsResource.Resource.ValueError, ${this.type.name}>(_identifier => _identifier.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${resourceVariable}, predicate: ${rdfjsTermExpression(this.path, this.configuration)} })))`;
-    });
-
-    switch (this.containerType) {
-      case "Maybe":
-        invariant(!this.defaultValue.isJust());
-        valueFromRdfExpression = `${valueFromRdfExpression}.toMaybe()`;
-        return [`const ${this.name} = ${valueFromRdfExpression};`];
-      case null:
-        if (this.defaultValue.isJust()) {
-          const defaultValueExpression = this.type.defaultValueExpression(
-            this.defaultValue.unsafeCoerce(),
-          );
-          return [
-            `const ${this.name} = ${valueFromRdfExpression}.orDefault(${defaultValueExpression});`,
-          ];
-        }
-
-        return [
-          `const _${this.name}Either = ${valueFromRdfExpression};`,
-          `if (_${this.name}Either.isLeft()) { return _${this.name}Either; }`,
-          `const ${this.name} = _${this.name}Either.unsafeCoerce();`,
-        ];
-    }
+    variables,
+  }: Parameters<Property<Type>["fromRdfStatements"]>[0]): readonly string[] {
+    return [
+      `const _${this.name}Either: purify.Either<rdfjsResource.Resource.ValueError, ${this.type.name}> = ${this.type.fromRdfExpression({ variables: { ...variables, predicate: this.pathExpression, resourceValues: `${variables.resource}.values(${this.pathExpression}, { unique: true })` } })};`,
+      `if (_${this.name}Either.isLeft()) { return _${this.name}Either; }`,
+      `const ${this.name} = _${this.name}Either.unsafeCoerce();`,
+    ];
   }
 
-  override hashStatements({
-    hasherVariable,
-    valueVariable,
-  }: Parameters<Property["hashStatements"]>[0]): readonly string[] {
-    switch (this.containerType) {
-      case "Array":
-        return [
-          `for (const _element of ${valueVariable}) { ${this.type
-            .hashStatements({
-              hasherVariable,
-              valueVariable: "_element",
-            })
-            .join("\n")} }`,
-        ];
-      case "Maybe": {
-        return [
-          `${valueVariable}.ifJust((_${this.name}) => { ${this.type
-            .hashStatements({
-              hasherVariable,
-              valueVariable: `_${this.name}`,
-            })
-            .join("\n")} })`,
-        ];
-      }
-      case null:
-        return this.type.hashStatements({
-          hasherVariable,
-          valueVariable: valueVariable,
-        });
-    }
+  override hashStatements(
+    parameters: Parameters<Property<Type>["hashStatements"]>[0],
+  ): readonly string[] {
+    return this.type.hashStatements(parameters);
   }
 
   override sparqlGraphPatternExpression(): Maybe<string> {
-    let sparqlGraphPattern = `sparqlBuilder.GraphPattern.basic(this.subject, ${this.pathExpression}, this.variable("${pascalCase(this.name)}"))`;
-    this.type
-      .sparqlGraphPatternExpression({
-        subjectVariable: this.name,
-      })
-      .ifJust((typeSparqlGraphPatternExpression) => {
-        switch (typeSparqlGraphPatternExpression.type) {
-          case "GraphPattern":
-            sparqlGraphPattern = `sparqlBuilder.GraphPattern.group(${sparqlGraphPattern}.chainObject(${this.name} => [${typeSparqlGraphPatternExpression.value}]))`;
-            break;
-          case "GraphPatterns":
-            sparqlGraphPattern = `sparqlBuilder.GraphPattern.group(${sparqlGraphPattern}.chainObject(${this.name} => ${typeSparqlGraphPatternExpression.value}))`;
-            break;
-        }
-      });
-    if (this.minCount === 0) {
-      sparqlGraphPattern = `sparqlBuilder.GraphPattern.optional(${sparqlGraphPattern})`;
-    }
-    return Maybe.of(sparqlGraphPattern);
+    return Maybe.of(
+      this.type
+        .propertySparqlGraphPatternExpression({
+          variables: {
+            object: `this.variable("${pascalCase(this.name)}")`,
+            predicate: this.pathExpression,
+            subject: "this.subject",
+          },
+        })
+        .toSparqlGraphPatternExpression()
+        .toString(),
+    );
   }
 
   override toRdfStatements({
-    mutateGraphVariable,
-    resourceSetVariable,
-    valueVariable,
-  }: Parameters<Property["toRdfStatements"]>[0]): readonly string[] {
-    const resourceAddValueVariable =
-      this.containerType === null ? valueVariable : `${this.name}Value`;
-    let resourceAddStatement = `resource.add(${this.pathExpression}, ${this.type.toRdfExpression({ mutateGraphVariable, resourceSetVariable, valueVariable: resourceAddValueVariable })});`;
-    if (this.containerType !== "Array") {
-      this.defaultValue.ifJust((defaultValue) => {
-        resourceAddStatement = `if (${this.type.valueIsNotDefaultExpression({ defaultValue, valueVariable: resourceAddValueVariable })}) { ${resourceAddStatement} }`;
-      });
-    }
-
-    switch (this.containerType) {
-      case "Array":
-        return [
-          `for (const ${this.name}Value of ${valueVariable}) { ${resourceAddStatement} }`,
-        ];
-      case "Maybe":
-        return [
-          `${valueVariable}.ifJust((${this.name}Value) => { ${resourceAddStatement} } )`,
-        ];
-      case null:
-        return [resourceAddStatement];
-    }
+    variables,
+  }: Parameters<Property<Type>["toRdfStatements"]>[0]): readonly string[] {
+    return [
+      `${variables.resource}.add(${this.pathExpression}, ${this.type.toRdfExpression(
+        {
+          variables: { ...variables, predicate: this.pathExpression },
+        },
+      )});`,
+    ];
   }
 }

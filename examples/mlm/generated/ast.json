@@ -1,7 +1,7 @@
 {
   "objectTypes": [
     {
-      "kind": "Object",
+      "kind": "ObjectType",
       "name": {
         "curie": "anno-mlm:LanguageModel",
         "identifier": {
@@ -12,8 +12,6 @@
       },
       "properties": [
         {
-          "maxCount": 1,
-          "minCount": 1,
           "name": {
             "curie": "anno-mlm:LanguageModel-contextWindow",
             "identifier": {
@@ -28,12 +26,10 @@
               "termType": "NamedNode",
               "value": "http://www.w3.org/2001/XMLSchema#integer"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
-          "maxCount": 1,
-          "minCount": 0,
           "name": {
             "curie": "anno-mlm:LanguageModel-maxTokenOutput",
             "identifier": {
@@ -44,17 +40,20 @@
           },
           "path": "http://purl.annotize.ai/ontology/mlm#maxTokenOutput",
           "type": {
-            "datatype": {
-              "termType": "NamedNode",
-              "value": "http://www.w3.org/2001/XMLSchema#integer"
+            "itemType": {
+              "datatype": {
+                "termType": "NamedNode",
+                "value": "http://www.w3.org/2001/XMLSchema#integer"
+              },
+              "kind": "LiteralType"
             },
-            "kind": "Literal"
+            "kind": "OptionType"
           }
         }
       ]
     },
     {
-      "kind": "Object",
+      "kind": "ObjectType",
       "name": {
         "curie": "anno-mlm:MachineLearningModel",
         "identifier": {
@@ -65,8 +64,6 @@
       },
       "properties": [
         {
-          "maxCount": 1,
-          "minCount": 0,
           "name": {
             "curie": "anno-mlm:MachineLearningModel-description",
             "identifier": {
@@ -77,16 +74,17 @@
           },
           "path": "https://schema.org/description",
           "type": {
-            "datatype": {
-              "termType": "NamedNode",
-              "value": "http://datashapes.org/dash#StringOrLangString"
+            "itemType": {
+              "datatype": {
+                "termType": "NamedNode",
+                "value": "http://datashapes.org/dash#StringOrLangString"
+              },
+              "kind": "LiteralType"
             },
-            "kind": "Literal"
+            "kind": "OptionType"
           }
         },
         {
-          "maxCount": 1,
-          "minCount": 1,
           "name": {
             "curie": "anno-mlm:MachineLearningModel-identifier",
             "identifier": {
@@ -102,12 +100,10 @@
               "termType": "NamedNode",
               "value": "http://www.w3.org/2001/XMLSchema#string"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
-          "maxCount": 1,
-          "minCount": 1,
           "name": {
             "curie": "anno-mlm:MachineLearningModel-isVariantOf",
             "identifier": {
@@ -118,7 +114,7 @@
           },
           "path": "https://schema.org/isVariantOf",
           "type": {
-            "kind": "Object",
+            "kind": "ObjectType",
             "name": {
               "curie": "anno-mlm:MachineLearningModelFamily",
               "identifier": {
@@ -127,7 +123,6 @@
               },
               "shName": "MachineLearningModelFamily"
             },
-            "parentObjectTypes": [],
             "nodeKinds": ["NamedNode"],
             "rdfType": {
               "termType": "NamedNode",
@@ -136,8 +131,6 @@
           }
         },
         {
-          "maxCount": 1,
-          "minCount": 1,
           "name": {
             "curie": "anno-mlm:MachineLearningModel-name",
             "identifier": {
@@ -152,12 +145,10 @@
               "termType": "NamedNode",
               "value": "http://datashapes.org/dash#StringOrLangString"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
-          "maxCount": 1,
-          "minCount": 0,
           "name": {
             "curie": "anno-mlm:MachineLearningModel-trainingDataCutoff",
             "identifier": {
@@ -168,16 +159,17 @@
           },
           "path": "http://purl.annotize.ai/ontology/mlm#trainingDataCutoff",
           "type": {
-            "datatype": {
-              "termType": "NamedNode",
-              "value": "http://www.w3.org/2001/XMLSchema#string"
+            "itemType": {
+              "datatype": {
+                "termType": "NamedNode",
+                "value": "http://www.w3.org/2001/XMLSchema#string"
+              },
+              "kind": "LiteralType"
             },
-            "kind": "Literal"
+            "kind": "OptionType"
           }
         },
         {
-          "maxCount": 1,
-          "minCount": 0,
           "name": {
             "curie": "anno-mlm:MachineLearningModel-url",
             "identifier": {
@@ -188,17 +180,20 @@
           },
           "path": "https://schema.org/url",
           "type": {
-            "datatype": {
-              "termType": "NamedNode",
-              "value": "http://www.w3.org/2001/XMLSchema#anyURI"
+            "itemType": {
+              "datatype": {
+                "termType": "NamedNode",
+                "value": "http://www.w3.org/2001/XMLSchema#anyURI"
+              },
+              "kind": "LiteralType"
             },
-            "kind": "Literal"
+            "kind": "OptionType"
           }
         }
       ]
     },
     {
-      "kind": "Object",
+      "kind": "ObjectType",
       "name": {
         "curie": "anno-mlm:MachineLearningModelFamily",
         "identifier": {
@@ -209,8 +204,6 @@
       },
       "properties": [
         {
-          "maxCount": 1,
-          "minCount": 0,
           "name": {
             "curie": "anno-mlm:MachineLearningModelFamily-description",
             "identifier": {
@@ -221,16 +214,17 @@
           },
           "path": "https://schema.org/description",
           "type": {
-            "datatype": {
-              "termType": "NamedNode",
-              "value": "http://datashapes.org/dash#StringOrLangString"
+            "itemType": {
+              "datatype": {
+                "termType": "NamedNode",
+                "value": "http://datashapes.org/dash#StringOrLangString"
+              },
+              "kind": "LiteralType"
             },
-            "kind": "Literal"
+            "kind": "OptionType"
           }
         },
         {
-          "maxCount": 1,
-          "minCount": 1,
           "name": {
             "curie": "anno-mlm:MachineLearningModelFamily-manufacturer",
             "identifier": {
@@ -241,7 +235,7 @@
           },
           "path": "https://schema.org/manufacturer",
           "type": {
-            "kind": "Object",
+            "kind": "ObjectType",
             "name": {
               "curie": "anno-mlm:Organization",
               "identifier": {
@@ -250,7 +244,6 @@
               },
               "shName": "Organization"
             },
-            "parentObjectTypes": [],
             "nodeKinds": ["NamedNode"],
             "rdfType": {
               "termType": "NamedNode",
@@ -259,8 +252,6 @@
           }
         },
         {
-          "maxCount": 1,
-          "minCount": 1,
           "name": {
             "curie": "anno-mlm:MachineLearningModelFamily-name",
             "identifier": {
@@ -275,12 +266,10 @@
               "termType": "NamedNode",
               "value": "http://datashapes.org/dash#StringOrLangString"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         },
         {
-          "maxCount": 1,
-          "minCount": 0,
           "name": {
             "curie": "anno-mlm:MachineLearningModelFamily-url",
             "identifier": {
@@ -291,17 +280,20 @@
           },
           "path": "https://schema.org/url",
           "type": {
-            "datatype": {
-              "termType": "NamedNode",
-              "value": "http://www.w3.org/2001/XMLSchema#anyURI"
+            "itemType": {
+              "datatype": {
+                "termType": "NamedNode",
+                "value": "http://www.w3.org/2001/XMLSchema#anyURI"
+              },
+              "kind": "LiteralType"
             },
-            "kind": "Literal"
+            "kind": "OptionType"
           }
         }
       ]
     },
     {
-      "kind": "Object",
+      "kind": "ObjectType",
       "name": {
         "curie": "anno-mlm:Organization",
         "identifier": {
@@ -312,8 +304,6 @@
       },
       "properties": [
         {
-          "maxCount": 1,
-          "minCount": 1,
           "name": {
             "curie": "anno-mlm:Organization-name",
             "identifier": {
@@ -328,7 +318,7 @@
               "termType": "NamedNode",
               "value": "http://datashapes.org/dash#StringOrLangString"
             },
-            "kind": "Literal"
+            "kind": "LiteralType"
           }
         }
       ]

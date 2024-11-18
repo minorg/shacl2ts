@@ -1,45 +1,55 @@
 import type { Maybe } from "purify-ts";
 import type {
+  GetAccessorDeclarationStructure,
   OptionalKind,
   PropertyDeclarationStructure,
   PropertySignatureStructure,
 } from "ts-morph";
 import type { Configuration } from "../Configuration.js";
-import type { ObjectType } from "../ObjectType.js";
 import type { Type } from "../Type.js";
 
-export abstract class Property {
+export abstract class Property<TypeT extends { readonly name: string }> {
   abstract readonly classConstructorParametersPropertySignature: Maybe<
     OptionalKind<PropertySignatureStructure>
+  >;
+  abstract readonly classGetAccessorDeclaration: Maybe<
+    OptionalKind<GetAccessorDeclarationStructure>
   >;
   abstract readonly classPropertyDeclaration: OptionalKind<PropertyDeclarationStructure>;
   abstract readonly equalsFunction: string;
   abstract readonly interfacePropertySignature: OptionalKind<PropertySignatureStructure>;
   readonly name: string;
+  readonly type: TypeT;
   protected readonly configuration: Configuration;
 
   constructor({
     configuration,
     name,
+    type,
   }: {
     configuration: Configuration;
     name: string;
+    type: TypeT;
   }) {
     this.configuration = configuration;
     this.name = name;
+    this.type = type;
   }
 
   get importStatements(): readonly string[] {
     return [];
   }
 
-  abstract classConstructorInitializerExpression(parameters: {
-    parameter: string;
-    objectType: ObjectType;
-  }): Maybe<string>;
+  abstract classConstructorStatements(parameters: {
+    variables: {
+      parameter: string;
+    };
+  }): readonly string[];
 
   abstract fromRdfStatements(parameters: {
-    resourceVariable: string;
+    variables: {
+      resource: string;
+    };
   }): readonly string[];
 
   abstract hashStatements(
@@ -48,7 +58,10 @@ export abstract class Property {
 
   abstract sparqlGraphPatternExpression(): Maybe<string>;
 
-  abstract toRdfStatements(
-    parameters: Parameters<Type["toRdfExpression"]>[0],
-  ): readonly string[];
+  abstract toRdfStatements(parameters: {
+    variables: Omit<
+      Parameters<Type["toRdfExpression"]>[0]["variables"],
+      "predicate"
+    >;
+  }): readonly string[];
 }

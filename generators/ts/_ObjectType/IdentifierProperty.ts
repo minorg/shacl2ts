@@ -1,24 +1,21 @@
-import { camelCase } from "change-case";
 import { Maybe } from "purify-ts";
-import type {
-  OptionalKind,
-  PropertyDeclarationStructure,
-  PropertySignatureStructure,
+import {
+  type GetAccessorDeclarationStructure,
+  type OptionalKind,
+  type PropertyDeclarationStructure,
+  type PropertySignatureStructure,
+  Scope,
 } from "ts-morph";
 import { MintingStrategy } from "../../../ast";
 import type { IdentifierType } from "../IdentifierType.js";
-import type { ObjectType } from "../ObjectType.js";
 import { Property } from "./Property.js";
-import { TypeDiscriminatorProperty } from "./TypeDiscriminatorProperty.js";
 
-export class IdentifierProperty extends Property {
+export class IdentifierProperty extends Property<IdentifierType> {
   readonly equalsFunction = "purifyHelpers.Equatable.booleanEquals";
-  readonly type: IdentifierType;
   private readonly mintingStrategy: Maybe<MintingStrategy>;
 
   constructor({
     mintingStrategy,
-    type,
     ...superParameters
   }: {
     mintingStrategy: Maybe<MintingStrategy>;
@@ -26,7 +23,6 @@ export class IdentifierProperty extends Property {
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
     this.mintingStrategy = mintingStrategy;
-    this.type = type;
   }
 
   override get classConstructorParametersPropertySignature(): Maybe<
@@ -40,7 +36,43 @@ export class IdentifierProperty extends Property {
     });
   }
 
+  override get classGetAccessorDeclaration(): Maybe<
+    OptionalKind<GetAccessorDeclarationStructure>
+  > {
+    if (!this.mintingStrategy.isJust()) {
+      return Maybe.empty();
+    }
+
+    let mintIdentifier: string;
+    switch (this.mintingStrategy.unsafeCoerce()) {
+      case MintingStrategy.SHA256:
+        mintIdentifier =
+          "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${this.hash(sha256.create())}`)";
+        break;
+      case MintingStrategy.UUIDv4:
+        mintIdentifier =
+          "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${uuid.v4()}`)";
+        break;
+    }
+
+    return Maybe.of({
+      name: this.name,
+      returnType: this.type.name,
+      statements: [
+        `if (typeof this._${this.name} === "undefined") { this._${this.name} = ${mintIdentifier}; } return this._${this.name};`,
+      ],
+    });
+  }
+
   override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
+    if (this.mintingStrategy.isJust()) {
+      // Mutable _identifier that will be lazily initialized by the getter
+      return {
+        name: `_${this.name}`,
+        scope: Scope.Private,
+        type: `${this.type.name} | undefined`,
+      } satisfies OptionalKind<PropertyDeclarationStructure>;
+    }
     return {
       isReadonly: true,
       name: this.name,
@@ -56,80 +88,26 @@ export class IdentifierProperty extends Property {
     };
   }
 
-  static classConstructorMintExpression({
-    mintingStrategy,
-    objectType,
-  }: {
-    mintingStrategy: Maybe<MintingStrategy>;
-    objectType: ObjectType;
-  }): Maybe<string> {
-    return mintingStrategy.map((mintingStrategy) => {
-      switch (mintingStrategy) {
-        case MintingStrategy.SHA256: {
-          // Mint an IRI by hashing the non-identifier, non-type discriminator properties.
-          const hashProperties: string[] = [];
-          // If none of the parameters need to be converted to the interface type we can just use the parameters object
-          // Otherwise we have to construct an anonymous object with converted values.
-          let hashParameters = true;
-          for (const property of objectType.properties.concat(
-            objectType.ancestorObjectTypes.flatMap(
-              (ancestorObjectType) => ancestorObjectType.properties,
-            ),
-          )) {
-            if (
-              property instanceof IdentifierProperty ||
-              property instanceof TypeDiscriminatorProperty
-            ) {
-              continue;
-            }
-            const parameter = `parameters.${property.name}`;
-            const classConstructorInitializerExpression = property
-              .classConstructorInitializerExpression({
-                objectType,
-                parameter,
-              })
-              .orDefault("");
-            if (classConstructorInitializerExpression.length === 0) {
-              continue;
-            }
-            hashProperties.push(
-              `${property.name}: ${classConstructorInitializerExpression}`,
-            );
-            if (classConstructorInitializerExpression !== parameter) {
-              hashParameters = false;
-            }
-          }
-
-          return `dataFactory.namedNode(\`urn:shaclmate:object:${camelCase(objectType.name)}:\${${objectType.name}.${objectType.hashFunctionName}(${hashParameters ? "parameters" : `{ ${hashProperties.join(", ")} }`}, sha256.create())}\`)`;
-        }
-        case MintingStrategy.UUIDv4:
-          return `dataFactory.namedNode(\`urn:shaclmate:object:${camelCase(objectType.name)}:\${uuid.v4()}\`)`;
-      }
-    });
-  }
-
-  override classConstructorInitializerExpression({
-    objectType,
-    parameter,
+  override classConstructorStatements({
+    variables,
   }: Parameters<
-    Property["classConstructorInitializerExpression"]
-  >[0]): Maybe<string> {
-    return IdentifierProperty.classConstructorMintExpression({
-      mintingStrategy: this.mintingStrategy,
-      objectType,
-    })
-      .map((mintExpression) => `${parameter} ?? ${mintExpression}`)
-      .altLazy(() => Maybe.of(parameter));
+    Property<IdentifierType>["classConstructorStatements"]
+  >[0]): readonly string[] {
+    return [
+      `this.${this.mintingStrategy.isJust() ? "_" : ""}${this.name} = ${variables.parameter};`,
+    ];
   }
 
   override fromRdfStatements({
-    resourceVariable,
-  }: Parameters<Property["fromRdfStatements"]>[0]): readonly string[] {
-    return [`const ${this.name} = ${resourceVariable}.identifier`];
+    variables,
+  }: Parameters<
+    Property<IdentifierType>["fromRdfStatements"]
+  >[0]): readonly string[] {
+    return [`const ${this.name} = ${variables.resource}.identifier`];
   }
 
   override hashStatements(
-    parameters: Parameters<Property["hashStatements"]>[0],
+    parameters: Parameters<Property<IdentifierType>["hashStatements"]>[0],
   ): readonly string[] {
     return this.type.hashStatements(parameters);
   }

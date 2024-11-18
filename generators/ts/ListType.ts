@@ -3,7 +3,6 @@ import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import { NodeKind } from "shacl-ast";
 import { MintingStrategy } from "../../ast";
-import type { RdfjsTermType } from "./RdfjsTermType.js";
 import { Type } from "./Type.js";
 
 export class ListType extends Type {
@@ -47,54 +46,48 @@ export class ListType extends Type {
     return `readonly ${this.itemType.name}[]`;
   }
 
+  override chainSparqlGraphPatternExpression({
+    variables,
+  }: Parameters<
+    Type["chainSparqlGraphPatternExpression"]
+  >[0]): Maybe<Type.SparqlGraphPatternsExpression> {
+    return Maybe.of(
+      new Type.SparqlGraphPatternsExpression(
+        `new sparqlBuilder.RdfListGraphPatterns({ ${this.itemType
+          .chainSparqlGraphPatternExpression({
+            variables: {
+              subject: "itemVariable",
+            },
+          })
+          .map(
+            (itemSparqlGraphPatternsExpression) =>
+              `itemGraphPatterns: (itemVariable) => ${itemSparqlGraphPatternsExpression.toSparqlGraphPatternsExpression()}, `,
+          )
+          .orDefault("")} rdfList: ${variables.subject} })`,
+      ),
+    );
+  }
+
   override equalsFunction(): string {
     return `(left, right) => purifyHelpers.Arrays.equals(left, right, ${this.itemType.equalsFunction()})`;
   }
 
   override fromRdfExpression({
-    resourceValueVariable,
-    ...otherParameters
+    variables,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `${resourceValueVariable}.toList().map(values => values.flatMap(value => ${this.itemType.fromRdfExpression({ resourceValueVariable: "value", ...otherParameters })}.toMaybe().toList()))`;
+    return `${variables.resourceValues}.head().chain(value => value.toList()).map(values => values.flatMap(value => ${this.itemType.fromRdfExpression({ variables: { ...variables, resourceValues: "value.toValues()" } })}.toMaybe().toList()))`;
   }
 
   override hashStatements({
-    hasherVariable,
-    valueVariable,
-  }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
+    variables,
+  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `for (const _element of ${valueVariable}) { ${this.itemType.hashStatements({ hasherVariable, valueVariable: "_element" }).join("\n")} }`,
+      `for (const element of ${variables.value}) { ${this.itemType.hashStatements({ variables: { ...variables, value: "element" } }).join("\n")} }`,
     ];
   }
 
-  override sparqlGraphPatternExpression({
-    subjectVariable,
-  }: Parameters<
-    Type["sparqlGraphPatternExpression"]
-  >[0]): Maybe<Type.SparqlGraphPatternExpression> {
-    const itemVariable = "itemVariable";
-    return this.itemType
-      .sparqlGraphPatternExpression({
-        subjectVariable: itemVariable,
-      })
-      .map((itemSparqlGraphPatternExpression) => {
-        return {
-          type: "GraphPatterns" as const,
-          value: `new sparqlBuilder.RdfListGraphPatterns({ itemGraphPatterns: (itemVariable) => ${itemSparqlGraphPatternExpression.type === "GraphPatterns" ? itemSparqlGraphPatternExpression.value : `[${itemSparqlGraphPatternExpression.value}]`}, rdfList: ${subjectVariable} })`,
-        };
-      })
-      .altLazy(() =>
-        Maybe.of({
-          type: "GraphPatterns" as const,
-          value: `new sparqlBuilder.RdfListGraphPatterns({ rdfList: ${subjectVariable} })`,
-        }),
-      );
-  }
-
   override toRdfExpression({
-    mutateGraphVariable,
-    resourceSetVariable,
-    valueVariable,
+    variables,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
     let listIdentifier: string;
     let mutableResourceTypeName: string;
@@ -110,9 +103,9 @@ export class ListType extends Type {
       case NodeKind.IRI: {
         switch (this.mintingStrategy) {
           case MintingStrategy.SHA256:
-            listIdentifier = `dataFactory.namedNode(\`urn:shaclmate:list:\${${valueVariable}.reduce(
+            listIdentifier = `dataFactory.namedNode(\`urn:shaclmate:list:\${${variables.value}.reduce(
         (hasher, item) => {
-          ${this.itemType.hashStatements({ hasherVariable: "hasher", valueVariable: "item" })}
+          ${this.itemType.hashStatements({ variables: { hasher: "hasher", value: "item" } })}
           return hasher;
         },
         sha256.create(),
@@ -132,15 +125,13 @@ export class ListType extends Type {
       }
     }
 
-    return `\
-${valueVariable}.reduce(
-  ({ currentSubListResource, listResource }, item, itemIndex) => {
+    return `${variables.value}.reduce(({ currentSubListResource, listResource }, item, itemIndex) => {
     if (itemIndex === 0) {
       currentSubListResource = listResource;
     } else {
-      const newSubListResource = ${resourceSetVariable}.${resourceSetMethodName}({
+      const newSubListResource = ${variables.resourceSet}.${resourceSetMethodName}({
         identifier: ${subListIdentifier},
-        mutateGraph: ${mutateGraphVariable},
+        mutateGraph: ${variables.mutateGraph},
       });
       currentSubListResource!.add(dataFactory.namedNode("${rdf.rest.value}"), newSubListResource.identifier);
       currentSubListResource = newSubListResource;
@@ -148,9 +139,9 @@ ${valueVariable}.reduce(
     
     ${this.rdfType.map((rdfType) => `currentSubListResource.add(dataFactory.namedNode("${rdf.type.value}"), dataFactory.namedNode("${rdfType.value}"))`).orDefault("")}
         
-    currentSubListResource.add(dataFactory.namedNode("${rdf.first.value}"), ${this.itemType.toRdfExpression({ mutateGraphVariable, resourceSetVariable, valueVariable: "item" })});
+    currentSubListResource.add(dataFactory.namedNode("${rdf.first.value}"), ${this.itemType.toRdfExpression({ variables: { mutateGraph: variables.mutateGraph, predicate: `dataFactory.namedNode("${rdf.first.value}")`, resource: "currentSubListResource", resourceSet: variables.resourceSet, value: "item" } })});
 
-    if (itemIndex + 1 === ${valueVariable}.length) {
+    if (itemIndex + 1 === ${variables.value}.length) {
       currentSubListResource.add(dataFactory.namedNode("${rdf.rest.value}"), dataFactory.namedNode("${rdf.nil.value}"));
     }
     
@@ -160,13 +151,12 @@ ${valueVariable}.reduce(
     currentSubListResource: null,
     listResource: resourceSet.${resourceSetMethodName}({
       identifier: ${listIdentifier},
-      mutateGraph: ${mutateGraphVariable}
+      mutateGraph: ${variables.mutateGraph}
     }),
   } as {
     currentSubListResource: ${mutableResourceTypeName} | null;
     listResource: ${mutableResourceTypeName};
   },
-).listResource.identifier,
-`;
+).listResource.identifier`;
   }
 }

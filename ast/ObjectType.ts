@@ -1,4 +1,4 @@
-import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
+import type { NamedNode } from "@rdfjs/types";
 import type { Maybe } from "purify-ts";
 import type { NodeKind } from "shacl-ast";
 import type { PredicatePath } from "shacl-ast";
@@ -93,11 +93,7 @@ export interface ObjectType {
 
 export namespace ObjectType {
   export interface Property {
-    readonly defaultValue: Maybe<BlankNode | Literal | NamedNode>;
-    readonly hasValue: Maybe<BlankNode | Literal | NamedNode>;
     readonly inline: boolean;
-    readonly maxCount: Maybe<number>;
-    readonly minCount: number;
     readonly name: Name;
     readonly path: PredicatePath;
     readonly type: Type;

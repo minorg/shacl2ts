@@ -2,68 +2,76 @@ import { type FunctionDeclarationStructure, StructureKind } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
 import { rdfjsTermExpression } from "../rdfjsTermExpression.js";
 
-const ignoreRdfTypeVariable = "ignoreRdfType";
-const optionsVariable = "_options";
-const resourceVariable = "resource";
+const variables = {
+  ignoreRdfType: "ignoreRdfType",
+  options: "_options",
+  resource: "resource",
+};
 
 export function fromRdfFunctionDeclaration(
   this: ObjectType,
 ): FunctionDeclarationStructure {
   this.ensureAtMostOneSuperObjectType();
 
-  const propertyInitializers: string[] = [];
+  const propertiesByName: Record<
+    string,
+    {
+      initializer?: string;
+      type: string;
+    }
+  > = {};
   let statements: string[] = [];
 
   this.rdfType.ifJust((rdfType) => {
     statements.push(
-      `if (!${optionsVariable}?.${ignoreRdfTypeVariable} && !${resourceVariable}.isInstanceOf(${rdfjsTermExpression(rdfType, this.configuration)})) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${resourceVariable}, message: \`\${rdfjsResource.Resource.Identifier.toString(${resourceVariable}.identifier)} has unexpected RDF type\`, predicate: ${rdfjsTermExpression(rdfType, this.configuration)} })); }`,
+      `if (!${variables.options}?.${variables.ignoreRdfType} && !${variables.resource}.isInstanceOf(${rdfjsTermExpression(rdfType, this.configuration)})) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${variables.resource}, message: \`\${rdfjsResource.Resource.Identifier.toString(${variables.resource}.identifier)} has unexpected RDF type\`, predicate: ${rdfjsTermExpression(rdfType, this.configuration)} })); }`,
     );
   });
 
   for (const ancestorObjectType of this.ancestorObjectTypes) {
     for (const property of ancestorObjectType.properties) {
-      if (property.fromRdfStatements({ resourceVariable }).length > 0) {
-        propertyInitializers.push(`${property.name}: _super.${property.name}`);
+      if (property.fromRdfStatements({ variables }).length > 0) {
+        propertiesByName[property.name] = {
+          initializer: `_super.${property.name}`,
+          type: property.type.name,
+        };
       }
     }
   }
 
   for (const property of this.properties) {
     const propertyFromRdfStatements = property.fromRdfStatements({
-      resourceVariable,
+      variables,
     });
     if (propertyFromRdfStatements.length > 0) {
-      propertyInitializers.push(property.name);
+      propertiesByName[property.name] = {
+        type: property.type.name,
+      };
       statements.push(...propertyFromRdfStatements);
     }
   }
 
-  let construction = `{ ${propertyInitializers.join(", ")} }`;
-  let returnType = this.name;
-  if (this.configuration.objectTypeDeclarationType === "class") {
-    if (!this.abstract) {
-      construction = `new ${this.name}(${construction})`;
-    } else {
-      // Return an interface
-      returnType = `{ ${this.properties
-        .concat(
-          this.ancestorObjectTypes.flatMap(
-            (ancestorObjectType) => ancestorObjectType.properties,
-          ),
-        )
-        .map((property) => property.interfacePropertySignature)
-        .map(
-          (interfacePropertySignature) =>
-            `${interfacePropertySignature.name}: ${interfacePropertySignature.type}`,
-        )} }`;
-    }
+  let construction = `{ ${Object.entries(propertiesByName)
+    .map(([name, { initializer }]) =>
+      initializer ? `${name}: ${initializer}` : name,
+    )
+    .join(", ")} }`;
+  let returnType = `{ ${Object.entries(propertiesByName)
+    .map(([name, { type }]) => `${name}: ${type}`)
+    .join(", ")} }`;
+  if (
+    this.configuration.objectTypeDeclarationType === "class" &&
+    !this.abstract
+  ) {
+    construction = `new ${this.name}(${construction})`;
+    returnType = this.name;
   }
 
   statements.push(`return purify.Either.of(${construction})`);
 
   if (this.parentObjectTypes.length > 0) {
     statements = [
-      `return ${this.parentObjectTypes[0].name}.fromRdf(${resourceVariable}, { ${ignoreRdfTypeVariable}: true }).chain(_super => { ${statements.join("\n")} })`,
+      `return ${this.parentObjectTypes[0].name}.fromRdf(${variables.resource}, { ${variables.ignoreRdfType}: true }).chain(_super => { ${statements.join("\n")} })`,
     ];
   }
 
@@ -73,13 +81,13 @@ export function fromRdfFunctionDeclaration(
     name: "fromRdf",
     parameters: [
       {
-        name: resourceVariable,
+        name: variables.resource,
         type: this.rdfjsResourceType().name,
       },
       {
         hasQuestionToken: true,
-        name: optionsVariable,
-        type: `{ ${ignoreRdfTypeVariable}?: boolean }`,
+        name: variables.options,
+        type: `{ ${variables.ignoreRdfType}?: boolean }`,
       },
     ],
     returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${returnType}>`,

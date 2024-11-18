@@ -65,6 +65,7 @@ function typeToJson(type: ast.Type): AstJson.Type {
   switch (type.kind) {
     case "IdentifierType":
       return {
+        hasValue: type.hasValue.map(termToJson).extract(),
         kind: type.kind,
         nodeKinds: [...type.nodeKinds].map(nodeKindToJson),
       };
@@ -72,11 +73,12 @@ function typeToJson(type: ast.Type): AstJson.Type {
     case "UnionType":
       return {
         kind: type.kind,
-        types: type.types.map((type) => typeToJson(type)),
+        types: type.memberTypes.map((type) => typeToJson(type)),
       };
     case "LiteralType": {
       return {
         datatype: type.datatype.extract(),
+        hasValue: type.hasValue.map(termToJson).extract(),
         kind: type.kind,
         maxExclusive: type.maxExclusive.map(termToJson).extract(),
         maxInclusive: type.maxInclusive.map(termToJson).extract(),
@@ -89,9 +91,22 @@ function typeToJson(type: ast.Type): AstJson.Type {
         kind: type.kind,
         listItemType: type.listItemType.map(typeToJson).extract(),
         name: nameToJson(type.name),
-        parentObjectTypes: type.parentObjectTypes.map(typeToJson),
+        parentObjectTypes:
+          type.parentObjectTypes.length > 0
+            ? type.parentObjectTypes.map((type) => nameToJson(type.name))
+            : undefined,
         nodeKinds: [...type.nodeKinds].map(nodeKindToJson),
         rdfType: type.rdfType.map(termToJson).extract(),
+      };
+    case "OptionType":
+      return {
+        itemType: typeToJson(type.itemType),
+        kind: type.kind,
+      };
+    case "SetType":
+      return {
+        itemType: typeToJson(type.itemType),
+        kind: type.kind,
       };
   }
 }
@@ -106,9 +121,6 @@ export class AstJsonGenerator {
           kind: objectType.kind,
           name: nameToJson(objectType.name),
           properties: objectType.properties.map((property) => ({
-            hasValue: property.hasValue.map(termToJson).extract(),
-            maxCount: property.maxCount.extract(),
-            minCount: property.minCount,
             name: nameToJson(property.name),
             path: property.path.iri.value,
             type: typeToJson(property.type),

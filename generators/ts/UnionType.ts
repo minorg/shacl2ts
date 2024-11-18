@@ -1,7 +1,6 @@
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
-import type { RdfjsTermType } from "./RdfjsTermType";
 import { Type } from "./Type.js";
 
 const syntheticTypeDiscriminatorPropertyName = "type";
@@ -15,15 +14,15 @@ function syntheticTypeDiscriminatorValue({
 
 export class UnionType extends Type {
   readonly kind = "UnionType";
-  readonly types: readonly Type[];
+  readonly memberTypes: readonly Type[];
 
   constructor({
-    types,
+    memberTypes,
     ...superParameters
-  }: ConstructorParameters<typeof Type>[0] & { types: readonly Type[] }) {
+  }: ConstructorParameters<typeof Type>[0] & { memberTypes: readonly Type[] }) {
     super(superParameters);
-    invariant(types.length >= 2);
-    this.types = types;
+    invariant(memberTypes.length >= 2);
+    this.memberTypes = memberTypes;
   }
 
   @Memoize()
@@ -31,7 +30,7 @@ export class UnionType extends Type {
     return this.typesSharedDiscriminatorProperty.altLazy(() =>
       Maybe.of({
         name: syntheticTypeDiscriminatorPropertyName,
-        values: this.types.map((_, typeIndex) => typeIndex.toString()),
+        values: this.memberTypes.map((_, typeIndex) => typeIndex.toString()),
       }),
     );
   }
@@ -40,10 +39,10 @@ export class UnionType extends Type {
     if (this.typesSharedDiscriminatorProperty.isJust()) {
       // If every type shares a discriminator (e.g., RDF/JS "termType" or generated ObjectType "type"),
       // just join their names with "|"
-      return `(${this.types.map((type) => type.name).join(" | ")})`;
+      return `(${this.memberTypes.map((type) => type.name).join(" | ")})`;
     }
 
-    return `(${this.types.map((type, typeIndex) => `{ ${syntheticTypeDiscriminatorPropertyName}: "${syntheticTypeDiscriminatorValue({ type, typeIndex })}", value: ${type.name} }`).join(" | ")})`;
+    return `(${this.memberTypes.map((type, typeIndex) => `{ ${syntheticTypeDiscriminatorPropertyName}: "${syntheticTypeDiscriminatorValue({ type, typeIndex })}", value: ${type.name} }`).join(" | ")})`;
   }
 
   @Memoize()
@@ -54,7 +53,7 @@ export class UnionType extends Type {
           values: string[];
         })
       | undefined;
-    for (const type of this.types) {
+    for (const type of this.memberTypes) {
       const typeDiscriminatorProperty = type.discriminatorProperty.extract();
       if (!typeDiscriminatorProperty) {
         return Maybe.empty();
@@ -81,7 +80,7 @@ export class UnionType extends Type {
   override equalsFunction(): string {
     return `
 (left: ${this.name}, right: ${this.name}) => {
-${this.types
+${this.memberTypes
   .flatMap((type, typeIndex) =>
     this.typesSharedDiscriminatorProperty
       .map((typesSharedDiscriminatorProperty) => {
@@ -111,7 +110,7 @@ ${this.types
     parameters: Parameters<Type["fromRdfExpression"]>[0],
   ): string {
     let expression = "";
-    this.types.forEach((type, typeIndex) => {
+    this.memberTypes.forEach((type, typeIndex) => {
       let typeExpression = type.fromRdfExpression(parameters);
       if (!this.typesSharedDiscriminatorProperty.isJust()) {
         typeExpression = `${typeExpression}.map(value => ({ type: "${typeIndex}-${type.name}" as const, value }) as (${this.name}))`;
@@ -126,18 +125,16 @@ ${this.types
   }
 
   override hashStatements({
-    hasherVariable,
-    valueVariable,
-  }: Parameters<RdfjsTermType["hashStatements"]>[0]): readonly string[] {
+    variables,
+  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     const caseBlocks: string[] = [];
-    this.types.forEach((type, typeIndex) => {
+    this.memberTypes.forEach((type, typeIndex) => {
       if (this.typesSharedDiscriminatorProperty.isJust()) {
         for (const typeDiscriminatorPropertyValue of type.discriminatorProperty.unsafeCoerce()
           .values) {
           caseBlocks.push(
             `case "${typeDiscriminatorPropertyValue}": { ${type.hashStatements({
-              hasherVariable,
-              valueVariable,
+              variables,
             })}; break; }`,
           );
         }
@@ -146,101 +143,65 @@ ${this.types
           `case "${syntheticTypeDiscriminatorValue({
             type,
             typeIndex,
-          })}": { ${type.hashStatements({ hasherVariable, valueVariable: `${valueVariable}.value` })}; break; }`,
+          })}": { ${type.hashStatements({ variables: { hasher: variables.hasher, value: `${variables}.value` } })}; break; }`,
         );
       }
     });
     const switchValue = this.typesSharedDiscriminatorProperty
       .map(
         (typeSharedDiscriminatorProperty) =>
-          `${valueVariable}.${typeSharedDiscriminatorProperty.name}`,
+          `${variables.value}.${typeSharedDiscriminatorProperty.name}`,
       )
       .orDefaultLazy(
-        () => `${valueVariable}.${syntheticTypeDiscriminatorPropertyName}`,
+        () => `${variables.value}.${syntheticTypeDiscriminatorPropertyName}`,
       );
     return [`switch (${switchValue}) { ${caseBlocks.join("\n")} }`];
   }
 
-  override sparqlGraphPatternExpression({
-    subjectVariable,
-  }: Parameters<
-    Type["sparqlGraphPatternExpression"]
-  >[0]): Maybe<Type.SparqlGraphPatternExpression> {
-    const typeSparqlGraphPatternExpressions = this.types.flatMap((type) =>
-      type.sparqlGraphPatternExpression({ subjectVariable }).toList(),
+  override propertySparqlGraphPatternExpression(
+    parameters: Parameters<Type["propertySparqlGraphPatternExpression"]>[0],
+  ): Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression {
+    return new Type.SparqlGraphPatternExpression(
+      `sparqlBuilder.GraphPattern.union(${this.memberTypes
+        .map((type) =>
+          type
+            .propertySparqlGraphPatternExpression(parameters)
+            .toSparqlGraphPatternExpression()
+            .toString(),
+        )
+        .join(", ")})`,
     );
-    switch (typeSparqlGraphPatternExpressions.length) {
-      case 0:
-        return Maybe.empty();
-      case 1: {
-        switch (typeSparqlGraphPatternExpressions[0].type) {
-          case "GraphPattern":
-            return Maybe.of({
-              type: "GraphPattern",
-              value: `sparqlBuilder.GraphPattern.optional(${typeSparqlGraphPatternExpressions[0].value})`,
-            });
-          case "GraphPatterns":
-            return Maybe.of({
-              type: "GraphPattern",
-              value: `sparqlBuilder.GraphPattern.optional(sparqlBuilder.GraphPattern.group(${typeSparqlGraphPatternExpressions[0].value}))`,
-            });
-        }
-        // @ts-expect-error This is actually unreachable code but the compiler has a bug that complains about the switch if this is not present.
-        break;
-      }
-      default:
-        invariant(
-          typeSparqlGraphPatternExpressions.length === this.types.length,
-          "all types must be represented in the SPARQL UNION",
-        );
-        return Maybe.of({
-          type: "GraphPattern",
-          value: `sparqlBuilder.GraphPattern.union(${typeSparqlGraphPatternExpressions
-            .map((typeSparqlGraphPatternExpression) => {
-              switch (typeSparqlGraphPatternExpression.type) {
-                case "GraphPattern":
-                  return typeSparqlGraphPatternExpression.value;
-                case "GraphPatterns":
-                  return `sparqlBuilder.GraphPattern.group(${typeSparqlGraphPatternExpression.value})`;
-              }
-            })
-            .join(", ")})`,
-        });
-    }
   }
 
   override toRdfExpression({
-    valueVariable,
-    ...otherParameters
+    variables,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
     let expression = "";
-    this.types.forEach((type, typeIndex) => {
+    this.memberTypes.forEach((type, typeIndex) => {
       if (this.typesSharedDiscriminatorProperty.isJust()) {
         if (expression.length === 0) {
           expression = type.toRdfExpression({
-            valueVariable: valueVariable,
-            ...otherParameters,
+            variables,
           });
         } else {
           expression = `(${type.discriminatorProperty
             .unsafeCoerce()
             .values.map(
               (value) =>
-                `${valueVariable}.${this.typesSharedDiscriminatorProperty.unsafeCoerce().name} === "${value}"`,
+                `${variables.value}.${this.typesSharedDiscriminatorProperty.unsafeCoerce().name} === "${value}"`,
             )
             .join(
               " || ",
-            )}) ? ${type.toRdfExpression({ valueVariable: valueVariable, ...otherParameters })} : ${expression}`;
+            )}) ? ${type.toRdfExpression({ variables })} : ${expression}`;
         }
       } else {
         if (expression.length === 0) {
           expression = type.toRdfExpression({
-            valueVariable: `${valueVariable}.value`,
-            ...otherParameters,
+            variables: { ...variables, value: `${variables.value}.value` },
           });
         } else {
           // No shared type discriminator between the types, use the one we synthesized
-          expression = `(${valueVariable}.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") ? (${type.toRdfExpression({ valueVariable: `${valueVariable}.value`, ...otherParameters })}) : (${expression})`;
+          expression = `(${variables.value}.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") ? (${type.toRdfExpression({ variables: { ...variables, value: `${variables.value}.value` } })}) : (${expression})`;
         }
       }
     });

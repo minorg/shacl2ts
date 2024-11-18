@@ -1,11 +1,23 @@
-import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
+import { fromRdf } from "rdf-literal";
 import { LiteralType } from "./LiteralType.js";
 import type { Type } from "./Type.js";
 
 export abstract class PrimitiveType extends LiteralType {
-  override get convertibleFromTypeNames(): readonly string[] {
-    return [this.name];
+  override get conversions(): readonly Type.Conversion[] {
+    const conversions: Type.Conversion[] = [
+      {
+        conversionExpression: (value) => value,
+        sourceTypeName: this.name,
+      },
+    ];
+    this.defaultValue.ifJust((defaultValue) => {
+      conversions.push({
+        conversionExpression: () => fromRdf(defaultValue, true),
+        sourceTypeName: "undefined",
+      });
+    });
+    return conversions;
   }
 
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
@@ -16,21 +28,21 @@ export abstract class PrimitiveType extends LiteralType {
     return [];
   }
 
-  override convertToExpression(_: { valueVariable: string }): Maybe<string> {
-    return Maybe.empty();
-  }
-
   override equalsFunction(): string {
     return "purifyHelpers.Equatable.strictEquals";
   }
 
-  override valueIsNotDefaultExpression({
-    defaultValue,
-    valueVariable,
-  }: {
-    defaultValue: BlankNode | Literal | NamedNode;
-    valueVariable: string;
-  }): string {
-    return `${valueVariable} !== ${this.defaultValueExpression(defaultValue)}`;
+  override toRdfExpression({
+    variables,
+  }: Parameters<LiteralType["toRdfExpression"]>[0]): string {
+    return this.defaultValue
+      .map((defaultValue) => {
+        let primitiveDefaultValue = fromRdf(defaultValue, true);
+        if (typeof primitiveDefaultValue === "string") {
+          primitiveDefaultValue = `"${primitiveDefaultValue}"`;
+        }
+        return `${variables.value} !== ${primitiveDefaultValue} ? ${variables.value} : undefined`;
+      })
+      .orDefault(variables.value);
   }
 }

@@ -168,13 +168,13 @@ describe("TsGenerator", () => {
 
   it("hash (LanguageModel)", ({ expect }) => {
     expect(mlmLanguageModel.hash(sha256.create()).hex()).toStrictEqual(
-      "7fead1d8ac51c47873f3426e599233c7caf247743e684ad2f46dfd9c1f79850c",
+      "669d910ea677defc8168cda3f3a817369d8bff0cba7f53485d1dc15c7d344af9",
     );
   });
 
   it("hash (Organization)", ({ expect }) => {
     expect(mlmOrganization.hash(sha256.create()).hex()).toStrictEqual(
-      "1cbaacc89707adaba94f7e5a3099c68a1b3e30b73c885824bb15bd67835af599",
+      "0f0af2d595591bcf0f43ca8eac4775672867bcf94040703f2ecc573c7dbdd088",
     );
   });
 
