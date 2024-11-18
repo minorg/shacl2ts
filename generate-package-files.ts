@@ -222,6 +222,8 @@ fs.writeFileSync(
       scripts: {
         build: "npm run build --workspaces",
         check: "npm run check --workspaces",
+        "check:write": "npm run check:write --workspaces",
+        "check:write:unsafe": "npm run check:write:unsafe --workspaces",
         clean: "npm run clean --workspaces",
         "generate-package-files": "tsx generate-package-files.ts",
         link: "npm link --workspaces",
