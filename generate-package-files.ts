@@ -120,6 +120,7 @@ for (const package_ of packages) {
     if (
       !dirent.name.endsWith(".ts") ||
       !dirent.isFile() ||
+      dirent.path.startsWith(path.join(packageDirectoryPath, "node_modules")) ||
       dirent.path.startsWith(path.join(packageDirectoryPath, "__tests__"))
     ) {
       continue;
