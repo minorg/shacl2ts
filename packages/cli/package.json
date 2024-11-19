@@ -3,12 +3,15 @@
     "shaclmate": "cli.js"
   },
   "dependencies": {
-    "@shaclmate/compiler": "2.0.12",
+    "@shaclmate/compiler": "2.0.13",
     "cmd-ts": "^0.13.0",
     "pino": "^9.1.0"
   },
   "devDependencies": {},
-  "files": ["*.d.ts", "*.js"],
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
   "main": "index.js",
   "license": "Apache-2.0",
   "name": "@shaclmate/cli",
@@ -38,5 +41,5 @@
   },
   "type": "module",
   "types": "index.d.ts",
-  "version": "2.0.12"
+  "version": "2.0.13"
 }

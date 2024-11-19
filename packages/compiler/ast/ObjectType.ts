@@ -1,7 +1,7 @@
 import type { NamedNode } from "@rdfjs/types";
+import type { NodeKind } from "@shaclmate/shacl-ast";
+import type { PredicatePath } from "@shaclmate/shacl-ast";
 import type { Maybe } from "purify-ts";
-import type { NodeKind } from "shacl-ast";
-import type { PredicatePath } from "shacl-ast";
 import type { Name, Type } from ".";
 import type { MintingStrategy } from "./MintingStrategy";
 

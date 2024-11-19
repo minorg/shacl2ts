@@ -1,23 +1,25 @@
 {
   "dependencies": {
-    "@kos-kit/sparql-builder": "2.0.94",
+    "@rdfjs/term-map": "^2.0.2",
+    "@rdfjs/term-set": "^2.0.3",
     "@rdfjs/types": "^1.1.0",
-    "@types/n3": "^1.21.1",
-    "js-sha256": "^0.11.0",
-    "n3": "^1.21.3",
+    "@tpluscode/rdf-ns-builders": "^4.3.0",
+    "@types/rdfjs__term-map": "^2.0.10",
+    "@types/rdfjs__term-set": "^2.0.9",
     "purify-ts": "^2.1.0",
-    "purify-ts-helpers": "1.0.7",
-    "rdf-literal": "^1.3.2",
     "rdfjs-resource": "1.0.12"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/n3": "^1.21.1",
+    "n3": "^1.21.3"
+  },
   "files": [
     "*.d.ts",
     "*.js"
   ],
   "main": "index.js",
   "license": "Apache-2.0",
-  "name": "@shaclmate/runtime",
+  "name": "@shaclmate/shacl-ast",
   "scripts": {
     "build": "tsc -b",
     "check": "biome check",
@@ -35,7 +37,7 @@
     "test": "biome check && vitest run",
     "test:coverage": "biome check && vitest run --coverage",
     "test:watch": "vitest watch",
-    "unlink": "npm unlink -g @shaclmate/runtime",
+    "unlink": "npm unlink -g @shaclmate/shacl-ast",
     "watch": "tsc -w --preserveWatchOutput"
   },
   "repository": {

@@ -676,19 +676,17 @@ export class Collection extends Labeled {
   }
 
   override equals(other: Collection): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          member: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        member: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -1076,145 +1074,143 @@ export class Concept extends Labeled {
   }
 
   override equals(other: Concept): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          broader: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          broaderTransitive: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          broadMatch: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          changeNote: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          closeMatch: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          definition: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          editorialNote: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          exactMatch: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          example: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          historyNote: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          inScheme: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          mappingRelation: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          narrower: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          narrowerTransitive: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          narrowMatch: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          notation: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          note: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          related: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          relatedMatch: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          scopeNote: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          semanticRelation: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          topConceptOf: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        broader: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        broaderTransitive: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        broadMatch: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        changeNote: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        closeMatch: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        definition: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        editorialNote: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        exactMatch: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        example: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        historyNote: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        inScheme: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        mappingRelation: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        narrower: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        narrowerTransitive: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        narrowMatch: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        notation: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        note: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        related: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        relatedMatch: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        scopeNote: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        semanticRelation: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        topConceptOf: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -2325,19 +2321,17 @@ export class ConceptScheme extends Labeled {
   }
 
   override equals(other: ConceptScheme): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          hasTopConcept: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        hasTopConcept: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -2515,19 +2509,17 @@ export class OrderedCollection extends Collection {
   override equals(
     other: OrderedCollection,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          memberList: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        memberList: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<

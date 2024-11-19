@@ -1,6 +1,6 @@
 import type { BlankNode, NamedNode } from "@rdfjs/types";
+import { NodeKind } from "@shaclmate/shacl-ast";
 import { Maybe } from "purify-ts";
-import { NodeKind } from "shacl-ast";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
 import { RdfjsTermType } from "./RdfjsTermType.js";

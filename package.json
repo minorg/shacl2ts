@@ -33,7 +33,13 @@
     "watch": "run-p watch:*",
     "watch:cli": "npm run watch -w @shaclmate/cli",
     "watch:compiler": "npm run watch -w @shaclmate/compiler",
-    "watch:runtime": "npm run watch -w @shaclmate/runtime"
+    "watch:runtime": "npm run watch -w @shaclmate/runtime",
+    "watch:shacl-ast": "npm run watch -w @shaclmate/shacl-ast"
   },
-  "workspaces": ["packages/cli", "packages/compiler", "packages/runtime"]
+  "workspaces": [
+    "packages/cli",
+    "packages/compiler",
+    "packages/runtime",
+    "packages/shacl-ast"
+  ]
 }
