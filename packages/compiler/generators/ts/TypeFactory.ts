@@ -12,6 +12,7 @@ import { ListType } from "./ListType.js";
 import { LiteralType } from "./LiteralType.js";
 import { NumberType } from "./NumberType.js";
 import { ObjectType } from "./ObjectType.js";
+import { ObjectUnionType } from "./ObjectUnionType";
 import { OptionType } from "./OptionType";
 import { SetType } from "./SetType";
 import { StringType } from "./StringType.js";
@@ -115,13 +116,26 @@ export class TypeFactory {
           itemType: this.createTypeFromAstType(astType.itemType),
           minCount: astType.minCount,
         });
-      case "UnionType":
+      case "UnionType": {
+        const memberTypes = astType.memberTypes.map((astType) =>
+          this.createTypeFromAstType(astType),
+        );
+
+        const memberObjectTypes = memberTypes.filter(
+          (memberType) => memberType instanceof ObjectType,
+        );
+        if (memberObjectTypes.length === memberTypes.length) {
+          return new ObjectUnionType({
+            configuration: this.configuration,
+            memberTypes: memberObjectTypes,
+          });
+        }
+
         return new UnionType({
           configuration: this.configuration,
-          memberTypes: astType.memberTypes.map((astType) =>
-            this.createTypeFromAstType(astType),
-          ),
+          memberTypes,
         });
+      }
     }
   }
 
