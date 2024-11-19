@@ -4,6 +4,7 @@ import { ShapesGraphToAstTransformer } from "@shaclmate/compiler/ShapesGraphToAs
 import type { Ast } from "@shaclmate/compiler/ast";
 import * as generators from "@shaclmate/compiler/generators";
 import { dashDataset } from "@shaclmate/compiler/vocabularies/dashDataset.js";
+import { ShapesGraph } from "@shaclmate/shacl-ast";
 import {
   array,
   command,
@@ -18,7 +19,6 @@ import {
 import { ExistingPath } from "cmd-ts/dist/esm/batteries/fs.js";
 import { DataFactory, Parser, Store } from "n3";
 import pino from "pino";
-import { ShapesGraph } from "shacl-ast";
 
 const inputFilePaths = restPositionals({
   displayName: "inputFilePaths",

@@ -1,8 +1,8 @@
 import TermMap from "@rdfjs/term-map";
 import type { BlankNode, NamedNode } from "@rdfjs/types";
+import { NodeKind } from "@shaclmate/shacl-ast";
 import { xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
-import { NodeKind } from "shacl-ast";
 import type * as ast from "../../ast";
 import { BooleanType } from "./BooleanType";
 import type { Configuration } from "./Configuration";

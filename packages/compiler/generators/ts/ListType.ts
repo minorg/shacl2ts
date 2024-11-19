@@ -1,7 +1,7 @@
 import type { NamedNode } from "@rdfjs/types";
+import { NodeKind } from "@shaclmate/shacl-ast";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
-import { NodeKind } from "shacl-ast";
 import { MintingStrategy } from "../../ast";
 import { Type } from "./Type.js";
 
