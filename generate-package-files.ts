@@ -5,7 +5,7 @@ import { stringify as stringifyYaml } from "yaml";
 
 const VERSION = "2.0.12";
 
-type PackageName = "cli" | "compiler" | "runtime";
+type PackageName = "cli" | "compiler" | "runtime" | "shacl-ast";
 
 interface Package {
   bin?: Record<string, string>;
@@ -22,10 +22,17 @@ interface Package {
 }
 
 const externalDependencyVersions = {
+  "@rdfjs/term-map": "^2.0.2",
+  "@rdfjs/term-set": "^2.0.3",
   "@rdfjs/types": "^1.1.0",
+  "@tpluscode/rdf-ns-builders": "^4.3.0",
   "@types/n3": "^1.21.1",
+  "@types/rdfjs__term-map": "^2.0.10",
+  "@types/rdfjs__term-set": "^2.0.9",
   n3: "^1.21.3",
   pino: "^9.1.0",
+  "purify-ts": "^2.1.0",
+  "rdfjs-resource": "1.0.12",
 };
 
 const packages: readonly Package[] = [
@@ -46,29 +53,32 @@ const packages: readonly Package[] = [
     dependencies: {
       external: {
         "@rdfjs/prefix-map": "^0.1.2",
-        "@rdfjs/term-map": "^2.0.2",
-        "@rdfjs/term-set": "^2.0.3",
+        "@rdfjs/term-map": externalDependencyVersions["@rdfjs/term-map"],
+        "@rdfjs/term-set": externalDependencyVersions["@rdfjs/term-set"],
         "@rdfjs/types": externalDependencyVersions["@rdfjs/types"],
         "@sindresorhus/base62": "^0.1.0",
-        "@tpluscode/rdf-ns-builders": "^4.3.0",
+        "@tpluscode/rdf-ns-builders":
+          externalDependencyVersions["@tpluscode/rdf-ns-builders"],
         "@types/n3": externalDependencyVersions["@types/n3"],
         "@types/rdfjs__prefix-map": "^0.1.5",
-        "@types/rdfjs__term-map": "^2.0.10",
-        "@types/rdfjs__term-set": "^2.0.9",
+        "@types/rdfjs__term-map":
+          externalDependencyVersions["@types/rdfjs__term-map"],
+        "@types/rdfjs__term-set":
+          externalDependencyVersions["@types/rdfjs__term-set"],
         "change-case": "^5.4.4",
         n3: externalDependencyVersions["n3"],
         pino: externalDependencyVersions["pino"],
         "reserved-identifiers": "^1.0.0",
-        "shacl-ast": "2.0.12",
         "ts-invariant": "^0.10.3",
         "ts-morph": "^24.0.0",
         "typescript-memoize": "^1.1.1",
       },
+      internal: ["shacl-ast"],
     },
     devDependencies: {
       internal: ["runtime"],
     },
-    linkableDependencies: ["purify-ts-helpers", "rdfjs-resource", "shacl-ast"],
+    linkableDependencies: ["purify-ts-helpers", "rdfjs-resource"],
     name: "compiler",
   },
   {
@@ -79,10 +89,10 @@ const packages: readonly Package[] = [
         "@types/n3": externalDependencyVersions["@types/n3"],
         "js-sha256": "^0.11.0",
         n3: externalDependencyVersions["n3"],
-        "purify-ts": "^2.1.0",
+        "purify-ts": externalDependencyVersions["purify-ts"],
         "purify-ts-helpers": "1.0.7",
         "rdf-literal": "^1.3.2",
-        "rdfjs-resource": "1.0.12",
+        "rdfjs-resource": externalDependencyVersions["rdfjs-resource"],
       },
     },
     linkableDependencies: [
@@ -91,6 +101,31 @@ const packages: readonly Package[] = [
       "rdfjs-resource",
     ],
     name: "runtime",
+  },
+  {
+    dependencies: {
+      external: {
+        "@rdfjs/term-map": externalDependencyVersions["@rdfjs/term-map"],
+        "@rdfjs/term-set": externalDependencyVersions["@rdfjs/term-set"],
+        "@rdfjs/types": externalDependencyVersions["@rdfjs/types"],
+        "@tpluscode/rdf-ns-builders":
+          externalDependencyVersions["@tpluscode/rdf-ns-builders"],
+        "@types/rdfjs__term-map":
+          externalDependencyVersions["@types/rdfjs__term-map"],
+        "@types/rdfjs__term-set":
+          externalDependencyVersions["@types/rdfjs__term-set"],
+        "purify-ts": externalDependencyVersions["purify-ts"],
+        "rdfjs-resource": externalDependencyVersions["rdfjs-resource"],
+      },
+    },
+    devDependencies: {
+      external: {
+        "@types/n3": externalDependencyVersions["@types/n3"],
+        n3: externalDependencyVersions["n3"],
+      },
+    },
+    linkableDependencies: ["rdfjs-resource"],
+    name: "shacl-ast",
   },
 ];
 

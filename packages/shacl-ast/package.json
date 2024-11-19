@@ -1,46 +1,20 @@
 {
   "dependencies": {
-    "@shaclmate/shacl-ast": "2.0.12",
-    "@rdfjs/prefix-map": "^0.1.2",
     "@rdfjs/term-map": "^2.0.2",
     "@rdfjs/term-set": "^2.0.3",
     "@rdfjs/types": "^1.1.0",
-    "@sindresorhus/base62": "^0.1.0",
     "@tpluscode/rdf-ns-builders": "^4.3.0",
-    "@types/n3": "^1.21.1",
-    "@types/rdfjs__prefix-map": "^0.1.5",
     "@types/rdfjs__term-map": "^2.0.10",
     "@types/rdfjs__term-set": "^2.0.9",
-    "change-case": "^5.4.4",
-    "n3": "^1.21.3",
-    "pino": "^9.1.0",
-    "reserved-identifiers": "^1.0.0",
-    "ts-invariant": "^0.10.3",
-    "ts-morph": "^24.0.0",
-    "typescript-memoize": "^1.1.1"
+    "purify-ts": "^2.1.0",
+    "rdfjs-resource": "1.0.12"
   },
   "devDependencies": {
-    "@shaclmate/runtime": "2.0.12"
+    "@types/n3": "^1.21.1",
+    "n3": "^1.21.3"
   },
-  "files": [
-    "*.d.ts",
-    "*.js",
-    "ast/*.d.ts",
-    "ast/*.js",
-    "generators/*.d.ts",
-    "generators/*.js",
-    "generators/json/*.d.ts",
-    "generators/json/*.js",
-    "generators/ts/*.d.ts",
-    "generators/ts/*.js",
-    "generators/ts/_ObjectType/*.d.ts",
-    "generators/ts/_ObjectType/*.js",
-    "vocabularies/*.d.ts",
-    "vocabularies/*.js"
-  ],
-  "main": "index.js",
   "license": "Apache-2.0",
-  "name": "@shaclmate/compiler",
+  "name": "@shaclmate/shacl-ast",
   "scripts": {
     "build": "tsc -b",
     "check": "biome check",
@@ -58,7 +32,7 @@
     "test": "biome check && vitest run",
     "test:coverage": "biome check && vitest run --coverage",
     "test:watch": "vitest watch",
-    "unlink": "npm unlink -g @shaclmate/compiler",
+    "unlink": "npm unlink -g @shaclmate/shacl-ast",
     "watch": "tsc -w --preserveWatchOutput"
   },
   "repository": {
