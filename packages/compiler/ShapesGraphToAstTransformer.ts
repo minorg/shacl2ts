@@ -116,9 +116,9 @@ export class ShapesGraphToAstTransformer {
             !nodeShape.resource.identifier.value.startsWith(dash[""].value),
         )
         .map((nodeShape) => this.nodeShapeAstType(nodeShape)),
-    ).map((nodeShapeTypes) => ({
-      objectTypes: nodeShapeTypes.filter(
-        (nodeShapeType) => nodeShapeType.kind === "ObjectType",
+    ).map((nodeShapeAstTypes) => ({
+      objectTypes: nodeShapeAstTypes.filter(
+        (nodeShapeAstType) => nodeShapeAstType.kind === "ObjectType",
       ),
     }));
   }
