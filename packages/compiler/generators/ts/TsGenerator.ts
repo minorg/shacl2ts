@@ -6,7 +6,8 @@ import {
 } from "ts-morph";
 import type * as ast from "../../ast";
 import { Configuration as GlobalConfiguration } from "./Configuration.js";
-import type { ObjectType } from "./ObjectType.js";
+import { ObjectType } from "./ObjectType.js";
+import { ObjectUnionType } from "./ObjectUnionType.js";
 import { TypeFactory } from "./TypeFactory.js";
 import { tsName } from "./tsName.js";
 
@@ -50,23 +51,34 @@ export class TsGenerator {
 
     const typeFactory = new TypeFactory({ configuration: this.configuration });
 
-    const objectTypes = astObjectTypes.flatMap((astObjectType) => {
-      const type = typeFactory.createTypeFromAstType(astObjectType);
-      return type.kind === "ObjectType" ? [type as ObjectType] : [];
+    this.addDeclarations({
+      objectTypes: astObjectTypes.flatMap((astObjectType) => {
+        const type = typeFactory.createTypeFromAstType(astObjectType);
+        return type instanceof ObjectType ? [type] : [];
+      }),
+      objectUnionTypes: this.ast.objectUnionTypes.flatMap(
+        (astObjectUnionType) => {
+          const type = typeFactory.createTypeFromAstType(astObjectUnionType);
+          return type instanceof ObjectUnionType ? [type] : [];
+        },
+      ),
+      sourceFile,
     });
-
-    this.addDeclarations(objectTypes, sourceFile);
 
     sourceFile.saveSync();
 
     return project.getFileSystem().readFileSync(sourceFile.getFilePath());
   }
 
-  private addDeclarations(
-    objectTypes: readonly ObjectType[],
-    sourceFile: SourceFile,
-  ): void {
-    this.addImportDeclarations(objectTypes, sourceFile);
+  private addDeclarations({
+    objectTypes,
+    sourceFile,
+  }: {
+    objectTypes: readonly ObjectType[];
+    objectUnionTypes: readonly ObjectUnionType[];
+    sourceFile: SourceFile;
+  }): void {
+    this.addImportDeclarations({ objectTypes, sourceFile });
 
     for (const objectType of objectTypes) {
       switch (this.configuration.objectTypeDeclarationType) {
@@ -121,10 +133,13 @@ export class TsGenerator {
     }
   }
 
-  private addImportDeclarations(
-    objectTypes: readonly ObjectType[],
-    sourceFile: SourceFile,
-  ) {
+  private addImportDeclarations({
+    objectTypes,
+    sourceFile,
+  }: {
+    objectTypes: readonly ObjectType[];
+    sourceFile: SourceFile;
+  }) {
     sourceFile.addImportDeclaration({
       moduleSpecifier: "purify-ts",
       namespaceImport: "purify",
