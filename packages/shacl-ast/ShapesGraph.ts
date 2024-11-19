@@ -219,7 +219,6 @@ export class ShapesGraph {
     }
 
     // Member of a SHACL list that is a value of a shape-expecting and list-taking parameter such as sh:or
-    // biome-ignore lint/complexity/useLiteralKeys: <explanation>
     for (const predicate of [sh.and, sh["in"], sh.languageIn, sh.or, sh.xone]) {
       for (const quad of this.dataset.match(null, predicate, null, this.node)) {
         switch (quad.object.termType) {

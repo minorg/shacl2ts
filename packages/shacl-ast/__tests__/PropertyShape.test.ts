@@ -26,7 +26,6 @@ describe("PropertyShape", () => {
       },
     );
     expect(propertyShape).toBeDefined();
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     return propertyShape!;
   };
 
