@@ -8,6 +8,12 @@
 @prefix skos-shacl: <http://kos-kit.github.io/skos-shacl/ns#> .
 @prefix skos-xl: <http://www.w3.org/2008/05/skos-xl#> .
 
+skos-shacl:CollectionMember
+    a sh:NodeShape ;
+    sh:or (skos:Collection
+        skos:Concept
+    ) .
+
 skos-shacl:Labeled
     shaclmate:abstract true ;
     shaclmate:export false ;
@@ -61,13 +67,7 @@ skos-shacl:OrderedCollectionMemberList-first
     sh:maxCount 1 ;
     sh:minCount 1 ;
     sh:name "first" ;
-    sh:or ([
-            sh:class skos:Collection
-        ]
-        [
-            sh:class skos:Concept
-        ]
-    ) ;
+    sh:node skos-shacl:CollectionMember ;
     sh:path rdf:first .
 
 skos-shacl:OrderedCollectionMemberList-rest
@@ -92,13 +92,7 @@ skos:Collection
     sh:nodeKind sh:IRI ;
     sh:property [
         sh:name "member" ;
-        sh:or ([
-                sh:class skos:Collection
-            ]
-            [
-                sh:class skos:Concept
-            ]
-        ) ;
+        sh:node skos-shacl:CollectionMember ;
         sh:path skos:member
     ] .
 
@@ -221,8 +215,8 @@ skos-xl:Label
     sh:nodeKind sh:BlankNodeOrIRI ;
     sh:property [
         sh:minCount 1 ;
-        sh:or dash:StringOrLangString ;
         sh:name "literalForm" ;
+        sh:or dash:StringOrLangString ;
         sh:path skos-xl:literalForm
     ] .
 

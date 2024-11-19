@@ -5,5 +5,11 @@ import type { Type } from "./Type.js";
  */
 export interface UnionType<MemberTypeT extends Type = Type> {
   readonly kind: "UnionType";
-  readonly memberTypes: readonly MemberTypeT[];
+
+  /**
+   * Member types of the union.
+   *
+   * Mutable to support cycle-handling logic in the compiler.
+   */
+  readonly memberTypes: MemberTypeT[];
 }
