@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "ignore": ["*.js", "*.js.map", "*.d.ts", "*.d.ts.map"]
+    "ignore": ["*.js", "*.js.map", "*.d.ts", "*.d.ts.map", "*.json"]
   },
   "formatter": {
     "enabled": true,
