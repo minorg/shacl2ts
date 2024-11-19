@@ -123,8 +123,14 @@ export class ShapesGraphToAstTransformer {
         )
         .map((nodeShape) => this.nodeShapeAstType(nodeShape)),
     ).map((nodeShapeAstTypes) => ({
+      objectIntersectionTypes: nodeShapeAstTypes.filter(
+        (nodeShapeAstType) => nodeShapeAstType.kind === "IntersectionType",
+      ),
       objectTypes: nodeShapeAstTypes.filter(
         (nodeShapeAstType) => nodeShapeAstType.kind === "ObjectType",
+      ),
+      objectUnionTypes: nodeShapeAstTypes.filter(
+        (nodeShapeAstType) => nodeShapeAstType.kind === "UnionType",
       ),
     }));
   }
