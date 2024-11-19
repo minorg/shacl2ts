@@ -11,7 +11,10 @@
     "rdfjs-resource": "1.0.12"
   },
   "devDependencies": {},
-  "files": ["*.d.ts", "*.js"],
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
   "main": "index.js",
   "license": "Apache-2.0",
   "name": "@shaclmate/runtime",
@@ -41,5 +44,5 @@
   },
   "type": "module",
   "types": "index.d.ts",
-  "version": "2.0.12"
+  "version": "2.0.13"
 }

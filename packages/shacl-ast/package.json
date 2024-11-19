@@ -13,7 +13,10 @@
     "@types/n3": "^1.21.1",
     "n3": "^1.21.3"
   },
-  "files": ["*.d.ts", "*.js"],
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
   "main": "index.js",
   "license": "Apache-2.0",
   "name": "@shaclmate/shacl-ast",
@@ -43,5 +46,5 @@
   },
   "type": "module",
   "types": "index.d.ts",
-  "version": "2.0.12"
+  "version": "2.0.13"
 }
