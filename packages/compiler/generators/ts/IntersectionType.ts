@@ -1,14 +1,16 @@
 import { invariant } from "ts-invariant";
 import { Type } from "./Type.js";
 
-export class IntersectionType extends Type {
+export class IntersectionType<MemberTypeT extends Type = Type> extends Type {
   readonly kind = "IntersectionType";
-  readonly memberTypes: readonly Type[];
+  readonly memberTypes: readonly MemberTypeT[];
 
   constructor({
     memberTypes,
     ...superParameters
-  }: ConstructorParameters<typeof Type>[0] & { memberTypes: readonly Type[] }) {
+  }: ConstructorParameters<typeof Type>[0] & {
+    memberTypes: readonly MemberTypeT[];
+  }) {
     super(superParameters);
     invariant(memberTypes.length >= 2);
     this.memberTypes = memberTypes;

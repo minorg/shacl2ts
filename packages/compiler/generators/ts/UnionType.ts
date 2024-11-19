@@ -12,14 +12,16 @@ function syntheticTypeDiscriminatorValue({
   return `${typeIndex}-${type.name}`;
 }
 
-export class UnionType extends Type {
+export class UnionType<MemberTypeT extends Type = Type> extends Type {
   readonly kind = "UnionType";
-  readonly memberTypes: readonly Type[];
+  readonly memberTypes: readonly MemberTypeT[];
 
   constructor({
     memberTypes,
     ...superParameters
-  }: ConstructorParameters<typeof Type>[0] & { memberTypes: readonly Type[] }) {
+  }: ConstructorParameters<typeof Type>[0] & {
+    memberTypes: readonly MemberTypeT[];
+  }) {
     super(superParameters);
     invariant(memberTypes.length >= 2);
     this.memberTypes = memberTypes;
