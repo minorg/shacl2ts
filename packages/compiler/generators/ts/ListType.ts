@@ -106,7 +106,7 @@ export class ListType extends Type {
             listIdentifier = `dataFactory.namedNode(\`urn:shaclmate:list:\${${variables.value}.reduce(
         (_hasher, _item) => {
           ${this.itemType.hashStatements({ variables: { hasher: "_hasher", value: "_item" } })}
-          return hasher;
+          return _hasher;
         },
         sha256.create(),
       )}\`)`;
