@@ -5,7 +5,7 @@ import { rdfjsTermExpression } from "../rdfjsTermExpression.js";
 const variables = {
   ignoreRdfType: "ignoreRdfType",
   options: "_options",
-  resource: "resource",
+  resource: "_resource",
 };
 
 export function fromRdfFunctionDeclaration(

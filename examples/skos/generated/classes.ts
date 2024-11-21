@@ -266,86 +266,86 @@ abstract class Resource {
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
-    const resource = resourceSet.mutableNamedResource({
+    const _resource = resourceSet.mutableNamedResource({
       identifier: this.identifier,
       mutateGraph,
     });
     if (!ignoreRdfType) {
-      resource.add(
-        resource.dataFactory.namedNode(
+      _resource.add(
+        _resource.dataFactory.namedNode(
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
         ),
-        resource.dataFactory.namedNode(
+        _resource.dataFactory.namedNode(
           "http://kos-kit.github.io/skos-shacl/ns#Resource",
         ),
       );
     }
 
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
       this.altLabel,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#altLabel"),
       this.altLabelXl,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#changeNote"),
       this.changeNote,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#definition"),
       this.definition,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode(
         "http://www.w3.org/2004/02/skos/core#editorialNote",
       ),
       this.editorialNote,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#example"),
       this.example,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#hiddenLabel"),
       this.hiddenLabel,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#hiddenLabel"),
       this.hiddenLabelXl,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#historyNote"),
       this.historyNote,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
       this.notation,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
       this.note,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#prefLabel"),
       this.prefLabel,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#prefLabel"),
       this.prefLabelXl,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#scopeNote"),
       this.scopeNote,
     );
-    return resource;
+    return _resource;
   }
 }
 
 namespace Resource {
   export function fromRdf(
-    resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
@@ -369,7 +369,7 @@ namespace Resource {
   > {
     if (
       !_options?.ignoreRdfType &&
-      !resource.isInstanceOf(
+      !_resource.isInstanceOf(
         dataFactory.namedNode(
           "http://kos-kit.github.io/skos-shacl/ns#Resource",
         ),
@@ -377,8 +377,8 @@ namespace Resource {
     ) {
       return purify.Left(
         new rdfjsResource.Resource.ValueError({
-          focusResource: resource,
-          message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+          focusResource: _resource,
+          message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
           predicate: dataFactory.namedNode(
             "http://kos-kit.github.io/skos-shacl/ns#Resource",
           ),
@@ -390,16 +390,16 @@ namespace Resource {
       rdfjsResource.Resource.ValueError,
       readonly rdfjs.Literal[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#altLabel"),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toLiteral())
+            .chain((_value) => _value.toLiteral())
             .toMaybe()
             .toList(),
         ),
@@ -413,16 +413,16 @@ namespace Resource {
       rdfjsResource.Resource.ValueError,
       readonly (rdfjs.BlankNode | rdfjs.NamedNode)[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#altLabel"),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toIdentifier())
+            .chain((_value) => _value.toIdentifier())
             .toMaybe()
             .toList(),
         ),
@@ -436,18 +436,18 @@ namespace Resource {
       rdfjsResource.Resource.ValueError,
       readonly rdfjs.Literal[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#changeNote",
           ),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toLiteral())
+            .chain((_value) => _value.toLiteral())
             .toMaybe()
             .toList(),
         ),
@@ -461,18 +461,18 @@ namespace Resource {
       rdfjsResource.Resource.ValueError,
       readonly rdfjs.Literal[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#definition",
           ),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toLiteral())
+            .chain((_value) => _value.toLiteral())
             .toMaybe()
             .toList(),
         ),
@@ -486,18 +486,18 @@ namespace Resource {
       rdfjsResource.Resource.ValueError,
       readonly rdfjs.Literal[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#editorialNote",
           ),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toLiteral())
+            .chain((_value) => _value.toLiteral())
             .toMaybe()
             .toList(),
         ),
@@ -511,16 +511,16 @@ namespace Resource {
       rdfjsResource.Resource.ValueError,
       readonly rdfjs.Literal[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#example"),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toLiteral())
+            .chain((_value) => _value.toLiteral())
             .toMaybe()
             .toList(),
         ),
@@ -534,18 +534,18 @@ namespace Resource {
       rdfjsResource.Resource.ValueError,
       readonly rdfjs.Literal[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#hiddenLabel",
           ),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toLiteral())
+            .chain((_value) => _value.toLiteral())
             .toMaybe()
             .toList(),
         ),
@@ -559,18 +559,18 @@ namespace Resource {
       rdfjsResource.Resource.ValueError,
       readonly (rdfjs.BlankNode | rdfjs.NamedNode)[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode(
             "http://www.w3.org/2008/05/skos-xl#hiddenLabel",
           ),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toIdentifier())
+            .chain((_value) => _value.toIdentifier())
             .toMaybe()
             .toList(),
         ),
@@ -584,18 +584,18 @@ namespace Resource {
       rdfjsResource.Resource.ValueError,
       readonly rdfjs.Literal[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#historyNote",
           ),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toLiteral())
+            .chain((_value) => _value.toLiteral())
             .toMaybe()
             .toList(),
         ),
@@ -605,21 +605,21 @@ namespace Resource {
     }
 
     const historyNote = _historyNoteEither.unsafeCoerce();
-    const identifier = resource.identifier;
+    const identifier = _resource.identifier;
     const _notationEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       readonly rdfjs.Literal[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toLiteral())
+            .chain((_value) => _value.toLiteral())
             .toMaybe()
             .toList(),
         ),
@@ -633,16 +633,16 @@ namespace Resource {
       rdfjsResource.Resource.ValueError,
       readonly rdfjs.Literal[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#notation"),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toLiteral())
+            .chain((_value) => _value.toLiteral())
             .toMaybe()
             .toList(),
         ),
@@ -656,18 +656,18 @@ namespace Resource {
       rdfjsResource.Resource.ValueError,
       readonly rdfjs.Literal[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#prefLabel",
           ),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toLiteral())
+            .chain((_value) => _value.toLiteral())
             .toMaybe()
             .toList(),
         ),
@@ -681,16 +681,16 @@ namespace Resource {
       rdfjsResource.Resource.ValueError,
       readonly (rdfjs.BlankNode | rdfjs.NamedNode)[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#prefLabel"),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toIdentifier())
+            .chain((_value) => _value.toIdentifier())
             .toMaybe()
             .toList(),
         ),
@@ -704,18 +704,18 @@ namespace Resource {
       rdfjsResource.Resource.ValueError,
       readonly rdfjs.Literal[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode(
             "http://www.w3.org/2004/02/skos/core#scopeNote",
           ),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toLiteral())
+            .chain((_value) => _value.toLiteral())
             .toMaybe()
             .toList(),
         ),
@@ -753,74 +753,74 @@ namespace Resource {
       Resource,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
-    hasher: HasherT,
+    _hasher: HasherT,
   ): HasherT {
-    for (const element of resource.altLabel) {
-      hasher.update(element.value);
+    for (const _element of resource.altLabel) {
+      _hasher.update(_element.value);
     }
 
-    for (const element of resource.altLabelXl) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of resource.altLabelXl) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of resource.changeNote) {
-      hasher.update(element.value);
+    for (const _element of resource.changeNote) {
+      _hasher.update(_element.value);
     }
 
-    for (const element of resource.definition) {
-      hasher.update(element.value);
+    for (const _element of resource.definition) {
+      _hasher.update(_element.value);
     }
 
-    for (const element of resource.editorialNote) {
-      hasher.update(element.value);
+    for (const _element of resource.editorialNote) {
+      _hasher.update(_element.value);
     }
 
-    for (const element of resource.example) {
-      hasher.update(element.value);
+    for (const _element of resource.example) {
+      _hasher.update(_element.value);
     }
 
-    for (const element of resource.hiddenLabel) {
-      hasher.update(element.value);
+    for (const _element of resource.hiddenLabel) {
+      _hasher.update(_element.value);
     }
 
-    for (const element of resource.hiddenLabelXl) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of resource.hiddenLabelXl) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of resource.historyNote) {
-      hasher.update(element.value);
+    for (const _element of resource.historyNote) {
+      _hasher.update(_element.value);
     }
 
-    for (const element of resource.notation) {
-      hasher.update(element.value);
+    for (const _element of resource.notation) {
+      _hasher.update(_element.value);
     }
 
-    for (const element of resource.note) {
-      hasher.update(element.value);
+    for (const _element of resource.note) {
+      _hasher.update(_element.value);
     }
 
-    for (const element of resource.prefLabel) {
-      hasher.update(element.value);
+    for (const _element of resource.prefLabel) {
+      _hasher.update(_element.value);
     }
 
-    for (const element of resource.prefLabelXl) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of resource.prefLabelXl) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of resource.scopeNote) {
-      hasher.update(element.value);
+    for (const _element of resource.scopeNote) {
+      _hasher.update(_element.value);
     }
 
-    return hasher;
+    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
+      options?: { ignoreRdfType?: boolean },
     ) {
       super(subject);
-      if (!_options?.ignoreRdfType) {
+      if (!options?.ignoreRdfType) {
         this.add(
           ...new sparqlBuilder.RdfTypeGraphPatterns(
             subject,
@@ -1007,19 +1007,17 @@ export class Collection extends Resource {
   }
 
   override equals(other: Collection): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          member: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        member: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -1039,40 +1037,40 @@ export class Collection extends Resource {
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
-    const resource = super.toRdf({
+    const _resource = super.toRdf({
       mutateGraph,
       ignoreRdfType: true,
       resourceSet,
     });
     if (!ignoreRdfType) {
-      resource.add(
-        resource.dataFactory.namedNode(
+      _resource.add(
+        _resource.dataFactory.namedNode(
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
         ),
-        resource.dataFactory.namedNode(
+        _resource.dataFactory.namedNode(
           "http://www.w3.org/2004/02/skos/core#Collection",
         ),
       );
     }
 
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#member"),
       this.member,
     );
-    return resource;
+    return _resource;
   }
 }
 
 export namespace Collection {
   export function fromRdf(
-    resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<rdfjsResource.Resource.ValueError, Collection> {
-    return Resource.fromRdf(resource, { ignoreRdfType: true }).chain(
+    return Resource.fromRdf(_resource, { ignoreRdfType: true }).chain(
       (_super) => {
         if (
           !_options?.ignoreRdfType &&
-          !resource.isInstanceOf(
+          !_resource.isInstanceOf(
             dataFactory.namedNode(
               "http://www.w3.org/2004/02/skos/core#Collection",
             ),
@@ -1080,8 +1078,8 @@ export namespace Collection {
         ) {
           return purify.Left(
             new rdfjsResource.Resource.ValueError({
-              focusResource: resource,
-              message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+              focusResource: _resource,
+              message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
               predicate: dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#Collection",
               ),
@@ -1092,18 +1090,18 @@ export namespace Collection {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#member",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1145,23 +1143,23 @@ export namespace Collection {
       Collection,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
-    hasher: HasherT,
+    _hasher: HasherT,
   ): HasherT {
-    Resource.hashResource(collection, hasher);
-    for (const element of collection.member) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    Resource.hashResource(collection, _hasher);
+    for (const _element of collection.member) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    return hasher;
+    return _hasher;
   }
 
   export class SparqlGraphPatterns extends Resource.SparqlGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
+      options?: { ignoreRdfType?: boolean },
     ) {
       super(subject, { ignoreRdfType: true });
-      if (!_options?.ignoreRdfType) {
+      if (!options?.ignoreRdfType) {
         this.add(
           ...new sparqlBuilder.RdfTypeGraphPatterns(
             subject,
@@ -1335,97 +1333,95 @@ export class Concept extends Resource {
   }
 
   override equals(other: Concept): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          broader: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          broaderTransitive: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          broadMatch: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          closeMatch: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          exactMatch: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          inScheme: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          mappingRelation: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          narrower: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          narrowerTransitive: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          narrowMatch: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          related: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          relatedMatch: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          semanticRelation: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          topConceptOf: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        broader: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        broaderTransitive: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        broadMatch: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        closeMatch: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        exactMatch: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        inScheme: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        mappingRelation: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        narrower: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        narrowerTransitive: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        narrowMatch: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        related: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        relatedMatch: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        semanticRelation: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        topConceptOf: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -1445,100 +1441,100 @@ export class Concept extends Resource {
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
-    const resource = super.toRdf({
+    const _resource = super.toRdf({
       mutateGraph,
       ignoreRdfType: true,
       resourceSet,
     });
     if (!ignoreRdfType) {
-      resource.add(
-        resource.dataFactory.namedNode(
+      _resource.add(
+        _resource.dataFactory.namedNode(
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
         ),
-        resource.dataFactory.namedNode(
+        _resource.dataFactory.namedNode(
           "http://www.w3.org/2004/02/skos/core#Concept",
         ),
       );
     }
 
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#broader"),
       this.broader,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode(
         "http://www.w3.org/2004/02/skos/core#broaderTransitive",
       ),
       this.broaderTransitive,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#broadMatch"),
       this.broadMatch,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#closeMatch"),
       this.closeMatch,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#exactMatch"),
       this.exactMatch,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#inScheme"),
       this.inScheme,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode(
         "http://www.w3.org/2004/02/skos/core#mappingRelation",
       ),
       this.mappingRelation,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#narrower"),
       this.narrower,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode(
         "http://www.w3.org/2004/02/skos/core#narrowerTransitive",
       ),
       this.narrowerTransitive,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#narrowMatch"),
       this.narrowMatch,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#related"),
       this.related,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#relatedMatch"),
       this.relatedMatch,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode(
         "http://www.w3.org/2004/02/skos/core#semanticRelation",
       ),
       this.semanticRelation,
     );
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#topConceptOf"),
       this.topConceptOf,
     );
-    return resource;
+    return _resource;
   }
 }
 
 export namespace Concept {
   export function fromRdf(
-    resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<rdfjsResource.Resource.ValueError, Concept> {
-    return Resource.fromRdf(resource, { ignoreRdfType: true }).chain(
+    return Resource.fromRdf(_resource, { ignoreRdfType: true }).chain(
       (_super) => {
         if (
           !_options?.ignoreRdfType &&
-          !resource.isInstanceOf(
+          !_resource.isInstanceOf(
             dataFactory.namedNode(
               "http://www.w3.org/2004/02/skos/core#Concept",
             ),
@@ -1546,8 +1542,8 @@ export namespace Concept {
         ) {
           return purify.Left(
             new rdfjsResource.Resource.ValueError({
-              focusResource: resource,
-              message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+              focusResource: _resource,
+              message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
               predicate: dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#Concept",
               ),
@@ -1558,18 +1554,18 @@ export namespace Concept {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#broader",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1582,18 +1578,18 @@ export namespace Concept {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#broaderTransitive",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1606,18 +1602,18 @@ export namespace Concept {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#broadMatch",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1630,18 +1626,18 @@ export namespace Concept {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#closeMatch",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1654,18 +1650,18 @@ export namespace Concept {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#exactMatch",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1678,18 +1674,18 @@ export namespace Concept {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#inScheme",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1702,18 +1698,18 @@ export namespace Concept {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#mappingRelation",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1726,18 +1722,18 @@ export namespace Concept {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#narrower",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1750,18 +1746,18 @@ export namespace Concept {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#narrowerTransitive",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1774,18 +1770,18 @@ export namespace Concept {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#narrowMatch",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1798,18 +1794,18 @@ export namespace Concept {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#related",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1822,18 +1818,18 @@ export namespace Concept {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#relatedMatch",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1846,18 +1842,18 @@ export namespace Concept {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#semanticRelation",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1870,18 +1866,18 @@ export namespace Concept {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#topConceptOf",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -1933,75 +1929,75 @@ export namespace Concept {
     },
   >(
     concept: Omit<Concept, "equals" | "hash" | "identifier" | "toRdf" | "type">,
-    hasher: HasherT,
+    _hasher: HasherT,
   ): HasherT {
-    Resource.hashResource(concept, hasher);
-    for (const element of concept.broader) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    Resource.hashResource(concept, _hasher);
+    for (const _element of concept.broader) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of concept.broaderTransitive) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of concept.broaderTransitive) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of concept.broadMatch) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of concept.broadMatch) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of concept.closeMatch) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of concept.closeMatch) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of concept.exactMatch) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of concept.exactMatch) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of concept.inScheme) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of concept.inScheme) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of concept.mappingRelation) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of concept.mappingRelation) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of concept.narrower) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of concept.narrower) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of concept.narrowerTransitive) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of concept.narrowerTransitive) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of concept.narrowMatch) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of concept.narrowMatch) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of concept.related) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of concept.related) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of concept.relatedMatch) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of concept.relatedMatch) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of concept.semanticRelation) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of concept.semanticRelation) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    for (const element of concept.topConceptOf) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    for (const _element of concept.topConceptOf) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    return hasher;
+    return _hasher;
   }
 
   export class SparqlGraphPatterns extends Resource.SparqlGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
+      options?: { ignoreRdfType?: boolean },
     ) {
       super(subject, { ignoreRdfType: true });
-      if (!_options?.ignoreRdfType) {
+      if (!options?.ignoreRdfType) {
         this.add(
           ...new sparqlBuilder.RdfTypeGraphPatterns(
             subject,
@@ -2190,19 +2186,17 @@ export class ConceptScheme extends Resource {
   }
 
   override equals(other: ConceptScheme): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          hasTopConcept: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        hasTopConcept: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -2222,42 +2216,42 @@ export class ConceptScheme extends Resource {
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
-    const resource = super.toRdf({
+    const _resource = super.toRdf({
       mutateGraph,
       ignoreRdfType: true,
       resourceSet,
     });
     if (!ignoreRdfType) {
-      resource.add(
-        resource.dataFactory.namedNode(
+      _resource.add(
+        _resource.dataFactory.namedNode(
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
         ),
-        resource.dataFactory.namedNode(
+        _resource.dataFactory.namedNode(
           "http://www.w3.org/2004/02/skos/core#ConceptScheme",
         ),
       );
     }
 
-    resource.add(
+    _resource.add(
       dataFactory.namedNode(
         "http://www.w3.org/2004/02/skos/core#hasTopConcept",
       ),
       this.hasTopConcept,
     );
-    return resource;
+    return _resource;
   }
 }
 
 export namespace ConceptScheme {
   export function fromRdf(
-    resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<rdfjsResource.Resource.ValueError, ConceptScheme> {
-    return Resource.fromRdf(resource, { ignoreRdfType: true }).chain(
+    return Resource.fromRdf(_resource, { ignoreRdfType: true }).chain(
       (_super) => {
         if (
           !_options?.ignoreRdfType &&
-          !resource.isInstanceOf(
+          !_resource.isInstanceOf(
             dataFactory.namedNode(
               "http://www.w3.org/2004/02/skos/core#ConceptScheme",
             ),
@@ -2265,8 +2259,8 @@ export namespace ConceptScheme {
         ) {
           return purify.Left(
             new rdfjsResource.Resource.ValueError({
-              focusResource: resource,
-              message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+              focusResource: _resource,
+              message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
               predicate: dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#ConceptScheme",
               ),
@@ -2277,18 +2271,18 @@ export namespace ConceptScheme {
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
         > = purify.Either.of([
-          ...resource
+          ..._resource
             .values(
               dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#hasTopConcept",
               ),
               { unique: true },
             )
-            .flatMap((value) =>
-              value
+            .flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -2330,23 +2324,23 @@ export namespace ConceptScheme {
       ConceptScheme,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
-    hasher: HasherT,
+    _hasher: HasherT,
   ): HasherT {
-    Resource.hashResource(conceptScheme, hasher);
-    for (const element of conceptScheme.hasTopConcept) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    Resource.hashResource(conceptScheme, _hasher);
+    for (const _element of conceptScheme.hasTopConcept) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    return hasher;
+    return _hasher;
   }
 
   export class SparqlGraphPatterns extends Resource.SparqlGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
+      options?: { ignoreRdfType?: boolean },
     ) {
       super(subject, { ignoreRdfType: true });
-      if (!_options?.ignoreRdfType) {
+      if (!options?.ignoreRdfType) {
         this.add(
           ...new sparqlBuilder.RdfTypeGraphPatterns(
             subject,
@@ -2421,44 +2415,44 @@ export class Label {
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
-    const resource = resourceSet.mutableResource({
+    const _resource = resourceSet.mutableResource({
       identifier: this.identifier,
       mutateGraph,
     });
     if (!ignoreRdfType) {
-      resource.add(
-        resource.dataFactory.namedNode(
+      _resource.add(
+        _resource.dataFactory.namedNode(
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
         ),
-        resource.dataFactory.namedNode(
+        _resource.dataFactory.namedNode(
           "http://www.w3.org/2008/05/skos-xl#Label",
         ),
       );
     }
 
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#literalForm"),
       this.literalForm,
     );
-    return resource;
+    return _resource;
   }
 }
 
 export namespace Label {
   export function fromRdf(
-    resource: rdfjsResource.Resource,
+    _resource: rdfjsResource.Resource,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<rdfjsResource.Resource.ValueError, Label> {
     if (
       !_options?.ignoreRdfType &&
-      !resource.isInstanceOf(
+      !_resource.isInstanceOf(
         dataFactory.namedNode("http://www.w3.org/2008/05/skos-xl#Label"),
       )
     ) {
       return purify.Left(
         new rdfjsResource.Resource.ValueError({
-          focusResource: resource,
-          message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+          focusResource: _resource,
+          message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
           predicate: dataFactory.namedNode(
             "http://www.w3.org/2008/05/skos-xl#Label",
           ),
@@ -2466,23 +2460,23 @@ export namespace Label {
       );
     }
 
-    const identifier = resource.identifier;
+    const identifier = _resource.identifier;
     const _literalFormEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       readonly rdfjs.Literal[]
     > = purify.Either.of([
-      ...resource
+      ..._resource
         .values(
           dataFactory.namedNode(
             "http://www.w3.org/2008/05/skos-xl#literalForm",
           ),
           { unique: true },
         )
-        .flatMap((value) =>
-          value
+        .flatMap((_value) =>
+          _value
             .toValues()
             .head()
-            .chain((value) => value.toLiteral())
+            .chain((_value) => _value.toLiteral())
             .toMaybe()
             .toList(),
         ),
@@ -2501,22 +2495,22 @@ export namespace Label {
     },
   >(
     label: Omit<Label, "equals" | "hash" | "identifier" | "toRdf" | "type">,
-    hasher: HasherT,
+    _hasher: HasherT,
   ): HasherT {
-    for (const element of label.literalForm) {
-      hasher.update(element.value);
+    for (const _element of label.literalForm) {
+      _hasher.update(_element.value);
     }
 
-    return hasher;
+    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
+      options?: { ignoreRdfType?: boolean },
     ) {
       super(subject);
-      if (!_options?.ignoreRdfType) {
+      if (!options?.ignoreRdfType) {
         this.add(
           ...new sparqlBuilder.RdfTypeGraphPatterns(
             subject,
@@ -2554,19 +2548,17 @@ export class OrderedCollection extends Collection {
   override equals(
     other: OrderedCollection,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          memberList: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.booleanEquals,
-            ),
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        memberList: (left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ),
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -2586,23 +2578,23 @@ export class OrderedCollection extends Collection {
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
-    const resource = super.toRdf({
+    const _resource = super.toRdf({
       mutateGraph,
       ignoreRdfType: true,
       resourceSet,
     });
     if (!ignoreRdfType) {
-      resource.add(
-        resource.dataFactory.namedNode(
+      _resource.add(
+        _resource.dataFactory.namedNode(
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
         ),
-        resource.dataFactory.namedNode(
+        _resource.dataFactory.namedNode(
           "http://www.w3.org/2004/02/skos/core#OrderedCollection",
         ),
       );
     }
 
-    resource.add(
+    _resource.add(
       dataFactory.namedNode("http://www.w3.org/2004/02/skos/core#memberList"),
       this.memberList.reduce(
         ({ currentSubListResource, listResource }, item, itemIndex) => {
@@ -2663,20 +2655,20 @@ export class OrderedCollection extends Collection {
         },
       ).listResource.identifier,
     );
-    return resource;
+    return _resource;
   }
 }
 
 export namespace OrderedCollection {
   export function fromRdf(
-    resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<rdfjsResource.Resource.ValueError, OrderedCollection> {
-    return Collection.fromRdf(resource, { ignoreRdfType: true }).chain(
+    return Collection.fromRdf(_resource, { ignoreRdfType: true }).chain(
       (_super) => {
         if (
           !_options?.ignoreRdfType &&
-          !resource.isInstanceOf(
+          !_resource.isInstanceOf(
             dataFactory.namedNode(
               "http://www.w3.org/2004/02/skos/core#OrderedCollection",
             ),
@@ -2684,8 +2676,8 @@ export namespace OrderedCollection {
         ) {
           return purify.Left(
             new rdfjsResource.Resource.ValueError({
-              focusResource: resource,
-              message: `${rdfjsResource.Resource.Identifier.toString(resource.identifier)} has unexpected RDF type`,
+              focusResource: _resource,
+              message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
               predicate: dataFactory.namedNode(
                 "http://www.w3.org/2004/02/skos/core#OrderedCollection",
               ),
@@ -2695,7 +2687,7 @@ export namespace OrderedCollection {
         const _memberListEither: purify.Either<
           rdfjsResource.Resource.ValueError,
           readonly rdfjs.NamedNode[]
-        > = resource
+        > = _resource
           .values(
             dataFactory.namedNode(
               "http://www.w3.org/2004/02/skos/core#memberList",
@@ -2705,11 +2697,11 @@ export namespace OrderedCollection {
           .head()
           .chain((value) => value.toList())
           .map((values) =>
-            values.flatMap((value) =>
-              value
+            values.flatMap((_value) =>
+              _value
                 .toValues()
                 .head()
-                .chain((value) => value.toIri())
+                .chain((_value) => _value.toIri())
                 .toMaybe()
                 .toList(),
             ),
@@ -2752,23 +2744,23 @@ export namespace OrderedCollection {
       OrderedCollection,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
-    hasher: HasherT,
+    _hasher: HasherT,
   ): HasherT {
-    Collection.hashCollection(orderedCollection, hasher);
-    for (const element of orderedCollection.memberList) {
-      hasher.update(rdfjsResource.Resource.Identifier.toString(element));
+    Collection.hashCollection(orderedCollection, _hasher);
+    for (const _element of orderedCollection.memberList) {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    return hasher;
+    return _hasher;
   }
 
   export class SparqlGraphPatterns extends Collection.SparqlGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
+      options?: { ignoreRdfType?: boolean },
     ) {
       super(subject, { ignoreRdfType: true });
-      if (!_options?.ignoreRdfType) {
+      if (!options?.ignoreRdfType) {
         this.add(
           ...new sparqlBuilder.RdfTypeGraphPatterns(
             subject,
@@ -2788,8 +2780,8 @@ export namespace OrderedCollection {
             ),
             this.variable("MemberList"),
           ).chainObject(
-            (object) =>
-              new sparqlBuilder.RdfListGraphPatterns({ rdfList: object }),
+            (_object) =>
+              new sparqlBuilder.RdfListGraphPatterns({ rdfList: _object }),
           ),
         ),
       );

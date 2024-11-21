@@ -55,18 +55,18 @@ export class SetType extends Type {
   override fromRdfExpression({
     variables,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `purify.Either.of([...${variables.resourceValues}.flatMap(value => ${this.itemType.fromRdfExpression({ variables: { ...variables, resourceValues: "value.toValues()" } })}.toMaybe().toList())])`;
+    return `purify.Either.of([...${variables.resourceValues}.flatMap(_value => ${this.itemType.fromRdfExpression({ variables: { ...variables, resourceValues: "_value.toValues()" } })}.toMaybe().toList())])`;
   }
 
   override hashStatements({
     variables,
   }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `for (const element of ${variables.value}) { ${this.itemType
+      `for (const _element of ${variables.value}) { ${this.itemType
         .hashStatements({
           variables: {
             hasher: variables.hasher,
-            value: "element",
+            value: "_element",
           },
         })
         .join("\n")} }`,
@@ -88,11 +88,11 @@ export class SetType extends Type {
     variables,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
     const itemTypeToRdfExpression = this.itemType.toRdfExpression({
-      variables: { ...variables, value: "value" },
+      variables: { ...variables, value: "_value" },
     });
-    if (itemTypeToRdfExpression === "value") {
+    if (itemTypeToRdfExpression === "_value") {
       return variables.value;
     }
-    return `${variables.value}.map((value) => ${itemTypeToRdfExpression})`;
+    return `${variables.value}.map((_value) => ${itemTypeToRdfExpression})`;
   }
 }

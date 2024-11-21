@@ -72,11 +72,11 @@ export class OptionType extends Type {
     variables,
   }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `${variables.value}.ifJust((value) => { ${this.itemType
+      `${variables.value}.ifJust((_value) => { ${this.itemType
         .hashStatements({
           variables: {
             hasher: variables.hasher,
-            value: "value",
+            value: "_value",
           },
         })
         .join("\n")} })`,
@@ -95,11 +95,11 @@ export class OptionType extends Type {
     variables,
   }: Parameters<Type["toRdfExpression"]>[0]): string {
     const itemTypeToRdfExpression = this.itemType.toRdfExpression({
-      variables: { ...variables, value: "value" },
+      variables: { ...variables, value: "_value" },
     });
-    if (itemTypeToRdfExpression === "value") {
+    if (itemTypeToRdfExpression === "_value") {
       return variables.value;
     }
-    return `${variables.value}.map((value) => ${itemTypeToRdfExpression})`;
+    return `${variables.value}.map((_value) => ${itemTypeToRdfExpression})`;
   }
 }

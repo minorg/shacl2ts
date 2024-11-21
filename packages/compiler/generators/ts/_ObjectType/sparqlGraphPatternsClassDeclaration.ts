@@ -3,7 +3,7 @@ import type { ObjectType } from "../ObjectType.js";
 import { rdfjsTermExpression } from "../rdfjsTermExpression";
 
 const ignoreRdfTypeVariable = "ignoreRdfType";
-const optionsVariable = "_options";
+const optionsVariable = "options";
 const subjectVariable = "subject";
 
 export function sparqlGraphPatternsClassDeclaration(

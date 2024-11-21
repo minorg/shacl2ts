@@ -99,9 +99,9 @@ export abstract class Type {
   }): Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression {
     let expression = `sparqlBuilder.GraphPattern.basic(${variables.subject}, ${variables.predicate}, ${variables.object})`;
     this.chainSparqlGraphPatternExpression({
-      variables: { subject: "object" },
+      variables: { subject: "_object" },
     }).ifJust((chainSparqlGraphPatternExpression) => {
-      expression = `sparqlBuilder.GraphPattern.group(${expression}.chainObject(object => ${chainSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()}))`;
+      expression = `sparqlBuilder.GraphPattern.group(${expression}.chainObject(_object => ${chainSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()}))`;
     });
     return new Type.SparqlGraphPatternExpression(expression);
   }

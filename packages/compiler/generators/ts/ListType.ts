@@ -56,12 +56,12 @@ export class ListType extends Type {
         `new sparqlBuilder.RdfListGraphPatterns({ ${this.itemType
           .chainSparqlGraphPatternExpression({
             variables: {
-              subject: "itemVariable",
+              subject: "_itemVariable",
             },
           })
           .map(
             (itemSparqlGraphPatternsExpression) =>
-              `itemGraphPatterns: (itemVariable) => ${itemSparqlGraphPatternsExpression.toSparqlGraphPatternsExpression()}, `,
+              `itemGraphPatterns: (_itemVariable) => ${itemSparqlGraphPatternsExpression.toSparqlGraphPatternsExpression()}, `,
           )
           .orDefault("")} rdfList: ${variables.subject} })`,
       ),
@@ -75,14 +75,14 @@ export class ListType extends Type {
   override fromRdfExpression({
     variables,
   }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `${variables.resourceValues}.head().chain(value => value.toList()).map(values => values.flatMap(value => ${this.itemType.fromRdfExpression({ variables: { ...variables, resourceValues: "value.toValues()" } })}.toMaybe().toList()))`;
+    return `${variables.resourceValues}.head().chain(value => value.toList()).map(values => values.flatMap(_value => ${this.itemType.fromRdfExpression({ variables: { ...variables, resourceValues: "_value.toValues()" } })}.toMaybe().toList()))`;
   }
 
   override hashStatements({
     variables,
   }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
     return [
-      `for (const element of ${variables.value}) { ${this.itemType.hashStatements({ variables: { ...variables, value: "element" } }).join("\n")} }`,
+      `for (const _element of ${variables.value}) { ${this.itemType.hashStatements({ variables: { ...variables, value: "_element" } }).join("\n")} }`,
     ];
   }
 
@@ -104,8 +104,8 @@ export class ListType extends Type {
         switch (this.mintingStrategy) {
           case MintingStrategy.SHA256:
             listIdentifier = `dataFactory.namedNode(\`urn:shaclmate:list:\${${variables.value}.reduce(
-        (hasher, item) => {
-          ${this.itemType.hashStatements({ variables: { hasher: "hasher", value: "item" } })}
+        (_hasher, _item) => {
+          ${this.itemType.hashStatements({ variables: { hasher: "_hasher", value: "_item" } })}
           return hasher;
         },
         sha256.create(),

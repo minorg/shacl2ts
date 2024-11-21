@@ -45,8 +45,8 @@ export abstract class RdfjsTermType<
       );
     });
     chain.push(
-      `chain(value => ${this.fromRdfResourceValueExpression({
-        variables: { resourceValue: "value" },
+      `chain(_value => ${this.fromRdfResourceValueExpression({
+        variables: { resourceValue: "_value" },
       })})`,
     );
     return chain.join(".");
