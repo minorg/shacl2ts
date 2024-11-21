@@ -84,7 +84,7 @@ const packages: readonly Package[] = [
   {
     dependencies: {
       external: {
-        "@kos-kit/sparql-builder": "2.0.94",
+        "@kos-kit/sparql-builder": "2.0.95",
         "@rdfjs/types": externalDependencyVersions["@rdfjs/types"],
         "@types/n3": externalDependencyVersions["@types/n3"],
         "js-sha256": "^0.11.0",

@@ -22,8 +22,7 @@ export class TsGenerator {
   }
 
   generate(): string {
-    const astObjectTypes = this.ast.objectTypes.concat();
-    astObjectTypes.sort((left, right) => {
+    const astObjectTypes = this.ast.objectTypes.concat().sort((left, right) => {
       if (
         left.ancestorObjectTypes.some((ancestorObjectType) =>
           ancestorObjectType.name.identifier.equals(right.name.identifier),
@@ -40,7 +39,7 @@ export class TsGenerator {
         // Left is an ancestor of right, left must come first
         return -1;
       }
-      // Neither is an ancestor of the other, sort by name
+      // Neither is an ancestor of the other
       return tsName(left.name).localeCompare(tsName(right.name));
     });
 
