@@ -527,67 +527,64 @@ namespace Resource {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(
-    resource: Omit<Resource, "identifier" | "type">,
-    _hasher: HasherT,
-  ): HasherT {
+  >(resource: Omit<Resource, "identifier" | "type">, hasher: HasherT): HasherT {
     for (const _element of resource.altLabel) {
-      _hasher.update(_element.value);
+      hasher.update(_element.value);
     }
 
     for (const _element of resource.altLabelXl) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of resource.changeNote) {
-      _hasher.update(_element.value);
+      hasher.update(_element.value);
     }
 
     for (const _element of resource.definition) {
-      _hasher.update(_element.value);
+      hasher.update(_element.value);
     }
 
     for (const _element of resource.editorialNote) {
-      _hasher.update(_element.value);
+      hasher.update(_element.value);
     }
 
     for (const _element of resource.example) {
-      _hasher.update(_element.value);
+      hasher.update(_element.value);
     }
 
     for (const _element of resource.hiddenLabel) {
-      _hasher.update(_element.value);
+      hasher.update(_element.value);
     }
 
     for (const _element of resource.hiddenLabelXl) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of resource.historyNote) {
-      _hasher.update(_element.value);
+      hasher.update(_element.value);
     }
 
     for (const _element of resource.notation) {
-      _hasher.update(_element.value);
+      hasher.update(_element.value);
     }
 
     for (const _element of resource.note) {
-      _hasher.update(_element.value);
+      hasher.update(_element.value);
     }
 
     for (const _element of resource.prefLabel) {
-      _hasher.update(_element.value);
+      hasher.update(_element.value);
     }
 
     for (const _element of resource.prefLabelXl) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of resource.scopeNote) {
-      _hasher.update(_element.value);
+      hasher.update(_element.value);
     }
 
-    return _hasher;
+    return hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -973,14 +970,14 @@ export namespace Collection {
     },
   >(
     collection: Omit<Collection, "identifier" | "type">,
-    _hasher: HasherT,
+    hasher: HasherT,
   ): HasherT {
-    Resource.hashResource(collection, _hasher);
+    Resource.hashResource(collection, hasher);
     for (const _element of collection.member) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    return _hasher;
+    return hasher;
   }
 
   export class SparqlGraphPatterns extends Resource.SparqlGraphPatterns {
@@ -1597,65 +1594,65 @@ export namespace Concept {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(concept: Omit<Concept, "identifier" | "type">, _hasher: HasherT): HasherT {
-    Resource.hashResource(concept, _hasher);
+  >(concept: Omit<Concept, "identifier" | "type">, hasher: HasherT): HasherT {
+    Resource.hashResource(concept, hasher);
     for (const _element of concept.broader) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of concept.broaderTransitive) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of concept.broadMatch) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of concept.closeMatch) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of concept.exactMatch) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of concept.inScheme) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of concept.mappingRelation) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of concept.narrower) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of concept.narrowerTransitive) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of concept.narrowMatch) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of concept.related) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of concept.relatedMatch) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of concept.semanticRelation) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
     for (const _element of concept.topConceptOf) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    return _hasher;
+    return hasher;
   }
 
   export class SparqlGraphPatterns extends Resource.SparqlGraphPatterns {
@@ -2050,14 +2047,14 @@ export namespace ConceptScheme {
     },
   >(
     conceptScheme: Omit<ConceptScheme, "identifier" | "type">,
-    _hasher: HasherT,
+    hasher: HasherT,
   ): HasherT {
-    Resource.hashResource(conceptScheme, _hasher);
+    Resource.hashResource(conceptScheme, hasher);
     for (const _element of conceptScheme.hasTopConcept) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    return _hasher;
+    return hasher;
   }
 
   export class SparqlGraphPatterns extends Resource.SparqlGraphPatterns {
@@ -2214,12 +2211,12 @@ export namespace Label {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(label: Omit<Label, "identifier" | "type">, _hasher: HasherT): HasherT {
+  >(label: Omit<Label, "identifier" | "type">, hasher: HasherT): HasherT {
     for (const _element of label.literalForm) {
-      _hasher.update(_element.value);
+      hasher.update(_element.value);
     }
 
-    return _hasher;
+    return hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -2410,14 +2407,14 @@ export namespace OrderedCollection {
     },
   >(
     orderedCollection: Omit<OrderedCollection, "identifier" | "type">,
-    _hasher: HasherT,
+    hasher: HasherT,
   ): HasherT {
-    Collection.hashCollection(orderedCollection, _hasher);
+    Collection.hashCollection(orderedCollection, hasher);
     for (const _element of orderedCollection.memberList) {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
+      hasher.update(rdfjsResource.Resource.Identifier.toString(_element));
     }
 
-    return _hasher;
+    return hasher;
   }
 
   export class SparqlGraphPatterns extends Collection.SparqlGraphPatterns {

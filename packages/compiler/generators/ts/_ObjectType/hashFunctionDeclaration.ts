@@ -2,7 +2,7 @@ import { camelCase } from "change-case";
 import { type FunctionDeclarationStructure, StructureKind } from "ts-morph";
 import type { ObjectType } from "../ObjectType";
 
-const hasherVariable = "_hasher";
+const hasherVariable = "hasher";
 
 export const hasherTypeConstraint =
   "{ update: (message: string | number[] | ArrayBuffer | Uint8Array) => void; }";
