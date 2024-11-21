@@ -192,21 +192,21 @@ export namespace MachineLearningModel {
     },
   >(
     machineLearningModel: Omit<MachineLearningModel, "identifier" | "type">,
-    hasher: HasherT,
+    _hasher: HasherT,
   ): HasherT {
     machineLearningModel.description.ifJust((_value) => {
-      hasher.update(_value.value);
+      _hasher.update(_value.value);
     });
-    MachineLearningModelFamily.hash(machineLearningModel.isVariantOf, hasher);
-    hasher.update(machineLearningModel.localIdentifier);
-    hasher.update(machineLearningModel.name.value);
+    MachineLearningModelFamily.hash(machineLearningModel.isVariantOf, _hasher);
+    _hasher.update(machineLearningModel.localIdentifier);
+    _hasher.update(machineLearningModel.name.value);
     machineLearningModel.trainingDataCutoff.ifJust((_value) => {
-      hasher.update(_value);
+      _hasher.update(_value);
     });
     machineLearningModel.url.ifJust((_value) => {
-      hasher.update(_value);
+      _hasher.update(_value);
     });
-    return hasher;
+    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -460,14 +460,14 @@ export namespace LanguageModel {
     },
   >(
     languageModel: Omit<LanguageModel, "identifier" | "type">,
-    hasher: HasherT,
+    _hasher: HasherT,
   ): HasherT {
-    MachineLearningModel.hashMachineLearningModel(languageModel, hasher);
-    hasher.update(languageModel.contextWindow.toString());
+    MachineLearningModel.hashMachineLearningModel(languageModel, _hasher);
+    _hasher.update(languageModel.contextWindow.toString());
     languageModel.maxTokenOutput.ifJust((_value) => {
-      hasher.update(_value.toString());
+      _hasher.update(_value.toString());
     });
-    return hasher;
+    return _hasher;
   }
 
   export class SparqlGraphPatterns extends MachineLearningModel.SparqlGraphPatterns {
@@ -700,17 +700,17 @@ export namespace MachineLearningModelFamily {
       MachineLearningModelFamily,
       "identifier" | "type"
     >,
-    hasher: HasherT,
+    _hasher: HasherT,
   ): HasherT {
     machineLearningModelFamily.description.ifJust((_value) => {
-      hasher.update(_value.value);
+      _hasher.update(_value.value);
     });
-    Organization.hash(machineLearningModelFamily.manufacturer, hasher);
-    hasher.update(machineLearningModelFamily.name.value);
+    Organization.hash(machineLearningModelFamily.manufacturer, _hasher);
+    _hasher.update(machineLearningModelFamily.name.value);
     machineLearningModelFamily.url.ifJust((_value) => {
-      hasher.update(_value);
+      _hasher.update(_value);
     });
-    return hasher;
+    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -888,10 +888,10 @@ export namespace Organization {
     },
   >(
     organization: Omit<Organization, "identifier" | "type">,
-    hasher: HasherT,
+    _hasher: HasherT,
   ): HasherT {
-    hasher.update(organization.name.value);
-    return hasher;
+    _hasher.update(organization.name.value);
+    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
