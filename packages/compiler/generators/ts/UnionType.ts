@@ -20,9 +20,11 @@ export class UnionType<MemberTypeT extends Type = Type> extends Type {
 
   constructor({
     memberTypes,
+    name,
     ...superParameters
   }: ConstructorParameters<typeof Type>[0] & {
     memberTypes: readonly MemberTypeT[];
+    name?: string;
   }) {
     super(superParameters);
     invariant(memberTypes.length >= 2);
@@ -74,7 +76,9 @@ export class UnionType<MemberTypeT extends Type = Type> extends Type {
       // If every type shares a discriminator (e.g., RDF/JS "termType" or generated ObjectType "type"),
       // just join their names with "|"
       this.memberTypeTraits = memberTypeTraits;
-      this.name = `(${this.memberTypes.map((memberType) => memberType.name).join(" | ")})`;
+      this.name =
+        name ??
+        `(${this.memberTypes.map((memberType) => memberType.name).join(" | ")})`;
     } else {
       this._discriminatorProperty = {
         name: "type",
@@ -93,7 +97,9 @@ export class UnionType<MemberTypeT extends Type = Type> extends Type {
           payload: (instance) => `${instance}.value`,
         }),
       );
-      this.name = `(${this.memberTypeTraits.map((memberTypeTraits) => `{ ${this._discriminatorProperty.name}: "${memberTypeTraits.discriminatorPropertyValues[0]}", value: ${memberTypeTraits.memberType.name} }`).join(" | ")})`;
+      this.name =
+        name ??
+        `(${this.memberTypeTraits.map((memberTypeTraits) => `{ ${this._discriminatorProperty.name}: "${memberTypeTraits.discriminatorPropertyValues[0]}", value: ${memberTypeTraits.memberType.name} }`).join(" | ")})`;
     }
   }
 

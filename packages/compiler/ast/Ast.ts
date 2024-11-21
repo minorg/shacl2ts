@@ -1,9 +1,9 @@
-import type { IntersectionType } from "./IntersectionType.js";
+import type { ObjectIntersectionType } from "./ObjectIntersectionType.js";
 import type { ObjectType } from "./ObjectType.js";
-import type { UnionType } from "./UnionType.js";
+import type { ObjectUnionType } from "./ObjectUnionType.js";
 
 export interface Ast {
-  readonly objectIntersectionTypes: readonly IntersectionType<ObjectType>[];
+  readonly objectIntersectionTypes: readonly ObjectIntersectionType[];
   readonly objectTypes: readonly ObjectType[];
-  readonly objectUnionTypes: readonly UnionType<ObjectType>[];
+  readonly objectUnionTypes: readonly ObjectUnionType[];
 }

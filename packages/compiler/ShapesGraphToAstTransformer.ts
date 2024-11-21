@@ -72,9 +72,9 @@ function descendantClassIris(
 }
 
 type NodeShapeAstType =
+  | ast.ObjectIntersectionType
   | ast.ObjectType
-  | ast.IntersectionType<ast.ObjectType>
-  | ast.UnionType<ast.ObjectType>;
+  | ast.ObjectUnionType;
 
 function shaclmateInline(shape: shaclAst.Shape): Maybe<boolean> {
   return shape.resource
@@ -124,13 +124,14 @@ export class ShapesGraphToAstTransformer {
         .map((nodeShape) => this.nodeShapeAstType(nodeShape)),
     ).map((nodeShapeAstTypes) => ({
       objectIntersectionTypes: nodeShapeAstTypes.filter(
-        (nodeShapeAstType) => nodeShapeAstType.kind === "IntersectionType",
+        (nodeShapeAstType) =>
+          nodeShapeAstType.kind === "ObjectIntersectionType",
       ),
       objectTypes: nodeShapeAstTypes.filter(
         (nodeShapeAstType) => nodeShapeAstType.kind === "ObjectType",
       ),
       objectUnionTypes: nodeShapeAstTypes.filter(
-        (nodeShapeAstType) => nodeShapeAstType.kind === "UnionType",
+        (nodeShapeAstType) => nodeShapeAstType.kind === "ObjectUnionType",
       ),
     }));
   }
@@ -263,13 +264,15 @@ export class ShapesGraphToAstTransformer {
       nodeShape.constraints.or.length > 0
     ) {
       let compositeTypeShapes: readonly Shape[];
-      let compositeTypeKind: "IntersectionType" | "UnionType";
+      let compositeTypeKind:
+        | ast.ObjectIntersectionType["kind"]
+        | ast.ObjectUnionType["kind"];
       if (nodeShape.constraints.and.length > 0) {
         compositeTypeShapes = nodeShape.constraints.and;
-        compositeTypeKind = "IntersectionType";
+        compositeTypeKind = "ObjectIntersectionType";
       } else {
         compositeTypeShapes = nodeShape.constraints.or;
-        compositeTypeKind = "UnionType";
+        compositeTypeKind = "ObjectUnionType";
       }
 
       const compositeTypeNodeShapes = compositeTypeShapes.filter(
@@ -287,6 +290,7 @@ export class ShapesGraphToAstTransformer {
       const compositeType = {
         kind: compositeTypeKind,
         memberTypes: [] as ObjectType[],
+        name: this.shapeName(nodeShape),
       };
 
       this.nodeShapeAstTypesByIdentifier.set(

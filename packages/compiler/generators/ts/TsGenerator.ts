@@ -71,6 +71,7 @@ export class TsGenerator {
 
   private addDeclarations({
     objectTypes,
+    objectUnionTypes,
     sourceFile,
   }: {
     objectTypes: readonly ObjectType[];
@@ -129,6 +130,10 @@ export class TsGenerator {
         name: objectType.name,
         statements: moduleStatements,
       });
+    }
+
+    for (const objectUnionType of objectUnionTypes) {
+      sourceFile.addTypeAlias(objectUnionType.typeAliasDeclaration);
     }
   }
 

@@ -4,20 +4,19 @@ import { NodeKind } from "@shaclmate/shacl-ast";
 import { xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import type * as ast from "../../ast";
-import { BooleanType } from "./BooleanType";
-import type { Configuration } from "./Configuration";
-import { IdentifierType } from "./IdentifierType";
-import { IntersectionType } from "./IntersectionType";
+import { BooleanType } from "./BooleanType.js";
+import type { Configuration } from "./Configuration.js";
+import { IdentifierType } from "./IdentifierType.js";
 import { ListType } from "./ListType.js";
 import { LiteralType } from "./LiteralType.js";
 import { NumberType } from "./NumberType.js";
 import { ObjectType } from "./ObjectType.js";
-import { ObjectUnionType } from "./ObjectUnionType";
-import { OptionType } from "./OptionType";
-import { SetType } from "./SetType";
+import { ObjectUnionType } from "./ObjectUnionType.js";
+import { OptionType } from "./OptionType.js";
+import { SetType } from "./SetType.js";
 import { StringType } from "./StringType.js";
 import type { Type } from "./Type.js";
-import { UnionType } from "./UnionType";
+import { UnionType } from "./UnionType.js";
 import { tsName } from "./tsName.js";
 
 export class TypeFactory {
@@ -45,12 +44,7 @@ export class TypeFactory {
           nodeKinds: astType.nodeKinds,
         });
       case "IntersectionType":
-        return new IntersectionType({
-          configuration: this.configuration,
-          memberTypes: astType.memberTypes.map((astType) =>
-            this.createTypeFromAstType(astType),
-          ),
-        });
+        throw new Error("not implemented");
       case "LiteralType": {
         const datatype = astType.datatype
           .altLazy(() =>
@@ -88,6 +82,8 @@ export class TypeFactory {
           hasValue: astType.hasValue,
         });
       }
+      case "ObjectIntersectionType":
+        throw new Error("not implemented");
       case "ObjectType": {
         if (astType.listItemType.isJust()) {
           return new ListType({
@@ -105,6 +101,15 @@ export class TypeFactory {
 
         return this.createObjectTypeFromAstType(astType);
       }
+      case "ObjectUnionType": {
+        return new ObjectUnionType({
+          configuration: this.configuration,
+          name: tsName((astType as ast.ObjectUnionType).name),
+          memberTypes: astType.memberTypes
+            .map((astType) => this.createTypeFromAstType(astType))
+            .filter((memberType) => memberType instanceof ObjectType),
+        });
+      }
       case "OptionType":
         return new OptionType({
           configuration: this.configuration,
@@ -117,23 +122,11 @@ export class TypeFactory {
           minCount: astType.minCount,
         });
       case "UnionType": {
-        const memberTypes = astType.memberTypes.map((astType) =>
-          this.createTypeFromAstType(astType),
-        );
-
-        const memberObjectTypes = memberTypes.filter(
-          (memberType) => memberType instanceof ObjectType,
-        );
-        if (memberObjectTypes.length === memberTypes.length) {
-          return new ObjectUnionType({
-            configuration: this.configuration,
-            memberTypes: memberObjectTypes,
-          });
-        }
-
         return new UnionType({
           configuration: this.configuration,
-          memberTypes,
+          memberTypes: astType.memberTypes.map((astType) =>
+            this.createTypeFromAstType(astType),
+          ),
         });
       }
     }

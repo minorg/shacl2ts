@@ -57,7 +57,7 @@ export interface ObjectType {
   readonly mintingStrategy: Maybe<MintingStrategy>;
 
   /**
-   * Name of this ObjectType, usually derived from sh:name or shaclmate:name.
+   * Name of this type, usually derived from sh:name or shaclmate:name.
    */
   readonly name: Name;
 
