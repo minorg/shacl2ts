@@ -45,7 +45,7 @@ export class ObjectUnionType extends UnionType<ObjectType> {
       parameters: [
         {
           name: variables.resource,
-          type: this.rdfjsResourceTypeName(),
+          type: this.rdfjsResourceType().name,
         },
         {
           hasQuestionToken: true,
@@ -76,7 +76,7 @@ export class ObjectUnionType extends UnionType<ObjectType> {
           type: "{ mutateGraph: rdfjsResource.MutableResource.MutateGraph, resourceSet: rdfjsResource.MutableResourceSet }",
         },
       ],
-      returnType: this.rdfjsResourceTypeName({ mutable: true }),
+      returnType: this.rdfjsResourceType({ mutable: true }).name,
       statements: `switch (${thisVariable}.${this.configuration.objectTypeDiscriminatorPropertyName}) { ${this.memberTypes.map((memberType) => `case "${memberType.name}": return ${thisVariable}.toRdf(${parametersVariable});`).join(" ")} }`,
     };
   }
@@ -89,15 +89,48 @@ export class ObjectUnionType extends UnionType<ObjectType> {
     };
   }
 
-  private rdfjsResourceTypeName(options?: { mutable?: boolean }): string {
-    const memberTypeNameSet = new Set<string>();
+  override propertyFromRdfExpression({
+    variables,
+  }: Parameters<
+    UnionType<ObjectType>["propertyFromRdfExpression"]
+  >[0]): string {
+    return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(_resource => ${this.name}.fromRdf(_resource))`;
+  }
+
+  override propertyToRdfExpression({
+    variables,
+  }: Parameters<UnionType<ObjectType>["propertyToRdfExpression"]>[0]): string {
+    return `${variables.value}.toRdf({ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} })`;
+  }
+
+  private rdfjsResourceType(options?: { mutable?: boolean }): ReturnType<
+    ObjectType["rdfjsResourceType"]
+  > {
+    const memberRdfjsResourceTypes: ReturnType<
+      ObjectType["rdfjsResourceType"]
+    >[] = [];
     for (const memberType of this.memberTypes) {
-      memberTypeNameSet.add(memberType.rdfjsResourceType(options).name);
+      const memberRdfjsResourceType = memberType.rdfjsResourceType(options);
+
+      if (
+        memberRdfjsResourceTypes.some(
+          (existingMemberRdfjsResourceType) =>
+            existingMemberRdfjsResourceType.name !==
+            memberRdfjsResourceType.name,
+        )
+      ) {
+        // The types don't agree, return a generic type
+        return {
+          mutable: !!options?.mutable,
+          name: "rdfjsResource.Resource",
+          named: false,
+        };
+      }
+
+      memberRdfjsResourceTypes.push(memberRdfjsResourceType);
     }
-    const memberTypeNames = [...memberTypeNameSet];
-    if (memberTypeNames.length === 1) {
-      return memberTypeNames[0];
-    }
-    return "rdfjsResource.Resource";
+
+    // The types agree
+    return memberRdfjsResourceTypes[0];
   }
 }
