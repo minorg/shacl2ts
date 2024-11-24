@@ -213,6 +213,10 @@ export class TsGenerator {
       moduleStatements.push(objectUnionType.fromRdfFunctionDeclaration);
     }
 
+    if (this.configuration.features.has("hash")) {
+      moduleStatements.push(objectUnionType.hashFunctionDeclaration);
+    }
+
     if (this.configuration.features.has("toRdf")) {
       moduleStatements.push(objectUnionType.toRdfFunctionDeclaration);
     }

@@ -1,4 +1,5 @@
 import { camelCase } from "change-case";
+import { invariant } from "ts-invariant";
 import {
   type FunctionDeclarationStructure,
   type OptionalKind,
@@ -6,23 +7,46 @@ import {
   type TypeAliasDeclarationStructure,
 } from "ts-morph";
 import type { ObjectType } from "./ObjectType.js";
-import { UnionType } from "./UnionType.js";
+import { Type } from "./Type.js";
+import { hasherTypeConstraint } from "./_ObjectType/hashFunctionDeclaration.js";
 
-export class ObjectUnionType extends UnionType<ObjectType> {
+export class ObjectUnionType extends Type {
   readonly export: boolean;
+  readonly kind = "ObjectUnionType";
+  readonly memberTypes: readonly ObjectType[];
+  readonly name: string;
 
   constructor({
     export_,
+    memberTypes,
+    name,
     ...superParameters
-  }: Omit<ConstructorParameters<typeof UnionType<ObjectType>>[0], "name"> & {
+  }: ConstructorParameters<typeof Type>[0] & {
     export_: boolean;
+    memberTypes: readonly ObjectType[];
     name: string;
   }) {
     super(superParameters);
     this.export = export_;
+    invariant(memberTypes.length >= 2);
+    this.memberTypes = memberTypes;
+    this.name = name;
   }
 
   get equalsFunctionDeclaration(): FunctionDeclarationStructure {
+    const caseBlocks = this.memberTypes.map((memberType) => {
+      let returnExpression: string;
+      switch (this.configuration.objectTypeDeclarationType) {
+        case "class":
+          returnExpression = `left.equals(right as unknown as ${memberType.name})`;
+          break;
+        case "interface":
+          returnExpression = `${memberType.name}.equals(left, right as unknown as ${memberType.name})`;
+          break;
+      }
+      return `case "${memberType.name}": return ${returnExpression};`;
+    });
+
     return {
       isExported: true,
       kind: StructureKind.Function,
@@ -43,7 +67,7 @@ return purifyHelpers.Equatable.objectEquals(left, right, {
   type: purifyHelpers.Equatable.strictEquals,
 }).chain(() => {
   switch (left.${this.configuration.objectTypeDiscriminatorPropertyName}) {
-    ${this.memberTypes.map((memberType) => `case "${memberType.name}": return ${this.configuration.objectTypeDeclarationType === "class" ? `left.equals(right as unknown as ${memberType.name})` : `${memberType.name}.equals(left, right as unknown as ${memberType.name})`};`).join(" ")}
+   ${caseBlocks.join(" ")}
   }
 })`,
     };
@@ -85,6 +109,48 @@ return purifyHelpers.Equatable.objectEquals(left, right, {
     };
   }
 
+  get hashFunctionDeclaration(): FunctionDeclarationStructure {
+    const hasherVariable = "_hasher";
+    const thisVariable = camelCase(this.name);
+
+    const caseBlocks = this.memberTypes.map((memberType) => {
+      let returnExpression: string;
+      switch (this.configuration.objectTypeDeclarationType) {
+        case "class":
+          returnExpression = `${thisVariable}.hash(${hasherVariable})`;
+          break;
+        case "interface":
+          returnExpression = `${memberType.name}.${memberType.hashFunctionName}(${thisVariable}, ${hasherVariable})`;
+          break;
+      }
+      return `case "${memberType.name}": return ${returnExpression};`;
+    });
+
+    return {
+      isExported: true,
+      kind: StructureKind.Function,
+      name: "hash",
+      parameters: [
+        {
+          name: thisVariable,
+          type: this.name,
+        },
+        {
+          name: hasherVariable,
+          type: "HasherT",
+        },
+      ],
+      returnType: "HasherT",
+      statements: `switch (${thisVariable}.${this.configuration.objectTypeDiscriminatorPropertyName}) { ${caseBlocks.join(" ")} }`,
+      typeParameters: [
+        {
+          name: "HasherT",
+          constraint: hasherTypeConstraint,
+        },
+      ],
+    };
+  }
+
   get toRdfFunctionDeclaration(): FunctionDeclarationStructure {
     const parametersVariable = "_parameters";
     const thisVariable = camelCase(this.name);
@@ -122,15 +188,19 @@ return purifyHelpers.Equatable.objectEquals(left, right, {
 
   override propertyFromRdfExpression({
     variables,
-  }: Parameters<
-    UnionType<ObjectType>["propertyFromRdfExpression"]
-  >[0]): string {
+  }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
     return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(_resource => ${this.name}.fromRdf(_resource))`;
+  }
+
+  override propertyHashStatements({
+    variables,
+  }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
+    return [`${this.name}.hash(${variables.value}, ${variables.hasher});`];
   }
 
   override propertyToRdfExpression({
     variables,
-  }: Parameters<UnionType<ObjectType>["propertyToRdfExpression"]>[0]): string {
+  }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
     return `${variables.value}.toRdf({ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} })`;
   }
 

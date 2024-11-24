@@ -3,34 +3,34 @@ import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
 import { Type } from "./Type.js";
 
-interface MemberTypeTraits<MemberTypeT extends Type> {
+interface MemberTypeTraits {
   readonly discriminatorPropertyValues: readonly string[];
-  readonly memberType: MemberTypeT;
+  readonly memberType: Type;
   readonly payload: (instance: string) => string;
 }
 
-export class UnionType<MemberTypeT extends Type = Type> extends Type {
+export class UnionType extends Type {
   readonly _discriminatorProperty: Type.DiscriminatorProperty & {
     readonly synthetic: boolean;
   };
   readonly kind = "UnionType";
-  readonly memberTypes: readonly MemberTypeT[];
+  readonly memberTypes: readonly Type[];
   readonly name: string;
-  private readonly memberTypeTraits: readonly MemberTypeTraits<MemberTypeT>[];
+  private readonly memberTypeTraits: readonly MemberTypeTraits[];
 
   constructor({
     memberTypes,
     name,
     ...superParameters
   }: ConstructorParameters<typeof Type>[0] & {
-    memberTypes: readonly MemberTypeT[];
+    memberTypes: readonly Type[];
     name?: string;
   }) {
     super(superParameters);
     invariant(memberTypes.length >= 2);
     this.memberTypes = memberTypes;
 
-    const memberTypeTraits: MemberTypeTraits<MemberTypeT>[] = [];
+    const memberTypeTraits: MemberTypeTraits[] = [];
     // Do all the composed types share a single discriminator property?
     let memberTypesSharedDiscriminatorProperty:
       | (Omit<Type.DiscriminatorProperty, "values"> & {
