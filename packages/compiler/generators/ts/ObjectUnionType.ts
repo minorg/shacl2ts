@@ -1,4 +1,5 @@
 import { camelCase } from "change-case";
+import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import {
   type ClassDeclarationStructure,
@@ -218,6 +219,18 @@ return purifyHelpers.Equatable.objectEquals(left, right, {
     };
   }
 
+  override propertyChainSparqlGraphPatternExpression({
+    variables,
+  }: Parameters<
+    Type["propertyChainSparqlGraphPatternExpression"]
+  >[0]): Maybe<Type.SparqlGraphPatternsExpression> {
+    return Maybe.of(
+      new Type.SparqlGraphPatternsExpression(
+        `new ${this.name}.SparqlGraphPatterns(${variables.subject})`,
+      ),
+    );
+  }
+
   override propertyEqualsFunction(): string {
     return `${this.name}.equals`;
   }
@@ -237,7 +250,7 @@ return purifyHelpers.Equatable.objectEquals(left, right, {
   override propertyToRdfExpression({
     variables,
   }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
-    return `${variables.value}.toRdf({ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} })`;
+    return `${this.name}.toRdf(${variables.value}, { mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier`;
   }
 
   private rdfjsResourceType(options?: { mutable?: boolean }): ReturnType<
