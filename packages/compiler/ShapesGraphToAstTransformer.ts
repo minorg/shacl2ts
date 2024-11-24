@@ -337,7 +337,8 @@ export class ShapesGraphToAstTransformer {
       ),
     );
     if (nodeKinds.size === 0) {
-      return Left(new Error(`${nodeShape} has no non-Literal node kinds`));
+      nodeKinds.add(shaclAst.NodeKind.BLANK_NODE);
+      nodeKinds.add(shaclAst.NodeKind.IRI);
     }
 
     // Put a placeholder in the cache to deal with cyclic references

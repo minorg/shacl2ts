@@ -1,0 +1,60 @@
+@prefix : <http://example.com/> .
+@prefix dash: <http://datashapes.org/dash#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix shaclmate: <http://minorg.github.io/shaclmate/ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:AbstractBaseClassNodeShape
+  a owl:Class ;
+  a sh:NodeShape ;
+  shaclmate:abstract true;
+  shaclmate:export false ;
+  sh:name "AbstractBaseClassNodeShape" ;
+  sh:nodeKind sh:IRI ;
+  sh:property [ sh:datatype xsd:string ; sh:name "stringProperty" ; sh:path :stringProperty ]
+.
+
+:ChildClassNodeShape
+  a owl:Class ;
+  a sh:NodeShape ;
+  rdfs:subClassOf :ParentClassNodeShape ;
+  sh:name "ChildClassNodeShape" ;
+  sh:nodeKind sh:IRI ;
+  sh:property [ sh:datatype xsd:decimal ; sh:name "decimalProperty" ; sh:path :decimalProperty ]
+.
+
+:NonClassNodeShape
+  a sh:NodeShape ;
+  sh:name "NonClassNodeShape" ;
+  sh:property [ sh:datatype xsd:decimal ; sh:name "decimalProperty" ; sh:path :decimalProperty ]
+.
+
+:OrNodeShape
+  a sh:NodeShape ;
+  sh:name "OrNodeShape" ;
+  sh:or ( :OrNodeShapeMember1 :OrNodeShapeMember2 )
+.
+
+:OrNodeShapeMember1
+  a sh:NodeShape ;
+  sh:name "OrNodeShapeMember1" ;
+  sh:property [ sh:datatype xsd:decimal ; sh:name "decimalProperty" ; sh:path :decimalProperty ]
+.
+
+:OrNodeShapeMember2
+  a sh:NodeShape ;
+  sh:name "OrNodeShapeMember2" ;
+  sh:property [ sh:datatype xsd:string ; sh:name "stringProperty" ; sh:path :stringProperty ]
+.
+
+:ParentClassNodeShape
+  a owl:Class ;
+  a sh:NodeShape ;
+  rdfs:subClassOf :AbstractBaseClassNodeShape ;
+  sh:name "ParentClassNodeShape" ;
+  sh:nodeKind sh:IRI ;
+  sh:property [ sh:datatype xsd:integer ; sh:name "integerProperty" ; sh:path :integerProperty ]
+.
