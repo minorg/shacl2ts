@@ -1,6 +1,7 @@
 import { camelCase } from "change-case";
 import { invariant } from "ts-invariant";
 import {
+  type ClassDeclarationStructure,
   type FunctionDeclarationStructure,
   type OptionalKind,
   StructureKind,
@@ -10,6 +11,16 @@ import type { ObjectType } from "./ObjectType.js";
 import { Type } from "./Type.js";
 import { hasherTypeConstraint } from "./_ObjectType/hashFunctionDeclaration.js";
 
+/**
+ * A union of object types, generated as a type alias
+ *
+ *   type SomeUnion = Member1 | Member2 | ...
+ *
+ * with associated functions that switch on the type discriminator property and delegate to the appropriate
+ * member type code.
+ *
+ * It also generates SPARQL graph patterns that UNION the member object types.
+ */
 export class ObjectUnionType extends Type {
   readonly export: boolean;
   readonly kind = "ObjectUnionType";
@@ -148,6 +159,31 @@ return purifyHelpers.Equatable.objectEquals(left, right, {
           constraint: hasherTypeConstraint,
         },
       ],
+    };
+  }
+
+  get sparqlGraphPatternsClassDeclaration(): ClassDeclarationStructure {
+    const subjectVariable = "subject";
+
+    return {
+      ctors: [
+        {
+          parameters: [
+            {
+              name: subjectVariable,
+              type: "sparqlBuilder.ResourceGraphPatterns.SubjectParameter",
+            },
+          ],
+          statements: [
+            `super(${subjectVariable});`,
+            `this.add(sparqlBuilder.GraphPattern.union(${this.memberTypes.map((memberType) => `new ${memberType.name}.SparqlGraphPatterns(this.subject).toGroupGraphPattern()`).join(", ")}));`,
+          ],
+        },
+      ],
+      extends: "sparqlBuilder.ResourceGraphPatterns",
+      isExported: true,
+      kind: StructureKind.Class,
+      name: "SparqlGraphPatterns",
     };
   }
 

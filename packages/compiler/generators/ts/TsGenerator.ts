@@ -217,6 +217,12 @@ export class TsGenerator {
       moduleStatements.push(objectUnionType.hashFunctionDeclaration);
     }
 
+    if (this.configuration.features.has("sparql-graph-patterns")) {
+      moduleStatements.push(
+        objectUnionType.sparqlGraphPatternsClassDeclaration,
+      );
+    }
+
     if (this.configuration.features.has("toRdf")) {
       moduleStatements.push(objectUnionType.toRdfFunctionDeclaration);
     }
