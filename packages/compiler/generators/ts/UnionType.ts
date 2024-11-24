@@ -108,7 +108,7 @@ export class UnionType<MemberTypeT extends Type = Type> extends Type {
     return Maybe.of(this._discriminatorProperty);
   }
 
-  override equalsFunction(): string {
+  override propertyEqualsFunction(): string {
     return `
 (left: ${this.name}, right: ${this.name}) => {
 ${this.memberTypeTraits
@@ -127,8 +127,8 @@ ${this.memberTypeTraits
 }`;
   }
 
-  override fromRdfExpression(
-    parameters: Parameters<Type["fromRdfExpression"]>[0],
+  override propertyFromRdfExpression(
+    parameters: Parameters<Type["propertyFromRdfExpression"]>[0],
   ): string {
     let expression = "";
     for (const memberTypeTraits of this.memberTypeTraits) {
@@ -146,9 +146,9 @@ ${this.memberTypeTraits
     return expression;
   }
 
-  override hashStatements({
+  override propertyHashStatements({
     variables,
-  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
+  }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     const caseBlocks: string[] = [];
     for (const memberTypeTraits of this.memberTypeTraits) {
       for (const discriminatorPropertyValue of memberTypeTraits.discriminatorPropertyValues) {
@@ -184,9 +184,9 @@ ${this.memberTypeTraits
     );
   }
 
-  override toRdfExpression({
+  override propertyToRdfExpression({
     variables,
-  }: Parameters<Type["toRdfExpression"]>[0]): string {
+  }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
     let expression = "";
     for (const memberTypeTraits of this.memberTypeTraits) {
       if (expression.length === 0) {

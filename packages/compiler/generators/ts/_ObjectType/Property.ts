@@ -53,14 +53,14 @@ export abstract class Property<TypeT extends { readonly name: string }> {
   }): readonly string[];
 
   abstract hashStatements(
-    parameters: Parameters<Type["hashStatements"]>[0],
+    parameters: Parameters<Type["propertyHashStatements"]>[0],
   ): readonly string[];
 
   abstract sparqlGraphPatternExpression(): Maybe<string>;
 
   abstract toRdfStatements(parameters: {
     variables: Omit<
-      Parameters<Type["toRdfExpression"]>[0]["variables"],
+      Parameters<Type["propertyToRdfExpression"]>[0]["variables"],
       "predicate"
     >;
   }): readonly string[];

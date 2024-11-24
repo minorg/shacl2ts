@@ -61,7 +61,7 @@ export class ShaclProperty extends Property<Type> {
   }
 
   override get equalsFunction(): string {
-    return this.type.equalsFunction();
+    return this.type.propertyEqualsFunction();
   }
 
   override get importStatements(): readonly string[] {
@@ -107,7 +107,7 @@ export class ShaclProperty extends Property<Type> {
     variables,
   }: Parameters<Property<Type>["fromRdfStatements"]>[0]): readonly string[] {
     return [
-      `const _${this.name}Either: purify.Either<rdfjsResource.Resource.ValueError, ${this.type.name}> = ${this.type.fromRdfExpression({ variables: { ...variables, predicate: this.pathExpression, resourceValues: `${variables.resource}.values(${this.pathExpression}, { unique: true })` } })};`,
+      `const _${this.name}Either: purify.Either<rdfjsResource.Resource.ValueError, ${this.type.name}> = ${this.type.propertyFromRdfExpression({ variables: { ...variables, predicate: this.pathExpression, resourceValues: `${variables.resource}.values(${this.pathExpression}, { unique: true })` } })};`,
       `if (_${this.name}Either.isLeft()) { return _${this.name}Either; }`,
       `const ${this.name} = _${this.name}Either.unsafeCoerce();`,
     ];
@@ -116,7 +116,7 @@ export class ShaclProperty extends Property<Type> {
   override hashStatements(
     parameters: Parameters<Property<Type>["hashStatements"]>[0],
   ): readonly string[] {
-    return this.type.hashStatements(parameters);
+    return this.type.propertyHashStatements(parameters);
   }
 
   override sparqlGraphPatternExpression(): Maybe<string> {
@@ -138,7 +138,7 @@ export class ShaclProperty extends Property<Type> {
     variables,
   }: Parameters<Property<Type>["toRdfStatements"]>[0]): readonly string[] {
     return [
-      `${variables.resource}.add(${this.pathExpression}, ${this.type.toRdfExpression(
+      `${variables.resource}.add(${this.pathExpression}, ${this.type.propertyToRdfExpression(
         {
           variables: { ...variables, predicate: this.pathExpression },
         },

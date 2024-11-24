@@ -74,9 +74,9 @@ export class IdentifierType extends RdfjsTermType<BlankNode | NamedNode> {
     return names.join(" | ");
   }
 
-  override hashStatements({
+  override propertyHashStatements({
     variables,
-  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
+  }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     return [
       `${variables.hasher}.update(rdfjsResource.Resource.Identifier.toString(${variables.value}));`,
     ];

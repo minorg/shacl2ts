@@ -145,10 +145,10 @@ export class ObjectType extends Type {
     return properties;
   }
 
-  override chainSparqlGraphPatternExpression({
+  override propertyChainSparqlGraphPatternExpression({
     variables,
   }: Parameters<
-    Type["chainSparqlGraphPatternExpression"]
+    Type["propertyChainSparqlGraphPatternExpression"]
   >[0]): Maybe<Type.SparqlGraphPatternsExpression> {
     return Maybe.of(
       new Type.SparqlGraphPatternsExpression(
@@ -157,7 +157,7 @@ export class ObjectType extends Type {
     );
   }
 
-  override equalsFunction(): string {
+  override propertyEqualsFunction(): string {
     switch (this.configuration.objectTypeDeclarationType) {
       case "class":
         return "purifyHelpers.Equatable.equals";
@@ -166,18 +166,29 @@ export class ObjectType extends Type {
     }
   }
 
-  override fromRdfExpression({
+  override propertyFromRdfExpression({
     variables,
-  }: Parameters<Type["fromRdfExpression"]>[0]): string {
+  }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
     return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(_resource => ${this.name}.fromRdf(_resource))`;
   }
 
-  override hashStatements({
+  override propertyHashStatements({
     variables,
-  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
+  }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     return [
       `${this.name}.${this.hashFunctionName}(${variables.value}, ${variables.hasher});`,
     ];
+  }
+
+  override propertyToRdfExpression({
+    variables,
+  }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
+    switch (this.configuration.objectTypeDeclarationType) {
+      case "class":
+        return `${variables.value}.toRdf({ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier`;
+      case "interface":
+        return `${this.name}.toRdf(${variables.value}, { mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier`;
+    }
   }
 
   rdfjsResourceType(options?: { mutable?: boolean }): {
@@ -194,17 +205,6 @@ export class ObjectType extends Type {
       name: `rdfjsResource.${options?.mutable ? "Mutable" : ""}Resource${this.identifierType.isNamedNodeKind ? "<rdfjs.NamedNode>" : ""}`,
       named: this.identifierType.isNamedNodeKind,
     };
-  }
-
-  override toRdfExpression({
-    variables,
-  }: Parameters<Type["toRdfExpression"]>[0]): string {
-    switch (this.configuration.objectTypeDeclarationType) {
-      case "class":
-        return `${variables.value}.toRdf({ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier`;
-      case "interface":
-        return `${this.name}.toRdf(${variables.value}, { mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier`;
-    }
   }
 
   protected ensureAtMostOneSuperObjectType() {
