@@ -7,6 +7,8 @@
 @prefix shaclmate: <http://minorg.github.io/shaclmate/ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
+# Node shape that serves as an abstract base class for child node shapes
+# It's marked abstract in TypeScript and not exported from the module.
 :AbstractBaseClassNodeShape
   a owl:Class ;
   a sh:NodeShape ;
@@ -14,47 +16,91 @@
   shaclmate:export false ;
   sh:name "AbstractBaseClassNodeShape" ;
   sh:nodeKind sh:IRI ;
-  sh:property [ sh:datatype xsd:string ; sh:name "stringProperty" ; sh:path :stringProperty ]
+  sh:property [ sh:datatype xsd:string ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
 .
 
+# Child (class) of ParentClassNodeShape. Should inherit properties.
 :ChildClassNodeShape
   a owl:Class ;
   a sh:NodeShape ;
   rdfs:subClassOf :ParentClassNodeShape ;
   sh:name "ChildClassNodeShape" ;
   sh:nodeKind sh:IRI ;
-  sh:property [ sh:datatype xsd:decimal ; sh:name "decimalProperty" ; sh:path :decimalProperty ]
+  sh:property [ sh:datatype xsd:decimal ; sh:name "decimalProperty" ; sh:path :decimalProperty ] ;
 .
 
+# A node shape that models an RDF list. Should be transformed into a list data structure when used as a property
+# instead of surfacing the RDF list structure in code.
+:ListShape
+    a owl:Class, sh:NodeShape ;
+    rdfs:subClassOf rdf:List ;
+    sh:name "ListShape" ;
+    sh:nodeKind sh:BlankNodeOrIRI ;
+    sh:property :ListShape-first, :ListShape-rest .
+
+:ListShape-first
+    a sh:PropertyShape ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:name "first" ;
+    sh:path rdf:first .
+
+:ListShape-rest
+    shaclmate:inline true ;
+    a sh:PropertyShape ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:name "rest" ;
+    sh:or ([
+            sh:class :ListShape
+        ]
+        [
+            sh:hasValue ( )
+        ]
+    ) ;
+    sh:path rdf:rest .
+
+# Node shape that isn't an rdfs:Class.
 :NonClassNodeShape
   a sh:NodeShape ;
   sh:name "NonClassNodeShape" ;
-  sh:property [ sh:datatype xsd:decimal ; sh:name "decimalProperty" ; sh:path :decimalProperty ]
+  sh:property [ sh:datatype xsd:decimal ; sh:name "decimalProperty" ; sh:path :decimalProperty ] ;
 .
 
+# Node that that sh:or's other node shapes. This will usually be generated as a discriminated union.
 :OrNodeShape
   a sh:NodeShape ;
   sh:name "OrNodeShape" ;
-  sh:or ( :OrNodeShapeMember1 :OrNodeShapeMember2 )
+  sh:or ( :OrNodeShapeMember1 :OrNodeShapeMember2 ) ;
 .
 
 :OrNodeShapeMember1
   a sh:NodeShape ;
   sh:name "OrNodeShapeMember1" ;
-  sh:property [ sh:datatype xsd:decimal ; sh:name "decimalProperty" ; sh:path :decimalProperty ]
+  sh:property [ sh:datatype xsd:decimal ; sh:name "decimalProperty" ; sh:path :decimalProperty ] ;
 .
 
 :OrNodeShapeMember2
   a sh:NodeShape ;
   sh:name "OrNodeShapeMember2" ;
-  sh:property [ sh:datatype xsd:string ; sh:name "stringProperty" ; sh:path :stringProperty ]
+  sh:property [ sh:datatype xsd:string ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
 .
 
+# Class node shape that inherits the abstract base class and is the parent of the ChildClassNodeShape.
 :ParentClassNodeShape
   a owl:Class ;
   a sh:NodeShape ;
   rdfs:subClassOf :AbstractBaseClassNodeShape ;
   sh:name "ParentClassNodeShape" ;
   sh:nodeKind sh:IRI ;
-  sh:property [ sh:datatype xsd:integer ; sh:name "integerProperty" ; sh:path :integerProperty ]
+  sh:property [ sh:datatype xsd:integer ; sh:name "integerProperty" ; sh:path :integerProperty ] ;
+.
+
+# Shape that uses the ListShape in a property.
+:ShapeWithListProperty
+  a sh:NodeShape ;
+  sh:nodeKind sh:IRI ;
+  sh:name "ShapeWithListProperty" ;
+  sh:property [ sh:maxCount 1 ; sh:minCount 1 ; sh:node :ListShape ; sh:name "listProperty" ; sh:path :listProperty ]
 .

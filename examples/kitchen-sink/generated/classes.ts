@@ -312,35 +312,34 @@ export namespace NonClassNodeShape {
   }
 }
 
-export class OrNodeShapeMember1 {
-  readonly decimalProperty: readonly rdfjs.Literal[];
+export class OrNodeShapeMember2 {
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly type = "OrNodeShapeMember1" as const;
+  readonly stringProperty: readonly string[];
+  readonly type = "OrNodeShapeMember2" as const;
 
   constructor(parameters: {
-    readonly decimalProperty?: readonly rdfjs.Literal[];
     readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+    readonly stringProperty?: readonly string[];
   }) {
-    if (typeof parameters.decimalProperty === "undefined") {
-      this.decimalProperty = [];
-    } else if (Array.isArray(parameters.decimalProperty)) {
-      this.decimalProperty = parameters.decimalProperty;
-    } else {
-      this.decimalProperty = parameters.decimalProperty; // never
-    }
-
     this.identifier = parameters.identifier;
+    if (typeof parameters.stringProperty === "undefined") {
+      this.stringProperty = [];
+    } else if (Array.isArray(parameters.stringProperty)) {
+      this.stringProperty = parameters.stringProperty;
+    } else {
+      this.stringProperty = parameters.stringProperty; // never
+    }
   }
 
-  equals(other: OrNodeShapeMember1): purifyHelpers.Equatable.EqualsResult {
+  equals(other: OrNodeShapeMember2): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(this, other, {
-      decimalProperty: (left, right) =>
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      stringProperty: (left, right) =>
         purifyHelpers.Arrays.equals(
           left,
           right,
-          purifyHelpers.Equatable.booleanEquals,
+          purifyHelpers.Equatable.strictEquals,
         ),
-      identifier: purifyHelpers.Equatable.booleanEquals,
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -350,7 +349,7 @@ export class OrNodeShapeMember1 {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(hasher: HasherT): HasherT {
-    return OrNodeShapeMember1.hash(this, hasher);
+    return OrNodeShapeMember2.hash(this, hasher);
   }
 
   toRdf({
@@ -366,43 +365,43 @@ export class OrNodeShapeMember1 {
       mutateGraph,
     });
     _resource.add(
-      dataFactory.namedNode("http://example.com/decimalProperty"),
-      this.decimalProperty,
+      dataFactory.namedNode("http://example.com/stringProperty"),
+      this.stringProperty,
     );
     return _resource;
   }
 }
 
-export namespace OrNodeShapeMember1 {
+export namespace OrNodeShapeMember2 {
   export function fromRdf(
     _resource: rdfjsResource.Resource,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, OrNodeShapeMember1> {
-    const _decimalPropertyEither: purify.Either<
+  ): purify.Either<rdfjsResource.Resource.ValueError, OrNodeShapeMember2> {
+    const identifier = _resource.identifier;
+    const _stringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
-      readonly rdfjs.Literal[]
+      readonly string[]
     > = purify.Either.of([
       ..._resource
-        .values(dataFactory.namedNode("http://example.com/decimalProperty"), {
+        .values(dataFactory.namedNode("http://example.com/stringProperty"), {
           unique: true,
         })
         .flatMap((_value) =>
           _value
             .toValues()
             .head()
-            .chain((_value) => _value.toLiteral())
+            .chain((_value) => _value.toString())
             .toMaybe()
             .toList(),
         ),
     ]);
-    if (_decimalPropertyEither.isLeft()) {
-      return _decimalPropertyEither;
+    if (_stringPropertyEither.isLeft()) {
+      return _stringPropertyEither;
     }
 
-    const decimalProperty = _decimalPropertyEither.unsafeCoerce();
-    const identifier = _resource.identifier;
+    const stringProperty = _stringPropertyEither.unsafeCoerce();
     return purify.Either.of(
-      new OrNodeShapeMember1({ decimalProperty, identifier }),
+      new OrNodeShapeMember2({ identifier, stringProperty }),
     );
   }
 
@@ -411,14 +410,14 @@ export namespace OrNodeShapeMember1 {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    orNodeShapeMember1: Omit<
-      OrNodeShapeMember1,
+    orNodeShapeMember2: Omit<
+      OrNodeShapeMember2,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
     _hasher: HasherT,
   ): HasherT {
-    for (const _element of orNodeShapeMember1.decimalProperty) {
-      _hasher.update(_element.value);
+    for (const _element of orNodeShapeMember2.stringProperty) {
+      _hasher.update(_element);
     }
 
     return _hasher;
@@ -434,8 +433,8 @@ export namespace OrNodeShapeMember1 {
         sparqlBuilder.GraphPattern.optional(
           sparqlBuilder.GraphPattern.basic(
             this.subject,
-            dataFactory.namedNode("http://example.com/decimalProperty"),
-            this.variable("DecimalProperty"),
+            dataFactory.namedNode("http://example.com/stringProperty"),
+            this.variable("StringProperty"),
           ),
         ),
       );
@@ -808,34 +807,35 @@ export namespace ChildClassNodeShape {
   }
 }
 
-export class OrNodeShapeMember2 {
+export class OrNodeShapeMember1 {
+  readonly decimalProperty: readonly rdfjs.Literal[];
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly stringProperty: readonly string[];
-  readonly type = "OrNodeShapeMember2" as const;
+  readonly type = "OrNodeShapeMember1" as const;
 
   constructor(parameters: {
+    readonly decimalProperty?: readonly rdfjs.Literal[];
     readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-    readonly stringProperty?: readonly string[];
   }) {
-    this.identifier = parameters.identifier;
-    if (typeof parameters.stringProperty === "undefined") {
-      this.stringProperty = [];
-    } else if (Array.isArray(parameters.stringProperty)) {
-      this.stringProperty = parameters.stringProperty;
+    if (typeof parameters.decimalProperty === "undefined") {
+      this.decimalProperty = [];
+    } else if (Array.isArray(parameters.decimalProperty)) {
+      this.decimalProperty = parameters.decimalProperty;
     } else {
-      this.stringProperty = parameters.stringProperty; // never
+      this.decimalProperty = parameters.decimalProperty; // never
     }
+
+    this.identifier = parameters.identifier;
   }
 
-  equals(other: OrNodeShapeMember2): purifyHelpers.Equatable.EqualsResult {
+  equals(other: OrNodeShapeMember1): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: (left, right) =>
+      decimalProperty: (left, right) =>
         purifyHelpers.Arrays.equals(
           left,
           right,
-          purifyHelpers.Equatable.strictEquals,
+          purifyHelpers.Equatable.booleanEquals,
         ),
+      identifier: purifyHelpers.Equatable.booleanEquals,
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -845,7 +845,7 @@ export class OrNodeShapeMember2 {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(hasher: HasherT): HasherT {
-    return OrNodeShapeMember2.hash(this, hasher);
+    return OrNodeShapeMember1.hash(this, hasher);
   }
 
   toRdf({
@@ -861,43 +861,43 @@ export class OrNodeShapeMember2 {
       mutateGraph,
     });
     _resource.add(
-      dataFactory.namedNode("http://example.com/stringProperty"),
-      this.stringProperty,
+      dataFactory.namedNode("http://example.com/decimalProperty"),
+      this.decimalProperty,
     );
     return _resource;
   }
 }
 
-export namespace OrNodeShapeMember2 {
+export namespace OrNodeShapeMember1 {
   export function fromRdf(
     _resource: rdfjsResource.Resource,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, OrNodeShapeMember2> {
-    const identifier = _resource.identifier;
-    const _stringPropertyEither: purify.Either<
+  ): purify.Either<rdfjsResource.Resource.ValueError, OrNodeShapeMember1> {
+    const _decimalPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
-      readonly string[]
+      readonly rdfjs.Literal[]
     > = purify.Either.of([
       ..._resource
-        .values(dataFactory.namedNode("http://example.com/stringProperty"), {
+        .values(dataFactory.namedNode("http://example.com/decimalProperty"), {
           unique: true,
         })
         .flatMap((_value) =>
           _value
             .toValues()
             .head()
-            .chain((_value) => _value.toString())
+            .chain((_value) => _value.toLiteral())
             .toMaybe()
             .toList(),
         ),
     ]);
-    if (_stringPropertyEither.isLeft()) {
-      return _stringPropertyEither;
+    if (_decimalPropertyEither.isLeft()) {
+      return _decimalPropertyEither;
     }
 
-    const stringProperty = _stringPropertyEither.unsafeCoerce();
+    const decimalProperty = _decimalPropertyEither.unsafeCoerce();
+    const identifier = _resource.identifier;
     return purify.Either.of(
-      new OrNodeShapeMember2({ identifier, stringProperty }),
+      new OrNodeShapeMember1({ decimalProperty, identifier }),
     );
   }
 
@@ -906,14 +906,14 @@ export namespace OrNodeShapeMember2 {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    orNodeShapeMember2: Omit<
-      OrNodeShapeMember2,
+    orNodeShapeMember1: Omit<
+      OrNodeShapeMember1,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
     _hasher: HasherT,
   ): HasherT {
-    for (const _element of orNodeShapeMember2.stringProperty) {
-      _hasher.update(_element);
+    for (const _element of orNodeShapeMember1.decimalProperty) {
+      _hasher.update(_element.value);
     }
 
     return _hasher;
@@ -929,9 +929,119 @@ export namespace OrNodeShapeMember2 {
         sparqlBuilder.GraphPattern.optional(
           sparqlBuilder.GraphPattern.basic(
             this.subject,
-            dataFactory.namedNode("http://example.com/stringProperty"),
-            this.variable("StringProperty"),
+            dataFactory.namedNode("http://example.com/decimalProperty"),
+            this.variable("DecimalProperty"),
           ),
+        ),
+      );
+    }
+  }
+}
+
+export class ShapeWithListProperty {
+  readonly identifier: rdfjs.NamedNode;
+  readonly listProperty: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly type = "ShapeWithListProperty" as const;
+
+  constructor(parameters: {
+    readonly identifier: rdfjs.NamedNode;
+    readonly listProperty: rdfjs.BlankNode | rdfjs.NamedNode;
+  }) {
+    this.identifier = parameters.identifier;
+    this.listProperty = parameters.listProperty;
+  }
+
+  equals(other: ShapeWithListProperty): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      listProperty: purifyHelpers.Equatable.booleanEquals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(hasher: HasherT): HasherT {
+    return ShapeWithListProperty.hash(this, hasher);
+  }
+
+  toRdf({
+    mutateGraph,
+    resourceSet,
+  }: {
+    ignoreRdfType?: boolean;
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+    const _resource = resourceSet.mutableNamedResource({
+      identifier: this.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/listProperty"),
+      this.listProperty,
+    );
+    return _resource;
+  }
+}
+
+export namespace ShapeWithListProperty {
+  export function fromRdf(
+    _resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<rdfjsResource.Resource.ValueError, ShapeWithListProperty> {
+    const identifier = _resource.identifier;
+    const _listPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      rdfjs.BlankNode | rdfjs.NamedNode
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/listProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toIdentifier());
+    if (_listPropertyEither.isLeft()) {
+      return _listPropertyEither;
+    }
+
+    const listProperty = _listPropertyEither.unsafeCoerce();
+    return purify.Either.of(
+      new ShapeWithListProperty({ identifier, listProperty }),
+    );
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    shapeWithListProperty: Omit<
+      ShapeWithListProperty,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    >,
+    _hasher: HasherT,
+  ): HasherT {
+    _hasher.update(
+      rdfjsResource.Resource.Identifier.toString(
+        shapeWithListProperty.listProperty,
+      ),
+    );
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/listProperty"),
+          this.variable("ListProperty"),
         ),
       );
     }
