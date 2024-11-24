@@ -117,7 +117,7 @@ ${this.memberTypeTraits
       (
         value,
       ) => `if (left.${this._discriminatorProperty.name} === "${value}" && right.${this._discriminatorProperty.name} === "${value}") {
-  return ${memberTypeTraits.memberType.equalsFunction()}(left, right);
+  return ${memberTypeTraits.memberType.propertyEqualsFunction()}(left, right);
 }`,
     ),
   )
@@ -133,7 +133,7 @@ ${this.memberTypeTraits
     let expression = "";
     for (const memberTypeTraits of this.memberTypeTraits) {
       let typeExpression =
-        memberTypeTraits.memberType.fromRdfExpression(parameters);
+        memberTypeTraits.memberType.propertyFromRdfExpression(parameters);
       if (this._discriminatorProperty.synthetic) {
         typeExpression = `${typeExpression}.map(value => ({ ${this._discriminatorProperty.name}: "${memberTypeTraits.discriminatorPropertyValues[0]}" as const, value }) as (${this.name}))`;
       }
@@ -153,7 +153,7 @@ ${this.memberTypeTraits
     for (const memberTypeTraits of this.memberTypeTraits) {
       for (const discriminatorPropertyValue of memberTypeTraits.discriminatorPropertyValues) {
         caseBlocks.push(
-          `case "${discriminatorPropertyValue}": { ${memberTypeTraits.memberType.hashStatements(
+          `case "${discriminatorPropertyValue}": { ${memberTypeTraits.memberType.propertyHashStatements(
             {
               variables: {
                 hasher: variables.hasher,
@@ -190,7 +190,7 @@ ${this.memberTypeTraits
     let expression = "";
     for (const memberTypeTraits of this.memberTypeTraits) {
       if (expression.length === 0) {
-        expression = memberTypeTraits.memberType.toRdfExpression({
+        expression = memberTypeTraits.memberType.propertyToRdfExpression({
           variables: {
             ...variables,
             value: memberTypeTraits.payload(variables.value),
@@ -204,7 +204,7 @@ ${this.memberTypeTraits
           )
           .join(
             " || ",
-          )}) ? ${memberTypeTraits.memberType.toRdfExpression({ variables: { ...variables, value: memberTypeTraits.payload(variables.value) } })} : ${expression}`;
+          )}) ? ${memberTypeTraits.memberType.propertyToRdfExpression({ variables: { ...variables, value: memberTypeTraits.payload(variables.value) } })} : ${expression}`;
       }
     }
     return expression;
