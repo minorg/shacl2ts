@@ -22,6 +22,33 @@ export class ObjectUnionType extends UnionType<ObjectType> {
     this.export = export_;
   }
 
+  get equalsFunctionDeclaration(): FunctionDeclarationStructure {
+    return {
+      isExported: true,
+      kind: StructureKind.Function,
+      name: "equals",
+      parameters: [
+        {
+          name: "left",
+          type: this.name,
+        },
+        {
+          name: "right",
+          type: this.name,
+        },
+      ],
+      returnType: "purifyHelpers.Equatable.EqualsResult",
+      statements: `\
+return purifyHelpers.Equatable.objectEquals(left, right, {
+  type: purifyHelpers.Equatable.strictEquals,
+}).chain(() => {
+  switch (left.${this.configuration.objectTypeDiscriminatorPropertyName}) {
+    ${this.memberTypes.map((memberType) => `case "${memberType.name}": return ${this.configuration.objectTypeDeclarationType === "class" ? `left.equals(right as unknown as ${memberType.name})` : `${memberType.name}.equals(left, right as unknown as ${memberType.name})`};`).join(" ")}
+  }
+})`,
+    };
+  }
+
   get fromRdfFunctionDeclaration(): FunctionDeclarationStructure {
     const variables = {
       ignoreRdfType: "ignoreRdfType",
@@ -87,6 +114,10 @@ export class ObjectUnionType extends UnionType<ObjectType> {
       name: this.name,
       type: this.memberTypes.map((memberType) => memberType.name).join(" | "),
     };
+  }
+
+  override propertyEqualsFunction(): string {
+    return `${this.name}.equals`;
   }
 
   override propertyFromRdfExpression({

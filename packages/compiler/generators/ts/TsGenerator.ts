@@ -205,6 +205,10 @@ export class TsGenerator {
 
     const moduleStatements: StatementStructures[] = [];
 
+    if (this.configuration.features.has("equals")) {
+      moduleStatements.push(objectUnionType.equalsFunctionDeclaration);
+    }
+
     if (this.configuration.features.has("fromRdf")) {
       moduleStatements.push(objectUnionType.fromRdfFunctionDeclaration);
     }
