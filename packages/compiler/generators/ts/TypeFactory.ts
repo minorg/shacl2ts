@@ -104,6 +104,7 @@ export class TypeFactory {
       case "ObjectUnionType": {
         return new ObjectUnionType({
           configuration: this.configuration,
+          export_: astType.export,
           name: tsName((astType as ast.ObjectUnionType).name),
           memberTypes: astType.memberTypes
             .map((astType) => this.createTypeFromAstType(astType))

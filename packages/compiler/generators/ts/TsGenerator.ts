@@ -81,59 +81,11 @@ export class TsGenerator {
     this.addImportDeclarations({ objectTypes, sourceFile });
 
     for (const objectType of objectTypes) {
-      switch (this.configuration.objectTypeDeclarationType) {
-        case "class":
-          sourceFile.addClass(objectType.classDeclaration());
-          break;
-        case "interface":
-          sourceFile.addInterface(objectType.interfaceDeclaration());
-          break;
-      }
-
-      const moduleStatements: StatementStructures[] = [];
-
-      if (
-        this.configuration.features.has("equals") &&
-        this.configuration.objectTypeDeclarationType === "interface"
-      ) {
-        moduleStatements.push(objectType.equalsFunctionDeclaration());
-      }
-
-      if (this.configuration.features.has("fromRdf")) {
-        moduleStatements.push(objectType.fromRdfFunctionDeclaration());
-      }
-
-      if (this.configuration.features.has("hash")) {
-        moduleStatements.push(objectType.hashFunctionDeclaration());
-      }
-
-      if (this.configuration.features.has("sparql-graph-patterns")) {
-        if (objectType.parentObjectTypes.length > 1) {
-          throw new RangeError(
-            `object type '${objectType.name}' has multiple super object types, can't use with SPARQL graph patterns`,
-          );
-        }
-
-        moduleStatements.push(objectType.sparqlGraphPatternsClassDeclaration());
-      }
-
-      if (
-        this.configuration.features.has("toRdf") &&
-        this.configuration.objectTypeDeclarationType === "interface"
-      ) {
-        moduleStatements.push(objectType.toRdfFunctionDeclaration());
-      }
-
-      sourceFile.addModule({
-        isExported: objectType.export_,
-        kind: StructureKind.Module,
-        name: objectType.name,
-        statements: moduleStatements,
-      });
+      this.addObjectTypeDeclarations({ objectType, sourceFile });
     }
 
     for (const objectUnionType of objectUnionTypes) {
-      sourceFile.addTypeAlias(objectUnionType.typeAliasDeclaration);
+      this.addObjectUnionTypeDeclarations({ objectUnionType, sourceFile });
     }
   }
 
@@ -188,6 +140,81 @@ export class TsGenerator {
       }
     }
     sourceFile.addStatements([...typeImportStatements]);
+  }
+
+  private addObjectTypeDeclarations({
+    objectType,
+    sourceFile,
+  }: { objectType: ObjectType; sourceFile: SourceFile }): void {
+    switch (this.configuration.objectTypeDeclarationType) {
+      case "class":
+        sourceFile.addClass(objectType.classDeclaration());
+        break;
+      case "interface":
+        sourceFile.addInterface(objectType.interfaceDeclaration());
+        break;
+    }
+
+    const moduleStatements: StatementStructures[] = [];
+
+    if (
+      this.configuration.features.has("equals") &&
+      this.configuration.objectTypeDeclarationType === "interface"
+    ) {
+      moduleStatements.push(objectType.equalsFunctionDeclaration());
+    }
+
+    if (this.configuration.features.has("fromRdf")) {
+      moduleStatements.push(objectType.fromRdfFunctionDeclaration());
+    }
+
+    if (this.configuration.features.has("hash")) {
+      moduleStatements.push(objectType.hashFunctionDeclaration());
+    }
+
+    if (this.configuration.features.has("sparql-graph-patterns")) {
+      if (objectType.parentObjectTypes.length > 1) {
+        throw new RangeError(
+          `object type '${objectType.name}' has multiple super object types, can't use with SPARQL graph patterns`,
+        );
+      }
+
+      moduleStatements.push(objectType.sparqlGraphPatternsClassDeclaration());
+    }
+
+    if (
+      this.configuration.features.has("toRdf") &&
+      this.configuration.objectTypeDeclarationType === "interface"
+    ) {
+      moduleStatements.push(objectType.toRdfFunctionDeclaration());
+    }
+
+    sourceFile.addModule({
+      isExported: objectType.export_,
+      kind: StructureKind.Module,
+      name: objectType.name,
+      statements: moduleStatements,
+    });
+  }
+
+  private addObjectUnionTypeDeclarations({
+    objectUnionType,
+    sourceFile,
+  }: { objectUnionType: ObjectUnionType; sourceFile: SourceFile }): void {
+    sourceFile.addTypeAlias(objectUnionType.typeAliasDeclaration);
+
+    const moduleStatements: StatementStructures[] = [];
+
+    if (this.configuration.features.has("fromRdf")) {
+      moduleStatements.push(objectUnionType.fromRdfFunctionDeclaration);
+    }
+
+    sourceFile.addModule({
+      isExported: objectUnionType.export,
+      kind: StructureKind.Module,
+      name: objectUnionType.name,
+      statements: moduleStatements,
+    });
   }
 }
 

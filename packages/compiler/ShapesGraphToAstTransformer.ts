@@ -259,6 +259,11 @@ export class ShapesGraphToAstTransformer {
       }
     }
 
+    const export_ = nodeShape.resource
+      .value(shaclmate.export)
+      .chain((value) => value.toBoolean())
+      .orDefault(true);
+
     if (
       nodeShape.constraints.and.length > 0 ||
       nodeShape.constraints.or.length > 0
@@ -288,6 +293,7 @@ export class ShapesGraphToAstTransformer {
 
       // Put a placeholder in the cache to deal with cyclic references
       const compositeType = {
+        export: export_,
         kind: compositeTypeKind,
         memberTypes: [] as ObjectType[],
         name: this.shapeName(nodeShape),
@@ -345,10 +351,7 @@ export class ShapesGraphToAstTransformer {
       ancestorObjectTypes: [],
       childObjectTypes: [],
       descendantObjectTypes: [],
-      export: nodeShape.resource
-        .value(shaclmate.export)
-        .chain((value) => value.toBoolean())
-        .orDefault(true),
+      export: export_,
       kind: "ObjectType",
       listItemType: Maybe.empty(),
       mintingStrategy: nodeShape.resource
