@@ -2,6 +2,11 @@ import { Maybe } from "purify-ts";
 import type * as ast from "../../ast";
 import type { Configuration } from "./Configuration.js";
 
+/**
+ * Abstract base class for generating TypeScript expressions and statemenst in the TypeScript generator.
+ *
+ * Subclasses are used for both property types (c.f., property* methods) and node/object types.
+ */
 export abstract class Type {
   abstract readonly kind: ast.Type["kind"] | "ListType";
   abstract readonly name: string;
@@ -47,7 +52,7 @@ export abstract class Type {
    * If the type is e.g., an RDF/JS term it won't have additional graph patterns beyond the basic (s, p, o), and this
    * method will return nothing.
    */
-  chainSparqlGraphPatternExpression(_: {
+  propertyChainSparqlGraphPatternExpression(_: {
     variables: {
       subject: string;
     };
@@ -58,16 +63,16 @@ export abstract class Type {
   }
 
   /**
-   * A function (reference or declaration) that compares two values of this type, returning a
+   * A function (reference or declaration) that compares two property values of this type, returning a
    * purifyHelpers.Equatable.EqualsResult.
    */
-  abstract equalsFunction(): string;
+  abstract propertyEqualsFunction(): string;
 
   /**
    * An expression that converts a rdfjsResource.Resource.Values to an Either of value/values
-   * of this type.
+   * of this type for a property.
    */
-  abstract fromRdfExpression(parameters: {
+  abstract propertyFromRdfExpression(parameters: {
     variables: {
       predicate: string;
       resource: string;
@@ -76,9 +81,9 @@ export abstract class Type {
   }): string;
 
   /**
-   * Statements that use hasher.update to hash a value of this type.
+   * Statements that use hasher.update to hash a property value of this type.
    */
-  abstract hashStatements(parameters: {
+  abstract propertyHashStatements(parameters: {
     variables: {
       hasher: string;
       value: string;
@@ -98,19 +103,19 @@ export abstract class Type {
     };
   }): Type.SparqlGraphPatternExpression | Type.SparqlGraphPatternsExpression {
     let expression = `sparqlBuilder.GraphPattern.basic(${variables.subject}, ${variables.predicate}, ${variables.object})`;
-    this.chainSparqlGraphPatternExpression({
-      variables: { subject: "object" },
+    this.propertyChainSparqlGraphPatternExpression({
+      variables: { subject: "_object" },
     }).ifJust((chainSparqlGraphPatternExpression) => {
-      expression = `sparqlBuilder.GraphPattern.group(${expression}.chainObject(object => ${chainSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()}))`;
+      expression = `sparqlBuilder.GraphPattern.group(${expression}.chainObject(_object => ${chainSparqlGraphPatternExpression.toSparqlGraphPatternsExpression()}))`;
     });
     return new Type.SparqlGraphPatternExpression(expression);
   }
 
   /**
-   * An expression that converts a value of this type to one that that can be .add'd to
+   * An expression that converts a property value of this type to one that that can be .add'd to
    * an rdfjsResource.Resource.
    */
-  abstract toRdfExpression(parameters: {
+  abstract propertyToRdfExpression(parameters: {
     variables: {
       predicate: string;
       mutateGraph: string;

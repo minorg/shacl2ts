@@ -109,7 +109,7 @@ export class IdentifierProperty extends Property<IdentifierType> {
   override hashStatements(
     parameters: Parameters<Property<IdentifierType>["hashStatements"]>[0],
   ): readonly string[] {
-    return this.type.hashStatements(parameters);
+    return this.type.propertyHashStatements(parameters);
   }
 
   override sparqlGraphPatternExpression(): Maybe<string> {

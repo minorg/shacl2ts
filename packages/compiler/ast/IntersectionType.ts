@@ -5,5 +5,11 @@ import type { Type } from "./Type.js";
  */
 export interface IntersectionType {
   readonly kind: "IntersectionType";
-  readonly memberTypes: readonly Type[];
+
+  /**
+   * Member types of the intersection.
+   *
+   * Mutable to support cycle-handling logic in the compiler.
+   */
+  readonly memberTypes: Type[];
 }

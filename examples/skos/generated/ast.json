@@ -3,27 +3,80 @@
     {
       "kind": "ObjectType",
       "name": {
-        "curie": "skos-xl:Label",
+        "curie": "skos-shacl:OrderedCollectionMemberList",
         "identifier": {
           "termType": "NamedNode",
-          "value": "http://www.w3.org/2008/05/skos-xl#Label"
+          "value": "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList"
         },
-        "shName": "Label"
+        "shName": "OrderedCollectionMemberList"
       },
       "properties": [
         {
           "name": {
+            "curie": "skos-shacl:OrderedCollectionMemberList-first",
             "identifier": {
-              "termType": "BlankNode",
-              "value": "n3-100"
-            }
-          },
-          "path": "http://www.w3.org/2008/05/skos-xl#literalForm",
-          "type": {
-            "itemType": {
-              "kind": "LiteralType"
+              "termType": "NamedNode",
+              "value": "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList-first"
             },
-            "kind": "SetType"
+            "shName": "first"
+          },
+          "path": "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
+          "type": {
+            "kind": "IdentifierType",
+            "nodeKinds": [
+              "NamedNode"
+            ]
+          }
+        },
+        {
+          "name": {
+            "curie": "skos-shacl:OrderedCollectionMemberList-rest",
+            "identifier": {
+              "termType": "NamedNode",
+              "value": "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList-rest"
+            },
+            "shName": "rest"
+          },
+          "path": "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "ObjectType",
+                "listItemType": {
+                  "kind": "IdentifierType",
+                  "nodeKinds": [
+                    "NamedNode"
+                  ]
+                },
+                "name": {
+                  "curie": "skos-shacl:OrderedCollectionMemberList",
+                  "identifier": {
+                    "termType": "NamedNode",
+                    "value": "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList"
+                  },
+                  "shName": "OrderedCollectionMemberList"
+                },
+                "nodeKinds": [
+                  "BlankNode",
+                  "NamedNode"
+                ],
+                "rdfType": {
+                  "termType": "NamedNode",
+                  "value": "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList"
+                }
+              },
+              {
+                "hasValue": {
+                  "termType": "NamedNode",
+                  "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                },
+                "kind": "IdentifierType",
+                "nodeKinds": [
+                  "NamedNode"
+                ]
+              }
+            ]
           }
         }
       ]
@@ -41,10 +94,9 @@
       "properties": [
         {
           "name": {
-            "curie": "skos-shacl:Collection-member",
             "identifier": {
-              "termType": "NamedNode",
-              "value": "http://kos-kit.github.io/skos-shacl/ns#Collection-member"
+              "termType": "BlankNode",
+              "value": "n3-95"
             },
             "shName": "member"
           },
@@ -52,7 +104,9 @@
           "type": {
             "itemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "nodeKinds": [
+                "NamedNode"
+              ]
             },
             "kind": "SetType"
           }
@@ -72,44 +126,9 @@
       "properties": [
         {
           "name": {
-            "curie": "skos-shacl:altLabel",
-            "identifier": {
-              "termType": "NamedNode",
-              "value": "http://kos-kit.github.io/skos-shacl/ns#altLabel"
-            },
-            "shName": "altLabel"
-          },
-          "path": "http://www.w3.org/2004/02/skos/core#altLabel",
-          "type": {
-            "itemType": {
-              "kind": "LiteralType"
-            },
-            "kind": "SetType"
-          }
-        },
-        {
-          "name": {
-            "curie": "skos-shacl:altLabelXl",
-            "identifier": {
-              "termType": "NamedNode",
-              "value": "http://kos-kit.github.io/skos-shacl/ns#altLabelXl"
-            },
-            "shName": "altLabelXl"
-          },
-          "path": "http://www.w3.org/2008/05/skos-xl#altLabel",
-          "type": {
-            "itemType": {
-              "kind": "IdentifierType",
-              "nodeKinds": ["BlankNode", "NamedNode"]
-            },
-            "kind": "SetType"
-          }
-        },
-        {
-          "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-77"
+              "value": "n3-100"
             },
             "shName": "broader"
           },
@@ -117,7 +136,9 @@
           "type": {
             "itemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "nodeKinds": [
+                "NamedNode"
+              ]
             },
             "kind": "SetType"
           }
@@ -126,7 +147,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-78"
+              "value": "n3-101"
             },
             "shName": "broaderTransitive"
           },
@@ -134,7 +155,9 @@
           "type": {
             "itemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "nodeKinds": [
+                "NamedNode"
+              ]
             },
             "kind": "SetType"
           }
@@ -143,7 +166,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-79"
+              "value": "n3-102"
             },
             "shName": "broadMatch"
           },
@@ -151,7 +174,9 @@
           "type": {
             "itemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "nodeKinds": [
+                "NamedNode"
+              ]
             },
             "kind": "SetType"
           }
@@ -160,23 +185,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-80"
-            },
-            "shName": "changeNote"
-          },
-          "path": "http://www.w3.org/2004/02/skos/core#changeNote",
-          "type": {
-            "itemType": {
-              "kind": "LiteralType"
-            },
-            "kind": "SetType"
-          }
-        },
-        {
-          "name": {
-            "identifier": {
-              "termType": "BlankNode",
-              "value": "n3-81"
+              "value": "n3-103"
             },
             "shName": "closeMatch"
           },
@@ -184,7 +193,9 @@
           "type": {
             "itemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "nodeKinds": [
+                "NamedNode"
+              ]
             },
             "kind": "SetType"
           }
@@ -193,39 +204,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-82"
-            },
-            "shName": "definition"
-          },
-          "path": "http://www.w3.org/2004/02/skos/core#definition",
-          "type": {
-            "itemType": {
-              "kind": "LiteralType"
-            },
-            "kind": "SetType"
-          }
-        },
-        {
-          "name": {
-            "identifier": {
-              "termType": "BlankNode",
-              "value": "n3-83"
-            },
-            "shName": "editorialNote"
-          },
-          "path": "http://www.w3.org/2004/02/skos/core#editorialNote",
-          "type": {
-            "itemType": {
-              "kind": "LiteralType"
-            },
-            "kind": "SetType"
-          }
-        },
-        {
-          "name": {
-            "identifier": {
-              "termType": "BlankNode",
-              "value": "n3-84"
+              "value": "n3-104"
             },
             "shName": "exactMatch"
           },
@@ -233,7 +212,9 @@
           "type": {
             "itemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "nodeKinds": [
+                "NamedNode"
+              ]
             },
             "kind": "SetType"
           }
@@ -242,74 +223,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-85"
-            },
-            "shName": "example"
-          },
-          "path": "http://www.w3.org/2004/02/skos/core#example",
-          "type": {
-            "itemType": {
-              "kind": "LiteralType"
-            },
-            "kind": "SetType"
-          }
-        },
-        {
-          "name": {
-            "curie": "skos-shacl:hiddenLabel",
-            "identifier": {
-              "termType": "NamedNode",
-              "value": "http://kos-kit.github.io/skos-shacl/ns#hiddenLabel"
-            },
-            "shName": "hiddenLabel"
-          },
-          "path": "http://www.w3.org/2004/02/skos/core#altLabel",
-          "type": {
-            "itemType": {
-              "kind": "LiteralType"
-            },
-            "kind": "SetType"
-          }
-        },
-        {
-          "name": {
-            "curie": "skos-shacl:hiddenLabelXl",
-            "identifier": {
-              "termType": "NamedNode",
-              "value": "http://kos-kit.github.io/skos-shacl/ns#hiddenLabelXl"
-            },
-            "shName": "hiddenLabelXl"
-          },
-          "path": "http://www.w3.org/2008/05/skos-xl#hiddenLabel",
-          "type": {
-            "itemType": {
-              "kind": "IdentifierType",
-              "nodeKinds": ["BlankNode", "NamedNode"]
-            },
-            "kind": "SetType"
-          }
-        },
-        {
-          "name": {
-            "identifier": {
-              "termType": "BlankNode",
-              "value": "n3-86"
-            },
-            "shName": "historyNote"
-          },
-          "path": "http://www.w3.org/2004/02/skos/core#historyNote",
-          "type": {
-            "itemType": {
-              "kind": "LiteralType"
-            },
-            "kind": "SetType"
-          }
-        },
-        {
-          "name": {
-            "identifier": {
-              "termType": "BlankNode",
-              "value": "n3-87"
+              "value": "n3-105"
             },
             "shName": "inScheme"
           },
@@ -317,7 +231,9 @@
           "type": {
             "itemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "nodeKinds": [
+                "NamedNode"
+              ]
             },
             "kind": "SetType"
           }
@@ -326,7 +242,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-88"
+              "value": "n3-106"
             },
             "shName": "mappingRelation"
           },
@@ -334,7 +250,9 @@
           "type": {
             "itemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "nodeKinds": [
+                "NamedNode"
+              ]
             },
             "kind": "SetType"
           }
@@ -343,7 +261,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-89"
+              "value": "n3-107"
             },
             "shName": "narrower"
           },
@@ -351,7 +269,9 @@
           "type": {
             "itemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "nodeKinds": [
+                "NamedNode"
+              ]
             },
             "kind": "SetType"
           }
@@ -360,7 +280,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-90"
+              "value": "n3-108"
             },
             "shName": "narrowerTransitive"
           },
@@ -368,7 +288,9 @@
           "type": {
             "itemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "nodeKinds": [
+                "NamedNode"
+              ]
             },
             "kind": "SetType"
           }
@@ -377,7 +299,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-91"
+              "value": "n3-109"
             },
             "shName": "narrowMatch"
           },
@@ -385,7 +307,9 @@
           "type": {
             "itemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "nodeKinds": [
+                "NamedNode"
+              ]
             },
             "kind": "SetType"
           }
@@ -394,18 +318,17 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-92"
+              "value": "n3-110"
             },
-            "shName": "notation"
+            "shName": "related"
           },
-          "path": "http://www.w3.org/2004/02/skos/core#notation",
+          "path": "http://www.w3.org/2004/02/skos/core#related",
           "type": {
             "itemType": {
-              "datatype": {
-                "termType": "NamedNode",
-                "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
-              },
-              "kind": "LiteralType"
+              "kind": "IdentifierType",
+              "nodeKinds": [
+                "NamedNode"
+              ]
             },
             "kind": "SetType"
           }
@@ -414,7 +337,77 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-93"
+              "value": "n3-111"
+            },
+            "shName": "relatedMatch"
+          },
+          "path": "http://www.w3.org/2004/02/skos/core#relatedMatch",
+          "type": {
+            "itemType": {
+              "kind": "IdentifierType",
+              "nodeKinds": [
+                "NamedNode"
+              ]
+            },
+            "kind": "SetType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-112"
+            },
+            "shName": "semanticRelation"
+          },
+          "path": "http://www.w3.org/2004/02/skos/core#semanticRelation",
+          "type": {
+            "itemType": {
+              "kind": "IdentifierType",
+              "nodeKinds": [
+                "NamedNode"
+              ]
+            },
+            "kind": "SetType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-113"
+            },
+            "shName": "topConceptOf"
+          },
+          "path": "http://www.w3.org/2004/02/skos/core#topConceptOf",
+          "type": {
+            "itemType": {
+              "kind": "IdentifierType",
+              "nodeKinds": [
+                "NamedNode"
+              ]
+            },
+            "kind": "SetType"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "ObjectType",
+      "name": {
+        "curie": "skos-shacl:Resource",
+        "identifier": {
+          "termType": "NamedNode",
+          "value": "http://kos-kit.github.io/skos-shacl/ns#Resource"
+        },
+        "shName": "Resource"
+      },
+      "properties": [
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-81"
             },
             "shName": "note"
           },
@@ -428,10 +421,9 @@
         },
         {
           "name": {
-            "curie": "skos-shacl:prefLabel",
             "identifier": {
-              "termType": "NamedNode",
-              "value": "http://kos-kit.github.io/skos-shacl/ns#prefLabel"
+              "termType": "BlankNode",
+              "value": "n3-82"
             },
             "shName": "prefLabel"
           },
@@ -445,10 +437,9 @@
         },
         {
           "name": {
-            "curie": "skos-shacl:prefLabelXl",
             "identifier": {
-              "termType": "NamedNode",
-              "value": "http://kos-kit.github.io/skos-shacl/ns#prefLabelXl"
+              "termType": "BlankNode",
+              "value": "n3-83"
             },
             "shName": "prefLabelXl"
           },
@@ -456,7 +447,10 @@
           "type": {
             "itemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["BlankNode", "NamedNode"]
+              "nodeKinds": [
+                "BlankNode",
+                "NamedNode"
+              ]
             },
             "kind": "SetType"
           }
@@ -465,41 +459,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-94"
-            },
-            "shName": "related"
-          },
-          "path": "http://www.w3.org/2004/02/skos/core#related",
-          "type": {
-            "itemType": {
-              "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
-            },
-            "kind": "SetType"
-          }
-        },
-        {
-          "name": {
-            "identifier": {
-              "termType": "BlankNode",
-              "value": "n3-95"
-            },
-            "shName": "relatedMatch"
-          },
-          "path": "http://www.w3.org/2004/02/skos/core#relatedMatch",
-          "type": {
-            "itemType": {
-              "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
-            },
-            "kind": "SetType"
-          }
-        },
-        {
-          "name": {
-            "identifier": {
-              "termType": "BlankNode",
-              "value": "n3-96"
+              "value": "n3-84"
             },
             "shName": "scopeNote"
           },
@@ -515,15 +475,14 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-97"
+              "value": "n3-85"
             },
-            "shName": "semanticRelation"
+            "shName": "altLabel"
           },
-          "path": "http://www.w3.org/2004/02/skos/core#semanticRelation",
+          "path": "http://www.w3.org/2004/02/skos/core#altLabel",
           "type": {
             "itemType": {
-              "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "kind": "LiteralType"
             },
             "kind": "SetType"
           }
@@ -532,15 +491,183 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-98"
+              "value": "n3-86"
             },
-            "shName": "topConceptOf"
+            "shName": "altLabelXl"
           },
-          "path": "http://www.w3.org/2004/02/skos/core#topConceptOf",
+          "path": "http://www.w3.org/2008/05/skos-xl#altLabel",
           "type": {
             "itemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "nodeKinds": [
+                "BlankNode",
+                "NamedNode"
+              ]
+            },
+            "kind": "SetType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-87"
+            },
+            "shName": "changeNote"
+          },
+          "path": "http://www.w3.org/2004/02/skos/core#changeNote",
+          "type": {
+            "itemType": {
+              "kind": "LiteralType"
+            },
+            "kind": "SetType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-88"
+            },
+            "shName": "definition"
+          },
+          "path": "http://www.w3.org/2004/02/skos/core#definition",
+          "type": {
+            "itemType": {
+              "kind": "LiteralType"
+            },
+            "kind": "SetType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-89"
+            },
+            "shName": "editorialNote"
+          },
+          "path": "http://www.w3.org/2004/02/skos/core#editorialNote",
+          "type": {
+            "itemType": {
+              "kind": "LiteralType"
+            },
+            "kind": "SetType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-90"
+            },
+            "shName": "example"
+          },
+          "path": "http://www.w3.org/2004/02/skos/core#example",
+          "type": {
+            "itemType": {
+              "kind": "LiteralType"
+            },
+            "kind": "SetType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-91"
+            },
+            "shName": "hiddenLabel"
+          },
+          "path": "http://www.w3.org/2004/02/skos/core#hiddenLabel",
+          "type": {
+            "itemType": {
+              "kind": "LiteralType"
+            },
+            "kind": "SetType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-92"
+            },
+            "shName": "hiddenLabelXl"
+          },
+          "path": "http://www.w3.org/2008/05/skos-xl#hiddenLabel",
+          "type": {
+            "itemType": {
+              "kind": "IdentifierType",
+              "nodeKinds": [
+                "BlankNode",
+                "NamedNode"
+              ]
+            },
+            "kind": "SetType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-93"
+            },
+            "shName": "historyNote"
+          },
+          "path": "http://www.w3.org/2004/02/skos/core#historyNote",
+          "type": {
+            "itemType": {
+              "kind": "LiteralType"
+            },
+            "kind": "SetType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-94"
+            },
+            "shName": "notation"
+          },
+          "path": "http://www.w3.org/2004/02/skos/core#notation",
+          "type": {
+            "itemType": {
+              "datatype": {
+                "termType": "NamedNode",
+                "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+              },
+              "kind": "LiteralType"
+            },
+            "kind": "SetType"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "ObjectType",
+      "name": {
+        "curie": "skos-xl:Label",
+        "identifier": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2008/05/skos-xl#Label"
+        },
+        "shName": "Label"
+      },
+      "properties": [
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-115"
+            },
+            "shName": "literalForm"
+          },
+          "path": "http://www.w3.org/2008/05/skos-xl#literalForm",
+          "type": {
+            "itemType": {
+              "kind": "LiteralType"
             },
             "kind": "SetType"
           }
@@ -560,60 +687,9 @@
       "properties": [
         {
           "name": {
-            "curie": "skos-shacl:altLabel",
-            "identifier": {
-              "termType": "NamedNode",
-              "value": "http://kos-kit.github.io/skos-shacl/ns#altLabel"
-            },
-            "shName": "altLabel"
-          },
-          "path": "http://www.w3.org/2004/02/skos/core#altLabel",
-          "type": {
-            "itemType": {
-              "kind": "LiteralType"
-            },
-            "kind": "SetType"
-          }
-        },
-        {
-          "name": {
-            "curie": "skos-shacl:hiddenLabel",
-            "identifier": {
-              "termType": "NamedNode",
-              "value": "http://kos-kit.github.io/skos-shacl/ns#hiddenLabel"
-            },
-            "shName": "hiddenLabel"
-          },
-          "path": "http://www.w3.org/2004/02/skos/core#altLabel",
-          "type": {
-            "itemType": {
-              "kind": "LiteralType"
-            },
-            "kind": "SetType"
-          }
-        },
-        {
-          "name": {
-            "curie": "skos-shacl:prefLabel",
-            "identifier": {
-              "termType": "NamedNode",
-              "value": "http://kos-kit.github.io/skos-shacl/ns#prefLabel"
-            },
-            "shName": "prefLabel"
-          },
-          "path": "http://www.w3.org/2004/02/skos/core#prefLabel",
-          "type": {
-            "itemType": {
-              "kind": "LiteralType"
-            },
-            "kind": "SetType"
-          }
-        },
-        {
-          "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-99"
+              "value": "n3-114"
             },
             "shName": "hasTopConcept"
           },
@@ -621,7 +697,9 @@
           "type": {
             "itemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "nodeKinds": [
+                "NamedNode"
+              ]
             },
             "kind": "SetType"
           }
@@ -653,7 +731,9 @@
             "kind": "ObjectType",
             "listItemType": {
               "kind": "IdentifierType",
-              "nodeKinds": ["NamedNode"]
+              "nodeKinds": [
+                "NamedNode"
+              ]
             },
             "name": {
               "curie": "skos-shacl:OrderedCollectionMemberList",
@@ -663,83 +743,14 @@
               },
               "shName": "OrderedCollectionMemberList"
             },
-            "nodeKinds": ["BlankNode", "NamedNode"],
+            "nodeKinds": [
+              "BlankNode",
+              "NamedNode"
+            ],
             "rdfType": {
               "termType": "NamedNode",
               "value": "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList"
             }
-          }
-        }
-      ]
-    },
-    {
-      "kind": "ObjectType",
-      "name": {
-        "curie": "skos-shacl:OrderedCollectionMemberList",
-        "identifier": {
-          "termType": "NamedNode",
-          "value": "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList"
-        },
-        "shName": "OrderedCollectionMemberList"
-      },
-      "properties": [
-        {
-          "name": {
-            "curie": "skos-shacl:OrderedCollectionMemberList-first",
-            "identifier": {
-              "termType": "NamedNode",
-              "value": "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList-first"
-            },
-            "shName": "first"
-          },
-          "path": "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
-          "type": {
-            "kind": "IdentifierType",
-            "nodeKinds": ["NamedNode"]
-          }
-        },
-        {
-          "name": {
-            "curie": "skos-shacl:OrderedCollectionMemberList-rest",
-            "identifier": {
-              "termType": "NamedNode",
-              "value": "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList-rest"
-            },
-            "shName": "rest"
-          },
-          "path": "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
-          "type": {
-            "kind": "UnionType",
-            "types": [
-              {
-                "kind": "ObjectType",
-                "listItemType": {
-                  "kind": "IdentifierType",
-                  "nodeKinds": ["NamedNode"]
-                },
-                "name": {
-                  "curie": "skos-shacl:OrderedCollectionMemberList",
-                  "identifier": {
-                    "termType": "NamedNode",
-                    "value": "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList"
-                  },
-                  "shName": "OrderedCollectionMemberList"
-                },
-                "nodeKinds": ["BlankNode", "NamedNode"],
-                "rdfType": {
-                  "termType": "NamedNode",
-                  "value": "http://kos-kit.github.io/skos-shacl/ns#OrderedCollectionMemberList"
-                }
-              },
-              {
-                "hasValue": {
-                  "termType": "NamedNode",
-                  "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
-                },
-                "kind": "IdentifierType",
-                "nodeKinds": ["NamedNode"]
-              }
-            ]
           }
         }
       ]

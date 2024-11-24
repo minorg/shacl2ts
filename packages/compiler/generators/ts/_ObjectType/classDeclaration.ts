@@ -158,7 +158,7 @@ function toRdfMethodDeclaration(
   const variables = {
     ignoreRdfType: "ignoreRdfType",
     mutateGraph: "mutateGraph",
-    resource: "resource",
+    resource: "_resource",
     resourceSet: "resourceSet",
   };
 

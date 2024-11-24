@@ -38,35 +38,37 @@ export class SetType extends Type {
     return `readonly (${this.itemType.name})[]`;
   }
 
-  override chainSparqlGraphPatternExpression(
-    parameters: Parameters<Type["chainSparqlGraphPatternExpression"]>[0],
-  ): ReturnType<Type["chainSparqlGraphPatternExpression"]> {
-    return this.itemType.chainSparqlGraphPatternExpression(parameters);
+  override propertyChainSparqlGraphPatternExpression(
+    parameters: Parameters<
+      Type["propertyChainSparqlGraphPatternExpression"]
+    >[0],
+  ): ReturnType<Type["propertyChainSparqlGraphPatternExpression"]> {
+    return this.itemType.propertyChainSparqlGraphPatternExpression(parameters);
   }
 
-  override equalsFunction(): string {
-    const itemTypeEqualsFunction = this.itemType.equalsFunction();
+  override propertyEqualsFunction(): string {
+    const itemTypeEqualsFunction = this.itemType.propertyEqualsFunction();
     if (itemTypeEqualsFunction === "purifyHelpers.Equatable.equals") {
       return "purifyHelpers.Equatable.arrayEquals";
     }
     return `(left, right) => purifyHelpers.Arrays.equals(left, right, ${itemTypeEqualsFunction})`;
   }
 
-  override fromRdfExpression({
+  override propertyFromRdfExpression({
     variables,
-  }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `purify.Either.of([...${variables.resourceValues}.flatMap(value => ${this.itemType.fromRdfExpression({ variables: { ...variables, resourceValues: "value.toValues()" } })}.toMaybe().toList())])`;
+  }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
+    return `purify.Either.of([...${variables.resourceValues}.flatMap(_value => ${this.itemType.propertyFromRdfExpression({ variables: { ...variables, resourceValues: "_value.toValues()" } })}.toMaybe().toList())])`;
   }
 
-  override hashStatements({
+  override propertyHashStatements({
     variables,
-  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
+  }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     return [
-      `for (const element of ${variables.value}) { ${this.itemType
-        .hashStatements({
+      `for (const _element of ${variables.value}) { ${this.itemType
+        .propertyHashStatements({
           variables: {
             hasher: variables.hasher,
-            value: "element",
+            value: "_element",
           },
         })
         .join("\n")} }`,
@@ -84,15 +86,15 @@ export class SetType extends Type {
     return this.itemType.propertySparqlGraphPatternExpression(parameters);
   }
 
-  override toRdfExpression({
+  override propertyToRdfExpression({
     variables,
-  }: Parameters<Type["toRdfExpression"]>[0]): string {
-    const itemTypeToRdfExpression = this.itemType.toRdfExpression({
-      variables: { ...variables, value: "value" },
+  }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
+    const itemTypeToRdfExpression = this.itemType.propertyToRdfExpression({
+      variables: { ...variables, value: "_value" },
     });
-    if (itemTypeToRdfExpression === "value") {
+    if (itemTypeToRdfExpression === "_value") {
       return variables.value;
     }
-    return `${variables.value}.map((value) => ${itemTypeToRdfExpression})`;
+    return `${variables.value}.map((_value) => ${itemTypeToRdfExpression})`;
   }
 }

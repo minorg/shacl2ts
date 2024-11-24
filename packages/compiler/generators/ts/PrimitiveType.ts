@@ -28,13 +28,13 @@ export abstract class PrimitiveType extends LiteralType {
     return [];
   }
 
-  override equalsFunction(): string {
+  override propertyEqualsFunction(): string {
     return "purifyHelpers.Equatable.strictEquals";
   }
 
-  override toRdfExpression({
+  override propertyToRdfExpression({
     variables,
-  }: Parameters<LiteralType["toRdfExpression"]>[0]): string {
+  }: Parameters<LiteralType["propertyToRdfExpression"]>[0]): string {
     return this.defaultValue
       .map((defaultValue) => {
         let primitiveDefaultValue = fromRdf(defaultValue, true);

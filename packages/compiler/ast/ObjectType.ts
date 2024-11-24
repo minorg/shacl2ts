@@ -16,21 +16,21 @@ export interface ObjectType {
   /**
    * Ancestor (parents, their parents, ad nauseum) ObjectTypes of this ObjectType.
    *
-   * Mutable to support cycle-handling logic in the transformer.
+   * Mutable to support cycle-handling logic in the compiler.
    */
   readonly ancestorObjectTypes: ObjectType[];
 
   /**
    * Immediate child ObjectTypes of this ObjectType.
    *
-   * Mutable to support cycle-handling logic in the transformer.
+   * Mutable to support cycle-handling logic in the compiler.
    */
   readonly childObjectTypes: ObjectType[];
 
   /**
    * Descendant (children, their children, ad nauseum) ObjectTypes of this ObjectType.
    *
-   * Mutable to support cycle-handling logic in the transformer.
+   * Mutable to support cycle-handling logic in the compiler.
    */
   readonly descendantObjectTypes: ObjectType[];
 
@@ -47,7 +47,7 @@ export interface ObjectType {
    * If the ObjectType is an RDF list, this is the type of rdf:first.
    * https://www.w3.org/TR/rdf-schema/#ch_collectionvocab
    *
-   * Mutable to support cycle-handling logic in the transformer.
+   * Mutable to support cycle-handling logic in the compiler.
    */
   listItemType: Maybe<Type>;
 
@@ -57,7 +57,7 @@ export interface ObjectType {
   readonly mintingStrategy: Maybe<MintingStrategy>;
 
   /**
-   * Name of this ObjectType, usually derived from sh:name or shaclmate:name.
+   * Name of this type, usually derived from sh:name or shaclmate:name.
    */
   readonly name: Name;
 
@@ -71,14 +71,14 @@ export interface ObjectType {
   /**
    * Immediate parent ObjectTypes of this Object types.
    *
-   * Mutable to support cycle-handling logic in the transformer.
+   * Mutable to support cycle-handling logic in the compiler.
    */
   readonly parentObjectTypes: ObjectType[];
 
   /**
    * Properties of this ObjectType.
    *
-   * Mutable to support cycle-handling logic in the transformer.
+   * Mutable to support cycle-handling logic in the compiler.
    */
   readonly properties: ObjectType.Property[];
 

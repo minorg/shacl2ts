@@ -4,12 +4,13 @@ import TermSet from "@rdfjs/term-set";
 import type * as rdfjs from "@rdfjs/types";
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import * as shaclAst from "@shaclmate/shacl-ast";
-import type { NodeKind } from "@shaclmate/shacl-ast";
+import { type NodeKind, NodeShape, type Shape } from "@shaclmate/shacl-ast";
 import { dash, owl, rdf, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import { invariant } from "ts-invariant";
 import type * as ast from "./ast";
+import type { ObjectType } from "./ast";
 import { MintingStrategy } from "./ast/MintingStrategy";
 import { logger } from "./logger.js";
 import { shaclmate } from "./vocabularies/";
@@ -70,6 +71,11 @@ function descendantClassIris(
   return [...descendantClassIris];
 }
 
+type NodeShapeAstType =
+  | ast.ObjectIntersectionType
+  | ast.ObjectType
+  | ast.ObjectUnionType;
+
 function shaclmateInline(shape: shaclAst.Shape): Maybe<boolean> {
   return shape.resource
     .value(shaclmate.inline)
@@ -92,7 +98,7 @@ export class ShapesGraphToAstTransformer {
   private readonly iriPrefixMap: PrefixMap;
   private readonly nodeShapeAstTypesByIdentifier: TermMap<
     rdfjs.BlankNode | rdfjs.NamedNode,
-    ast.ObjectType
+    NodeShapeAstType
   > = new TermMap();
   private readonly shapesGraph: shaclAst.ShapesGraph;
 
@@ -116,9 +122,16 @@ export class ShapesGraphToAstTransformer {
             !nodeShape.resource.identifier.value.startsWith(dash[""].value),
         )
         .map((nodeShape) => this.nodeShapeAstType(nodeShape)),
-    ).map((nodeShapeTypes) => ({
-      objectTypes: nodeShapeTypes.filter(
-        (nodeShapeType) => nodeShapeType.kind === "ObjectType",
+    ).map((nodeShapeAstTypes) => ({
+      objectIntersectionTypes: nodeShapeAstTypes.filter(
+        (nodeShapeAstType) =>
+          nodeShapeAstType.kind === "ObjectIntersectionType",
+      ),
+      objectTypes: nodeShapeAstTypes.filter(
+        (nodeShapeAstType) => nodeShapeAstType.kind === "ObjectType",
+      ),
+      objectUnionTypes: nodeShapeAstTypes.filter(
+        (nodeShapeAstType) => nodeShapeAstType.kind === "ObjectUnionType",
       ),
     }));
   }
@@ -197,9 +210,46 @@ export class ShapesGraphToAstTransformer {
     return Either.of(firstProperty.type);
   }
 
+  private classAstType(
+    classIri: rdfjs.NamedNode,
+  ): Either<Error, ast.ObjectType> {
+    let nodeShape: Maybe<shaclAst.NodeShape>;
+    if (
+      classIri.equals(owl.Class) ||
+      classIri.equals(owl.Thing) ||
+      classIri.equals(rdfs.Class)
+    ) {
+      nodeShape = Maybe.empty();
+    } else {
+      nodeShape = this.shapesGraph.nodeShapeByNode(classIri);
+    }
+
+    return nodeShape
+      .toEither(
+        new Error(`${classIri.value} does not correspond to a node shape`),
+      )
+      .chain((nodeShape) => this.nodeShapeAstType(nodeShape))
+      .chain((nodeShapeAstType) =>
+        nodeShapeAstType.kind === "ObjectType"
+          ? Either.of<Error, ast.ObjectType>(nodeShapeAstType)
+          : Left(
+              new Error(
+                `${classIri.value} corresponds to an intersection or union node shape`,
+              ),
+            ),
+      )
+      .ifLeft((error) => {
+        logger.debug(
+          "class %s did not resolve to an object type: %s",
+          classIri.value,
+          error.message,
+        );
+      });
+  }
+
   private nodeShapeAstType(
     nodeShape: shaclAst.NodeShape,
-  ): Either<Error, ast.ObjectType> {
+  ): Either<Error, NodeShapeAstType> {
     {
       const type = this.nodeShapeAstTypesByIdentifier.get(
         nodeShape.resource.identifier,
@@ -207,6 +257,68 @@ export class ShapesGraphToAstTransformer {
       if (type) {
         return Either.of(type);
       }
+    }
+
+    const export_ = nodeShape.resource
+      .value(shaclmate.export)
+      .chain((value) => value.toBoolean())
+      .orDefault(true);
+
+    if (
+      nodeShape.constraints.and.length > 0 ||
+      nodeShape.constraints.or.length > 0
+    ) {
+      let compositeTypeShapes: readonly Shape[];
+      let compositeTypeKind:
+        | ast.ObjectIntersectionType["kind"]
+        | ast.ObjectUnionType["kind"];
+      if (nodeShape.constraints.and.length > 0) {
+        compositeTypeShapes = nodeShape.constraints.and;
+        compositeTypeKind = "ObjectIntersectionType";
+      } else {
+        compositeTypeShapes = nodeShape.constraints.or;
+        compositeTypeKind = "ObjectUnionType";
+      }
+
+      const compositeTypeNodeShapes = compositeTypeShapes.filter(
+        (shape) => shape instanceof NodeShape,
+      );
+      if (compositeTypeNodeShapes.length < 2) {
+        return Left(
+          new Error(
+            `${nodeShape} only has one node shape in its logical constraint`,
+          ),
+        );
+      }
+
+      // Put a placeholder in the cache to deal with cyclic references
+      const compositeType = {
+        export: export_,
+        kind: compositeTypeKind,
+        memberTypes: [] as ObjectType[],
+        name: this.shapeName(nodeShape),
+      };
+
+      this.nodeShapeAstTypesByIdentifier.set(
+        nodeShape.resource.identifier,
+        compositeType,
+      );
+
+      compositeType.memberTypes.push(
+        ...Either.rights(
+          compositeTypeNodeShapes.map((nodeShape) =>
+            this.nodeShapeAstType(nodeShape),
+          ),
+        ).filter((nodeShapeAstType) => nodeShapeAstType.kind === "ObjectType"),
+      );
+      if (compositeType.memberTypes.length < compositeTypeNodeShapes.length) {
+        return Left(
+          new Error(
+            `${nodeShape} has one or more non-ObjectType node shapes in its logical constraint`,
+          ),
+        );
+      }
+      return Either.of(compositeType);
     }
 
     // https://www.w3.org/TR/shacl/#implicit-targetClass
@@ -239,10 +351,7 @@ export class ShapesGraphToAstTransformer {
       ancestorObjectTypes: [],
       childObjectTypes: [],
       descendantObjectTypes: [],
-      export: nodeShape.resource
-        .value(shaclmate.export)
-        .chain((value) => value.toBoolean())
-        .orDefault(true),
+      export: export_,
       kind: "ObjectType",
       listItemType: Maybe.empty(),
       mintingStrategy: nodeShape.resource
@@ -277,14 +386,14 @@ export class ShapesGraphToAstTransformer {
       nodeShape.resource,
       Number.MAX_SAFE_INTEGER,
     )) {
-      this.resolveClassAstObjectType(classIri).ifRight((ancestorObjectType) =>
+      this.classAstType(classIri).ifRight((ancestorObjectType) =>
         objectType.ancestorObjectTypes.push(ancestorObjectType),
       );
     }
 
     // Parents
     for (const classIri of ancestorClassIris(nodeShape.resource, 1)) {
-      this.resolveClassAstObjectType(classIri).ifRight((parentObjectType) =>
+      this.classAstType(classIri).ifRight((parentObjectType) =>
         objectType.parentObjectTypes.push(parentObjectType),
       );
     }
@@ -294,14 +403,14 @@ export class ShapesGraphToAstTransformer {
       nodeShape.resource,
       Number.MAX_SAFE_INTEGER,
     )) {
-      this.resolveClassAstObjectType(classIri).ifRight((descendantObjectType) =>
+      this.classAstType(classIri).ifRight((descendantObjectType) =>
         objectType.descendantObjectTypes.push(descendantObjectType),
       );
     }
 
     // Children
     for (const classIri of descendantClassIris(nodeShape.resource, 1)) {
-      this.resolveClassAstObjectType(classIri).ifRight((childObjectType) =>
+      this.classAstType(classIri).ifRight((childObjectType) =>
         objectType.childObjectTypes.push(childObjectType),
       );
     }
@@ -412,7 +521,7 @@ export class ShapesGraphToAstTransformer {
           compositeTypeKind = "IntersectionType";
         } else if (shape.constraints.classes.length > 0) {
           memberTypeEithers = shape.constraints.classes.map((classIri) =>
-            this.resolveClassAstObjectType(classIri).map((classObjectType) =>
+            this.classAstType(classIri).map((classObjectType) =>
               inline.orDefault(false)
                 ? classObjectType
                 : {
@@ -646,34 +755,6 @@ export class ShapesGraphToAstTransformer {
         minCount: minCount.orDefault(0),
       };
     });
-  }
-
-  private resolveClassAstObjectType(
-    classIri: rdfjs.NamedNode,
-  ): Either<Error, ast.ObjectType> {
-    let nodeShape: Maybe<shaclAst.NodeShape>;
-    if (
-      classIri.equals(owl.Class) ||
-      classIri.equals(owl.Thing) ||
-      classIri.equals(rdfs.Class)
-    ) {
-      nodeShape = Maybe.empty();
-    } else {
-      nodeShape = this.shapesGraph.nodeShapeByNode(classIri);
-    }
-
-    return nodeShape
-      .toEither(
-        new Error(`${classIri.value} does not correspond to a node shape`),
-      )
-      .chain((nodeShape) => this.nodeShapeAstType(nodeShape))
-      .ifLeft((error) => {
-        logger.debug(
-          "class %s did not resolve to an object type: %s",
-          classIri.value,
-          error.message,
-        );
-      });
   }
 
   private shapeName(shape: shaclAst.Shape): ast.Name {

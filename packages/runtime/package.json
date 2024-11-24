@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@kos-kit/sparql-builder": "2.0.94",
+    "@kos-kit/sparql-builder": "2.0.95",
     "@rdfjs/types": "^1.1.0",
     "@types/n3": "^1.21.1",
     "js-sha256": "^0.11.0",

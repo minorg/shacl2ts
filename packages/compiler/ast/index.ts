@@ -4,6 +4,8 @@ export * from "./IntersectionType";
 export * from "./LiteralType.js";
 export * from "./MintingStrategy.js";
 export * from "./Name.js";
+export * from "./ObjectIntersectionType.js";
 export * from "./ObjectType.js";
+export * from "./ObjectUnionType.js";
 export * from "./UnionType";
 export * from "./Type.js";

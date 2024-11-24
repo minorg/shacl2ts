@@ -6,7 +6,7 @@ import type { ObjectType } from "../ObjectType";
 const variables = {
   ignoreRdfType: "ignoreRdfType",
   mutateGraph: "mutateGraph",
-  resource: "resource",
+  resource: "_resource",
   resourceSet: "resourceSet",
 };
 
@@ -26,11 +26,11 @@ export function toRdfFunctionDeclaration(
     usedIgnoreRdfTypeVariable = true;
   } else if (this.identifierType.isNamedNodeKind) {
     statements.push(
-      `const ${variables.resource} = ${variables.resourceSet}.mutableNamedResource({ identifier: ${thisVariable}.${this.configuration.objectTypeIdentifierPropertyName}, ${variables.mutateGraph} });`,
+      `const ${variables.resource} = ${variables.resourceSet}.mutableNamedResource({ identifier: ${thisVariable}.${this.configuration.objectTypeIdentifierPropertyName}, mutateGraph: ${variables.mutateGraph} });`,
     );
   } else {
     statements.push(
-      `const ${variables.resource} = ${variables.resourceSet}.mutableResource({ identifier: ${thisVariable}.${this.configuration.objectTypeIdentifierPropertyName}, ${variables.mutateGraph} });`,
+      `const ${variables.resource} = ${variables.resourceSet}.mutableResource({ identifier: ${thisVariable}.${this.configuration.objectTypeIdentifierPropertyName}, mutateGraph: ${variables.mutateGraph} });`,
     );
   }
 

@@ -45,14 +45,16 @@ export class OptionType extends Type {
     return `purify.Maybe<${this.itemType.name}>`;
   }
 
-  override chainSparqlGraphPatternExpression(
-    parameters: Parameters<Type["chainSparqlGraphPatternExpression"]>[0],
-  ): ReturnType<Type["chainSparqlGraphPatternExpression"]> {
-    return this.itemType.chainSparqlGraphPatternExpression(parameters);
+  override propertyChainSparqlGraphPatternExpression(
+    parameters: Parameters<
+      Type["propertyChainSparqlGraphPatternExpression"]
+    >[0],
+  ): ReturnType<Type["propertyChainSparqlGraphPatternExpression"]> {
+    return this.itemType.propertyChainSparqlGraphPatternExpression(parameters);
   }
 
-  override equalsFunction(): string {
-    const itemTypeEqualsFunction = this.itemType.equalsFunction();
+  override propertyEqualsFunction(): string {
+    const itemTypeEqualsFunction = this.itemType.propertyEqualsFunction();
     if (itemTypeEqualsFunction === "purifyHelpers.Equatable.equals") {
       return "purifyHelpers.Equatable.maybeEquals";
     }
@@ -62,21 +64,21 @@ export class OptionType extends Type {
     return `(left, right) => purifyHelpers.Maybes.equals(left, right, ${itemTypeEqualsFunction})`;
   }
 
-  override fromRdfExpression(
-    parameters: Parameters<Type["fromRdfExpression"]>[0],
+  override propertyFromRdfExpression(
+    parameters: Parameters<Type["propertyFromRdfExpression"]>[0],
   ): string {
-    return `purify.Either.of(${this.itemType.fromRdfExpression(parameters)}.toMaybe())`;
+    return `purify.Either.of(${this.itemType.propertyFromRdfExpression(parameters)}.toMaybe())`;
   }
 
-  override hashStatements({
+  override propertyHashStatements({
     variables,
-  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
+  }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     return [
-      `${variables.value}.ifJust((value) => { ${this.itemType
-        .hashStatements({
+      `${variables.value}.ifJust((_value) => { ${this.itemType
+        .propertyHashStatements({
           variables: {
             hasher: variables.hasher,
-            value: "value",
+            value: "_value",
           },
         })
         .join("\n")} })`,
@@ -91,15 +93,15 @@ export class OptionType extends Type {
     );
   }
 
-  override toRdfExpression({
+  override propertyToRdfExpression({
     variables,
-  }: Parameters<Type["toRdfExpression"]>[0]): string {
-    const itemTypeToRdfExpression = this.itemType.toRdfExpression({
-      variables: { ...variables, value: "value" },
+  }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
+    const itemTypeToRdfExpression = this.itemType.propertyToRdfExpression({
+      variables: { ...variables, value: "_value" },
     });
-    if (itemTypeToRdfExpression === "value") {
+    if (itemTypeToRdfExpression === "_value") {
       return variables.value;
     }
-    return `${variables.value}.map((value) => ${itemTypeToRdfExpression})`;
+    return `${variables.value}.map((_value) => ${itemTypeToRdfExpression})`;
   }
 }

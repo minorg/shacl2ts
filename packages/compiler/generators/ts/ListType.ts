@@ -46,49 +46,49 @@ export class ListType extends Type {
     return `readonly ${this.itemType.name}[]`;
   }
 
-  override chainSparqlGraphPatternExpression({
+  override propertyChainSparqlGraphPatternExpression({
     variables,
   }: Parameters<
-    Type["chainSparqlGraphPatternExpression"]
+    Type["propertyChainSparqlGraphPatternExpression"]
   >[0]): Maybe<Type.SparqlGraphPatternsExpression> {
     return Maybe.of(
       new Type.SparqlGraphPatternsExpression(
         `new sparqlBuilder.RdfListGraphPatterns({ ${this.itemType
-          .chainSparqlGraphPatternExpression({
+          .propertyChainSparqlGraphPatternExpression({
             variables: {
-              subject: "itemVariable",
+              subject: "_itemVariable",
             },
           })
           .map(
             (itemSparqlGraphPatternsExpression) =>
-              `itemGraphPatterns: (itemVariable) => ${itemSparqlGraphPatternsExpression.toSparqlGraphPatternsExpression()}, `,
+              `itemGraphPatterns: (_itemVariable) => ${itemSparqlGraphPatternsExpression.toSparqlGraphPatternsExpression()}, `,
           )
           .orDefault("")} rdfList: ${variables.subject} })`,
       ),
     );
   }
 
-  override equalsFunction(): string {
-    return `(left, right) => purifyHelpers.Arrays.equals(left, right, ${this.itemType.equalsFunction()})`;
+  override propertyEqualsFunction(): string {
+    return `(left, right) => purifyHelpers.Arrays.equals(left, right, ${this.itemType.propertyEqualsFunction()})`;
   }
 
-  override fromRdfExpression({
+  override propertyFromRdfExpression({
     variables,
-  }: Parameters<Type["fromRdfExpression"]>[0]): string {
-    return `${variables.resourceValues}.head().chain(value => value.toList()).map(values => values.flatMap(value => ${this.itemType.fromRdfExpression({ variables: { ...variables, resourceValues: "value.toValues()" } })}.toMaybe().toList()))`;
+  }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
+    return `${variables.resourceValues}.head().chain(value => value.toList()).map(values => values.flatMap(_value => ${this.itemType.propertyFromRdfExpression({ variables: { ...variables, resourceValues: "_value.toValues()" } })}.toMaybe().toList()))`;
   }
 
-  override hashStatements({
+  override propertyHashStatements({
     variables,
-  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
+  }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     return [
-      `for (const element of ${variables.value}) { ${this.itemType.hashStatements({ variables: { ...variables, value: "element" } }).join("\n")} }`,
+      `for (const _element of ${variables.value}) { ${this.itemType.propertyHashStatements({ variables: { ...variables, value: "_element" } }).join("\n")} }`,
     ];
   }
 
-  override toRdfExpression({
+  override propertyToRdfExpression({
     variables,
-  }: Parameters<Type["toRdfExpression"]>[0]): string {
+  }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
     let listIdentifier: string;
     let mutableResourceTypeName: string;
     let resourceSetMethodName: string;
@@ -104,9 +104,9 @@ export class ListType extends Type {
         switch (this.mintingStrategy) {
           case MintingStrategy.SHA256:
             listIdentifier = `dataFactory.namedNode(\`urn:shaclmate:list:\${${variables.value}.reduce(
-        (hasher, item) => {
-          ${this.itemType.hashStatements({ variables: { hasher: "hasher", value: "item" } })}
-          return hasher;
+        (_hasher, _item) => {
+          ${this.itemType.propertyHashStatements({ variables: { hasher: "_hasher", value: "_item" } })}
+          return _hasher;
         },
         sha256.create(),
       )}\`)`;
@@ -139,7 +139,7 @@ export class ListType extends Type {
     
     ${this.rdfType.map((rdfType) => `currentSubListResource.add(dataFactory.namedNode("${rdf.type.value}"), dataFactory.namedNode("${rdfType.value}"))`).orDefault("")}
         
-    currentSubListResource.add(dataFactory.namedNode("${rdf.first.value}"), ${this.itemType.toRdfExpression({ variables: { mutateGraph: variables.mutateGraph, predicate: `dataFactory.namedNode("${rdf.first.value}")`, resource: "currentSubListResource", resourceSet: variables.resourceSet, value: "item" } })});
+    currentSubListResource.add(dataFactory.namedNode("${rdf.first.value}"), ${this.itemType.propertyToRdfExpression({ variables: { mutateGraph: variables.mutateGraph, predicate: `dataFactory.namedNode("${rdf.first.value}")`, resource: "currentSubListResource", resourceSet: variables.resourceSet, value: "item" } })});
 
     if (itemIndex + 1 === ${variables.value}.length) {
       currentSubListResource.add(dataFactory.namedNode("${rdf.rest.value}"), dataFactory.namedNode("${rdf.nil.value}"));

@@ -26,13 +26,13 @@ export abstract class RdfjsTermType<
     this.hasValue = hasValue;
   }
 
-  override equalsFunction(): string {
+  override propertyEqualsFunction(): string {
     return "purifyHelpers.Equatable.booleanEquals";
   }
 
-  override fromRdfExpression({
+  override propertyFromRdfExpression({
     variables,
-  }: Parameters<Type["fromRdfExpression"]>[0]): string {
+  }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
     const chain: string[] = [`${variables.resourceValues}.head()`];
     this.hasValue.ifJust((hasValue) => {
       chain.push(
@@ -45,8 +45,8 @@ export abstract class RdfjsTermType<
       );
     });
     chain.push(
-      `chain(value => ${this.fromRdfResourceValueExpression({
-        variables: { resourceValue: "value" },
+      `chain(_value => ${this.fromRdfResourceValueExpression({
+        variables: { resourceValue: "_value" },
       })})`,
     );
     return chain.join(".");
@@ -69,9 +69,9 @@ export abstract class RdfjsTermType<
     return new Type.SparqlGraphPatternExpression(expression);
   }
 
-  override toRdfExpression({
+  override propertyToRdfExpression({
     variables,
-  }: Parameters<Type["toRdfExpression"]>[0]): string {
+  }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
     return this.defaultValue
       .map(
         (defaultValue) =>

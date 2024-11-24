@@ -3,102 +3,123 @@ import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
 import { Type } from "./Type.js";
 
-const syntheticTypeDiscriminatorPropertyName = "type";
-
-function syntheticTypeDiscriminatorValue({
-  type,
-  typeIndex,
-}: { type: Type; typeIndex: number }): string {
-  return `${typeIndex}-${type.name}`;
+interface MemberTypeTraits {
+  readonly discriminatorPropertyValues: readonly string[];
+  readonly memberType: Type;
+  readonly payload: (instance: string) => string;
 }
 
 export class UnionType extends Type {
+  readonly _discriminatorProperty: Type.DiscriminatorProperty & {
+    readonly synthetic: boolean;
+  };
   readonly kind = "UnionType";
   readonly memberTypes: readonly Type[];
+  readonly name: string;
+  private readonly memberTypeTraits: readonly MemberTypeTraits[];
 
   constructor({
     memberTypes,
+    name,
     ...superParameters
-  }: ConstructorParameters<typeof Type>[0] & { memberTypes: readonly Type[] }) {
+  }: ConstructorParameters<typeof Type>[0] & {
+    memberTypes: readonly Type[];
+    name?: string;
+  }) {
     super(superParameters);
     invariant(memberTypes.length >= 2);
     this.memberTypes = memberTypes;
-  }
 
-  @Memoize()
-  override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
-    return this.typesSharedDiscriminatorProperty.altLazy(() =>
-      Maybe.of({
-        name: syntheticTypeDiscriminatorPropertyName,
-        values: this.memberTypes.map((_, typeIndex) => typeIndex.toString()),
-      }),
-    );
-  }
-
-  override get name(): string {
-    if (this.typesSharedDiscriminatorProperty.isJust()) {
-      // If every type shares a discriminator (e.g., RDF/JS "termType" or generated ObjectType "type"),
-      // just join their names with "|"
-      return `(${this.memberTypes.map((type) => type.name).join(" | ")})`;
-    }
-
-    return `(${this.memberTypes.map((type, typeIndex) => `{ ${syntheticTypeDiscriminatorPropertyName}: "${syntheticTypeDiscriminatorValue({ type, typeIndex })}", value: ${type.name} }`).join(" | ")})`;
-  }
-
-  @Memoize()
-  private get typesSharedDiscriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
+    const memberTypeTraits: MemberTypeTraits[] = [];
     // Do all the composed types share a single discriminator property?
-    let typesSharedDiscriminatorProperty:
+    let memberTypesSharedDiscriminatorProperty:
       | (Omit<Type.DiscriminatorProperty, "values"> & {
           values: string[];
         })
       | undefined;
-    for (const type of this.memberTypes) {
-      const typeDiscriminatorProperty = type.discriminatorProperty.extract();
-      if (!typeDiscriminatorProperty) {
-        return Maybe.empty();
+    for (const memberType of this.memberTypes) {
+      const memberTypeDiscriminatorProperty =
+        memberType.discriminatorProperty.extract();
+      if (!memberTypeDiscriminatorProperty) {
+        memberTypesSharedDiscriminatorProperty = undefined;
+        break;
       }
-      if (!typesSharedDiscriminatorProperty) {
-        typesSharedDiscriminatorProperty = {
-          name: typeDiscriminatorProperty.name,
-          values: typeDiscriminatorProperty.values.concat(),
+      if (!memberTypesSharedDiscriminatorProperty) {
+        memberTypesSharedDiscriminatorProperty = {
+          name: memberTypeDiscriminatorProperty.name,
+          values: memberTypeDiscriminatorProperty.values.concat(),
         };
       } else if (
-        typeDiscriminatorProperty.name === typesSharedDiscriminatorProperty.name
+        memberTypeDiscriminatorProperty.name ===
+        memberTypesSharedDiscriminatorProperty.name
       ) {
-        typesSharedDiscriminatorProperty.values =
-          typesSharedDiscriminatorProperty.values.concat(
-            typeDiscriminatorProperty.values,
+        memberTypesSharedDiscriminatorProperty.values =
+          memberTypesSharedDiscriminatorProperty.values.concat(
+            memberTypeDiscriminatorProperty.values,
           );
       } else {
-        return Maybe.empty();
+        memberTypesSharedDiscriminatorProperty = undefined;
+        break;
       }
+      memberTypeTraits.push({
+        discriminatorPropertyValues: memberTypeDiscriminatorProperty.values,
+        memberType,
+        payload: (instance) => instance,
+      });
     }
-    return Maybe.fromNullable(typesSharedDiscriminatorProperty);
+
+    if (memberTypesSharedDiscriminatorProperty) {
+      this._discriminatorProperty = {
+        ...memberTypesSharedDiscriminatorProperty,
+        synthetic: false,
+      };
+      // If every type shares a discriminator (e.g., RDF/JS "termType" or generated ObjectType "type"),
+      // just join their names with "|"
+      this.memberTypeTraits = memberTypeTraits;
+      this.name =
+        name ??
+        `(${this.memberTypes.map((memberType) => memberType.name).join(" | ")})`;
+    } else {
+      this._discriminatorProperty = {
+        name: "type",
+        synthetic: true,
+        values: this.memberTypes.map(
+          (memberType, memberTypeIndex) =>
+            `${memberTypeIndex}-${memberType.name}`,
+        ),
+      };
+      this.memberTypeTraits = this.memberTypes.map(
+        (memberType, memberTypeIndex) => ({
+          discriminatorPropertyValues: [
+            `${memberTypeIndex}-${memberType.name}`,
+          ],
+          memberType,
+          payload: (instance) => `${instance}.value`,
+        }),
+      );
+      this.name =
+        name ??
+        `(${this.memberTypeTraits.map((memberTypeTraits) => `{ ${this._discriminatorProperty.name}: "${memberTypeTraits.discriminatorPropertyValues[0]}", value: ${memberTypeTraits.memberType.name} }`).join(" | ")})`;
+    }
   }
 
-  override equalsFunction(): string {
+  @Memoize()
+  override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
+    return Maybe.of(this._discriminatorProperty);
+  }
+
+  override propertyEqualsFunction(): string {
     return `
 (left: ${this.name}, right: ${this.name}) => {
-${this.memberTypes
-  .flatMap((type, typeIndex) =>
-    this.typesSharedDiscriminatorProperty
-      .map((typesSharedDiscriminatorProperty) => {
-        // Types share a discriminator property already, use it
-        return type.discriminatorProperty.unsafeCoerce().values.map(
-          (
-            value,
-          ) => `if (left.${typesSharedDiscriminatorProperty.name} === "${value}" && right.${typesSharedDiscriminatorProperty.name} === "${value}") {
-  return ${type.equalsFunction()}(left, right);
+${this.memberTypeTraits
+  .flatMap((memberTypeTraits) =>
+    memberTypeTraits.discriminatorPropertyValues.map(
+      (
+        value,
+      ) => `if (left.${this._discriminatorProperty.name} === "${value}" && right.${this._discriminatorProperty.name} === "${value}") {
+  return ${memberTypeTraits.memberType.propertyEqualsFunction()}(left, right);
 }`,
-        );
-      })
-      .orDefaultLazy(() => [
-        // Types don't share a discriminator property, have to use the one we synthesized
-        `if (left.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}" && right.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") {
-  return ${type.equalsFunction()}(left.value, right.value);
-}`,
-      ]),
+    ),
   )
   .join("\n")}
 
@@ -106,56 +127,46 @@ ${this.memberTypes
 }`;
   }
 
-  override fromRdfExpression(
-    parameters: Parameters<Type["fromRdfExpression"]>[0],
+  override propertyFromRdfExpression(
+    parameters: Parameters<Type["propertyFromRdfExpression"]>[0],
   ): string {
     let expression = "";
-    this.memberTypes.forEach((type, typeIndex) => {
-      let typeExpression = type.fromRdfExpression(parameters);
-      if (!this.typesSharedDiscriminatorProperty.isJust()) {
-        typeExpression = `${typeExpression}.map(value => ({ type: "${typeIndex}-${type.name}" as const, value }) as (${this.name}))`;
+    for (const memberTypeTraits of this.memberTypeTraits) {
+      let typeExpression =
+        memberTypeTraits.memberType.propertyFromRdfExpression(parameters);
+      if (this._discriminatorProperty.synthetic) {
+        typeExpression = `${typeExpression}.map(value => ({ ${this._discriminatorProperty.name}: "${memberTypeTraits.discriminatorPropertyValues[0]}" as const, value }) as (${this.name}))`;
       }
       typeExpression = `(${typeExpression} as purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>)`;
       expression =
         expression.length > 0
           ? `${expression}.altLazy(() => ${typeExpression})`
           : typeExpression;
-    });
+    }
     return expression;
   }
 
-  override hashStatements({
+  override propertyHashStatements({
     variables,
-  }: Parameters<Type["hashStatements"]>[0]): readonly string[] {
+  }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     const caseBlocks: string[] = [];
-    this.memberTypes.forEach((type, typeIndex) => {
-      if (this.typesSharedDiscriminatorProperty.isJust()) {
-        for (const typeDiscriminatorPropertyValue of type.discriminatorProperty.unsafeCoerce()
-          .values) {
-          caseBlocks.push(
-            `case "${typeDiscriminatorPropertyValue}": { ${type.hashStatements({
-              variables,
-            })}; break; }`,
-          );
-        }
-      } else {
+    for (const memberTypeTraits of this.memberTypeTraits) {
+      for (const discriminatorPropertyValue of memberTypeTraits.discriminatorPropertyValues) {
         caseBlocks.push(
-          `case "${syntheticTypeDiscriminatorValue({
-            type,
-            typeIndex,
-          })}": { ${type.hashStatements({ variables: { hasher: variables.hasher, value: `${variables}.value` } })}; break; }`,
+          `case "${discriminatorPropertyValue}": { ${memberTypeTraits.memberType.propertyHashStatements(
+            {
+              variables: {
+                hasher: variables.hasher,
+                value: `${memberTypeTraits.payload(variables.value)}`,
+              },
+            },
+          )}; break; }`,
         );
       }
-    });
-    const switchValue = this.typesSharedDiscriminatorProperty
-      .map(
-        (typeSharedDiscriminatorProperty) =>
-          `${variables.value}.${typeSharedDiscriminatorProperty.name}`,
-      )
-      .orDefaultLazy(
-        () => `${variables.value}.${syntheticTypeDiscriminatorPropertyName}`,
-      );
-    return [`switch (${switchValue}) { ${caseBlocks.join("\n")} }`];
+    }
+    return [
+      `switch (${variables.value}.${this._discriminatorProperty.name}) { ${caseBlocks.join("\n")} }`,
+    ];
   }
 
   override propertySparqlGraphPatternExpression(
@@ -173,38 +184,29 @@ ${this.memberTypes
     );
   }
 
-  override toRdfExpression({
+  override propertyToRdfExpression({
     variables,
-  }: Parameters<Type["toRdfExpression"]>[0]): string {
+  }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
     let expression = "";
-    this.memberTypes.forEach((type, typeIndex) => {
-      if (this.typesSharedDiscriminatorProperty.isJust()) {
-        if (expression.length === 0) {
-          expression = type.toRdfExpression({
-            variables,
-          });
-        } else {
-          expression = `(${type.discriminatorProperty
-            .unsafeCoerce()
-            .values.map(
-              (value) =>
-                `${variables.value}.${this.typesSharedDiscriminatorProperty.unsafeCoerce().name} === "${value}"`,
-            )
-            .join(
-              " || ",
-            )}) ? ${type.toRdfExpression({ variables })} : ${expression}`;
-        }
+    for (const memberTypeTraits of this.memberTypeTraits) {
+      if (expression.length === 0) {
+        expression = memberTypeTraits.memberType.propertyToRdfExpression({
+          variables: {
+            ...variables,
+            value: memberTypeTraits.payload(variables.value),
+          },
+        });
       } else {
-        if (expression.length === 0) {
-          expression = type.toRdfExpression({
-            variables: { ...variables, value: `${variables.value}.value` },
-          });
-        } else {
-          // No shared type discriminator between the types, use the one we synthesized
-          expression = `(${variables.value}.${syntheticTypeDiscriminatorPropertyName} === "${syntheticTypeDiscriminatorValue({ type, typeIndex })}") ? (${type.toRdfExpression({ variables: { ...variables, value: `${variables.value}.value` } })}) : (${expression})`;
-        }
+        expression = `(${memberTypeTraits.discriminatorPropertyValues
+          .map(
+            (value) =>
+              `${variables.value}.${this._discriminatorProperty.name} === "${value}"`,
+          )
+          .join(
+            " || ",
+          )}) ? ${memberTypeTraits.memberType.propertyToRdfExpression({ variables: { ...variables, value: memberTypeTraits.payload(variables.value) } })} : ${expression}`;
       }
-    });
+    }
     return expression;
   }
 }

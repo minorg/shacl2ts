@@ -27,7 +27,7 @@ if [ -f "$SKOS_SHAPES_TTL_ORIGINAL_FILE_PATH" ] ; then
 else
   echo "SKOS shapes original file $SKOS_SHAPES_TTL_ORIGINAL_FILE_PATH not found, using copy"
 fi
-#./packages/cli/cli.sh show-ast-json $PWD/examples/skos/skos.shapes.ttl >examples/skos/generated/ast.json
+./packages/cli/cli.sh show-ast-json $PWD/examples/skos/skos.shapes.ttl >examples/skos/generated/ast.json
 ./packages/cli/cli.sh generate --object-type-declaration-type class $PWD/examples/skos/skos.shapes.ttl >examples/skos/generated/classes.ts
 ./packages/cli/cli.sh generate --object-type-declaration-type interface $PWD/examples/skos/skos.shapes.ttl >examples/skos/generated/interfaces.ts
 

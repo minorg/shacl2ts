@@ -25,7 +25,7 @@ export function equalsFunctionDeclaration(
         type: this.name,
       },
     ],
-    statements: [`return ${expression};`],
     returnType: "purifyHelpers.Equatable.EqualsResult",
+    statements: [`return ${expression};`],
   };
 }
