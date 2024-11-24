@@ -248,7 +248,7 @@ fs.writeFileSync(
         vitest: "^2.0.5",
         yaml: "^2.5.0",
       },
-      name: "@shaclmate",
+      name: "shaclmate",
       optionalDependencies: {
         "@biomejs/cli-linux-x64": "1.9.4",
         "@rollup/rollup-linux-x64-gnu": "4.24.0",
