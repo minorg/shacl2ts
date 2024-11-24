@@ -5,7 +5,7 @@ import type { Configuration } from "./Configuration.js";
 /**
  * Abstract base class for generating TypeScript expressions and statemenst in the TypeScript generator.
  *
- * Subclasses are used for both property types and node/object types.
+ * Subclasses are used for both property types (c.f., property* methods) and node/object types.
  */
 export abstract class Type {
   abstract readonly kind: ast.Type["kind"] | "ListType";

@@ -1,3 +1,4 @@
+import { camelCase } from "change-case";
 import {
   type FunctionDeclarationStructure,
   type OptionalKind,
@@ -44,7 +45,7 @@ export class ObjectUnionType extends UnionType<ObjectType> {
       parameters: [
         {
           name: variables.resource,
-          type: this.rdfjsResourceTypeName,
+          type: this.rdfjsResourceTypeName(),
         },
         {
           hasQuestionToken: true,
@@ -57,6 +58,29 @@ export class ObjectUnionType extends UnionType<ObjectType> {
     };
   }
 
+  get toRdfFunctionDeclaration(): FunctionDeclarationStructure {
+    const parametersVariable = "_parameters";
+    const thisVariable = camelCase(this.name);
+
+    return {
+      isExported: true,
+      kind: StructureKind.Function,
+      name: "toRdf",
+      parameters: [
+        {
+          name: thisVariable,
+          type: this.name,
+        },
+        {
+          name: parametersVariable,
+          type: "{ mutateGraph: rdfjsResource.MutableResource.MutateGraph, resourceSet: rdfjsResource.MutableResourceSet }",
+        },
+      ],
+      returnType: this.rdfjsResourceTypeName({ mutable: true }),
+      statements: `switch (${thisVariable}.${this.configuration.objectTypeDiscriminatorPropertyName}) { ${this.memberTypes.map((memberType) => `case "${memberType.name}": return ${thisVariable}.toRdf(${parametersVariable});`).join(" ")} }`,
+    };
+  }
+
   get typeAliasDeclaration(): OptionalKind<TypeAliasDeclarationStructure> {
     return {
       isExported: true,
@@ -65,10 +89,10 @@ export class ObjectUnionType extends UnionType<ObjectType> {
     };
   }
 
-  private get rdfjsResourceTypeName(): string {
+  private rdfjsResourceTypeName(options?: { mutable?: boolean }): string {
     const memberTypeNameSet = new Set<string>();
     for (const memberType of this.memberTypes) {
-      memberTypeNameSet.add(memberType.rdfjsResourceType().name);
+      memberTypeNameSet.add(memberType.rdfjsResourceType(options).name);
     }
     const memberTypeNames = [...memberTypeNameSet];
     if (memberTypeNames.length === 1) {
