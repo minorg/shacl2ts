@@ -112,7 +112,7 @@
 :NodeShapeWithListProperty
   a sh:NodeShape ;
   sh:name "NodeShapeWithListProperty" ;
-  sh:property [ sh:maxCount 1 ; sh:minCount 1 ; sh:node :ListShape ; sh:name "listProperty" ; sh:path :listProperty ]
+  sh:property [ shaclmate:inline true ; sh:maxCount 1 ; sh:minCount 1 ; sh:node :ListShape ; sh:name "listProperty" ; sh:path :listProperty ]
 .
 
 # Shape that has properties with different cardinalities
@@ -152,7 +152,7 @@
   a sh:NodeShape ;
   rdfs:subClassOf :AbstractBaseClassNodeShape ;
   sh:name "ParentClassNodeShape" ;
-  sh:property [ sh:datatype xsd:string ; sh:name "parentStringProperty" ; sh:path :parentStringProperty ] ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "parentStringProperty" ; sh:path :parentStringProperty ] ;
 .
 
 # A node shape that mints its identifier by hashing (other) contents, if no identifier is supplied

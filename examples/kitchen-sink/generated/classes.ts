@@ -528,12 +528,12 @@ export namespace IriNodeShape {
 
 export class NodeShapeWithListProperty {
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly listProperty: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly listProperty: readonly string[];
   readonly type = "NodeShapeWithListProperty" as const;
 
   constructor(parameters: {
     readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-    readonly listProperty: rdfjs.BlankNode | rdfjs.NamedNode;
+    readonly listProperty: readonly string[];
   }) {
     this.identifier = parameters.identifier;
     this.listProperty = parameters.listProperty;
@@ -544,7 +544,12 @@ export class NodeShapeWithListProperty {
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
-      listProperty: purifyHelpers.Equatable.booleanEquals,
+      listProperty: (left, right) =>
+        purifyHelpers.Arrays.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.strictEquals,
+        ),
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -571,7 +576,62 @@ export class NodeShapeWithListProperty {
     });
     _resource.add(
       dataFactory.namedNode("http://example.com/listProperty"),
-      this.listProperty,
+      this.listProperty.reduce(
+        ({ currentSubListResource, listResource }, item, itemIndex) => {
+          if (itemIndex === 0) {
+            currentSubListResource = listResource;
+          } else {
+            const newSubListResource = resourceSet.mutableResource({
+              identifier: dataFactory.blankNode(),
+              mutateGraph: mutateGraph,
+            });
+            currentSubListResource!.add(
+              dataFactory.namedNode(
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
+              ),
+              newSubListResource.identifier,
+            );
+            currentSubListResource = newSubListResource;
+          }
+
+          currentSubListResource.add(
+            dataFactory.namedNode(
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            ),
+            dataFactory.namedNode("http://example.com/ListShape"),
+          );
+
+          currentSubListResource.add(
+            dataFactory.namedNode(
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first",
+            ),
+            item,
+          );
+
+          if (itemIndex + 1 === this.listProperty.length) {
+            currentSubListResource.add(
+              dataFactory.namedNode(
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
+              ),
+              dataFactory.namedNode(
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil",
+              ),
+            );
+          }
+
+          return { currentSubListResource, listResource };
+        },
+        {
+          currentSubListResource: null,
+          listResource: resourceSet.mutableResource({
+            identifier: dataFactory.blankNode(),
+            mutateGraph: mutateGraph,
+          }),
+        } as {
+          currentSubListResource: rdfjsResource.MutableResource | null;
+          listResource: rdfjsResource.MutableResource;
+        },
+      ).listResource.identifier,
     );
     return _resource;
   }
@@ -588,13 +648,23 @@ export namespace NodeShapeWithListProperty {
     const identifier = _resource.identifier;
     const _listPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
-      rdfjs.BlankNode | rdfjs.NamedNode
+      readonly string[]
     > = _resource
       .values(dataFactory.namedNode("http://example.com/listProperty"), {
         unique: true,
       })
       .head()
-      .chain((_value) => _value.toIdentifier());
+      .chain((value) => value.toList())
+      .map((values) =>
+        values.flatMap((_value) =>
+          _value
+            .toValues()
+            .head()
+            .chain((_value) => _value.toString())
+            .toMaybe()
+            .toList(),
+        ),
+      );
     if (_listPropertyEither.isLeft()) {
       return _listPropertyEither;
     }
@@ -616,11 +686,10 @@ export namespace NodeShapeWithListProperty {
     >,
     _hasher: HasherT,
   ): HasherT {
-    _hasher.update(
-      rdfjsResource.Resource.Identifier.toString(
-        nodeShapeWithListProperty.listProperty,
-      ),
-    );
+    for (const _element of nodeShapeWithListProperty.listProperty) {
+      _hasher.update(_element);
+    }
+
     return _hasher;
   }
 
@@ -631,10 +700,15 @@ export namespace NodeShapeWithListProperty {
     ) {
       super(subject);
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://example.com/listProperty"),
-          this.variable("ListProperty"),
+        sparqlBuilder.GraphPattern.group(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/listProperty"),
+            this.variable("ListProperty"),
+          ).chainObject(
+            (_object) =>
+              new sparqlBuilder.RdfListGraphPatterns({ rdfList: _object }),
+          ),
         ),
       );
     }
@@ -968,23 +1042,17 @@ export namespace NonClassNodeShape {
 }
 
 export class ParentClassNodeShape extends AbstractBaseClassNodeShape {
-  readonly parentStringProperty: readonly string[];
+  readonly parentStringProperty: string;
   readonly type: "ChildClassNodeShape" | "ParentClassNodeShape" =
     "ParentClassNodeShape";
 
   constructor(
     parameters: {
-      readonly parentStringProperty?: readonly string[];
+      readonly parentStringProperty: string;
     } & ConstructorParameters<typeof AbstractBaseClassNodeShape>[0],
   ) {
     super(parameters);
-    if (typeof parameters.parentStringProperty === "undefined") {
-      this.parentStringProperty = [];
-    } else if (Array.isArray(parameters.parentStringProperty)) {
-      this.parentStringProperty = parameters.parentStringProperty;
-    } else {
-      this.parentStringProperty = parameters.parentStringProperty; // never
-    }
+    this.parentStringProperty = parameters.parentStringProperty;
   }
 
   override equals(
@@ -994,12 +1062,7 @@ export class ParentClassNodeShape extends AbstractBaseClassNodeShape {
       .equals(other)
       .chain(() =>
         purifyHelpers.Equatable.objectEquals(this, other, {
-          parentStringProperty: (left, right) =>
-            purifyHelpers.Arrays.equals(
-              left,
-              right,
-              purifyHelpers.Equatable.strictEquals,
-            ),
+          parentStringProperty: purifyHelpers.Equatable.strictEquals,
           type: purifyHelpers.Equatable.strictEquals,
         }),
       );
@@ -1072,22 +1135,14 @@ export namespace ParentClassNodeShape {
       }
       const _parentStringPropertyEither: purify.Either<
         rdfjsResource.Resource.ValueError,
-        readonly string[]
-      > = purify.Either.of([
-        ..._resource
-          .values(
-            dataFactory.namedNode("http://example.com/parentStringProperty"),
-            { unique: true },
-          )
-          .flatMap((_value) =>
-            _value
-              .toValues()
-              .head()
-              .chain((_value) => _value.toString())
-              .toMaybe()
-              .toList(),
-          ),
-      ]);
+        string
+      > = _resource
+        .values(
+          dataFactory.namedNode("http://example.com/parentStringProperty"),
+          { unique: true },
+        )
+        .head()
+        .chain((_value) => _value.toString());
       if (_parentStringPropertyEither.isLeft()) {
         return _parentStringPropertyEither;
       }
@@ -1117,10 +1172,7 @@ export namespace ParentClassNodeShape {
       parentClassNodeShape,
       _hasher,
     );
-    for (const _element of parentClassNodeShape.parentStringProperty) {
-      _hasher.update(_element);
-    }
-
+    _hasher.update(parentClassNodeShape.parentStringProperty);
     return _hasher;
   }
 
@@ -1140,12 +1192,10 @@ export namespace ParentClassNodeShape {
       }
 
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/parentStringProperty"),
-            this.variable("ParentStringProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/parentStringProperty"),
+          this.variable("ParentStringProperty"),
         ),
       );
     }

@@ -1,120 +1,61 @@
-import type { NamedNode } from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import { sha256 } from "js-sha256";
 import N3, { DataFactory as dataFactory } from "n3";
-import { type Either, Maybe } from "purify-ts";
+import type { Either } from "purify-ts";
 import type { Equatable } from "purify-ts-helpers";
 import {
   type MutableResource,
   MutableResourceSet,
   type Resource,
 } from "rdfjs-resource";
-import { type ExpectStatic, beforeAll, describe, it } from "vitest";
-import * as mlmClasses from "../../../../../examples/mlm/generated/classes.js";
-import * as mlmInterfaces from "../../../../../examples/mlm/generated/interfaces.js";
-import * as skosClasses from "../../../../../examples/skos/generated/classes.js";
-import * as skosInterfaces from "../../../../../examples/skos/generated/interfaces.js";
+import { type ExpectStatic, describe, it } from "vitest";
+import * as kitchenSinkClasses from "../../../../../examples/kitchen-sink/generated/classes.js";
+import type * as kitchenSinkInterfaces from "../../../../../examples/kitchen-sink/generated/interfaces.js";
 
 describe("TsGenerator", () => {
-  let mlmLanguageModel: mlmClasses.LanguageModel;
-  let mlmOrganization: mlmClasses.Organization;
-  let skosOrderedCollection: skosClasses.OrderedCollection;
-
-  beforeAll(() => {
-    mlmOrganization = new mlmClasses.Organization({
-      identifier: dataFactory.namedNode("http://example.com/organization"),
-      name: dataFactory.literal("Test organization"),
-    });
-
-    mlmLanguageModel = new mlmClasses.LanguageModel({
-      contextWindow: 1,
-      identifier: dataFactory.namedNode("http://example.com/mlm"),
-      isVariantOf: new mlmClasses.MachineLearningModelFamily({
-        description: dataFactory.literal("Family description"),
-        identifier: dataFactory.namedNode("http://example.com/family"),
-        manufacturer: mlmOrganization,
-        name: dataFactory.literal("Family"),
-        url: "http://example.com/family",
-      }),
-      localIdentifier: "testidentifier",
-      name: dataFactory.literal("Test name"),
-      maxTokenOutput: 5,
-      trainingDataCutoff: "Test cutoff",
-      url: "http://example.com/mlm",
-    });
-
-    skosOrderedCollection = new skosClasses.OrderedCollection({
-      identifier: dataFactory.namedNode("http://example.com/collection"),
-      memberList: [
-        dataFactory.namedNode("http://example.com/collection/member1"),
-        dataFactory.namedNode("http://example.com/collection/member2"),
-      ],
-    });
-  });
-
   it("should generate valid TypeScript interfaces", ({ expect }) => {
-    const languageModel: mlmInterfaces.LanguageModel = {
-      contextWindow: 1,
-      description: Maybe.of(dataFactory.literal("Test description")),
-      identifier: dataFactory.namedNode("http://example.com/mlm"),
-      isVariantOf: {
-        description: Maybe.of(dataFactory.literal("Family description")),
-        identifier: dataFactory.namedNode("http://example.com/family"),
-        manufacturer: {
-          identifier: dataFactory.namedNode("http://examhple.com/organization"),
-          name: dataFactory.literal("name"),
-          type: "Organization",
-        },
-        name: dataFactory.literal("name"),
-        type: "MachineLearningModelFamily",
-        url: Maybe.of("http://example.com/family"),
-      },
-      localIdentifier: "testidentifier",
-      maxTokenOutput: Maybe.of(1),
-      name: dataFactory.literal("Test name"),
-      trainingDataCutoff: Maybe.of("cutoff"),
-      type: "LanguageModel",
-      url: Maybe.of("http://example.com/mlm"),
+    const instance: kitchenSinkInterfaces.NonClassNodeShape = {
+      identifier: dataFactory.blankNode(),
+      stringProperty: "Test",
+      type: "NonClassNodeShape",
     };
-    expect(languageModel.name.value).toStrictEqual("Test name");
+    expect(instance.stringProperty).toStrictEqual("Test");
   });
 
   it("should construct a class instance from convertible parameters", ({
     expect,
   }) => {
-    expect(mlmLanguageModel.description.isNothing()).toStrictEqual(true);
-    expect(
-      mlmLanguageModel.isVariantOf.description.extractNullable()?.value,
-    ).toStrictEqual("Family description");
-    expect(mlmLanguageModel.name.value).toStrictEqual("Test name");
+    const instance = new kitchenSinkClasses.NodeShapeWithPropertyCardinalities({
+      identifier: dataFactory.blankNode(),
+      optionalStringProperty: undefined,
+      requiredStringProperty: "test",
+      setStringProperty: undefined,
+    });
+    expect(instance.optionalStringProperty.isNothing()).toStrictEqual(true);
+    expect(instance.setStringProperty).toStrictEqual([]);
+    expect(instance.requiredStringProperty).toStrictEqual("test");
   });
 
   it("class equals should return true with two equal objects", ({ expect }) => {
-    expect(mlmOrganization.equals(mlmOrganization).extract()).toStrictEqual(
-      true,
-    );
-  });
-
-  it("interface function equals should return true with two equal objects", ({
-    expect,
-  }) => {
-    expect(
-      mlmInterfaces.Organization.equals(
-        mlmOrganization,
-        mlmOrganization,
-      ).extract(),
-    ).toStrictEqual(true);
+    const instance = new kitchenSinkClasses.NonClassNodeShape({
+      identifier: dataFactory.blankNode(),
+      stringProperty: "Test",
+    });
+    expect(instance.equals(instance).extract()).toStrictEqual(true);
   });
 
   it("equals should return an Unequals with two unequal objects", ({
     expect,
   }) => {
     expect(
-      mlmOrganization
+      new kitchenSinkClasses.NonClassNodeShape({
+        identifier: dataFactory.blankNode(),
+        stringProperty: "Test",
+      })
         .equals(
-          new mlmClasses.Organization({
-            identifier: dataFactory.namedNode("http://example.com/other"),
-            name: dataFactory.literal("Other"),
+          new kitchenSinkClasses.NonClassNodeShape({
+            identifier: dataFactory.blankNode(),
+            stringProperty: "Test2",
           }),
         )
         .extract(),
@@ -127,7 +68,7 @@ describe("TsGenerator", () => {
       toRdf: (kwds: {
         mutateGraph: MutableResource.MutateGraph;
         resourceSet: MutableResourceSet;
-      }) => Resource<NamedNode>;
+      }) => Resource;
     },
   >({
     expect,
@@ -135,9 +76,7 @@ describe("TsGenerator", () => {
     model,
   }: {
     expect: ExpectStatic;
-    modelFromRdf: (
-      resource: Resource<NamedNode>,
-    ) => Either<Resource.ValueError, ModelT>;
+    modelFromRdf: (resource: Resource) => Either<Resource.ValueError, ModelT>;
     model: ModelT;
   }) {
     const dataset = new N3.Store();
@@ -150,69 +89,71 @@ describe("TsGenerator", () => {
     expect(fromRdfModel.equals(model).extract()).toStrictEqual(true);
   }
 
-  it("fromRdf (LanguageModel)", ({ expect }) => {
+  it("fromRdf (child-parent)", ({ expect }) => {
     testFromRdf({
       expect,
-      model: mlmLanguageModel,
-      modelFromRdf: mlmClasses.LanguageModel.fromRdf,
+      model: new kitchenSinkClasses.ChildClassNodeShape({
+        identifier: dataFactory.blankNode(),
+        abcStringProperty: "abc",
+        childStringProperty: "child",
+        parentStringProperty: "parent",
+      }),
+      modelFromRdf: kitchenSinkClasses.ChildClassNodeShape.fromRdf,
     });
   });
 
-  it("fromRdf (Organization)", ({ expect }) => {
-    testFromRdf({
-      expect,
-      model: mlmOrganization,
-      modelFromRdf: mlmClasses.Organization.fromRdf,
-    });
-  });
-
-  it("hash (LanguageModel)", ({ expect }) => {
-    expect(mlmLanguageModel.hash(sha256.create()).hex()).toStrictEqual(
-      "669d910ea677defc8168cda3f3a817369d8bff0cba7f53485d1dc15c7d344af9",
-    );
-  });
-
-  it("hash (Organization)", ({ expect }) => {
-    expect(mlmOrganization.hash(sha256.create()).hex()).toStrictEqual(
-      "0f0af2d595591bcf0f43ca8eac4775672867bcf94040703f2ecc573c7dbdd088",
+  it("hash", ({ expect }) => {
+    expect(
+      new kitchenSinkClasses.NonClassNodeShape({
+        identifier: dataFactory.blankNode(),
+        stringProperty: "Test",
+      })
+        .hash(sha256.create())
+        .hex(),
+    ).toStrictEqual(
+      "532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25",
     );
   });
 
   it("class toRdf should populate a dataset", ({ expect }) => {
     const dataset = new N3.Store();
     const resourceSet = new MutableResourceSet({ dataFactory, dataset });
-    const resource = mlmOrganization.toRdf({
+    const identifier = dataFactory.blankNode();
+    const model = new kitchenSinkClasses.ChildClassNodeShape({
+      identifier,
+      abcStringProperty: "abc",
+      childStringProperty: "child",
+      parentStringProperty: "parent",
+    });
+    const resource = model.toRdf({
       resourceSet,
       mutateGraph: dataFactory.defaultGraph(),
     });
-    expect(dataset.size).toStrictEqual(2);
-    expect(
-      resource.identifier.equals(
-        dataFactory.namedNode("http://example.com/organization"),
-      ),
-    ).toStrictEqual(true);
+    expect(dataset.size).toStrictEqual(4);
+    expect(resource.identifier.equals(identifier)).toStrictEqual(true);
     expect(
       resource
         .value(rdf.type)
         .chain((value) => value.toIri())
         .unsafeCoerce()
         .equals(
-          dataFactory.namedNode(
-            "http://purl.annotize.ai/ontology/mlm#Organization",
-          ),
+          dataFactory.namedNode("http://example.com/ChildClassNodeShape"),
         ),
     ).toStrictEqual(true);
     expect(
       resource
-        .value(dataFactory.namedNode("https://schema.org/name"))
+        .value(dataFactory.namedNode("http://example.com/childStringProperty"))
         .chain((value) => value.toString())
         .unsafeCoerce(),
-    ).toStrictEqual("Test organization");
+    ).toStrictEqual("child");
   });
 
   it("class toRdf should produce serializable RDF", ({ expect }) => {
     const dataset = new N3.Store();
-    mlmLanguageModel.toRdf({
+    new kitchenSinkClasses.NonClassNodeShape({
+      identifier: dataFactory.blankNode(),
+      stringProperty: "Test",
+    }).toRdf({
       mutateGraph: dataFactory.defaultGraph(),
       resourceSet: new MutableResourceSet({ dataFactory, dataset }),
     });
@@ -224,7 +165,11 @@ describe("TsGenerator", () => {
 
   it("class toRdf should serialize and deserialize a list", ({ expect }) => {
     const dataset = new N3.Store();
-    const skosOrderedCollectionResource = skosOrderedCollection.toRdf({
+    const instance = new kitchenSinkClasses.NodeShapeWithListProperty({
+      identifier: dataFactory.blankNode(),
+      listProperty: ["Test1", "Test2"],
+    });
+    const resource = instance.toRdf({
       mutateGraph: dataFactory.defaultGraph(),
       resourceSet: new MutableResourceSet({ dataFactory, dataset }),
     });
@@ -233,15 +178,10 @@ describe("TsGenerator", () => {
     ]);
     expect(ttl).not.toHaveLength(0);
 
-    const skosOrderedCollectionFromRdf =
-      skosInterfaces.OrderedCollection.fromRdf(
-        skosOrderedCollectionResource,
+    const instanceFromRdf =
+      kitchenSinkClasses.NodeShapeWithListProperty.fromRdf(
+        resource,
       ).unsafeCoerce();
-    expect(
-      skosInterfaces.OrderedCollection.equals(
-        skosOrderedCollectionFromRdf,
-        skosOrderedCollection,
-      ).extract(),
-    ).toStrictEqual(true);
+    expect(instance.equals(instanceFromRdf).extract()).toStrictEqual(true);
   });
 });
