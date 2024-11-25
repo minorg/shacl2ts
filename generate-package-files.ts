@@ -87,12 +87,14 @@ const packages: readonly Package[] = [
         "@kos-kit/sparql-builder": "2.0.95",
         "@rdfjs/types": externalDependencyVersions["@rdfjs/types"],
         "@types/n3": externalDependencyVersions["@types/n3"],
+        "@types/uuid": "^9.0.1",
         "js-sha256": "^0.11.0",
         n3: externalDependencyVersions["n3"],
         "purify-ts": externalDependencyVersions["purify-ts"],
         "purify-ts-helpers": "1.0.7",
         "rdf-literal": "^1.3.2",
         "rdfjs-resource": externalDependencyVersions["rdfjs-resource"],
+        uuid: "^9.0.1",
       },
     },
     linkableDependencies: [
@@ -248,7 +250,7 @@ fs.writeFileSync(
         vitest: "^2.0.5",
         yaml: "^2.5.0",
       },
-      name: "@shaclmate",
+      name: "shaclmate",
       optionalDependencies: {
         "@biomejs/cli-linux-x64": "1.9.4",
         "@rollup/rollup-linux-x64-gnu": "4.24.0",

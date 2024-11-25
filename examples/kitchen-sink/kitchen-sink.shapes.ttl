@@ -1,0 +1,174 @@
+@prefix : <http://example.com/> .
+@prefix dash: <http://datashapes.org/dash#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix shaclmate: <http://minorg.github.io/shaclmate/ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Node shape that serves as an abstract base class for child node shapes
+# It's marked abstract in TypeScript and not exported from the module.
+:AbstractBaseClassNodeShape
+  a owl:Class ;
+  a sh:NodeShape ;
+  shaclmate:abstract true;
+  shaclmate:export false ;
+  sh:name "AbstractBaseClassNodeShape" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "abcStringProperty" ; sh:path :abcStringProperty ] ;
+.
+
+# Child (class) of ParentClassNodeShape. Should inherit properties.
+:ChildClassNodeShape
+  a owl:Class ;
+  a sh:NodeShape ;
+  rdfs:subClassOf :ParentClassNodeShape ;
+  sh:name "ChildClassNodeShape" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "childStringProperty" ; sh:path :childStringProperty ] ;
+.
+
+# Node shape that inlines/nests another node shape and externs/references another.
+:ExterningAndInliningNodeShape
+  a sh:NodeShape ;
+  sh:name "ExterningAndInliningNodeShape" ;
+  sh:property [
+    shaclmate:inline false ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:node :ExterningAndInliningNodeShape-ExternNodeShape ;
+    sh:name "externProperty" ;
+    sh:path :externProperty
+  ] ;
+  sh:property [
+    shaclmate:inline true ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:node :ExterningAndInliningNodeShape-InlineNodeShape ;
+    sh:name "inlineProperty" ;
+    sh:path :inlineProperty
+  ] ;
+.
+
+:ExterningAndInliningNodeShape-ExternNodeShape
+  a sh:NodeShape ;
+  sh:name "ExternNodeShape" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ]
+.
+
+:ExterningAndInliningNodeShape-InlineNodeShape
+  a sh:NodeShape ;
+  sh:name "InlineNodeShape" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ]
+.
+
+# A node shape that only allows IRI identifiers.
+:IriNodeShape
+  a sh:NodeShape ;
+  sh:name "IriNodeShape" ;
+  sh:nodeKind sh:IRI ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
+.
+
+# A node shape that models an RDF list. Should be transformed into a list data structure when used as a property
+# instead of surfacing the RDF list structure in code.
+:ListShape
+    a owl:Class, sh:NodeShape ;
+    rdfs:subClassOf rdf:List ;
+    sh:name "ListShape" ;
+    sh:nodeKind sh:BlankNodeOrIRI ;
+    sh:property :ListShape-first, :ListShape-rest .
+
+:ListShape-first
+    a sh:PropertyShape ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:name "first" ;
+    sh:path rdf:first .
+
+:ListShape-rest
+    shaclmate:inline true ;
+    a sh:PropertyShape ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:name "rest" ;
+    sh:or ([
+            sh:class :ListShape
+        ]
+        [
+            sh:hasValue ( )
+        ]
+    ) ;
+    sh:path rdf:rest .
+
+# Node shape that isn't an rdfs:Class.
+:NonClassNodeShape
+  a sh:NodeShape ;
+  sh:name "NonClassNodeShape" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
+.
+
+# Shape that uses the ListShape in a property.
+:NodeShapeWithListProperty
+  a sh:NodeShape ;
+  sh:name "NodeShapeWithListProperty" ;
+  sh:property [ shaclmate:inline true ; sh:maxCount 1 ; sh:minCount 1 ; sh:node :ListShape ; sh:name "listProperty" ; sh:path :listProperty ]
+.
+
+# Shape that has properties with different cardinalities
+:NodeShapeWithPropertyCardinalities
+  a sh:NodeShape ;
+  sh:name "NodeShapeWithPropertyCardinalities" ;
+  # Required: maxCount=minCount=1
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "requiredStringProperty" ; sh:path :requiredStringProperty ; ] ;
+  # Option: maxCount=1 minCount=0
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 0 ; sh:name "optionalStringProperty" ; sh:path :optionalStringProperty ; ] ;
+  # Set: minCount implicitly=0, no maxCount or maxCount > 1
+  sh:property [ sh:datatype xsd:string ; sh:minCount 1 ; sh:name "setStringProperty" ; sh:path :setStringProperty ; ] ;
+.
+
+# Node that that sh:or's other node shapes. This will usually be generated as a discriminated union.
+:OrNodeShape
+  a sh:NodeShape ;
+  sh:name "OrNodeShape" ;
+  sh:or ( :OrNodeShapeMember1 :OrNodeShapeMember2 ) ;
+.
+
+:OrNodeShapeMember1
+  a sh:NodeShape ;
+  sh:name "OrNodeShapeMember1" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty1" ; sh:path :stringProperty1 ] ;
+.
+
+:OrNodeShapeMember2
+  a sh:NodeShape ;
+  sh:name "OrNodeShapeMember2" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty2" ; sh:path :stringProperty2 ] ;
+.
+
+# Class node shape that inherits the abstract base class and is the parent of the ChildClassNodeShape.
+:ParentClassNodeShape
+  a owl:Class ;
+  a sh:NodeShape ;
+  rdfs:subClassOf :AbstractBaseClassNodeShape ;
+  sh:name "ParentClassNodeShape" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "parentStringProperty" ; sh:path :parentStringProperty ] ;
+.
+
+# A node shape that mints its identifier by hashing (other) contents, if no identifier is supplied
+:Sha256IriNodeShape
+  a sh:NodeShape ;
+  shaclmate:mintingStrategy shaclmate:SHA256 ;
+  sh:nodeKind sh:IRI ;
+  sh:name "Sha256IriNodeShape" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
+.
+
+# A node shape that mints its identifier by generating a v4 UUID, if no identifier is supplied
+:UuidV4IriNodeShape
+  a sh:NodeShape ;
+  shaclmate:mintingStrategy shaclmate:UUIDv4 ;
+  sh:nodeKind sh:IRI ;
+  sh:name "UuidV4IriNodeShape" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
+.

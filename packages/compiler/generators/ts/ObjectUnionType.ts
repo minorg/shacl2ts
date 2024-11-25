@@ -192,6 +192,19 @@ return purifyHelpers.Equatable.objectEquals(left, right, {
     const parametersVariable = "_parameters";
     const thisVariable = camelCase(this.name);
 
+    const caseBlocks = this.memberTypes.map((memberType) => {
+      let returnExpression: string;
+      switch (this.configuration.objectTypeDeclarationType) {
+        case "class":
+          returnExpression = `${thisVariable}.toRdf(${parametersVariable})`;
+          break;
+        case "interface":
+          returnExpression = `${this.name}.toRdf(${thisVariable}, ${parametersVariable})`;
+          break;
+      }
+      return `case "${memberType.name}": return ${returnExpression};`;
+    });
+
     return {
       isExported: true,
       kind: StructureKind.Function,
@@ -207,7 +220,7 @@ return purifyHelpers.Equatable.objectEquals(left, right, {
         },
       ],
       returnType: this.rdfjsResourceType({ mutable: true }).name,
-      statements: `switch (${thisVariable}.${this.configuration.objectTypeDiscriminatorPropertyName}) { ${this.memberTypes.map((memberType) => `case "${memberType.name}": return ${thisVariable}.toRdf(${parametersVariable});`).join(" ")} }`,
+      statements: `switch (${thisVariable}.${this.configuration.objectTypeDiscriminatorPropertyName}) { ${caseBlocks.join(" ")} }`,
     };
   }
 
@@ -244,13 +257,24 @@ return purifyHelpers.Equatable.objectEquals(left, right, {
   override propertyHashStatements({
     variables,
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
-    return [`${this.name}.hash(${variables.value}, ${variables.hasher});`];
+    switch (this.configuration.objectTypeDeclarationType) {
+      case "class":
+        return [`${variables.value}.hash(${variables.hasher});`];
+      case "interface":
+        return [`${this.name}.hash(${variables.value}, ${variables.hasher});`];
+    }
   }
 
   override propertyToRdfExpression({
     variables,
   }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
-    return `${this.name}.toRdf(${variables.value}, { mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier`;
+    const options = `{ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }`;
+    switch (this.configuration.objectTypeDeclarationType) {
+      case "class":
+        return `${variables.value}.toRdf(${options}).identifier`;
+      case "interface":
+        return `${this.name}.toRdf(${variables.value}, ${options}).identifier`;
+    }
   }
 
   private rdfjsResourceType(options?: { mutable?: boolean }): ReturnType<
