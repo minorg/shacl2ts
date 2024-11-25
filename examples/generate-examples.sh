@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.."
 # Kitchen sink
 #./packages/cli/cli.sh show-ast-json $PWD/examples/kitchen-sink/kitchen-sink.shapes.ttl >examples/kitchen-sink/generated/ast.json
 ./packages/cli/cli.sh generate --object-type-declaration-type class $PWD/examples/kitchen-sink/kitchen-sink.shapes.ttl >examples/kitchen-sink/generated/classes.ts
-#./packages/cli/cli.sh generate --object-type-declaration-type interface $PWD/examples/kitchen-sink/kitchen-sink.shapes.ttl >examples/kitchen-sink/generated/interfaces.ts
+./packages/cli/cli.sh generate --object-type-declaration-type interface $PWD/examples/kitchen-sink/kitchen-sink.shapes.ttl >examples/kitchen-sink/generated/interfaces.ts
 
 
 # SKOS
