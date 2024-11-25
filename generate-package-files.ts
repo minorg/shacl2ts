@@ -87,6 +87,7 @@ const packages: readonly Package[] = [
         "@kos-kit/sparql-builder": "2.0.95",
         "@rdfjs/types": externalDependencyVersions["@rdfjs/types"],
         "@types/n3": externalDependencyVersions["@types/n3"],
+        "@types/uuid": "^9.0.1",
         "js-sha256": "^0.11.0",
         n3: externalDependencyVersions["n3"],
         "purify-ts": externalDependencyVersions["purify-ts"],
