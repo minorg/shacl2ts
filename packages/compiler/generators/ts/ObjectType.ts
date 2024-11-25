@@ -113,16 +113,18 @@ export class ObjectType extends Type {
     const importStatements = this.properties.flatMap(
       (property) => property.importStatements,
     );
-    this.mintingStrategy.ifJust((mintingStrategy) => {
-      switch (mintingStrategy) {
-        case MintingStrategy.SHA256:
-          importStatements.push('import { sha256 } from "js-sha256";');
-          break;
-        case MintingStrategy.UUIDv4:
-          importStatements.push('import * as uuid from "uuid";');
-          break;
-      }
-    });
+    if (this.configuration.objectTypeDeclarationType === "class") {
+      this.mintingStrategy.ifJust((mintingStrategy) => {
+        switch (mintingStrategy) {
+          case MintingStrategy.SHA256:
+            importStatements.push('import { sha256 } from "js-sha256";');
+            break;
+          case MintingStrategy.UUIDv4:
+            importStatements.push('import * as uuid from "uuid";');
+            break;
+        }
+      });
+    }
     return importStatements;
   }
 
