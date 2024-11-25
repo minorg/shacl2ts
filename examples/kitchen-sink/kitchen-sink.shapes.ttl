@@ -137,13 +137,13 @@
 :OrNodeShapeMember1
   a sh:NodeShape ;
   sh:name "OrNodeShapeMember1" ;
-  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty1" ; sh:path :stringProperty1 ] ;
 .
 
 :OrNodeShapeMember2
   a sh:NodeShape ;
   sh:name "OrNodeShapeMember2" ;
-  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty2" ; sh:path :stringProperty2 ] ;
 .
 
 # Class node shape that inherits the abstract base class and is the parent of the ChildClassNodeShape.
@@ -161,7 +161,7 @@
   shaclmate:mintingStrategy shaclmate:SHA256 ;
   sh:nodeKind sh:IRI ;
   sh:name "Sha256IriNodeShape" ;
-  sh:property [ sh:datatype xsd:string ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
 .
 
 # A node shape that mints its identifier by generating a v4 UUID, if no identifier is supplied
@@ -170,5 +170,5 @@
   shaclmate:mintingStrategy shaclmate:UUIDv4 ;
   sh:nodeKind sh:IRI ;
   sh:name "UuidV4IriNodeShape" ;
-  sh:property [ sh:datatype xsd:string ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
 .

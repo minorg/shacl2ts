@@ -1468,21 +1468,21 @@ export namespace InlineNodeShape {
 
 export class OrNodeShapeMember1 {
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly stringProperty: string;
+  readonly stringProperty1: string;
   readonly type = "OrNodeShapeMember1" as const;
 
   constructor(parameters: {
     readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-    readonly stringProperty: string;
+    readonly stringProperty1: string;
   }) {
     this.identifier = parameters.identifier;
-    this.stringProperty = parameters.stringProperty;
+    this.stringProperty1 = parameters.stringProperty1;
   }
 
   equals(other: OrNodeShapeMember1): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
+      stringProperty1: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -1508,8 +1508,8 @@ export class OrNodeShapeMember1 {
       mutateGraph,
     });
     _resource.add(
-      dataFactory.namedNode("http://example.com/stringProperty"),
-      this.stringProperty,
+      dataFactory.namedNode("http://example.com/stringProperty1"),
+      this.stringProperty1,
     );
     return _resource;
   }
@@ -1521,22 +1521,22 @@ export namespace OrNodeShapeMember1 {
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<rdfjsResource.Resource.ValueError, OrNodeShapeMember1> {
     const identifier = _resource.identifier;
-    const _stringPropertyEither: purify.Either<
+    const _stringProperty1Either: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
     > = _resource
-      .values(dataFactory.namedNode("http://example.com/stringProperty"), {
+      .values(dataFactory.namedNode("http://example.com/stringProperty1"), {
         unique: true,
       })
       .head()
       .chain((_value) => _value.toString());
-    if (_stringPropertyEither.isLeft()) {
-      return _stringPropertyEither;
+    if (_stringProperty1Either.isLeft()) {
+      return _stringProperty1Either;
     }
 
-    const stringProperty = _stringPropertyEither.unsafeCoerce();
+    const stringProperty1 = _stringProperty1Either.unsafeCoerce();
     return purify.Either.of(
-      new OrNodeShapeMember1({ identifier, stringProperty }),
+      new OrNodeShapeMember1({ identifier, stringProperty1 }),
     );
   }
 
@@ -1551,7 +1551,7 @@ export namespace OrNodeShapeMember1 {
     >,
     _hasher: HasherT,
   ): HasherT {
-    _hasher.update(orNodeShapeMember1.stringProperty);
+    _hasher.update(orNodeShapeMember1.stringProperty1);
     return _hasher;
   }
 
@@ -1564,8 +1564,8 @@ export namespace OrNodeShapeMember1 {
       this.add(
         sparqlBuilder.GraphPattern.basic(
           this.subject,
-          dataFactory.namedNode("http://example.com/stringProperty"),
-          this.variable("StringProperty"),
+          dataFactory.namedNode("http://example.com/stringProperty1"),
+          this.variable("StringProperty1"),
         ),
       );
     }
@@ -1574,21 +1574,21 @@ export namespace OrNodeShapeMember1 {
 
 export class OrNodeShapeMember2 {
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly stringProperty: string;
+  readonly stringProperty2: string;
   readonly type = "OrNodeShapeMember2" as const;
 
   constructor(parameters: {
     readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-    readonly stringProperty: string;
+    readonly stringProperty2: string;
   }) {
     this.identifier = parameters.identifier;
-    this.stringProperty = parameters.stringProperty;
+    this.stringProperty2 = parameters.stringProperty2;
   }
 
   equals(other: OrNodeShapeMember2): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
+      stringProperty2: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -1614,8 +1614,8 @@ export class OrNodeShapeMember2 {
       mutateGraph,
     });
     _resource.add(
-      dataFactory.namedNode("http://example.com/stringProperty"),
-      this.stringProperty,
+      dataFactory.namedNode("http://example.com/stringProperty2"),
+      this.stringProperty2,
     );
     return _resource;
   }
@@ -1627,22 +1627,22 @@ export namespace OrNodeShapeMember2 {
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<rdfjsResource.Resource.ValueError, OrNodeShapeMember2> {
     const identifier = _resource.identifier;
-    const _stringPropertyEither: purify.Either<
+    const _stringProperty2Either: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
     > = _resource
-      .values(dataFactory.namedNode("http://example.com/stringProperty"), {
+      .values(dataFactory.namedNode("http://example.com/stringProperty2"), {
         unique: true,
       })
       .head()
       .chain((_value) => _value.toString());
-    if (_stringPropertyEither.isLeft()) {
-      return _stringPropertyEither;
+    if (_stringProperty2Either.isLeft()) {
+      return _stringProperty2Either;
     }
 
-    const stringProperty = _stringPropertyEither.unsafeCoerce();
+    const stringProperty2 = _stringProperty2Either.unsafeCoerce();
     return purify.Either.of(
-      new OrNodeShapeMember2({ identifier, stringProperty }),
+      new OrNodeShapeMember2({ identifier, stringProperty2 }),
     );
   }
 
@@ -1657,7 +1657,7 @@ export namespace OrNodeShapeMember2 {
     >,
     _hasher: HasherT,
   ): HasherT {
-    _hasher.update(orNodeShapeMember2.stringProperty);
+    _hasher.update(orNodeShapeMember2.stringProperty2);
     return _hasher;
   }
 
@@ -1670,8 +1670,8 @@ export namespace OrNodeShapeMember2 {
       this.add(
         sparqlBuilder.GraphPattern.basic(
           this.subject,
-          dataFactory.namedNode("http://example.com/stringProperty"),
-          this.variable("StringProperty"),
+          dataFactory.namedNode("http://example.com/stringProperty2"),
+          this.variable("StringProperty2"),
         ),
       );
     }
@@ -1680,21 +1680,15 @@ export namespace OrNodeShapeMember2 {
 
 export class Sha256IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
-  readonly stringProperty: readonly string[];
+  readonly stringProperty: string;
   readonly type = "Sha256IriNodeShape" as const;
 
   constructor(parameters: {
     readonly identifier?: rdfjs.NamedNode;
-    readonly stringProperty?: readonly string[];
+    readonly stringProperty: string;
   }) {
     this._identifier = parameters.identifier;
-    if (typeof parameters.stringProperty === "undefined") {
-      this.stringProperty = [];
-    } else if (Array.isArray(parameters.stringProperty)) {
-      this.stringProperty = parameters.stringProperty;
-    } else {
-      this.stringProperty = parameters.stringProperty; // never
-    }
+    this.stringProperty = parameters.stringProperty;
   }
 
   get identifier(): rdfjs.NamedNode {
@@ -1709,12 +1703,7 @@ export class Sha256IriNodeShape {
   equals(other: Sha256IriNodeShape): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: (left, right) =>
-        purifyHelpers.Arrays.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.strictEquals,
-        ),
+      stringProperty: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -1755,21 +1744,13 @@ export namespace Sha256IriNodeShape {
     const identifier = _resource.identifier;
     const _stringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
-      readonly string[]
-    > = purify.Either.of([
-      ..._resource
-        .values(dataFactory.namedNode("http://example.com/stringProperty"), {
-          unique: true,
-        })
-        .flatMap((_value) =>
-          _value
-            .toValues()
-            .head()
-            .chain((_value) => _value.toString())
-            .toMaybe()
-            .toList(),
-        ),
-    ]);
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/stringProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
     if (_stringPropertyEither.isLeft()) {
       return _stringPropertyEither;
     }
@@ -1791,10 +1772,7 @@ export namespace Sha256IriNodeShape {
     >,
     _hasher: HasherT,
   ): HasherT {
-    for (const _element of sha256IriNodeShape.stringProperty) {
-      _hasher.update(_element);
-    }
-
+    _hasher.update(sha256IriNodeShape.stringProperty);
     return _hasher;
   }
 
@@ -1805,12 +1783,10 @@ export namespace Sha256IriNodeShape {
     ) {
       super(subject);
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/stringProperty"),
-            this.variable("StringProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/stringProperty"),
+          this.variable("StringProperty"),
         ),
       );
     }
@@ -1819,21 +1795,15 @@ export namespace Sha256IriNodeShape {
 
 export class UuidV4IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
-  readonly stringProperty: readonly string[];
+  readonly stringProperty: string;
   readonly type = "UuidV4IriNodeShape" as const;
 
   constructor(parameters: {
     readonly identifier?: rdfjs.NamedNode;
-    readonly stringProperty?: readonly string[];
+    readonly stringProperty: string;
   }) {
     this._identifier = parameters.identifier;
-    if (typeof parameters.stringProperty === "undefined") {
-      this.stringProperty = [];
-    } else if (Array.isArray(parameters.stringProperty)) {
-      this.stringProperty = parameters.stringProperty;
-    } else {
-      this.stringProperty = parameters.stringProperty; // never
-    }
+    this.stringProperty = parameters.stringProperty;
   }
 
   get identifier(): rdfjs.NamedNode {
@@ -1848,12 +1818,7 @@ export class UuidV4IriNodeShape {
   equals(other: UuidV4IriNodeShape): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: (left, right) =>
-        purifyHelpers.Arrays.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.strictEquals,
-        ),
+      stringProperty: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -1894,21 +1859,13 @@ export namespace UuidV4IriNodeShape {
     const identifier = _resource.identifier;
     const _stringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
-      readonly string[]
-    > = purify.Either.of([
-      ..._resource
-        .values(dataFactory.namedNode("http://example.com/stringProperty"), {
-          unique: true,
-        })
-        .flatMap((_value) =>
-          _value
-            .toValues()
-            .head()
-            .chain((_value) => _value.toString())
-            .toMaybe()
-            .toList(),
-        ),
-    ]);
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/stringProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
     if (_stringPropertyEither.isLeft()) {
       return _stringPropertyEither;
     }
@@ -1930,10 +1887,7 @@ export namespace UuidV4IriNodeShape {
     >,
     _hasher: HasherT,
   ): HasherT {
-    for (const _element of uuidV4IriNodeShape.stringProperty) {
-      _hasher.update(_element);
-    }
-
+    _hasher.update(uuidV4IriNodeShape.stringProperty);
     return _hasher;
   }
 
@@ -1944,12 +1898,10 @@ export namespace UuidV4IriNodeShape {
     ) {
       super(subject);
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/stringProperty"),
-            this.variable("StringProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/stringProperty"),
+          this.variable("StringProperty"),
         ),
       );
     }
