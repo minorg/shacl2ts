@@ -1058,14 +1058,12 @@ export class ParentClassNodeShape extends AbstractBaseClassNodeShape {
   override equals(
     other: ParentClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          parentStringProperty: purifyHelpers.Equatable.strictEquals,
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        parentStringProperty: purifyHelpers.Equatable.strictEquals,
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -1218,14 +1216,12 @@ export class ChildClassNodeShape extends ParentClassNodeShape {
   override equals(
     other: ChildClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          childStringProperty: purifyHelpers.Equatable.strictEquals,
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        childStringProperty: purifyHelpers.Equatable.strictEquals,
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
