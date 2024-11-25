@@ -93,6 +93,7 @@ const packages: readonly Package[] = [
         "purify-ts-helpers": "1.0.7",
         "rdf-literal": "^1.3.2",
         "rdfjs-resource": externalDependencyVersions["rdfjs-resource"],
+        uuid: "^9.0.1",
       },
     },
     linkableDependencies: [

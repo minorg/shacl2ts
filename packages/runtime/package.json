@@ -8,7 +8,8 @@
     "purify-ts": "^2.1.0",
     "purify-ts-helpers": "1.0.7",
     "rdf-literal": "^1.3.2",
-    "rdfjs-resource": "1.0.12"
+    "rdfjs-resource": "1.0.12",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {},
   "files": [
