@@ -1,9 +1,10 @@
 import * as fs from "node:fs";
 import PrefixMap, { type PrefixMapInit } from "@rdfjs/prefix-map/PrefixMap";
+import { ShapesGraphToAstTransformer } from "@shaclmate/compiler/ShapesGraphToAstTransformer.js";
 import type { Ast } from "@shaclmate/compiler/ast";
 import * as generators from "@shaclmate/compiler/generators";
+import { ShapesGraph } from "@shaclmate/compiler/input";
 import { dashDataset } from "@shaclmate/compiler/vocabularies/dashDataset.js";
-import { ShapesGraph } from "@shaclmate/shacl-ast";
 import {
   array,
   command,
@@ -17,7 +18,6 @@ import {
 } from "cmd-ts";
 import { ExistingPath } from "cmd-ts/dist/esm/batteries/fs.js";
 import { DataFactory, Parser, Store } from "n3";
-import { ShapesGraphToAstTransformer } from "packages/compiler/ShapesGraphToAstTransformer";
 import pino from "pino";
 
 const inputFilePaths = restPositionals({
@@ -86,7 +86,7 @@ function readInput(inputFilePaths: readonly string[]) {
       ),
     );
   }
-  const shapesGraph = ShapesGraph.fromDataset(dataset);
+  const shapesGraph = new ShapesGraph({ dataset });
 
   return new ShapesGraphToAstTransformer({
     iriPrefixMap: new PrefixMap(iriPrefixes, { factory: DataFactory }),
