@@ -10,7 +10,7 @@ export const hasherTypeConstraint =
 export function hashFunctionDeclaration(
   this: ObjectType,
 ): FunctionDeclarationStructure {
-  const thisVariable = camelCase(this.name);
+  const thisVariable = `_${camelCase(this.name)}`;
 
   const omitPropertyNamesSet = new Set<string>();
   omitPropertyNamesSet.add(this.configuration.objectTypeIdentifierPropertyName);

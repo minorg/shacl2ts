@@ -18,7 +18,7 @@
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "abcStringProperty" ; sh:path :abcStringProperty ] ;
 .
 
-# Child (class) of ParentClassNodeShape. Should inherit properties.
+# Child (class) of ParentClassNodeShape. Should inherit properties, node kinds, and minting strategy.
 :ChildClassNodeShape
   a owl:Class ;
   a sh:NodeShape ;
@@ -151,7 +151,9 @@
   a owl:Class ;
   a sh:NodeShape ;
   rdfs:subClassOf :AbstractBaseClassNodeShape ;
+  shaclmate:mintingStrategy shaclmate:SHA256 ;
   sh:name "ParentClassNodeShape" ;
+  sh:nodeKind sh:IRI ;
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "parentStringProperty" ; sh:path :parentStringProperty ] ;
 .
 

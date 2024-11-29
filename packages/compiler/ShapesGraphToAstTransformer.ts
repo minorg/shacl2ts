@@ -136,43 +136,6 @@ export class ShapesGraphToAstTransformer {
     return Either.of(firstProperty.type);
   }
 
-  private classAstType(
-    classIri: rdfjs.NamedNode,
-  ): Either<Error, ast.ObjectType> {
-    let nodeShape: Maybe<input.NodeShape>;
-    if (
-      classIri.equals(owl.Class) ||
-      classIri.equals(owl.Thing) ||
-      classIri.equals(rdfs.Class)
-    ) {
-      nodeShape = Maybe.empty();
-    } else {
-      nodeShape = this.shapesGraph.nodeShapeByNode(classIri);
-    }
-
-    return nodeShape
-      .toEither(
-        new Error(`${classIri.value} does not correspond to a node shape`),
-      )
-      .chain((nodeShape) => this.nodeShapeAstType(nodeShape))
-      .chain((nodeShapeAstType) =>
-        nodeShapeAstType.kind === "ObjectType"
-          ? Either.of<Error, ast.ObjectType>(nodeShapeAstType)
-          : Left(
-              new Error(
-                `${classIri.value} corresponds to an intersection or union node shape`,
-              ),
-            ),
-      )
-      .ifLeft((error) => {
-        logger.debug(
-          "class %s did not resolve to an object type: %s",
-          classIri.value,
-          error.message,
-        );
-      });
-  }
-
   private nodeShapeAstType(
     nodeShape: input.NodeShape,
   ): Either<Error, NodeShapeAstType> {
@@ -244,24 +207,6 @@ export class ShapesGraphToAstTransformer {
       return Either.of(compositeType);
     }
 
-    // https://www.w3.org/TR/shacl/#implicit-targetClass
-    // If the node shape is an owl:class or rdfs:Class, make the ObjectType have an rdf:type of the cst.NodeShape.
-    const rdfType: Maybe<rdfjs.NamedNode> =
-      nodeShape.resource.isInstanceOf(owl.Class) ||
-      nodeShape.resource.isInstanceOf(rdfs.Class)
-        ? Maybe.of(nodeShape.resource.identifier as rdfjs.NamedNode)
-        : Maybe.empty();
-
-    const nodeKinds = new Set<NodeKind.BLANK_NODE | NodeKind.IRI>(
-      [...nodeShape.constraints.nodeKinds].filter(
-        (nodeKind) => nodeKind !== NodeKind.LITERAL,
-      ),
-    );
-    if (nodeKinds.size === 0) {
-      nodeKinds.add(NodeKind.BLANK_NODE);
-      nodeKinds.add(NodeKind.IRI);
-    }
-
     // Put a placeholder in the cache to deal with cyclic references
     // If this node shape's properties (directly or indirectly) refer to the node shape itself,
     // we'll return this placeholder.
@@ -275,9 +220,11 @@ export class ShapesGraphToAstTransformer {
       listItemType: Maybe.empty(),
       mintingStrategy: nodeShape.mintingStrategy.toMaybe(),
       name: this.shapeName(nodeShape),
-      nodeKinds,
+      nodeKinds: nodeShape.nodeKinds,
       properties: [], // This is mutable, we'll populate it below.
-      rdfType,
+      rdfType: nodeShape.isClass
+        ? Maybe.of(nodeShape.resource.identifier as rdfjs.NamedNode)
+        : Maybe.empty(),
       parentObjectTypes: [], // This is mutable, we'll populate it below
     };
     this.nodeShapeAstTypesByIdentifier.set(
@@ -286,33 +233,28 @@ export class ShapesGraphToAstTransformer {
     );
 
     // Populate ancestor and descendant object types
-    // Ancestors
-    for (const classIri of nodeShape.ancestorClassIris) {
-      this.classAstType(classIri).ifRight((ancestorObjectType) =>
-        objectType.ancestorObjectTypes.push(ancestorObjectType),
+    const relatedObjectTypes = (
+      relatedNodeShapes: readonly input.NodeShape[],
+    ): readonly ast.ObjectType[] => {
+      return relatedNodeShapes.flatMap((relatedNodeShape) =>
+        this.nodeShapeAstType(relatedNodeShape)
+          .toMaybe()
+          .filter((astType) => astType.kind === "ObjectType")
+          .toList(),
       );
-    }
-
-    // Parents
-    for (const classIri of nodeShape.parentClassIris) {
-      this.classAstType(classIri).ifRight((parentObjectType) =>
-        objectType.parentObjectTypes.push(parentObjectType),
-      );
-    }
-
-    // Descendants
-    for (const classIri of nodeShape.descendantClassIris) {
-      this.classAstType(classIri).ifRight((descendantObjectType) =>
-        objectType.descendantObjectTypes.push(descendantObjectType),
-      );
-    }
-
-    // Children
-    for (const classIri of nodeShape.childClassIris) {
-      this.classAstType(classIri).ifRight((childObjectType) =>
-        objectType.childObjectTypes.push(childObjectType),
-      );
-    }
+    };
+    objectType.ancestorObjectTypes.push(
+      ...relatedObjectTypes(nodeShape.ancestorNodeShapes),
+    );
+    objectType.childObjectTypes.push(
+      ...relatedObjectTypes(nodeShape.childNodeShapes),
+    );
+    objectType.descendantObjectTypes.push(
+      ...relatedObjectTypes(nodeShape.descendantNodeShapes),
+    );
+    objectType.parentObjectTypes.push(
+      ...relatedObjectTypes(nodeShape.parentNodeShapes),
+    );
 
     // Populate properties
     for (const propertyShape of nodeShape.constraints.properties) {
@@ -417,20 +359,54 @@ export class ShapesGraphToAstTransformer {
           );
           compositeTypeKind = "IntersectionType";
         } else if (shape.constraints.classes.length > 0) {
-          memberTypeEithers = shape.constraints.classes.map((classIri) =>
-            this.classAstType(classIri).map((classObjectType) =>
-              inline.orDefault(false)
-                ? classObjectType
-                : {
-                    defaultValue: defaultValue.filter(
-                      (term) => term.termType !== "Literal",
-                    ),
-                    hasValue: Maybe.empty(),
-                    kind: "IdentifierType",
-                    nodeKinds: classObjectType.nodeKinds,
-                  },
-            ),
-          );
+          memberTypeEithers = shape.constraints.classes.map((classIri) => {
+            if (
+              classIri.equals(owl.Class) ||
+              classIri.equals(owl.Thing) ||
+              classIri.equals(rdfs.Class)
+            ) {
+              return Left(
+                new Error(`class ${classIri.value} is not transformable`),
+              );
+            }
+
+            const classNodeShape = this.shapesGraph
+              .nodeShapeByNode(classIri)
+              .extractNullable();
+            if (classNodeShape === null) {
+              return Left(
+                new Error(
+                  `class ${classIri.value} did not resolve to a node shape`,
+                ),
+              );
+            }
+            const classAstTypeEither = this.nodeShapeAstType(classNodeShape);
+            if (classAstTypeEither.isLeft()) {
+              return classAstTypeEither;
+            }
+            const classAstType = classAstTypeEither.unsafeCoerce();
+            if (classAstType.kind !== "ObjectType") {
+              return Left(
+                new Error(
+                  `class ${classIri.value} was transformed into a non-ObjectType`,
+                ),
+              );
+            }
+            const classObjectType: ast.ObjectType = classAstType;
+
+            if (inline.orDefault(false)) {
+              return Either.of(classObjectType);
+            }
+
+            return Either.of({
+              defaultValue: defaultValue.filter(
+                (term) => term.termType !== "Literal",
+              ),
+              hasValue: Maybe.empty(),
+              kind: "IdentifierType",
+              nodeKinds: classObjectType.nodeKinds,
+            });
+          });
           compositeTypeKind = "IntersectionType";
         } else if (shape.constraints.nodes.length > 0) {
           memberTypeEithers = shape.constraints.nodes.map((nodeShape) =>
