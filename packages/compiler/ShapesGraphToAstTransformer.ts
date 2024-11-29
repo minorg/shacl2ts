@@ -207,8 +207,6 @@ export class ShapesGraphToAstTransformer {
       return Either.of(compositeType);
     }
 
-    const nodeKinds = nodeShape.nodeKinds;
-
     // Put a placeholder in the cache to deal with cyclic references
     // If this node shape's properties (directly or indirectly) refer to the node shape itself,
     // we'll return this placeholder.
@@ -222,7 +220,7 @@ export class ShapesGraphToAstTransformer {
       listItemType: Maybe.empty(),
       mintingStrategy: nodeShape.mintingStrategy.toMaybe(),
       name: this.shapeName(nodeShape),
-      nodeKinds,
+      nodeKinds: nodeShape.nodeKinds,
       properties: [], // This is mutable, we'll populate it below.
       rdfType: nodeShape.isClass
         ? Maybe.of(nodeShape.resource.identifier as rdfjs.NamedNode)
@@ -397,17 +395,17 @@ export class ShapesGraphToAstTransformer {
             const classObjectType: ast.ObjectType = classAstType;
 
             if (inline.orDefault(false)) {
-              return Either.of({
-                defaultValue: defaultValue.filter(
-                  (term) => term.termType !== "Literal",
-                ),
-                hasValue: Maybe.empty(),
-                kind: "IdentifierType",
-                nodeKinds: classObjectType.nodeKinds,
-              });
+              return Either.of(classObjectType);
             }
 
-            return Either.of(classObjectType);
+            return Either.of({
+              defaultValue: defaultValue.filter(
+                (term) => term.termType !== "Literal",
+              ),
+              hasValue: Maybe.empty(),
+              kind: "IdentifierType",
+              nodeKinds: classObjectType.nodeKinds,
+            });
           });
           compositeTypeKind = "IntersectionType";
         } else if (shape.constraints.nodes.length > 0) {

@@ -119,31 +119,56 @@ export class NodeShape extends RdfjsNodeShape<any, PropertyShape, Shape> {
   }
 
   get mintingStrategy(): Either<Error, MintingStrategy> {
-    return this.resource
-      .value(shaclmate.mintingStrategy)
-      .chain((value) => value.toIri())
-      .chain((iri) => {
-        if (iri.equals(shaclmate.SHA256)) {
-          return Either.of(MintingStrategy.SHA256);
+    const thisMintingStrategy = this._mintingStrategy;
+    if (thisMintingStrategy.isLeft()) {
+      for (const ancestorNodeShape of this.ancestorNodeShapes) {
+        const ancestorMintingStrategy = ancestorNodeShape._mintingStrategy;
+        if (ancestorMintingStrategy.isRight()) {
+          return ancestorMintingStrategy;
         }
-        if (iri.equals(shaclmate.UUIDv4)) {
-          return Either.of(MintingStrategy.UUIDv4);
-        }
-        return Left(new Error(`unrecognizing minting strategy: ${iri.value}`));
-      });
+      }
+    }
+    return thisMintingStrategy;
   }
 
   get nodeKinds(): Set<NodeKind.BLANK_NODE | NodeKind.IRI> {
-    const nodeKinds = new Set<NodeKind.BLANK_NODE | NodeKind.IRI>(
+    const thisNodeKinds = new Set<NodeKind.BLANK_NODE | NodeKind.IRI>(
       [...this.constraints.nodeKinds].filter(
         (nodeKind) => nodeKind !== NodeKind.LITERAL,
       ),
     );
-    if (nodeKinds.size === 0) {
-      nodeKinds.add(NodeKind.BLANK_NODE);
-      nodeKinds.add(NodeKind.IRI);
+
+    const parentNodeKinds = new Set<NodeKind.BLANK_NODE | NodeKind.IRI>();
+    for (const parentNodeShape of this.parentNodeShapes) {
+      for (const parentNodeKind of parentNodeShape.nodeKinds) {
+        parentNodeKinds.add(parentNodeKind);
+      }
     }
-    return nodeKinds;
+
+    if (thisNodeKinds.size === 0 && parentNodeKinds.size > 0) {
+      // No node kinds on this shape, use the parent's
+      return parentNodeKinds;
+    }
+
+    if (thisNodeKinds.size > 0 && parentNodeKinds.size > 0) {
+      // Node kinds on this shape and the parent's shape
+      // This node kinds must be a subset of parent node kinds.
+      for (const thisNodeKind of thisNodeKinds) {
+        if (!parentNodeKinds.has(thisNodeKind)) {
+          throw new Error(
+            `${this} has a nodeKind ${thisNodeKind} that is not in its parent's node kinds`,
+          );
+        }
+      }
+    }
+
+    if (thisNodeKinds.size === 0) {
+      // Default: both node kinds
+      thisNodeKinds.add(NodeKind.BLANK_NODE);
+      thisNodeKinds.add(NodeKind.IRI);
+    }
+
+    return thisNodeKinds;
   }
 
   get parentNodeShapes(): readonly NodeShape[] {
@@ -156,6 +181,21 @@ export class NodeShape extends RdfjsNodeShape<any, PropertyShape, Shape> {
 
   get shaclmateName(): Maybe<string> {
     return shaclmateName.bind(this)();
+  }
+
+  private get _mintingStrategy(): Either<Error, MintingStrategy> {
+    return this.resource
+      .value(shaclmate.mintingStrategy)
+      .chain((value) => value.toIri())
+      .chain((iri) => {
+        if (iri.equals(shaclmate.SHA256)) {
+          return Either.of(MintingStrategy.SHA256);
+        }
+        if (iri.equals(shaclmate.UUIDv4)) {
+          return Either.of(MintingStrategy.UUIDv4);
+        }
+        return Left(new Error(`unrecognizing minting strategy: ${iri.value}`));
+      });
   }
 
   private get ancestorClassIris(): readonly NamedNode[] {
