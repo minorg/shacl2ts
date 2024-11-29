@@ -1,13 +1,20 @@
 import { schema } from "@tpluscode/rdf-ns-builders";
 import { beforeAll, describe, it } from "vitest";
-import { ShapesGraph } from "..";
-import { testData } from "./testData";
+import { RdfjsShapesGraph } from "../RdfjsShapesGraph.js";
+import {
+  type DefaultRdfjsShapesGraph,
+  defaultRdfjsShapeFactory,
+} from "../defaultRdfjsShapeFactory.js";
+import { testData } from "./testData.js";
 
-describe("NodeShape", () => {
-  let shapesGraph: ShapesGraph;
+describe("RdfjsNodeShape", () => {
+  let shapesGraph: DefaultRdfjsShapesGraph;
 
   beforeAll(() => {
-    shapesGraph = ShapesGraph.fromDataset(testData.shapesGraph);
+    shapesGraph = new RdfjsShapesGraph({
+      dataset: testData.shapesGraph,
+      shapeFactory: defaultRdfjsShapeFactory,
+    });
   });
 
   it("should have properties", ({ expect }) => {

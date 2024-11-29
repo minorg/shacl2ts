@@ -1,16 +1,26 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import type { Maybe } from "purify-ts";
 import type { NodeKind } from "./NodeKind.js";
+import type { NodeShape } from "./NodeShape.js";
+import type { PropertyShape } from "./PropertyShape";
 
-export interface Shape<NodeShapeT, ShapeT> {
-  readonly constraints: Shape.Constraints<NodeShapeT, ShapeT>;
+export interface Shape<
+  NodeShapeT extends NodeShape<any, PropertyShapeT, ShapeT> & ShapeT,
+  PropertyShapeT extends PropertyShape<NodeShapeT, any, ShapeT> & ShapeT,
+  ShapeT extends Shape<NodeShapeT, PropertyShapeT, any>,
+> {
+  readonly constraints: Shape.Constraints<NodeShapeT, PropertyShapeT, ShapeT>;
   readonly description: Maybe<Literal>;
   readonly name: Maybe<Literal>;
   readonly targets: Shape.Targets;
 }
 
 export namespace Shape {
-  export interface Constraints<NodeShapeT, ShapeT> {
+  export interface Constraints<
+    NodeShapeT extends NodeShape<any, PropertyShapeT, ShapeT> & ShapeT,
+    PropertyShapeT extends PropertyShape<NodeShapeT, any, ShapeT> & ShapeT,
+    ShapeT extends Shape<NodeShapeT, PropertyShapeT, any>,
+  > {
     readonly and: readonly ShapeT[];
     readonly classes: readonly NamedNode[];
     readonly datatype: Maybe<NamedNode>;
