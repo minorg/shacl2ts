@@ -25,7 +25,7 @@ export class RdfjsNodeShape<
     resource: Resource,
     shapesGraph: ShapesGraph<NodeShapeT, PropertyShapeT, ShapeT>,
   ) {
-    super(resource);
+    super(resource, shapesGraph);
     this.constraints = new RdfjsNodeShape.Constraints(resource, shapesGraph);
   }
 

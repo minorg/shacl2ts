@@ -21,7 +21,14 @@ export abstract class RdfjsShape<
   >;
   readonly targets: RdfjsShape.Targets;
 
-  protected constructor(readonly resource: Resource) {
+  protected constructor(
+    readonly resource: Resource,
+    protected readonly shapesGraph: ShapesGraph<
+      NodeShapeT,
+      PropertyShapeT,
+      ShapeT
+    >,
+  ) {
     this.targets = new RdfjsShape.Targets(resource);
   }
 

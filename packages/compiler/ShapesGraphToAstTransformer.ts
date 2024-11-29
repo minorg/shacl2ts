@@ -244,23 +244,7 @@ export class ShapesGraphToAstTransformer {
       return Either.of(compositeType);
     }
 
-    // https://www.w3.org/TR/shacl/#implicit-targetClass
-    // If the node shape is an owl:class or rdfs:Class, make the ObjectType have an rdf:type of the cst.NodeShape.
-    const rdfType: Maybe<rdfjs.NamedNode> =
-      nodeShape.resource.isInstanceOf(owl.Class) ||
-      nodeShape.resource.isInstanceOf(rdfs.Class)
-        ? Maybe.of(nodeShape.resource.identifier as rdfjs.NamedNode)
-        : Maybe.empty();
-
-    const nodeKinds = new Set<NodeKind.BLANK_NODE | NodeKind.IRI>(
-      [...nodeShape.constraints.nodeKinds].filter(
-        (nodeKind) => nodeKind !== NodeKind.LITERAL,
-      ),
-    );
-    if (nodeKinds.size === 0) {
-      nodeKinds.add(NodeKind.BLANK_NODE);
-      nodeKinds.add(NodeKind.IRI);
-    }
+    const nodeKinds = nodeShape.nodeKinds;
 
     // Put a placeholder in the cache to deal with cyclic references
     // If this node shape's properties (directly or indirectly) refer to the node shape itself,
@@ -277,7 +261,9 @@ export class ShapesGraphToAstTransformer {
       name: this.shapeName(nodeShape),
       nodeKinds,
       properties: [], // This is mutable, we'll populate it below.
-      rdfType,
+      rdfType: nodeShape.isClass
+        ? Maybe.of(nodeShape.resource.identifier as rdfjs.NamedNode)
+        : Maybe.empty(),
       parentObjectTypes: [], // This is mutable, we'll populate it below
     };
     this.nodeShapeAstTypesByIdentifier.set(
@@ -286,33 +272,28 @@ export class ShapesGraphToAstTransformer {
     );
 
     // Populate ancestor and descendant object types
-    // Ancestors
-    for (const classIri of nodeShape.ancestorClassIris) {
-      this.classAstType(classIri).ifRight((ancestorObjectType) =>
-        objectType.ancestorObjectTypes.push(ancestorObjectType),
+    const relatedObjectTypes = (
+      relatedNodeShapes: readonly input.NodeShape[],
+    ): readonly ast.ObjectType[] => {
+      return relatedNodeShapes.flatMap((relatedNodeShape) =>
+        this.nodeShapeAstType(relatedNodeShape)
+          .toMaybe()
+          .filter((astType) => astType.kind === "ObjectType")
+          .toList(),
       );
-    }
-
-    // Parents
-    for (const classIri of nodeShape.parentClassIris) {
-      this.classAstType(classIri).ifRight((parentObjectType) =>
-        objectType.parentObjectTypes.push(parentObjectType),
-      );
-    }
-
-    // Descendants
-    for (const classIri of nodeShape.descendantClassIris) {
-      this.classAstType(classIri).ifRight((descendantObjectType) =>
-        objectType.descendantObjectTypes.push(descendantObjectType),
-      );
-    }
-
-    // Children
-    for (const classIri of nodeShape.childClassIris) {
-      this.classAstType(classIri).ifRight((childObjectType) =>
-        objectType.childObjectTypes.push(childObjectType),
-      );
-    }
+    };
+    objectType.ancestorObjectTypes.push(
+      ...relatedObjectTypes(nodeShape.ancestorNodeShapes),
+    );
+    objectType.childObjectTypes.push(
+      ...relatedObjectTypes(nodeShape.childNodeShapes),
+    );
+    objectType.descendantObjectTypes.push(
+      ...relatedObjectTypes(nodeShape.descendantNodeShapes),
+    );
+    objectType.parentObjectTypes.push(
+      ...relatedObjectTypes(nodeShape.parentNodeShapes),
+    );
 
     // Populate properties
     for (const propertyShape of nodeShape.constraints.properties) {
