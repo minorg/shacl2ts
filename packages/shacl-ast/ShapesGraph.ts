@@ -6,8 +6,8 @@ import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
 
 export interface ShapesGraph<
-  NodeShapeT extends NodeShape<any, PropertyShapeT, ShapeT>,
-  PropertyShapeT extends PropertyShape<NodeShapeT, any, ShapeT>,
+  NodeShapeT extends NodeShape<any, PropertyShapeT, ShapeT> & ShapeT,
+  PropertyShapeT extends PropertyShape<NodeShapeT, any, ShapeT> & ShapeT,
   ShapeT extends Shape<NodeShapeT, PropertyShapeT, any>,
 > {
   readonly node: BlankNode | DefaultGraph | NamedNode | null;
