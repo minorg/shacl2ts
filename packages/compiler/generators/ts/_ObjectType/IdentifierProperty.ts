@@ -6,7 +6,7 @@ import {
   type PropertySignatureStructure,
   Scope,
 } from "ts-morph";
-import { MintingStrategy } from "../../../ast";
+import { MintingStrategy } from "../../../MintingStrategy.js";
 import type { IdentifierType } from "../IdentifierType.js";
 import { Property } from "./Property.js";
 

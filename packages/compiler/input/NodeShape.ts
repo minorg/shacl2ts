@@ -5,7 +5,7 @@ import { RdfjsNodeShape } from "@shaclmate/shacl-ast";
 import { rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, type Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
-import { MintingStrategy } from "../ast/MintingStrategy";
+import { MintingStrategy } from "../MintingStrategy";
 import { shaclmate } from "../vocabularies/index";
 import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";

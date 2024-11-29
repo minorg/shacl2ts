@@ -1,7 +1,7 @@
 import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
-import { MintingStrategy } from "../../ast";
+import { MintingStrategy } from "../../MintingStrategy.js";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType";
