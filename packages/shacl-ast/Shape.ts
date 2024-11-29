@@ -2,7 +2,7 @@ import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import type { Maybe } from "purify-ts";
 import type { NodeKind } from "./NodeKind.js";
 import type { NodeShape } from "./NodeShape.js";
-import type { PropertyShape } from "./PropertyShape";
+import type { PropertyShape } from "./PropertyShape.js";
 
 export interface Shape<
   NodeShapeT extends NodeShape<any, PropertyShapeT, ShapeT> & ShapeT,

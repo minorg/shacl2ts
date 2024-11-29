@@ -2,12 +2,12 @@ import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { dash, sh } from "@tpluscode/rdf-ns-builders";
 import type { Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
-import type { NodeShape } from "./NodeShape";
+import type { NodeShape } from "./NodeShape.js";
 import type { PropertyGroup } from "./PropertyGroup.js";
 import { PropertyPath } from "./PropertyPath.js";
-import type { PropertyShape } from "./PropertyShape";
+import type { PropertyShape } from "./PropertyShape.js";
 import { RdfjsShape } from "./RdfjsShape.js";
-import type { Shape } from "./Shape";
+import type { Shape } from "./Shape.js";
 import type { ShapesGraph } from "./ShapesGraph.js";
 
 export class RdfjsPropertyShape<

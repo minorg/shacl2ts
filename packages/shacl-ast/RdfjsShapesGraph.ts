@@ -10,11 +10,11 @@ import type {
 import { rdf, sh } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import { Resource, ResourceSet } from "rdfjs-resource";
-import type { NodeShape } from "./NodeShape";
+import type { NodeShape } from "./NodeShape.js";
 import { PropertyGroup } from "./PropertyGroup.js";
-import type { PropertyShape } from "./PropertyShape";
-import type { RdfjsShapeFactory } from "./RdfjsShapeFactory";
-import type { Shape } from "./Shape";
+import type { PropertyShape } from "./PropertyShape.js";
+import type { RdfjsShapeFactory } from "./RdfjsShapeFactory.js";
+import type { Shape } from "./Shape.js";
 
 export class RdfjsShapesGraph<
   NodeShapeT extends NodeShape<any, PropertyShapeT, ShapeT> & ShapeT,

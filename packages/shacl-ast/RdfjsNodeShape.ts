@@ -2,9 +2,9 @@ import { sh } from "@tpluscode/rdf-ns-builders";
 import type { Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import type { NodeShape } from "./NodeShape.js";
-import type { PropertyShape } from "./PropertyShape";
-import { RdfjsShape } from "./RdfjsShape";
-import type { Shape } from "./Shape";
+import type { PropertyShape } from "./PropertyShape.js";
+import { RdfjsShape } from "./RdfjsShape.js";
+import type { Shape } from "./Shape.js";
 import type { ShapesGraph } from "./ShapesGraph.js";
 
 export class RdfjsNodeShape<

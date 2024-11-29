@@ -1,6 +1,6 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import type { Maybe } from "purify-ts";
-import type { NodeShape } from "./NodeShape";
+import type { NodeShape } from "./NodeShape.js";
 import type { PropertyGroup } from "./PropertyGroup.js";
 import type { PropertyPath } from "./PropertyPath.js";
 import type { Shape } from "./Shape.js";

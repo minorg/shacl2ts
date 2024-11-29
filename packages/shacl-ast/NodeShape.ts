@@ -1,5 +1,5 @@
 import type { Maybe } from "purify-ts";
-import type { PropertyShape } from "./PropertyShape";
+import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
 
 export interface NodeShape<
