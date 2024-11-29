@@ -136,43 +136,6 @@ export class ShapesGraphToAstTransformer {
     return Either.of(firstProperty.type);
   }
 
-  private classAstType(
-    classIri: rdfjs.NamedNode,
-  ): Either<Error, ast.ObjectType> {
-    let nodeShape: Maybe<input.NodeShape>;
-    if (
-      classIri.equals(owl.Class) ||
-      classIri.equals(owl.Thing) ||
-      classIri.equals(rdfs.Class)
-    ) {
-      nodeShape = Maybe.empty();
-    } else {
-      nodeShape = this.shapesGraph.nodeShapeByNode(classIri);
-    }
-
-    return nodeShape
-      .toEither(
-        new Error(`${classIri.value} does not correspond to a node shape`),
-      )
-      .chain((nodeShape) => this.nodeShapeAstType(nodeShape))
-      .chain((nodeShapeAstType) =>
-        nodeShapeAstType.kind === "ObjectType"
-          ? Either.of<Error, ast.ObjectType>(nodeShapeAstType)
-          : Left(
-              new Error(
-                `${classIri.value} corresponds to an intersection or union node shape`,
-              ),
-            ),
-      )
-      .ifLeft((error) => {
-        logger.debug(
-          "class %s did not resolve to an object type: %s",
-          classIri.value,
-          error.message,
-        );
-      });
-  }
-
   private nodeShapeAstType(
     nodeShape: input.NodeShape,
   ): Either<Error, NodeShapeAstType> {
@@ -398,20 +361,54 @@ export class ShapesGraphToAstTransformer {
           );
           compositeTypeKind = "IntersectionType";
         } else if (shape.constraints.classes.length > 0) {
-          memberTypeEithers = shape.constraints.classes.map((classIri) =>
-            this.classAstType(classIri).map((classObjectType) =>
-              inline.orDefault(false)
-                ? classObjectType
-                : {
-                    defaultValue: defaultValue.filter(
-                      (term) => term.termType !== "Literal",
-                    ),
-                    hasValue: Maybe.empty(),
-                    kind: "IdentifierType",
-                    nodeKinds: classObjectType.nodeKinds,
-                  },
-            ),
-          );
+          memberTypeEithers = shape.constraints.classes.map((classIri) => {
+            if (
+              classIri.equals(owl.Class) ||
+              classIri.equals(owl.Thing) ||
+              classIri.equals(rdfs.Class)
+            ) {
+              return Left(
+                new Error(`class ${classIri.value} is not transformable`),
+              );
+            }
+
+            const classNodeShape = this.shapesGraph
+              .nodeShapeByNode(classIri)
+              .extractNullable();
+            if (classNodeShape === null) {
+              return Left(
+                new Error(
+                  `class ${classIri.value} did not resolve to a node shape`,
+                ),
+              );
+            }
+            const classAstTypeEither = this.nodeShapeAstType(classNodeShape);
+            if (classAstTypeEither.isLeft()) {
+              return classAstTypeEither;
+            }
+            const classAstType = classAstTypeEither.unsafeCoerce();
+            if (classAstType.kind !== "ObjectType") {
+              return Left(
+                new Error(
+                  `class ${classIri.value} was transformed into a non-ObjectType`,
+                ),
+              );
+            }
+            const classObjectType: ast.ObjectType = classAstType;
+
+            if (inline.orDefault(false)) {
+              return Either.of({
+                defaultValue: defaultValue.filter(
+                  (term) => term.termType !== "Literal",
+                ),
+                hasValue: Maybe.empty(),
+                kind: "IdentifierType",
+                nodeKinds: classObjectType.nodeKinds,
+              });
+            }
+
+            return Either.of(classObjectType);
+          });
           compositeTypeKind = "IntersectionType";
         } else if (shape.constraints.nodes.length > 0) {
           memberTypeEithers = shape.constraints.nodes.map((nodeShape) =>
