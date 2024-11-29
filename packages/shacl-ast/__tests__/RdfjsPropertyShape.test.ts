@@ -1,20 +1,24 @@
 import type { NamedNode } from "@rdfjs/types";
 import { schema, xsd } from "@tpluscode/rdf-ns-builders";
 import { beforeAll, describe, expect, it } from "vitest";
-import { type PropertyShape, ShapesGraph } from "..";
+import { RdfjsShapesGraph } from "../RdfjsShapesGraph";
+import {
+  type DefaultRdfjsShapesGraph,
+  defaultRdfjsShapeFactory,
+} from "../defaultRdfjsShapeFactory.js";
 import { testData } from "./testData";
 
-describe("PropertyShape", () => {
-  let shapesGraph: ShapesGraph;
+describe("RdfjsPropertyShape", () => {
+  let shapesGraph: DefaultRdfjsShapesGraph;
 
   beforeAll(() => {
-    shapesGraph = ShapesGraph.fromDataset(testData.shapesGraph);
+    shapesGraph = new RdfjsShapesGraph({
+      dataset: testData.shapesGraph,
+      shapeFactory: defaultRdfjsShapeFactory,
+    });
   });
 
-  const findPropertyShape = (
-    nodeShapeNode: NamedNode,
-    path: NamedNode,
-  ): PropertyShape => {
+  const findPropertyShape = (nodeShapeNode: NamedNode, path: NamedNode) => {
     const nodeShape = shapesGraph.nodeShapeByNode(nodeShapeNode).unsafeCoerce();
     const propertyShape = nodeShape.constraints.properties.find(
       (propertyShape) => {

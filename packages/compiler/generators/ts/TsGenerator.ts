@@ -5,24 +5,22 @@ import {
   StructureKind,
 } from "ts-morph";
 import type * as ast from "../../ast";
+import type { Generator } from "../Generator.js";
 import { Configuration as GlobalConfiguration } from "./Configuration.js";
 import { ObjectType } from "./ObjectType.js";
 import { ObjectUnionType } from "./ObjectUnionType.js";
 import { TypeFactory } from "./TypeFactory.js";
 import { tsName } from "./tsName.js";
 
-export class TsGenerator {
+export class TsGenerator implements Generator {
   protected readonly configuration: TsGenerator.Configuration;
 
-  constructor(
-    private ast: ast.Ast,
-    configuration?: TsGenerator.Configuration,
-  ) {
+  constructor(configuration?: TsGenerator.Configuration) {
     this.configuration = configuration ?? new TsGenerator.Configuration();
   }
 
-  generate(): string {
-    const astObjectTypes = this.ast.objectTypes.concat().sort((left, right) => {
+  generate(ast: ast.Ast): string {
+    const astObjectTypes = ast.objectTypes.concat().sort((left, right) => {
       if (
         left.ancestorObjectTypes.some((ancestorObjectType) =>
           ancestorObjectType.name.identifier.equals(right.name.identifier),
@@ -55,12 +53,10 @@ export class TsGenerator {
         const type = typeFactory.createTypeFromAstType(astObjectType);
         return type instanceof ObjectType ? [type] : [];
       }),
-      objectUnionTypes: this.ast.objectUnionTypes.flatMap(
-        (astObjectUnionType) => {
-          const type = typeFactory.createTypeFromAstType(astObjectUnionType);
-          return type instanceof ObjectUnionType ? [type] : [];
-        },
-      ),
+      objectUnionTypes: ast.objectUnionTypes.flatMap((astObjectUnionType) => {
+        const type = typeFactory.createTypeFromAstType(astObjectUnionType);
+        return type instanceof ObjectUnionType ? [type] : [];
+      }),
       sourceFile,
     });
 

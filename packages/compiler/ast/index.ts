@@ -2,7 +2,6 @@ export * from "./Ast.js";
 export * from "./IdentifierType.js";
 export * from "./IntersectionType";
 export * from "./LiteralType.js";
-export * from "./MintingStrategy.js";
 export * from "./Name.js";
 export * from "./ObjectIntersectionType.js";
 export * from "./ObjectType.js";
