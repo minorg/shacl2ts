@@ -3,8 +3,7 @@ import TermMap from "@rdfjs/term-map";
 import TermSet from "@rdfjs/term-set";
 import type * as rdfjs from "@rdfjs/types";
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
-import * as shaclAst from "@shaclmate/shacl-ast";
-import { type NodeKind, NodeShape, type Shape } from "@shaclmate/shacl-ast";
+import { NodeKind } from "@shaclmate/shacl-ast";
 import { dash, owl, rdf, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
@@ -13,6 +12,8 @@ import type * as ast from "./ast";
 import type { ObjectType } from "./ast";
 import { MintingStrategy } from "./ast/MintingStrategy";
 import { logger } from "./logger.js";
+import { NodeShape, PropertyShape, type ShapesGraph } from "./shapes";
+import type { Shape } from "./shapes/Shape";
 import { shaclmate } from "./vocabularies/";
 
 function ancestorClassIris(
@@ -76,20 +77,6 @@ type NodeShapeAstType =
   | ast.ObjectType
   | ast.ObjectUnionType;
 
-function shaclmateInline(shape: shaclAst.Shape): Maybe<boolean> {
-  return shape.resource
-    .value(shaclmate.inline)
-    .chain((value) => value.toBoolean())
-    .toMaybe();
-}
-
-function shaclmateName(shape: shaclAst.Shape): Maybe<string> {
-  return shape.resource
-    .value(shaclmate.name)
-    .chain((value) => value.toString())
-    .toMaybe();
-}
-
 export class ShapesGraphToAstTransformer {
   private readonly astObjectTypePropertiesByIdentifier: TermMap<
     rdfjs.BlankNode | rdfjs.NamedNode,
@@ -100,14 +87,14 @@ export class ShapesGraphToAstTransformer {
     rdfjs.BlankNode | rdfjs.NamedNode,
     NodeShapeAstType
   > = new TermMap();
-  private readonly shapesGraph: shaclAst.ShapesGraph;
+  private readonly shapesGraph: ShapesGraph;
 
   constructor({
     iriPrefixMap,
     shapesGraph,
   }: {
     iriPrefixMap: PrefixMap;
-    shapesGraph: shaclAst.ShapesGraph;
+    shapesGraph: ShapesGraph;
   }) {
     this.iriPrefixMap = iriPrefixMap;
     this.shapesGraph = shapesGraph;
@@ -142,7 +129,7 @@ export class ShapesGraphToAstTransformer {
    */
   private astObjectTypeListItemType(
     astObjectType: ast.ObjectType,
-    nodeShape: shaclAst.NodeShape,
+    nodeShape: NodeShape,
   ): Either<Error, ast.Type> {
     if (!nodeShape.resource.isSubClassOf(rdf.List)) {
       return Left(new Error(`${nodeShape} is not an rdfs:subClassOf rdf:List`));
@@ -213,7 +200,7 @@ export class ShapesGraphToAstTransformer {
   private classAstType(
     classIri: rdfjs.NamedNode,
   ): Either<Error, ast.ObjectType> {
-    let nodeShape: Maybe<shaclAst.NodeShape>;
+    let nodeShape: Maybe<NodeShape>;
     if (
       classIri.equals(owl.Class) ||
       classIri.equals(owl.Thing) ||
@@ -248,7 +235,7 @@ export class ShapesGraphToAstTransformer {
   }
 
   private nodeShapeAstType(
-    nodeShape: shaclAst.NodeShape,
+    nodeShape: NodeShape,
   ): Either<Error, NodeShapeAstType> {
     {
       const type = this.nodeShapeAstTypesByIdentifier.get(
@@ -329,16 +316,14 @@ export class ShapesGraphToAstTransformer {
         ? Maybe.of(nodeShape.resource.identifier as rdfjs.NamedNode)
         : Maybe.empty();
 
-    const nodeKinds = new Set<
-      shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
-    >(
+    const nodeKinds = new Set<NodeKind.BLANK_NODE | NodeKind.IRI>(
       [...nodeShape.constraints.nodeKinds].filter(
-        (nodeKind) => nodeKind !== shaclAst.NodeKind.LITERAL,
+        (nodeKind) => nodeKind !== NodeKind.LITERAL,
       ),
     );
     if (nodeKinds.size === 0) {
-      nodeKinds.add(shaclAst.NodeKind.BLANK_NODE);
-      nodeKinds.add(shaclAst.NodeKind.IRI);
+      nodeKinds.add(NodeKind.BLANK_NODE);
+      nodeKinds.add(NodeKind.IRI);
     }
 
     // Put a placeholder in the cache to deal with cyclic references
@@ -443,7 +428,7 @@ export class ShapesGraphToAstTransformer {
   }
 
   private propertyShapeAstObjectTypeProperty(
-    propertyShape: shaclAst.PropertyShape,
+    propertyShape: PropertyShape,
   ): Either<Error, ast.ObjectType.Property> {
     {
       const property = this.astObjectTypePropertiesByIdentifier.get(
@@ -467,7 +452,7 @@ export class ShapesGraphToAstTransformer {
     }
 
     const property: ast.ObjectType.Property = {
-      inline: shaclmateInline(propertyShape).orDefault(false),
+      inline: propertyShape.inline.orDefault(false),
       name: this.shapeName(propertyShape),
       path,
       type: type.extract() as ast.Type,
@@ -486,19 +471,17 @@ export class ShapesGraphToAstTransformer {
    * a shape has one type.
    */
   private propertyShapeAstType(
-    shape: shaclAst.Shape,
+    shape: Shape,
     inherited: {
       defaultValue: Maybe<BlankNode | Literal | NamedNode>;
       inline: Maybe<boolean>;
     } | null,
   ): Either<Error, ast.Type> {
     const defaultValue = (
-      shape instanceof shaclAst.PropertyShape
-        ? shape.defaultValue
-        : Maybe.empty()
+      shape instanceof PropertyShape ? shape.defaultValue : Maybe.empty()
     ).alt(inherited !== null ? inherited.defaultValue : Maybe.empty());
     const hasValue = shape.constraints.hasValue;
-    const inline = shaclmateInline(shape).alt(
+    const inline = shape.inline.alt(
       inherited !== null ? inherited.inline : Maybe.empty(),
     );
 
@@ -647,7 +630,7 @@ export class ShapesGraphToAstTransformer {
         hasValue.extractNullable()?.termType === "Literal" ||
         // Treat any shape with a single sh:nodeKind of sh:Literal as a literal type
         (shape.constraints.nodeKinds.size === 1 &&
-          shape.constraints.nodeKinds.has(shaclAst.NodeKind.LITERAL))
+          shape.constraints.nodeKinds.has(NodeKind.LITERAL))
       ) {
         return Either.of<Error, ast.LiteralType>({
           datatype: shape.constraints.datatype,
@@ -675,19 +658,17 @@ export class ShapesGraphToAstTransformer {
         identifierDefaultValue.isJust() ||
         (shape.constraints.nodeKinds.size > 0 &&
           shape.constraints.nodeKinds.size <= 2 &&
-          !shape.constraints.nodeKinds.has(shaclAst.NodeKind.LITERAL))
+          !shape.constraints.nodeKinds.has(NodeKind.LITERAL))
       ) {
         const nodeKinds = hasIdentifierValue
           .map((value) => {
-            const nodeKinds = new Set<
-              shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
-            >();
+            const nodeKinds = new Set<NodeKind.BLANK_NODE | NodeKind.IRI>();
             switch (value.termType) {
               case "BlankNode":
-                nodeKinds.add(shaclAst.NodeKind.BLANK_NODE);
+                nodeKinds.add(NodeKind.BLANK_NODE);
                 break;
               case "NamedNode":
-                nodeKinds.add(shaclAst.NodeKind.IRI);
+                nodeKinds.add(NodeKind.IRI);
                 break;
             }
             return nodeKinds;
@@ -695,7 +676,7 @@ export class ShapesGraphToAstTransformer {
           .orDefaultLazy(
             () =>
               shape.constraints.nodeKinds as Set<
-                shaclAst.NodeKind.BLANK_NODE | shaclAst.NodeKind.IRI
+                NodeKind.BLANK_NODE | NodeKind.IRI
               >,
           );
         invariant(nodeKinds.size > 0);
@@ -758,12 +739,9 @@ export class ShapesGraphToAstTransformer {
     });
   }
 
-  private shapeName(shape: shaclAst.Shape): ast.Name {
+  private shapeName(shape: Shape): ast.Name {
     let propertyPath: ast.Name["propertyPath"] = Maybe.empty();
-    if (
-      shape instanceof shaclAst.PropertyShape &&
-      shape.path.kind === "PredicatePath"
-    ) {
+    if (shape instanceof PropertyShape && shape.path.kind === "PredicatePath") {
       const pathIri = shape.path.iri;
       propertyPath = Maybe.of({
         curie: Maybe.fromNullable(this.iriPrefixMap.shrink(pathIri)?.value),
@@ -781,7 +759,7 @@ export class ShapesGraphToAstTransformer {
       identifier: shape.resource.identifier,
       propertyPath,
       shName: shape.name.map((name) => name.value),
-      shaclmateName: shaclmateName(shape),
+      shaclmateName: shape.shaclmateName,
     };
   }
 }
