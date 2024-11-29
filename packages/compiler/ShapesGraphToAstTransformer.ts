@@ -1,12 +1,10 @@
 import type PrefixMap from "@rdfjs/prefix-map/PrefixMap.js";
 import TermMap from "@rdfjs/term-map";
-import TermSet from "@rdfjs/term-set";
 import type * as rdfjs from "@rdfjs/types";
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { NodeKind } from "@shaclmate/shacl-ast";
 import { dash, owl, rdf, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
-import type { Resource } from "rdfjs-resource";
 import { invariant } from "ts-invariant";
 import type * as ast from "./ast";
 import type { ObjectType } from "./ast";
@@ -15,62 +13,6 @@ import { logger } from "./logger.js";
 import { NodeShape, PropertyShape, type ShapesGraph } from "./shapes";
 import type { Shape } from "./shapes/Shape";
 import { shaclmate } from "./vocabularies/";
-
-function ancestorClassIris(
-  classResource: Resource,
-  maxDepth: number,
-): readonly rdfjs.NamedNode[] {
-  const ancestorClassIris = new TermSet<rdfjs.NamedNode>();
-
-  function ancestorClassIrisRecursive(
-    classResource: Resource,
-    depth: number,
-  ): void {
-    for (const parentClassValue of classResource.values(rdfs.subClassOf)) {
-      parentClassValue.toNamedResource().ifRight((parentClassResource) => {
-        if (ancestorClassIris.has(parentClassResource.identifier)) {
-          return;
-        }
-        ancestorClassIris.add(parentClassResource.identifier);
-        if (depth < maxDepth) {
-          ancestorClassIrisRecursive(parentClassResource, depth + 1);
-        }
-      });
-    }
-  }
-
-  ancestorClassIrisRecursive(classResource, 1);
-
-  return [...ancestorClassIris];
-}
-
-function descendantClassIris(
-  classResource: Resource,
-  maxDepth: number,
-): readonly rdfjs.NamedNode[] {
-  const descendantClassIris = new TermSet<rdfjs.NamedNode>();
-
-  function descendantClassIrisRecursive(
-    classResource: Resource,
-    depth: number,
-  ): void {
-    for (const childClassValue of classResource.valuesOf(rdfs.subClassOf)) {
-      childClassValue.toNamedResource().ifRight((childClassResource) => {
-        if (descendantClassIris.has(childClassResource.identifier)) {
-          return;
-        }
-        descendantClassIris.add(childClassResource.identifier);
-        if (depth < maxDepth) {
-          descendantClassIrisRecursive(childClassResource, depth + 1);
-        }
-      });
-    }
-  }
-
-  descendantClassIrisRecursive(classResource, 1);
-
-  return [...descendantClassIris];
-}
 
 type NodeShapeAstType =
   | ast.ObjectIntersectionType
@@ -368,34 +310,28 @@ export class ShapesGraphToAstTransformer {
 
     // Populate ancestor and descendant object types
     // Ancestors
-    for (const classIri of ancestorClassIris(
-      nodeShape.resource,
-      Number.MAX_SAFE_INTEGER,
-    )) {
+    for (const classIri of nodeShape.ancestorClassIris) {
       this.classAstType(classIri).ifRight((ancestorObjectType) =>
         objectType.ancestorObjectTypes.push(ancestorObjectType),
       );
     }
 
     // Parents
-    for (const classIri of ancestorClassIris(nodeShape.resource, 1)) {
+    for (const classIri of nodeShape.parentClassIris) {
       this.classAstType(classIri).ifRight((parentObjectType) =>
         objectType.parentObjectTypes.push(parentObjectType),
       );
     }
 
     // Descendants
-    for (const classIri of descendantClassIris(
-      nodeShape.resource,
-      Number.MAX_SAFE_INTEGER,
-    )) {
+    for (const classIri of nodeShape.descendantClassIris) {
       this.classAstType(classIri).ifRight((descendantObjectType) =>
         objectType.descendantObjectTypes.push(descendantObjectType),
       );
     }
 
     // Children
-    for (const classIri of descendantClassIris(nodeShape.resource, 1)) {
+    for (const classIri of nodeShape.childClassIris) {
       this.classAstType(classIri).ifRight((childObjectType) =>
         objectType.childObjectTypes.push(childObjectType),
       );

@@ -1,6 +1,16 @@
-import type { RdfjsShapesGraph } from "@shaclmate/shacl-ast";
-import type { NodeShape } from "./NodeShape";
-import type { PropertyShape } from "./PropertyShape";
-import type { Shape } from "./Shape";
+import type { DatasetCore } from "@rdfjs/types";
+import { RdfjsShapesGraph } from "@shaclmate/shacl-ast";
+import type { NodeShape } from "./NodeShape.js";
+import type { PropertyShape } from "./PropertyShape.js";
+import type { Shape } from "./Shape.js";
+import { shapeFactory } from "./shapeFactory.js";
 
-export type ShapesGraph = RdfjsShapesGraph<NodeShape, PropertyShape, Shape>;
+export class ShapesGraph extends RdfjsShapesGraph<
+  NodeShape,
+  PropertyShape,
+  Shape
+> {
+  constructor({ dataset }: { dataset: DatasetCore }) {
+    super({ dataset, shapeFactory });
+  }
+}
