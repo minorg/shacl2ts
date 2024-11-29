@@ -8,7 +8,7 @@ import { Either, Left, Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import type * as ast from "./ast";
 import type { ObjectType } from "./ast";
-import * as cst from "./cst";
+import * as input from "./input";
 import { logger } from "./logger.js";
 
 type NodeShapeAstType =
@@ -16,7 +16,7 @@ type NodeShapeAstType =
   | ast.ObjectType
   | ast.ObjectUnionType;
 
-export class CstToAstTransformer {
+export class ShapesGraphToAstTransformer {
   private readonly astObjectTypePropertiesByIdentifier: TermMap<
     rdfjs.BlankNode | rdfjs.NamedNode,
     ast.ObjectType.Property
@@ -26,14 +26,14 @@ export class CstToAstTransformer {
     rdfjs.BlankNode | rdfjs.NamedNode,
     NodeShapeAstType
   > = new TermMap();
-  private readonly shapesGraph: cst.ShapesGraph;
+  private readonly shapesGraph: input.ShapesGraph;
 
   constructor({
     iriPrefixMap,
     shapesGraph,
   }: {
     iriPrefixMap: PrefixMap;
-    shapesGraph: cst.ShapesGraph;
+    shapesGraph: input.ShapesGraph;
   }) {
     this.iriPrefixMap = iriPrefixMap;
     this.shapesGraph = shapesGraph;
@@ -68,7 +68,7 @@ export class CstToAstTransformer {
    */
   private astObjectTypeListItemType(
     astObjectType: ast.ObjectType,
-    nodeShape: cst.NodeShape,
+    nodeShape: input.NodeShape,
   ): Either<Error, ast.Type> {
     if (!nodeShape.resource.isSubClassOf(rdf.List)) {
       return Left(new Error(`${nodeShape} is not an rdfs:subClassOf rdf:List`));
@@ -139,7 +139,7 @@ export class CstToAstTransformer {
   private classAstType(
     classIri: rdfjs.NamedNode,
   ): Either<Error, ast.ObjectType> {
-    let nodeShape: Maybe<cst.NodeShape>;
+    let nodeShape: Maybe<input.NodeShape>;
     if (
       classIri.equals(owl.Class) ||
       classIri.equals(owl.Thing) ||
@@ -174,7 +174,7 @@ export class CstToAstTransformer {
   }
 
   private nodeShapeAstType(
-    nodeShape: cst.NodeShape,
+    nodeShape: input.NodeShape,
   ): Either<Error, NodeShapeAstType> {
     {
       const type = this.nodeShapeAstTypesByIdentifier.get(
@@ -191,7 +191,7 @@ export class CstToAstTransformer {
       nodeShape.constraints.and.length > 0 ||
       nodeShape.constraints.or.length > 0
     ) {
-      let compositeTypeShapes: readonly cst.Shape[];
+      let compositeTypeShapes: readonly input.Shape[];
       let compositeTypeKind:
         | ast.ObjectIntersectionType["kind"]
         | ast.ObjectUnionType["kind"];
@@ -204,7 +204,7 @@ export class CstToAstTransformer {
       }
 
       const compositeTypeNodeShapes = compositeTypeShapes.filter(
-        (shape) => shape instanceof cst.NodeShape,
+        (shape) => shape instanceof input.NodeShape,
       );
       if (compositeTypeNodeShapes.length < 2) {
         return Left(
@@ -341,7 +341,7 @@ export class CstToAstTransformer {
   }
 
   private propertyShapeAstObjectTypeProperty(
-    propertyShape: cst.PropertyShape,
+    propertyShape: input.PropertyShape,
   ): Either<Error, ast.ObjectType.Property> {
     {
       const property = this.astObjectTypePropertiesByIdentifier.get(
@@ -384,14 +384,14 @@ export class CstToAstTransformer {
    * a shape has one type.
    */
   private propertyShapeAstType(
-    shape: cst.Shape,
+    shape: input.Shape,
     inherited: {
       defaultValue: Maybe<BlankNode | Literal | NamedNode>;
       inline: Maybe<boolean>;
     } | null,
   ): Either<Error, ast.Type> {
     const defaultValue = (
-      shape instanceof cst.PropertyShape ? shape.defaultValue : Maybe.empty()
+      shape instanceof input.PropertyShape ? shape.defaultValue : Maybe.empty()
     ).alt(inherited !== null ? inherited.defaultValue : Maybe.empty());
     const hasValue = shape.constraints.hasValue;
     const inline = shape.inline.alt(
@@ -652,10 +652,10 @@ export class CstToAstTransformer {
     });
   }
 
-  private shapeName(shape: cst.Shape): ast.Name {
+  private shapeName(shape: input.Shape): ast.Name {
     let propertyPath: ast.Name["propertyPath"] = Maybe.empty();
     if (
-      shape instanceof cst.PropertyShape &&
+      shape instanceof input.PropertyShape &&
       shape.path.kind === "PredicatePath"
     ) {
       const pathIri = shape.path.iri;
