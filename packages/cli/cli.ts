@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import PrefixMap, { type PrefixMapInit } from "@rdfjs/prefix-map/PrefixMap";
-import { ShapesGraphToAstTransformer } from "@shaclmate/compiler/ShapesGraphToAstTransformer.js";
+import { CstToAstTransformer } from "@shaclmate/compiler/CstToAstTransformer";
 import type { Ast } from "@shaclmate/compiler/ast";
 import * as generators from "@shaclmate/compiler/generators";
 import { dashDataset } from "@shaclmate/compiler/vocabularies/dashDataset.js";
@@ -88,7 +88,7 @@ function readInput(inputFilePaths: readonly string[]) {
   }
   const shapesGraph = ShapesGraph.fromDataset(dataset);
 
-  return new ShapesGraphToAstTransformer({
+  return new CstToAstTransformer({
     iriPrefixMap: new PrefixMap(iriPrefixes, { factory: DataFactory }),
     shapesGraph,
   })

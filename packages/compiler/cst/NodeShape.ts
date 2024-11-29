@@ -3,8 +3,10 @@ import type * as rdfjs from "@rdfjs/types";
 import type { NamedNode } from "@rdfjs/types";
 import { RdfjsNodeShape } from "@shaclmate/shacl-ast";
 import { rdfs } from "@tpluscode/rdf-ns-builders";
-import type { Maybe } from "purify-ts";
+import { Either, Left, type Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
+import { MintingStrategy } from "../ast/MintingStrategy";
+import { shaclmate } from "../vocabularies/index";
 import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
 import { inline } from "./inline.js";
@@ -67,6 +69,13 @@ function descendantClassIris(
 }
 
 export class NodeShape extends RdfjsNodeShape<any, PropertyShape, Shape> {
+  get abstract(): Maybe<boolean> {
+    return this.resource
+      .value(shaclmate.abstract)
+      .chain((value) => value.toBoolean())
+      .toMaybe();
+  }
+
   get ancestorClassIris(): readonly NamedNode[] {
     return ancestorClassIris(this.resource, Number.MAX_SAFE_INTEGER);
   }
@@ -79,8 +88,30 @@ export class NodeShape extends RdfjsNodeShape<any, PropertyShape, Shape> {
     return descendantClassIris(this.resource, Number.MAX_SAFE_INTEGER);
   }
 
+  get export(): Maybe<boolean> {
+    return this.resource
+      .value(shaclmate.export)
+      .chain((value) => value.toBoolean())
+      .toMaybe();
+  }
+
   get inline(): Maybe<boolean> {
     return inline.bind(this)();
+  }
+
+  get mintingStrategy(): Either<Error, MintingStrategy> {
+    return this.resource
+      .value(shaclmate.mintingStrategy)
+      .chain((value) => value.toIri())
+      .chain((iri) => {
+        if (iri.equals(shaclmate.SHA256)) {
+          return Either.of(MintingStrategy.SHA256);
+        }
+        if (iri.equals(shaclmate.UUIDv4)) {
+          return Either.of(MintingStrategy.UUIDv4);
+        }
+        return Left(new Error(`unrecognizing minting strategy: ${iri.value}`));
+      });
   }
 
   get parentClassIris(): readonly NamedNode[] {

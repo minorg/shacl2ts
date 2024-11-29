@@ -1,1 +1,1 @@
-export * from "./ShapesGraphToAstTransformer.js";
+export * from "./CstToAstTransformer";

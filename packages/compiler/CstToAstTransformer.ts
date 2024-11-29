@@ -8,18 +8,15 @@ import { Either, Left, Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import type * as ast from "./ast";
 import type { ObjectType } from "./ast";
-import { MintingStrategy } from "./ast/MintingStrategy";
+import * as cst from "./cst";
 import { logger } from "./logger.js";
-import { NodeShape, PropertyShape, type ShapesGraph } from "./shapes";
-import type { Shape } from "./shapes/Shape";
-import { shaclmate } from "./vocabularies/";
 
 type NodeShapeAstType =
   | ast.ObjectIntersectionType
   | ast.ObjectType
   | ast.ObjectUnionType;
 
-export class ShapesGraphToAstTransformer {
+export class CstToAstTransformer {
   private readonly astObjectTypePropertiesByIdentifier: TermMap<
     rdfjs.BlankNode | rdfjs.NamedNode,
     ast.ObjectType.Property
@@ -29,14 +26,14 @@ export class ShapesGraphToAstTransformer {
     rdfjs.BlankNode | rdfjs.NamedNode,
     NodeShapeAstType
   > = new TermMap();
-  private readonly shapesGraph: ShapesGraph;
+  private readonly shapesGraph: cst.ShapesGraph;
 
   constructor({
     iriPrefixMap,
     shapesGraph,
   }: {
     iriPrefixMap: PrefixMap;
-    shapesGraph: ShapesGraph;
+    shapesGraph: cst.ShapesGraph;
   }) {
     this.iriPrefixMap = iriPrefixMap;
     this.shapesGraph = shapesGraph;
@@ -71,7 +68,7 @@ export class ShapesGraphToAstTransformer {
    */
   private astObjectTypeListItemType(
     astObjectType: ast.ObjectType,
-    nodeShape: NodeShape,
+    nodeShape: cst.NodeShape,
   ): Either<Error, ast.Type> {
     if (!nodeShape.resource.isSubClassOf(rdf.List)) {
       return Left(new Error(`${nodeShape} is not an rdfs:subClassOf rdf:List`));
@@ -142,7 +139,7 @@ export class ShapesGraphToAstTransformer {
   private classAstType(
     classIri: rdfjs.NamedNode,
   ): Either<Error, ast.ObjectType> {
-    let nodeShape: Maybe<NodeShape>;
+    let nodeShape: Maybe<cst.NodeShape>;
     if (
       classIri.equals(owl.Class) ||
       classIri.equals(owl.Thing) ||
@@ -177,7 +174,7 @@ export class ShapesGraphToAstTransformer {
   }
 
   private nodeShapeAstType(
-    nodeShape: NodeShape,
+    nodeShape: cst.NodeShape,
   ): Either<Error, NodeShapeAstType> {
     {
       const type = this.nodeShapeAstTypesByIdentifier.get(
@@ -188,16 +185,13 @@ export class ShapesGraphToAstTransformer {
       }
     }
 
-    const export_ = nodeShape.resource
-      .value(shaclmate.export)
-      .chain((value) => value.toBoolean())
-      .orDefault(true);
+    const export_ = nodeShape.export.orDefault(true);
 
     if (
       nodeShape.constraints.and.length > 0 ||
       nodeShape.constraints.or.length > 0
     ) {
-      let compositeTypeShapes: readonly Shape[];
+      let compositeTypeShapes: readonly cst.Shape[];
       let compositeTypeKind:
         | ast.ObjectIntersectionType["kind"]
         | ast.ObjectUnionType["kind"];
@@ -210,7 +204,7 @@ export class ShapesGraphToAstTransformer {
       }
 
       const compositeTypeNodeShapes = compositeTypeShapes.filter(
-        (shape) => shape instanceof NodeShape,
+        (shape) => shape instanceof cst.NodeShape,
       );
       if (compositeTypeNodeShapes.length < 2) {
         return Left(
@@ -251,7 +245,7 @@ export class ShapesGraphToAstTransformer {
     }
 
     // https://www.w3.org/TR/shacl/#implicit-targetClass
-    // If the node shape is an owl:class or rdfs:Class, make the ObjectType have an rdf:type of the NodeShape.
+    // If the node shape is an owl:class or rdfs:Class, make the ObjectType have an rdf:type of the cst.NodeShape.
     const rdfType: Maybe<rdfjs.NamedNode> =
       nodeShape.resource.isInstanceOf(owl.Class) ||
       nodeShape.resource.isInstanceOf(rdfs.Class)
@@ -272,31 +266,14 @@ export class ShapesGraphToAstTransformer {
     // If this node shape's properties (directly or indirectly) refer to the node shape itself,
     // we'll return this placeholder.
     const objectType: ast.ObjectType = {
-      abstract: nodeShape.resource
-        .value(shaclmate.abstract)
-        .chain((value) => value.toBoolean())
-        .orDefault(false),
+      abstract: nodeShape.abstract.orDefault(false),
       ancestorObjectTypes: [],
       childObjectTypes: [],
       descendantObjectTypes: [],
       export: export_,
       kind: "ObjectType",
       listItemType: Maybe.empty(),
-      mintingStrategy: nodeShape.resource
-        .value(shaclmate.mintingStrategy)
-        .chain((value) => value.toIri())
-        .chain((iri) => {
-          if (iri.equals(shaclmate.SHA256)) {
-            return Either.of(MintingStrategy.SHA256);
-          }
-          if (iri.equals(shaclmate.UUIDv4)) {
-            return Either.of(MintingStrategy.UUIDv4);
-          }
-          return Left(
-            new Error(`unrecognizing minting strategy: ${iri.value}`),
-          );
-        })
-        .toMaybe(),
+      mintingStrategy: nodeShape.mintingStrategy.toMaybe(),
       name: this.shapeName(nodeShape),
       nodeKinds,
       properties: [], // This is mutable, we'll populate it below.
@@ -364,7 +341,7 @@ export class ShapesGraphToAstTransformer {
   }
 
   private propertyShapeAstObjectTypeProperty(
-    propertyShape: PropertyShape,
+    propertyShape: cst.PropertyShape,
   ): Either<Error, ast.ObjectType.Property> {
     {
       const property = this.astObjectTypePropertiesByIdentifier.get(
@@ -407,14 +384,14 @@ export class ShapesGraphToAstTransformer {
    * a shape has one type.
    */
   private propertyShapeAstType(
-    shape: Shape,
+    shape: cst.Shape,
     inherited: {
       defaultValue: Maybe<BlankNode | Literal | NamedNode>;
       inline: Maybe<boolean>;
     } | null,
   ): Either<Error, ast.Type> {
     const defaultValue = (
-      shape instanceof PropertyShape ? shape.defaultValue : Maybe.empty()
+      shape instanceof cst.PropertyShape ? shape.defaultValue : Maybe.empty()
     ).alt(inherited !== null ? inherited.defaultValue : Maybe.empty());
     const hasValue = shape.constraints.hasValue;
     const inline = shape.inline.alt(
@@ -675,9 +652,12 @@ export class ShapesGraphToAstTransformer {
     });
   }
 
-  private shapeName(shape: Shape): ast.Name {
+  private shapeName(shape: cst.Shape): ast.Name {
     let propertyPath: ast.Name["propertyPath"] = Maybe.empty();
-    if (shape instanceof PropertyShape && shape.path.kind === "PredicatePath") {
+    if (
+      shape instanceof cst.PropertyShape &&
+      shape.path.kind === "PredicatePath"
+    ) {
       const pathIri = shape.path.iri;
       propertyPath = Maybe.of({
         curie: Maybe.fromNullable(this.iriPrefixMap.shrink(pathIri)?.value),
