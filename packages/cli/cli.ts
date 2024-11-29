@@ -1,9 +1,9 @@
 import * as fs from "node:fs";
-import PrefixMap, { type PrefixMapInit } from "@rdfjs/prefix-map/PrefixMap";
-import { ShapesGraphToAstTransformer } from "@shaclmate/compiler/ShapesGraphToAstTransformer.js";
-import type { Ast } from "@shaclmate/compiler/ast";
+import type { PrefixMapInit } from "@rdfjs/prefix-map/PrefixMap";
+import PrefixMap from "@rdfjs/prefix-map/PrefixMap";
+import { Compiler } from "@shaclmate/compiler";
 import * as generators from "@shaclmate/compiler/generators";
-import { ShapesGraph } from "@shaclmate/compiler/input";
+import type { Generator } from "@shaclmate/compiler/generators/Generator";
 import { dashDataset } from "@shaclmate/compiler/vocabularies/dashDataset.js";
 import {
   array,
@@ -46,7 +46,15 @@ const outputFilePath = option({
   type: string,
 });
 
-function readInput(inputFilePaths: readonly string[]) {
+function generate({
+  generator,
+  inputFilePaths,
+  outputFilePath,
+}: {
+  generator: Generator;
+  inputFilePaths: readonly string[];
+  outputFilePath: string;
+}): void {
   if (inputFilePaths.length === 0) {
     throw new Error("must specify at least one input shapes graph file path");
   }
@@ -86,25 +94,21 @@ function readInput(inputFilePaths: readonly string[]) {
       ),
     );
   }
-  const shapesGraph = new ShapesGraph({ dataset });
 
-  return new ShapesGraphToAstTransformer({
-    iriPrefixMap: new PrefixMap(iriPrefixes, { factory: DataFactory }),
-    shapesGraph,
-  })
-    .transform()
+  const iriPrefixMap = new PrefixMap(iriPrefixes, { factory: DataFactory });
+
+  const output = new Compiler({ generator, iriPrefixMap }).compile(dataset);
+  output
     .ifLeft((error) => {
       throw error;
     })
-    .extract() as Ast;
-}
-
-function writeOutput(output: string, outputFilePath: string) {
-  if (outputFilePath.length === 0) {
-    process.stdout.write(output);
-  } else {
-    fs.writeFileSync(outputFilePath, output);
-  }
+    .ifRight((output) => {
+      if (outputFilePath.length === 0) {
+        process.stdout.write(output);
+      } else {
+        fs.writeFileSync(outputFilePath, output);
+      }
+    });
 }
 
 run(
@@ -181,9 +185,8 @@ run(
           objectTypeIdentifierPropertyName,
           outputFilePath,
         }) => {
-          writeOutput(
-            new generators.ts.TsGenerator(
-              readInput(inputFilePaths),
+          generate({
+            generator: new generators.ts.TsGenerator(
               new generators.ts.TsGenerator.Configuration({
                 dataFactoryImport,
                 dataFactoryVariable,
@@ -195,9 +198,10 @@ run(
                 objectTypeDiscriminatorPropertyName,
                 objectTypeIdentifierPropertyName,
               }),
-            ).generate(),
+            ),
+            inputFilePaths,
             outputFilePath,
-          );
+          });
         },
       }),
       "show-ast-json": command({
@@ -208,12 +212,11 @@ run(
           outputFilePath,
         },
         handler: async ({ inputFilePaths, outputFilePath }) => {
-          writeOutput(
-            new generators.json.AstJsonGenerator(
-              readInput(inputFilePaths),
-            ).generate(),
+          generate({
+            generator: new generators.json.AstJsonGenerator(),
+            inputFilePaths,
             outputFilePath,
-          );
+          });
         },
       }),
     },

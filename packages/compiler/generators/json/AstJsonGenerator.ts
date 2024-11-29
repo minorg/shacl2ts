@@ -1,6 +1,7 @@
 import type { Term as RdfjsTerm } from "@rdfjs/types";
 import * as shaclAst from "@shaclmate/shacl-ast";
 import type * as ast from "../../ast";
+import type { Generator } from "../Generator.js";
 
 namespace AstJson {
   export interface Name {
@@ -118,13 +119,11 @@ function typeToJson(type: ast.Type): AstJson.Type {
   }
 }
 
-export class AstJsonGenerator {
-  constructor(private readonly ast: ast.Ast) {}
-
-  generate(): string {
+export class AstJsonGenerator implements Generator {
+  generate(ast: ast.Ast): string {
     return JSON.stringify(
       {
-        objectTypes: this.ast.objectTypes.map((objectType) => ({
+        objectTypes: ast.objectTypes.map((objectType) => ({
           kind: objectType.kind,
           name: nameToJson(objectType.name),
           properties: objectType.properties.map((property) => ({
