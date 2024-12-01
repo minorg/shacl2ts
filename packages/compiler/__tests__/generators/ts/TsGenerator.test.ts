@@ -132,6 +132,12 @@ describe("TsGenerator", () => {
     ).not.toStrictEqual(true);
   });
 
+  // it("equals: union types", ({ expect }) => {
+  //   expect({new kitchenSinkClasses.NodeShapeWithOrProperties({
+  //     identifier: dataFactory.blankNode(),
+  //   });
+  // });
+
   function testFromRdf<
     ModelT extends {
       equals: (other: ModelT) => Equatable.EqualsResult;

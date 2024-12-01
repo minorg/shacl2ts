@@ -485,6 +485,93 @@
     {
       "kind": "ObjectType",
       "name": {
+        "curie": ":NodeShapeWithOrProperties",
+        "identifier": {
+          "termType": "NamedNode",
+          "value": "http://example.com/NodeShapeWithOrProperties"
+        },
+        "shName": "NodeShapeWithOrProperties"
+      },
+      "properties": [
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-91"
+            },
+            "shName": "orLiteralsProperty"
+          },
+          "path": "http://example.com/orLiteralsProperty",
+          "type": {
+            "itemType": {
+              "kind": "LiteralType"
+            },
+            "kind": "OptionType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-96"
+            },
+            "shName": "orTermsProperty"
+          },
+          "path": "http://example.com/orTermsProperty",
+          "type": {
+            "itemType": {
+              "kind": "UnionType",
+              "types": [
+                {
+                  "kind": "LiteralType"
+                },
+                {
+                  "kind": "IdentifierType",
+                  "nodeKinds": [
+                    "NamedNode"
+                  ]
+                }
+              ]
+            },
+            "kind": "OptionType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-101"
+            },
+            "shName": "orUnrelatedProperty"
+          },
+          "path": "http://example.com/orUnrelatedProperty",
+          "type": {
+            "itemType": {
+              "kind": "UnionType",
+              "types": [
+                {
+                  "datatype": {
+                    "termType": "NamedNode",
+                    "value": "http://www.w3.org/2001/XMLSchema#integer"
+                  },
+                  "kind": "LiteralType"
+                },
+                {
+                  "kind": "IdentifierType",
+                  "nodeKinds": [
+                    "NamedNode"
+                  ]
+                }
+              ]
+            },
+            "kind": "OptionType"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "ObjectType",
+      "name": {
         "curie": ":NodeShapeWithPropertyCardinalities",
         "identifier": {
           "termType": "NamedNode",
@@ -497,7 +584,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-91"
+              "value": "n3-106"
             },
             "shName": "requiredStringProperty"
           },
@@ -514,7 +601,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-92"
+              "value": "n3-107"
             },
             "shName": "optionalStringProperty"
           },
@@ -534,7 +621,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-93"
+              "value": "n3-108"
             },
             "shName": "setStringProperty"
           },
@@ -567,7 +654,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-96"
+              "value": "n3-111"
             },
             "shName": "stringProperty1"
           },
@@ -597,7 +684,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-97"
+              "value": "n3-112"
             },
             "shName": "stringProperty2"
           },
@@ -627,7 +714,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-98"
+              "value": "n3-113"
             },
             "shName": "stringProperty"
           },
@@ -657,7 +744,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-99"
+              "value": "n3-114"
             },
             "shName": "stringProperty"
           },

@@ -3,6 +3,8 @@ import type * as rdfjs from "@rdfjs/types";
 import { DataFactory as dataFactory } from "n3";
 import * as purify from "purify-ts";
 import * as purifyHelpers from "purify-ts-helpers";
+// @ts-ignore
+import * as rdfLiteral from "rdf-literal";
 import * as rdfjsResource from "rdfjs-resource";
 
 export interface AbstractBaseClassWithoutPropertiesNodeShape {
@@ -1475,6 +1477,366 @@ export namespace NodeShapeWithListProperty {
           listResource: rdfjsResource.MutableResource;
         },
       ).listResource.identifier,
+    );
+    return _resource;
+  }
+}
+
+export interface NodeShapeWithOrProperties {
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly orLiteralsProperty: purify.Maybe<rdfjs.Literal>;
+  readonly orTermsProperty: purify.Maybe<rdfjs.Literal | rdfjs.NamedNode>;
+  readonly orUnrelatedProperty: purify.Maybe<
+    | { type: "0-number"; value: number }
+    | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode }
+  >;
+  readonly type: "NodeShapeWithOrProperties";
+}
+
+export namespace NodeShapeWithOrProperties {
+  export function equals(
+    left: NodeShapeWithOrProperties,
+    right: NodeShapeWithOrProperties,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      orLiteralsProperty: (left, right) =>
+        purifyHelpers.Maybes.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      orTermsProperty: (left, right) =>
+        purifyHelpers.Maybes.equals(
+          left,
+          right,
+          (
+            left: rdfjs.Literal | rdfjs.NamedNode,
+            right: rdfjs.Literal | rdfjs.NamedNode,
+          ) => {
+            if (left.termType === "Literal" && right.termType === "Literal") {
+              return purifyHelpers.Equatable.booleanEquals(left, right);
+            }
+            if (
+              left.termType === "NamedNode" &&
+              right.termType === "NamedNode"
+            ) {
+              return purifyHelpers.Equatable.booleanEquals(left, right);
+            }
+
+            return purify.Left({
+              left,
+              right,
+              propertyName: "type",
+              propertyValuesUnequal: {
+                left: typeof left,
+                right: typeof right,
+                type: "BooleanEquals",
+              },
+              type: "Property",
+            });
+          },
+        ),
+      orUnrelatedProperty: (left, right) =>
+        purifyHelpers.Maybes.equals(
+          left,
+          right,
+          (
+            left:
+              | { type: "0-number"; value: number }
+              | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
+            right:
+              | { type: "0-number"; value: number }
+              | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
+          ) => {
+            if (left.type === "0-number" && right.type === "0-number") {
+              return purifyHelpers.Equatable.strictEquals(
+                left.value,
+                right.value,
+              );
+            }
+            if (
+              left.type === "1-rdfjs.NamedNode" &&
+              right.type === "1-rdfjs.NamedNode"
+            ) {
+              return purifyHelpers.Equatable.booleanEquals(
+                left.value,
+                right.value,
+              );
+            }
+
+            return purify.Left({
+              left,
+              right,
+              propertyName: "type",
+              propertyValuesUnequal: {
+                left: typeof left,
+                right: typeof right,
+                type: "BooleanEquals",
+              },
+              type: "Property",
+            });
+          },
+        ),
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+      orLiteralsProperty: purify.Maybe<rdfjs.Literal>;
+      orTermsProperty: purify.Maybe<rdfjs.Literal | rdfjs.NamedNode>;
+      orUnrelatedProperty: purify.Maybe<
+        | { type: "0-number"; value: number }
+        | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode }
+      >;
+      type: "NodeShapeWithOrProperties";
+    }
+  > {
+    const identifier = _resource.identifier;
+    const _orLiteralsPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<rdfjs.Literal>
+    > = purify.Either.of(
+      _resource
+        .values(
+          dataFactory.namedNode("http://example.com/orLiteralsProperty"),
+          { unique: true },
+        )
+        .head()
+        .chain((_value) => _value.toLiteral())
+        .toMaybe(),
+    );
+    if (_orLiteralsPropertyEither.isLeft()) {
+      return _orLiteralsPropertyEither;
+    }
+
+    const orLiteralsProperty = _orLiteralsPropertyEither.unsafeCoerce();
+    const _orTermsPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<rdfjs.Literal | rdfjs.NamedNode>
+    > = purify.Either.of(
+      (
+        _resource
+          .values(dataFactory.namedNode("http://example.com/orTermsProperty"), {
+            unique: true,
+          })
+          .head()
+          .chain((_value) => _value.toLiteral()) as purify.Either<
+          rdfjsResource.Resource.ValueError,
+          rdfjs.Literal | rdfjs.NamedNode
+        >
+      )
+        .altLazy(
+          () =>
+            _resource
+              .values(
+                dataFactory.namedNode("http://example.com/orTermsProperty"),
+                { unique: true },
+              )
+              .head()
+              .chain((_value) => _value.toIri()) as purify.Either<
+              rdfjsResource.Resource.ValueError,
+              rdfjs.Literal | rdfjs.NamedNode
+            >,
+        )
+        .toMaybe(),
+    );
+    if (_orTermsPropertyEither.isLeft()) {
+      return _orTermsPropertyEither;
+    }
+
+    const orTermsProperty = _orTermsPropertyEither.unsafeCoerce();
+    const _orUnrelatedPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<
+        | { type: "0-number"; value: number }
+        | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode }
+      >
+    > = purify.Either.of(
+      (
+        _resource
+          .values(
+            dataFactory.namedNode("http://example.com/orUnrelatedProperty"),
+            { unique: true },
+          )
+          .head()
+          .chain((_value) => _value.toNumber())
+          .map(
+            (value) =>
+              ({ type: "0-number" as const, value }) as
+                | { type: "0-number"; value: number }
+                | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
+          ) as purify.Either<
+          rdfjsResource.Resource.ValueError,
+          | { type: "0-number"; value: number }
+          | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode }
+        >
+      )
+        .altLazy(
+          () =>
+            _resource
+              .values(
+                dataFactory.namedNode("http://example.com/orUnrelatedProperty"),
+                { unique: true },
+              )
+              .head()
+              .chain((_value) => _value.toIri())
+              .map(
+                (value) =>
+                  ({ type: "1-rdfjs.NamedNode" as const, value }) as
+                    | { type: "0-number"; value: number }
+                    | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
+              ) as purify.Either<
+              rdfjsResource.Resource.ValueError,
+              | { type: "0-number"; value: number }
+              | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode }
+            >,
+        )
+        .toMaybe(),
+    );
+    if (_orUnrelatedPropertyEither.isLeft()) {
+      return _orUnrelatedPropertyEither;
+    }
+
+    const orUnrelatedProperty = _orUnrelatedPropertyEither.unsafeCoerce();
+    const type = "NodeShapeWithOrProperties" as const;
+    return purify.Either.of({
+      identifier,
+      orLiteralsProperty,
+      orTermsProperty,
+      orUnrelatedProperty,
+      type,
+    });
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _nodeShapeWithOrProperties: Omit<
+      NodeShapeWithOrProperties,
+      "identifier" | "type"
+    >,
+    _hasher: HasherT,
+  ): HasherT {
+    _nodeShapeWithOrProperties.orLiteralsProperty.ifJust((_value) => {
+      _hasher.update(_value.value);
+    });
+    _nodeShapeWithOrProperties.orTermsProperty.ifJust((_value) => {
+      switch (_value.termType) {
+        case "Literal": {
+          _hasher.update(_value.value);
+          break;
+        }
+        case "NamedNode": {
+          _hasher.update(rdfjsResource.Resource.Identifier.toString(_value));
+          break;
+        }
+      }
+    });
+    _nodeShapeWithOrProperties.orUnrelatedProperty.ifJust((_value) => {
+      switch (_value.type) {
+        case "0-number": {
+          _hasher.update(_value.value.toString());
+          break;
+        }
+        case "1-rdfjs.NamedNode": {
+          _hasher.update(
+            rdfjsResource.Resource.Identifier.toString(_value.value),
+          );
+          break;
+        }
+      }
+    });
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/orLiteralsProperty"),
+            this.variable("OrLiteralsProperty"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.union(
+            sparqlBuilder.GraphPattern.basic(
+              this.subject,
+              dataFactory.namedNode("http://example.com/orTermsProperty"),
+              this.variable("OrTermsProperty"),
+            ),
+            sparqlBuilder.GraphPattern.basic(
+              this.subject,
+              dataFactory.namedNode("http://example.com/orTermsProperty"),
+              this.variable("OrTermsProperty"),
+            ),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.union(
+            sparqlBuilder.GraphPattern.basic(
+              this.subject,
+              dataFactory.namedNode("http://example.com/orUnrelatedProperty"),
+              this.variable("OrUnrelatedProperty"),
+            ),
+            sparqlBuilder.GraphPattern.basic(
+              this.subject,
+              dataFactory.namedNode("http://example.com/orUnrelatedProperty"),
+              this.variable("OrUnrelatedProperty"),
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  export function toRdf(
+    nodeShapeWithOrProperties: NodeShapeWithOrProperties,
+    {
+      mutateGraph,
+      resourceSet,
+    }: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    },
+  ): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: nodeShapeWithOrProperties.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/orLiteralsProperty"),
+      nodeShapeWithOrProperties.orLiteralsProperty,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/orTermsProperty"),
+      nodeShapeWithOrProperties.orTermsProperty.map((_value) =>
+        _value.termType === "NamedNode" ? _value : _value,
+      ),
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/orUnrelatedProperty"),
+      nodeShapeWithOrProperties.orUnrelatedProperty.map((_value) =>
+        _value.type === "1-rdfjs.NamedNode" ? _value.value : _value.value,
+      ),
     );
     return _resource;
   }

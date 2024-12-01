@@ -57,9 +57,6 @@ export abstract class PrimitiveType extends LiteralType {
             primitiveDefaultValue = `"${primitiveDefaultValue}"`;
             break;
         }
-
-        if (typeof primitiveDefaultValue === "string") {
-        }
         return `${variables.value} !== ${primitiveDefaultValue} ? ${variables.value} : undefined`;
       })
       .orDefault(variables.value);

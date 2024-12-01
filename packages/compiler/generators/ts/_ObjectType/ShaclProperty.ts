@@ -92,8 +92,27 @@ export class ShaclProperty extends Property<Type> {
     }
     const statements: string[] = [];
     for (const conversion of this.type.conversions) {
+      let sourceTypeCheckExpression = conversion.sourceTypeCheckExpression
+        ? conversion.sourceTypeCheckExpression(variables.parameter)
+        : undefined;
+      if (!sourceTypeCheckExpression) {
+        switch (conversion.sourceTypeName) {
+          case "boolean":
+          case "number":
+          case "string":
+          case "undefined": {
+            sourceTypeCheckExpression = `typeof ${variables.parameter} === "${conversion.sourceTypeName}"`;
+            break;
+          }
+          default: {
+            sourceTypeCheckExpression = `typeof ${variables.parameter} === "object"`;
+            break;
+          }
+        }
+      }
+
       statements.push(
-        `if (${conversion.sourceTypeCheckExpression ? conversion.sourceTypeCheckExpression(variables.parameter) : `typeof ${variables.parameter} === "${conversion.sourceTypeName}"`}) { this.${this.name} = ${conversion.conversionExpression(variables.parameter)}; }`,
+        `if (${sourceTypeCheckExpression}) { this.${this.name} = ${conversion.conversionExpression(variables.parameter)}; }`,
       );
     }
     // We shouldn't need this else, since the parameter now has the never type, but have to add it to appease the TypeScript compiler

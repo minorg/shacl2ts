@@ -146,6 +146,15 @@
   sh:property [ shaclmate:inline true ; sh:maxCount 1 ; sh:minCount 1 ; sh:node :ListShape ; sh:name "listProperty" ; sh:path :listProperty ]
 .
 
+# Shape with sh:or properties
+:NodeShapeWithOrProperties
+  a sh:NodeShape ;
+  sh:name "NodeShapeWithOrProperties" ;
+  sh:property [ sh:maxCount 1 ; sh:name "orLiteralsProperty" ; sh:or ( [ sh:datatype xsd:integer ] [ sh:datatype xsd:string ] ) ; sh:path :orLiteralsProperty ] ;
+  sh:property [ sh:maxCount 1 ; sh:name "orTermsProperty" ; sh:or ( [ sh:nodeKind sh:Literal ] [ sh:nodeKind sh:IRI ] ) ; sh:path :orTermsProperty ] ;
+  sh:property [ sh:maxCount 1 ; sh:name "orUnrelatedProperty" ; sh:or ( [ sh:datatype xsd:integer ] [ sh:nodeKind sh:IRI ] ) ; sh:path :orUnrelatedProperty ] ;
+.
+
 # Shape that has properties with different cardinalities
 :NodeShapeWithPropertyCardinalities
   a sh:NodeShape ;
