@@ -7,24 +7,29 @@ import * as purifyHelpers from "purify-ts-helpers";
 import * as rdfjsResource from "rdfjs-resource";
 import * as uuid from "uuid";
 
-abstract class AbstractBaseClassNodeShape {
-  readonly abcStringProperty: string;
-  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  abstract readonly type: "ChildClassNodeShape" | "ParentClassNodeShape";
+abstract class AbstractBaseClassWithoutPropertiesNodeShape {
+  private _identifier: rdfjs.NamedNode | undefined;
+  abstract readonly type:
+    | "ConcreteChildClassNodeShape"
+    | "ConcreteParentClassNodeShape";
 
-  constructor(parameters: {
-    readonly abcStringProperty: string;
-    readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  }) {
-    this.abcStringProperty = parameters.abcStringProperty;
-    this.identifier = parameters.identifier;
+  constructor(parameters: { readonly identifier?: rdfjs.NamedNode }) {
+    this._identifier = parameters.identifier;
+  }
+
+  get identifier(): rdfjs.NamedNode {
+    if (typeof this._identifier === "undefined") {
+      this._identifier = dataFactory.namedNode(
+        `urn:shaclmate:object:${this.type}:${this.hash(sha256.create())}`,
+      );
+    }
+    return this._identifier;
   }
 
   equals(
-    other: AbstractBaseClassNodeShape,
+    other: AbstractBaseClassWithoutPropertiesNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(this, other, {
-      abcStringProperty: purifyHelpers.Equatable.strictEquals,
       identifier: purifyHelpers.Equatable.booleanEquals,
       type: purifyHelpers.Equatable.strictEquals,
     });
@@ -35,7 +40,7 @@ abstract class AbstractBaseClassNodeShape {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(hasher: HasherT): HasherT {
-    return AbstractBaseClassNodeShape.hashAbstractBaseClassNodeShape(
+    return AbstractBaseClassWithoutPropertiesNodeShape.hashAbstractBaseClassWithoutPropertiesNodeShape(
       this,
       hasher,
     );
@@ -49,8 +54,8 @@ abstract class AbstractBaseClassNodeShape {
     ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
-  }): rdfjsResource.MutableResource {
-    const _resource = resourceSet.mutableResource({
+  }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+    const _resource = resourceSet.mutableNamedResource({
       identifier: this.identifier,
       mutateGraph,
     });
@@ -60,31 +65,29 @@ abstract class AbstractBaseClassNodeShape {
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
         ),
         _resource.dataFactory.namedNode(
-          "http://example.com/AbstractBaseClassNodeShape",
+          "http://example.com/AbstractBaseClassWithoutPropertiesNodeShape",
         ),
       );
     }
 
-    _resource.add(
-      dataFactory.namedNode("http://example.com/abcStringProperty"),
-      this.abcStringProperty,
-    );
     return _resource;
   }
 }
 
-namespace AbstractBaseClassNodeShape {
+namespace AbstractBaseClassWithoutPropertiesNodeShape {
   export function fromRdf(
-    _resource: rdfjsResource.Resource,
+    _resource: rdfjsResource.Resource<rdfjs.NamedNode>,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
-    { abcStringProperty: string; identifier: rdfjs.BlankNode | rdfjs.NamedNode }
+    { identifier: rdfjs.NamedNode }
   > {
     if (
       !_options?.ignoreRdfType &&
       !_resource.isInstanceOf(
-        dataFactory.namedNode("http://example.com/AbstractBaseClassNodeShape"),
+        dataFactory.namedNode(
+          "http://example.com/AbstractBaseClassWithoutPropertiesNodeShape",
+        ),
       )
     ) {
       return purify.Left(
@@ -92,42 +95,27 @@ namespace AbstractBaseClassNodeShape {
           focusResource: _resource,
           message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
           predicate: dataFactory.namedNode(
-            "http://example.com/AbstractBaseClassNodeShape",
+            "http://example.com/AbstractBaseClassWithoutPropertiesNodeShape",
           ),
         }),
       );
     }
 
-    const _abcStringPropertyEither: purify.Either<
-      rdfjsResource.Resource.ValueError,
-      string
-    > = _resource
-      .values(dataFactory.namedNode("http://example.com/abcStringProperty"), {
-        unique: true,
-      })
-      .head()
-      .chain((_value) => _value.toString());
-    if (_abcStringPropertyEither.isLeft()) {
-      return _abcStringPropertyEither;
-    }
-
-    const abcStringProperty = _abcStringPropertyEither.unsafeCoerce();
     const identifier = _resource.identifier;
-    return purify.Either.of({ abcStringProperty, identifier });
+    return purify.Either.of({ identifier });
   }
 
-  export function hashAbstractBaseClassNodeShape<
+  export function hashAbstractBaseClassWithoutPropertiesNodeShape<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    abstractBaseClassNodeShape: Omit<
-      AbstractBaseClassNodeShape,
+    _abstractBaseClassWithoutPropertiesNodeShape: Omit<
+      AbstractBaseClassWithoutPropertiesNodeShape,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
     _hasher: HasherT,
   ): HasherT {
-    _hasher.update(abstractBaseClassNodeShape.abcStringProperty);
     return _hasher;
   }
 
@@ -142,7 +130,165 @@ namespace AbstractBaseClassNodeShape {
           ...new sparqlBuilder.RdfTypeGraphPatterns(
             subject,
             dataFactory.namedNode(
-              "http://example.com/AbstractBaseClassNodeShape",
+              "http://example.com/AbstractBaseClassWithoutPropertiesNodeShape",
+            ),
+          ),
+        );
+      }
+    }
+  }
+}
+
+abstract class AbstractBaseClassWithPropertiesNodeShape extends AbstractBaseClassWithoutPropertiesNodeShape {
+  readonly abcStringProperty: string;
+  abstract readonly type:
+    | "ConcreteChildClassNodeShape"
+    | "ConcreteParentClassNodeShape";
+
+  constructor(
+    parameters: { readonly abcStringProperty: string } & ConstructorParameters<
+      typeof AbstractBaseClassWithoutPropertiesNodeShape
+    >[0],
+  ) {
+    super(parameters);
+    this.abcStringProperty = parameters.abcStringProperty;
+  }
+
+  override equals(
+    other: AbstractBaseClassWithPropertiesNodeShape,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        abcStringProperty: purifyHelpers.Equatable.strictEquals,
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
+  }
+
+  override hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(hasher: HasherT): HasherT {
+    return AbstractBaseClassWithPropertiesNodeShape.hashAbstractBaseClassWithPropertiesNodeShape(
+      this,
+      hasher,
+    );
+  }
+
+  override toRdf({
+    ignoreRdfType,
+    mutateGraph,
+    resourceSet,
+  }: {
+    ignoreRdfType?: boolean;
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+    const _resource = super.toRdf({
+      mutateGraph,
+      ignoreRdfType: true,
+      resourceSet,
+    });
+    if (!ignoreRdfType) {
+      _resource.add(
+        _resource.dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+        ),
+        _resource.dataFactory.namedNode(
+          "http://example.com/AbstractBaseClassWithPropertiesNodeShape",
+        ),
+      );
+    }
+
+    _resource.add(
+      dataFactory.namedNode("http://example.com/abcStringProperty"),
+      this.abcStringProperty,
+    );
+    return _resource;
+  }
+}
+
+namespace AbstractBaseClassWithPropertiesNodeShape {
+  export function fromRdf(
+    _resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    { identifier: rdfjs.NamedNode; abcStringProperty: string }
+  > {
+    return AbstractBaseClassWithoutPropertiesNodeShape.fromRdf(_resource, {
+      ignoreRdfType: true,
+    }).chain((_super) => {
+      if (
+        !_options?.ignoreRdfType &&
+        !_resource.isInstanceOf(
+          dataFactory.namedNode(
+            "http://example.com/AbstractBaseClassWithPropertiesNodeShape",
+          ),
+        )
+      ) {
+        return purify.Left(
+          new rdfjsResource.Resource.ValueError({
+            focusResource: _resource,
+            message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
+            predicate: dataFactory.namedNode(
+              "http://example.com/AbstractBaseClassWithPropertiesNodeShape",
+            ),
+          }),
+        );
+      }
+      const _abcStringPropertyEither: purify.Either<
+        rdfjsResource.Resource.ValueError,
+        string
+      > = _resource
+        .values(dataFactory.namedNode("http://example.com/abcStringProperty"), {
+          unique: true,
+        })
+        .head()
+        .chain((_value) => _value.toString());
+      if (_abcStringPropertyEither.isLeft()) {
+        return _abcStringPropertyEither;
+      }
+      const abcStringProperty = _abcStringPropertyEither.unsafeCoerce();
+      return purify.Either.of({
+        identifier: _super.identifier,
+        abcStringProperty,
+      });
+    });
+  }
+
+  export function hashAbstractBaseClassWithPropertiesNodeShape<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _abstractBaseClassWithPropertiesNodeShape: Omit<
+      AbstractBaseClassWithPropertiesNodeShape,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    >,
+    _hasher: HasherT,
+  ): HasherT {
+    AbstractBaseClassWithoutPropertiesNodeShape.hashAbstractBaseClassWithoutPropertiesNodeShape(
+      _abstractBaseClassWithPropertiesNodeShape,
+      _hasher,
+    );
+    _hasher.update(_abstractBaseClassWithPropertiesNodeShape.abcStringProperty);
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends AbstractBaseClassWithoutPropertiesNodeShape.SparqlGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject, { ignoreRdfType: true });
+      if (!_options?.ignoreRdfType) {
+        this.add(
+          ...new sparqlBuilder.RdfTypeGraphPatterns(
+            subject,
+            dataFactory.namedNode(
+              "http://example.com/AbstractBaseClassWithPropertiesNodeShape",
             ),
           ),
         );
@@ -153,6 +299,347 @@ namespace AbstractBaseClassNodeShape {
           this.subject,
           dataFactory.namedNode("http://example.com/abcStringProperty"),
           this.variable("AbcStringProperty"),
+        ),
+      );
+    }
+  }
+}
+
+export class ConcreteParentClassNodeShape extends AbstractBaseClassWithPropertiesNodeShape {
+  readonly parentStringProperty: string;
+  readonly type:
+    | "ConcreteChildClassNodeShape"
+    | "ConcreteParentClassNodeShape" = "ConcreteParentClassNodeShape";
+
+  constructor(
+    parameters: {
+      readonly parentStringProperty: string;
+    } & ConstructorParameters<
+      typeof AbstractBaseClassWithPropertiesNodeShape
+    >[0],
+  ) {
+    super(parameters);
+    this.parentStringProperty = parameters.parentStringProperty;
+  }
+
+  override equals(
+    other: ConcreteParentClassNodeShape,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        parentStringProperty: purifyHelpers.Equatable.strictEquals,
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
+  }
+
+  override hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(hasher: HasherT): HasherT {
+    return ConcreteParentClassNodeShape.hashConcreteParentClassNodeShape(
+      this,
+      hasher,
+    );
+  }
+
+  override toRdf({
+    ignoreRdfType,
+    mutateGraph,
+    resourceSet,
+  }: {
+    ignoreRdfType?: boolean;
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+    const _resource = super.toRdf({
+      mutateGraph,
+      ignoreRdfType: true,
+      resourceSet,
+    });
+    if (!ignoreRdfType) {
+      _resource.add(
+        _resource.dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+        ),
+        _resource.dataFactory.namedNode(
+          "http://example.com/ConcreteParentClassNodeShape",
+        ),
+      );
+    }
+
+    _resource.add(
+      dataFactory.namedNode("http://example.com/parentStringProperty"),
+      this.parentStringProperty,
+    );
+    return _resource;
+  }
+}
+
+export namespace ConcreteParentClassNodeShape {
+  export function fromRdf(
+    _resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    ConcreteParentClassNodeShape
+  > {
+    return AbstractBaseClassWithPropertiesNodeShape.fromRdf(_resource, {
+      ignoreRdfType: true,
+    }).chain((_super) => {
+      if (
+        !_options?.ignoreRdfType &&
+        !_resource.isInstanceOf(
+          dataFactory.namedNode(
+            "http://example.com/ConcreteParentClassNodeShape",
+          ),
+        )
+      ) {
+        return purify.Left(
+          new rdfjsResource.Resource.ValueError({
+            focusResource: _resource,
+            message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
+            predicate: dataFactory.namedNode(
+              "http://example.com/ConcreteParentClassNodeShape",
+            ),
+          }),
+        );
+      }
+      const _parentStringPropertyEither: purify.Either<
+        rdfjsResource.Resource.ValueError,
+        string
+      > = _resource
+        .values(
+          dataFactory.namedNode("http://example.com/parentStringProperty"),
+          { unique: true },
+        )
+        .head()
+        .chain((_value) => _value.toString());
+      if (_parentStringPropertyEither.isLeft()) {
+        return _parentStringPropertyEither;
+      }
+      const parentStringProperty = _parentStringPropertyEither.unsafeCoerce();
+      return purify.Either.of(
+        new ConcreteParentClassNodeShape({
+          abcStringProperty: _super.abcStringProperty,
+          identifier: _super.identifier,
+          parentStringProperty,
+        }),
+      );
+    });
+  }
+
+  export function hashConcreteParentClassNodeShape<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _concreteParentClassNodeShape: Omit<
+      ConcreteParentClassNodeShape,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    >,
+    _hasher: HasherT,
+  ): HasherT {
+    AbstractBaseClassWithPropertiesNodeShape.hashAbstractBaseClassWithPropertiesNodeShape(
+      _concreteParentClassNodeShape,
+      _hasher,
+    );
+    _hasher.update(_concreteParentClassNodeShape.parentStringProperty);
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends AbstractBaseClassWithPropertiesNodeShape.SparqlGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject, { ignoreRdfType: true });
+      if (!_options?.ignoreRdfType) {
+        this.add(
+          ...new sparqlBuilder.RdfTypeGraphPatterns(
+            subject,
+            dataFactory.namedNode(
+              "http://example.com/ConcreteParentClassNodeShape",
+            ),
+          ),
+        );
+      }
+
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/parentStringProperty"),
+          this.variable("ParentStringProperty"),
+        ),
+      );
+    }
+  }
+}
+
+export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
+  readonly childStringProperty: string;
+  override readonly type = "ConcreteChildClassNodeShape" as const;
+
+  constructor(
+    parameters: {
+      readonly childStringProperty: string;
+    } & ConstructorParameters<typeof ConcreteParentClassNodeShape>[0],
+  ) {
+    super(parameters);
+    this.childStringProperty = parameters.childStringProperty;
+  }
+
+  override equals(
+    other: ConcreteChildClassNodeShape,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        childStringProperty: purifyHelpers.Equatable.strictEquals,
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
+  }
+
+  override hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(hasher: HasherT): HasherT {
+    return ConcreteChildClassNodeShape.hashConcreteChildClassNodeShape(
+      this,
+      hasher,
+    );
+  }
+
+  override toRdf({
+    ignoreRdfType,
+    mutateGraph,
+    resourceSet,
+  }: {
+    ignoreRdfType?: boolean;
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+    const _resource = super.toRdf({
+      mutateGraph,
+      ignoreRdfType: true,
+      resourceSet,
+    });
+    if (!ignoreRdfType) {
+      _resource.add(
+        _resource.dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+        ),
+        _resource.dataFactory.namedNode(
+          "http://example.com/ConcreteChildClassNodeShape",
+        ),
+      );
+    }
+
+    _resource.add(
+      dataFactory.namedNode("http://example.com/childStringProperty"),
+      this.childStringProperty,
+    );
+    return _resource;
+  }
+}
+
+export namespace ConcreteChildClassNodeShape {
+  export function fromRdf(
+    _resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    ConcreteChildClassNodeShape
+  > {
+    return ConcreteParentClassNodeShape.fromRdf(_resource, {
+      ignoreRdfType: true,
+    }).chain((_super) => {
+      if (
+        !_options?.ignoreRdfType &&
+        !_resource.isInstanceOf(
+          dataFactory.namedNode(
+            "http://example.com/ConcreteChildClassNodeShape",
+          ),
+        )
+      ) {
+        return purify.Left(
+          new rdfjsResource.Resource.ValueError({
+            focusResource: _resource,
+            message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
+            predicate: dataFactory.namedNode(
+              "http://example.com/ConcreteChildClassNodeShape",
+            ),
+          }),
+        );
+      }
+      const _childStringPropertyEither: purify.Either<
+        rdfjsResource.Resource.ValueError,
+        string
+      > = _resource
+        .values(
+          dataFactory.namedNode("http://example.com/childStringProperty"),
+          { unique: true },
+        )
+        .head()
+        .chain((_value) => _value.toString());
+      if (_childStringPropertyEither.isLeft()) {
+        return _childStringPropertyEither;
+      }
+      const childStringProperty = _childStringPropertyEither.unsafeCoerce();
+      return purify.Either.of(
+        new ConcreteChildClassNodeShape({
+          parentStringProperty: _super.parentStringProperty,
+          abcStringProperty: _super.abcStringProperty,
+          identifier: _super.identifier,
+          childStringProperty,
+        }),
+      );
+    });
+  }
+
+  export function hashConcreteChildClassNodeShape<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _concreteChildClassNodeShape: Omit<
+      ConcreteChildClassNodeShape,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    >,
+    _hasher: HasherT,
+  ): HasherT {
+    ConcreteParentClassNodeShape.hashConcreteParentClassNodeShape(
+      _concreteChildClassNodeShape,
+      _hasher,
+    );
+    _hasher.update(_concreteChildClassNodeShape.childStringProperty);
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends ConcreteParentClassNodeShape.SparqlGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject, { ignoreRdfType: true });
+      if (!_options?.ignoreRdfType) {
+        this.add(
+          ...new sparqlBuilder.RdfTypeGraphPatterns(
+            subject,
+            dataFactory.namedNode(
+              "http://example.com/ConcreteChildClassNodeShape",
+            ),
+          ),
+        );
+      }
+
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/childStringProperty"),
+          this.variable("ChildStringProperty"),
         ),
       );
     }
@@ -273,7 +760,7 @@ export namespace ExterningAndInliningNodeShape {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    externingAndInliningNodeShape: Omit<
+    _externingAndInliningNodeShape: Omit<
       ExterningAndInliningNodeShape,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
@@ -281,10 +768,13 @@ export namespace ExterningAndInliningNodeShape {
   ): HasherT {
     _hasher.update(
       rdfjsResource.Resource.Identifier.toString(
-        externingAndInliningNodeShape.externProperty,
+        _externingAndInliningNodeShape.externProperty,
       ),
     );
-    InlineNodeShape.hash(externingAndInliningNodeShape.inlineProperty, _hasher);
+    InlineNodeShape.hash(
+      _externingAndInliningNodeShape.inlineProperty,
+      _hasher,
+    );
     return _hasher;
   }
 
@@ -395,13 +885,119 @@ export namespace ExternNodeShape {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    externNodeShape: Omit<
+    _externNodeShape: Omit<
       ExternNodeShape,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
     _hasher: HasherT,
   ): HasherT {
-    _hasher.update(externNodeShape.stringProperty);
+    _hasher.update(_externNodeShape.stringProperty);
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/stringProperty"),
+          this.variable("StringProperty"),
+        ),
+      );
+    }
+  }
+}
+
+export class InlineNodeShape {
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly stringProperty: string;
+  readonly type = "InlineNodeShape" as const;
+
+  constructor(parameters: {
+    readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+    readonly stringProperty: string;
+  }) {
+    this.identifier = parameters.identifier;
+    this.stringProperty = parameters.stringProperty;
+  }
+
+  equals(other: InlineNodeShape): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      stringProperty: purifyHelpers.Equatable.strictEquals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(hasher: HasherT): HasherT {
+    return InlineNodeShape.hash(this, hasher);
+  }
+
+  toRdf({
+    mutateGraph,
+    resourceSet,
+  }: {
+    ignoreRdfType?: boolean;
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: this.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/stringProperty"),
+      this.stringProperty,
+    );
+    return _resource;
+  }
+}
+
+export namespace InlineNodeShape {
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<rdfjsResource.Resource.ValueError, InlineNodeShape> {
+    const identifier = _resource.identifier;
+    const _stringPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/stringProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
+    if (_stringPropertyEither.isLeft()) {
+      return _stringPropertyEither;
+    }
+
+    const stringProperty = _stringPropertyEither.unsafeCoerce();
+    return purify.Either.of(
+      new InlineNodeShape({ identifier, stringProperty }),
+    );
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _inlineNodeShape: Omit<
+      InlineNodeShape,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    >,
+    _hasher: HasherT,
+  ): HasherT {
+    _hasher.update(_inlineNodeShape.stringProperty);
     return _hasher;
   }
 
@@ -499,13 +1095,13 @@ export namespace IriNodeShape {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    iriNodeShape: Omit<
+    _iriNodeShape: Omit<
       IriNodeShape,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
     _hasher: HasherT,
   ): HasherT {
-    _hasher.update(iriNodeShape.stringProperty);
+    _hasher.update(_iriNodeShape.stringProperty);
     return _hasher;
   }
 
@@ -680,13 +1276,13 @@ export namespace NodeShapeWithListProperty {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    nodeShapeWithListProperty: Omit<
+    _nodeShapeWithListProperty: Omit<
       NodeShapeWithListProperty,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
     _hasher: HasherT,
   ): HasherT {
-    for (const _element of nodeShapeWithListProperty.listProperty) {
+    for (const _element of _nodeShapeWithListProperty.listProperty) {
       _hasher.update(_element);
     }
 
@@ -883,19 +1479,19 @@ export namespace NodeShapeWithPropertyCardinalities {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    nodeShapeWithPropertyCardinalities: Omit<
+    _nodeShapeWithPropertyCardinalities: Omit<
       NodeShapeWithPropertyCardinalities,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
     _hasher: HasherT,
   ): HasherT {
-    nodeShapeWithPropertyCardinalities.optionalStringProperty.ifJust(
+    _nodeShapeWithPropertyCardinalities.optionalStringProperty.ifJust(
       (_value) => {
         _hasher.update(_value);
       },
     );
-    _hasher.update(nodeShapeWithPropertyCardinalities.requiredStringProperty);
-    for (const _element of nodeShapeWithPropertyCardinalities.setStringProperty) {
+    _hasher.update(_nodeShapeWithPropertyCardinalities.requiredStringProperty);
+    for (const _element of _nodeShapeWithPropertyCardinalities.setStringProperty) {
       _hasher.update(_element);
     }
 
@@ -1014,434 +1610,13 @@ export namespace NonClassNodeShape {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    nonClassNodeShape: Omit<
+    _nonClassNodeShape: Omit<
       NonClassNodeShape,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
     _hasher: HasherT,
   ): HasherT {
-    _hasher.update(nonClassNodeShape.stringProperty);
-    return _hasher;
-  }
-
-  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
-    constructor(
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
-    ) {
-      super(subject);
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://example.com/stringProperty"),
-          this.variable("StringProperty"),
-        ),
-      );
-    }
-  }
-}
-
-export class ParentClassNodeShape extends AbstractBaseClassNodeShape {
-  readonly parentStringProperty: string;
-  readonly type: "ChildClassNodeShape" | "ParentClassNodeShape" =
-    "ParentClassNodeShape";
-
-  constructor(
-    parameters: {
-      readonly parentStringProperty: string;
-    } & ConstructorParameters<typeof AbstractBaseClassNodeShape>[0],
-  ) {
-    super(parameters);
-    this.parentStringProperty = parameters.parentStringProperty;
-  }
-
-  override equals(
-    other: ParentClassNodeShape,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        parentStringProperty: purifyHelpers.Equatable.strictEquals,
-        type: purifyHelpers.Equatable.strictEquals,
-      }),
-    );
-  }
-
-  override hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(hasher: HasherT): HasherT {
-    return ParentClassNodeShape.hashParentClassNodeShape(this, hasher);
-  }
-
-  override toRdf({
-    ignoreRdfType,
-    mutateGraph,
-    resourceSet,
-  }: {
-    ignoreRdfType?: boolean;
-    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-    resourceSet: rdfjsResource.MutableResourceSet;
-  }): rdfjsResource.MutableResource {
-    const _resource = super.toRdf({
-      mutateGraph,
-      ignoreRdfType: true,
-      resourceSet,
-    });
-    if (!ignoreRdfType) {
-      _resource.add(
-        _resource.dataFactory.namedNode(
-          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        ),
-        _resource.dataFactory.namedNode(
-          "http://example.com/ParentClassNodeShape",
-        ),
-      );
-    }
-
-    _resource.add(
-      dataFactory.namedNode("http://example.com/parentStringProperty"),
-      this.parentStringProperty,
-    );
-    return _resource;
-  }
-}
-
-export namespace ParentClassNodeShape {
-  export function fromRdf(
-    _resource: rdfjsResource.Resource,
-    _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, ParentClassNodeShape> {
-    return AbstractBaseClassNodeShape.fromRdf(_resource, {
-      ignoreRdfType: true,
-    }).chain((_super) => {
-      if (
-        !_options?.ignoreRdfType &&
-        !_resource.isInstanceOf(
-          dataFactory.namedNode("http://example.com/ParentClassNodeShape"),
-        )
-      ) {
-        return purify.Left(
-          new rdfjsResource.Resource.ValueError({
-            focusResource: _resource,
-            message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
-            predicate: dataFactory.namedNode(
-              "http://example.com/ParentClassNodeShape",
-            ),
-          }),
-        );
-      }
-      const _parentStringPropertyEither: purify.Either<
-        rdfjsResource.Resource.ValueError,
-        string
-      > = _resource
-        .values(
-          dataFactory.namedNode("http://example.com/parentStringProperty"),
-          { unique: true },
-        )
-        .head()
-        .chain((_value) => _value.toString());
-      if (_parentStringPropertyEither.isLeft()) {
-        return _parentStringPropertyEither;
-      }
-      const parentStringProperty = _parentStringPropertyEither.unsafeCoerce();
-      return purify.Either.of(
-        new ParentClassNodeShape({
-          abcStringProperty: _super.abcStringProperty,
-          identifier: _super.identifier,
-          parentStringProperty,
-        }),
-      );
-    });
-  }
-
-  export function hashParentClassNodeShape<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    parentClassNodeShape: Omit<
-      ParentClassNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    AbstractBaseClassNodeShape.hashAbstractBaseClassNodeShape(
-      parentClassNodeShape,
-      _hasher,
-    );
-    _hasher.update(parentClassNodeShape.parentStringProperty);
-    return _hasher;
-  }
-
-  export class SparqlGraphPatterns extends AbstractBaseClassNodeShape.SparqlGraphPatterns {
-    constructor(
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
-    ) {
-      super(subject, { ignoreRdfType: true });
-      if (!_options?.ignoreRdfType) {
-        this.add(
-          ...new sparqlBuilder.RdfTypeGraphPatterns(
-            subject,
-            dataFactory.namedNode("http://example.com/ParentClassNodeShape"),
-          ),
-        );
-      }
-
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://example.com/parentStringProperty"),
-          this.variable("ParentStringProperty"),
-        ),
-      );
-    }
-  }
-}
-
-export class ChildClassNodeShape extends ParentClassNodeShape {
-  readonly childStringProperty: string;
-  override readonly type = "ChildClassNodeShape" as const;
-
-  constructor(
-    parameters: {
-      readonly childStringProperty: string;
-    } & ConstructorParameters<typeof ParentClassNodeShape>[0],
-  ) {
-    super(parameters);
-    this.childStringProperty = parameters.childStringProperty;
-  }
-
-  override equals(
-    other: ChildClassNodeShape,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        childStringProperty: purifyHelpers.Equatable.strictEquals,
-        type: purifyHelpers.Equatable.strictEquals,
-      }),
-    );
-  }
-
-  override hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(hasher: HasherT): HasherT {
-    return ChildClassNodeShape.hashChildClassNodeShape(this, hasher);
-  }
-
-  override toRdf({
-    ignoreRdfType,
-    mutateGraph,
-    resourceSet,
-  }: {
-    ignoreRdfType?: boolean;
-    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-    resourceSet: rdfjsResource.MutableResourceSet;
-  }): rdfjsResource.MutableResource {
-    const _resource = super.toRdf({
-      mutateGraph,
-      ignoreRdfType: true,
-      resourceSet,
-    });
-    if (!ignoreRdfType) {
-      _resource.add(
-        _resource.dataFactory.namedNode(
-          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        ),
-        _resource.dataFactory.namedNode(
-          "http://example.com/ChildClassNodeShape",
-        ),
-      );
-    }
-
-    _resource.add(
-      dataFactory.namedNode("http://example.com/childStringProperty"),
-      this.childStringProperty,
-    );
-    return _resource;
-  }
-}
-
-export namespace ChildClassNodeShape {
-  export function fromRdf(
-    _resource: rdfjsResource.Resource,
-    _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, ChildClassNodeShape> {
-    return ParentClassNodeShape.fromRdf(_resource, {
-      ignoreRdfType: true,
-    }).chain((_super) => {
-      if (
-        !_options?.ignoreRdfType &&
-        !_resource.isInstanceOf(
-          dataFactory.namedNode("http://example.com/ChildClassNodeShape"),
-        )
-      ) {
-        return purify.Left(
-          new rdfjsResource.Resource.ValueError({
-            focusResource: _resource,
-            message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
-            predicate: dataFactory.namedNode(
-              "http://example.com/ChildClassNodeShape",
-            ),
-          }),
-        );
-      }
-      const _childStringPropertyEither: purify.Either<
-        rdfjsResource.Resource.ValueError,
-        string
-      > = _resource
-        .values(
-          dataFactory.namedNode("http://example.com/childStringProperty"),
-          { unique: true },
-        )
-        .head()
-        .chain((_value) => _value.toString());
-      if (_childStringPropertyEither.isLeft()) {
-        return _childStringPropertyEither;
-      }
-      const childStringProperty = _childStringPropertyEither.unsafeCoerce();
-      return purify.Either.of(
-        new ChildClassNodeShape({
-          parentStringProperty: _super.parentStringProperty,
-          abcStringProperty: _super.abcStringProperty,
-          identifier: _super.identifier,
-          childStringProperty,
-        }),
-      );
-    });
-  }
-
-  export function hashChildClassNodeShape<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    childClassNodeShape: Omit<
-      ChildClassNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    ParentClassNodeShape.hashParentClassNodeShape(childClassNodeShape, _hasher);
-    _hasher.update(childClassNodeShape.childStringProperty);
-    return _hasher;
-  }
-
-  export class SparqlGraphPatterns extends ParentClassNodeShape.SparqlGraphPatterns {
-    constructor(
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
-    ) {
-      super(subject, { ignoreRdfType: true });
-      if (!_options?.ignoreRdfType) {
-        this.add(
-          ...new sparqlBuilder.RdfTypeGraphPatterns(
-            subject,
-            dataFactory.namedNode("http://example.com/ChildClassNodeShape"),
-          ),
-        );
-      }
-
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://example.com/childStringProperty"),
-          this.variable("ChildStringProperty"),
-        ),
-      );
-    }
-  }
-}
-
-export class InlineNodeShape {
-  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly stringProperty: string;
-  readonly type = "InlineNodeShape" as const;
-
-  constructor(parameters: {
-    readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-    readonly stringProperty: string;
-  }) {
-    this.identifier = parameters.identifier;
-    this.stringProperty = parameters.stringProperty;
-  }
-
-  equals(other: InlineNodeShape): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
-  }
-
-  hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(hasher: HasherT): HasherT {
-    return InlineNodeShape.hash(this, hasher);
-  }
-
-  toRdf({
-    mutateGraph,
-    resourceSet,
-  }: {
-    ignoreRdfType?: boolean;
-    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-    resourceSet: rdfjsResource.MutableResourceSet;
-  }): rdfjsResource.MutableResource {
-    const _resource = resourceSet.mutableResource({
-      identifier: this.identifier,
-      mutateGraph,
-    });
-    _resource.add(
-      dataFactory.namedNode("http://example.com/stringProperty"),
-      this.stringProperty,
-    );
-    return _resource;
-  }
-}
-
-export namespace InlineNodeShape {
-  export function fromRdf(
-    _resource: rdfjsResource.Resource,
-    _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, InlineNodeShape> {
-    const identifier = _resource.identifier;
-    const _stringPropertyEither: purify.Either<
-      rdfjsResource.Resource.ValueError,
-      string
-    > = _resource
-      .values(dataFactory.namedNode("http://example.com/stringProperty"), {
-        unique: true,
-      })
-      .head()
-      .chain((_value) => _value.toString());
-    if (_stringPropertyEither.isLeft()) {
-      return _stringPropertyEither;
-    }
-
-    const stringProperty = _stringPropertyEither.unsafeCoerce();
-    return purify.Either.of(
-      new InlineNodeShape({ identifier, stringProperty }),
-    );
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    inlineNodeShape: Omit<
-      InlineNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _hasher.update(inlineNodeShape.stringProperty);
+    _hasher.update(_nonClassNodeShape.stringProperty);
     return _hasher;
   }
 
@@ -1541,13 +1716,13 @@ export namespace OrNodeShapeMember1 {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    orNodeShapeMember1: Omit<
+    _orNodeShapeMember1: Omit<
       OrNodeShapeMember1,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
     _hasher: HasherT,
   ): HasherT {
-    _hasher.update(orNodeShapeMember1.stringProperty1);
+    _hasher.update(_orNodeShapeMember1.stringProperty1);
     return _hasher;
   }
 
@@ -1647,13 +1822,13 @@ export namespace OrNodeShapeMember2 {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    orNodeShapeMember2: Omit<
+    _orNodeShapeMember2: Omit<
       OrNodeShapeMember2,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
     _hasher: HasherT,
   ): HasherT {
-    _hasher.update(orNodeShapeMember2.stringProperty2);
+    _hasher.update(_orNodeShapeMember2.stringProperty2);
     return _hasher;
   }
 
@@ -1762,13 +1937,13 @@ export namespace Sha256IriNodeShape {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    sha256IriNodeShape: Omit<
+    _sha256IriNodeShape: Omit<
       Sha256IriNodeShape,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
     _hasher: HasherT,
   ): HasherT {
-    _hasher.update(sha256IriNodeShape.stringProperty);
+    _hasher.update(_sha256IriNodeShape.stringProperty);
     return _hasher;
   }
 
@@ -1877,13 +2052,13 @@ export namespace UuidV4IriNodeShape {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    uuidV4IriNodeShape: Omit<
+    _uuidV4IriNodeShape: Omit<
       UuidV4IriNodeShape,
       "equals" | "hash" | "identifier" | "toRdf" | "type"
     >,
     _hasher: HasherT,
   ): HasherT {
-    _hasher.update(uuidV4IriNodeShape.stringProperty);
+    _hasher.update(_uuidV4IriNodeShape.stringProperty);
     return _hasher;
   }
 
