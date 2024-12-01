@@ -2,19 +2,33 @@ import type PrefixMap from "@rdfjs/prefix-map/PrefixMap.js";
 import TermMap from "@rdfjs/term-map";
 import type * as rdfjs from "@rdfjs/types";
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
-import { NodeKind } from "@shaclmate/shacl-ast";
+import { NodeKind, Shape } from "@shaclmate/shacl-ast";
 import { dash, owl, rdf, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import type * as ast from "./ast";
 import type { ObjectType } from "./ast";
 import * as input from "./input";
+import { PropertyShape } from "./input";
 import { logger } from "./logger.js";
 
 type NodeShapeAstType =
   | ast.ObjectIntersectionType
   | ast.ObjectType
   | ast.ObjectUnionType;
+
+function termTypeToNodeKind(
+  termType: "BlankNode" | "Literal" | "NamedNode",
+): NodeKind {
+  switch (termType) {
+    case "BlankNode":
+      return NodeKind.BLANK_NODE;
+    case "Literal":
+      return NodeKind.LITERAL;
+    case "NamedNode":
+      return NodeKind.IRI;
+  }
+}
 
 export class ShapesGraphToAstTransformer {
   private readonly astObjectTypePropertiesByIdentifier: TermMap<
@@ -39,6 +53,36 @@ export class ShapesGraphToAstTransformer {
     this.shapesGraph = shapesGraph;
   }
 
+  propertyShapeNodeKinds(shape: input.Shape): Set<NodeKind> {
+    const nodeKinds = new Set<NodeKind>([...shape.constraints.nodeKinds]);
+    if (nodeKinds.size > 0) {
+      return nodeKinds;
+    }
+    if (shape instanceof input.PropertyShape) {
+      shape.defaultValue.ifJust((defaultValue) =>
+        nodeKinds.add(termTypeToNodeKind(defaultValue.termType)),
+      );
+      if (nodeKinds.size > 0) {
+        return nodeKinds;
+      }
+    }
+
+    //   if (nodeKinds.size === 0) {
+    //     hasValue.ifJust((hasValue) =>
+    //         nodeKinds.add(termTypeToNodeKind(hasValue.termType)),
+    //     );
+    //     if (nodeKinds.size === 0) {
+    //       shape.constraints.in_.ifJust((in_) => {
+    //         for (const term of in_) {
+    //           nodeKinds.add(termTypeToNodeKind(term.termType));
+    //         }
+    //       });
+    //       if (nodeKinds.size)
+    //     }
+    //   }
+    // }
+  }
+
   transform(): Either<Error, ast.Ast> {
     return Either.sequence(
       this.shapesGraph.nodeShapes
@@ -47,7 +91,7 @@ export class ShapesGraphToAstTransformer {
             nodeShape.resource.identifier.termType === "NamedNode" &&
             !nodeShape.resource.identifier.value.startsWith(dash[""].value),
         )
-        .map((nodeShape) => this.nodeShapeAstType(nodeShape)),
+        .map((nodeShape) => this.transformNodeShapeToAstType(nodeShape)),
     ).map((nodeShapeAstTypes) => ({
       objectIntersectionTypes: nodeShapeAstTypes.filter(
         (nodeShapeAstType) =>
@@ -136,152 +180,6 @@ export class ShapesGraphToAstTransformer {
     return Either.of(firstProperty.type);
   }
 
-  private nodeShapeAstType(
-    nodeShape: input.NodeShape,
-  ): Either<Error, NodeShapeAstType> {
-    {
-      const type = this.nodeShapeAstTypesByIdentifier.get(
-        nodeShape.resource.identifier,
-      );
-      if (type) {
-        return Either.of(type);
-      }
-    }
-
-    const export_ = nodeShape.export.orDefault(true);
-
-    if (
-      nodeShape.constraints.and.length > 0 ||
-      nodeShape.constraints.or.length > 0
-    ) {
-      let compositeTypeShapes: readonly input.Shape[];
-      let compositeTypeKind:
-        | ast.ObjectIntersectionType["kind"]
-        | ast.ObjectUnionType["kind"];
-      if (nodeShape.constraints.and.length > 0) {
-        compositeTypeShapes = nodeShape.constraints.and;
-        compositeTypeKind = "ObjectIntersectionType";
-      } else {
-        compositeTypeShapes = nodeShape.constraints.or;
-        compositeTypeKind = "ObjectUnionType";
-      }
-
-      const compositeTypeNodeShapes = compositeTypeShapes.filter(
-        (shape) => shape instanceof input.NodeShape,
-      );
-      if (compositeTypeNodeShapes.length < 2) {
-        return Left(
-          new Error(
-            `${nodeShape} only has one node shape in its logical constraint`,
-          ),
-        );
-      }
-
-      // Put a placeholder in the cache to deal with cyclic references
-      const compositeType = {
-        export: export_,
-        kind: compositeTypeKind,
-        memberTypes: [] as ObjectType[],
-        name: this.shapeName(nodeShape),
-      };
-
-      this.nodeShapeAstTypesByIdentifier.set(
-        nodeShape.resource.identifier,
-        compositeType,
-      );
-
-      compositeType.memberTypes.push(
-        ...Either.rights(
-          compositeTypeNodeShapes.map((nodeShape) =>
-            this.nodeShapeAstType(nodeShape),
-          ),
-        ).filter((nodeShapeAstType) => nodeShapeAstType.kind === "ObjectType"),
-      );
-      if (compositeType.memberTypes.length < compositeTypeNodeShapes.length) {
-        return Left(
-          new Error(
-            `${nodeShape} has one or more non-ObjectType node shapes in its logical constraint`,
-          ),
-        );
-      }
-      return Either.of(compositeType);
-    }
-
-    // Put a placeholder in the cache to deal with cyclic references
-    // If this node shape's properties (directly or indirectly) refer to the node shape itself,
-    // we'll return this placeholder.
-    const objectType: ast.ObjectType = {
-      abstract: nodeShape.abstract.orDefault(false),
-      ancestorObjectTypes: [],
-      childObjectTypes: [],
-      descendantObjectTypes: [],
-      export: export_,
-      kind: "ObjectType",
-      listItemType: Maybe.empty(),
-      mintingStrategy: nodeShape.mintingStrategy.toMaybe(),
-      name: this.shapeName(nodeShape),
-      nodeKinds: nodeShape.nodeKinds,
-      properties: [], // This is mutable, we'll populate it below.
-      rdfType: nodeShape.isClass
-        ? Maybe.of(nodeShape.resource.identifier as rdfjs.NamedNode)
-        : Maybe.empty(),
-      parentObjectTypes: [], // This is mutable, we'll populate it below
-    };
-    this.nodeShapeAstTypesByIdentifier.set(
-      nodeShape.resource.identifier,
-      objectType,
-    );
-
-    // Populate ancestor and descendant object types
-    const relatedObjectTypes = (
-      relatedNodeShapes: readonly input.NodeShape[],
-    ): readonly ast.ObjectType[] => {
-      return relatedNodeShapes.flatMap((relatedNodeShape) =>
-        this.nodeShapeAstType(relatedNodeShape)
-          .toMaybe()
-          .filter((astType) => astType.kind === "ObjectType")
-          .toList(),
-      );
-    };
-    objectType.ancestorObjectTypes.push(
-      ...relatedObjectTypes(nodeShape.ancestorNodeShapes),
-    );
-    objectType.childObjectTypes.push(
-      ...relatedObjectTypes(nodeShape.childNodeShapes),
-    );
-    objectType.descendantObjectTypes.push(
-      ...relatedObjectTypes(nodeShape.descendantNodeShapes),
-    );
-    objectType.parentObjectTypes.push(
-      ...relatedObjectTypes(nodeShape.parentNodeShapes),
-    );
-
-    // Populate properties
-    for (const propertyShape of nodeShape.constraints.properties) {
-      const propertyEither =
-        this.propertyShapeAstObjectTypeProperty(propertyShape);
-      if (propertyEither.isLeft()) {
-        logger.warn(
-          "error transforming %s %s: %s",
-          nodeShape,
-          propertyShape,
-          (propertyEither.extract() as Error).message,
-        );
-        continue;
-        // return property;
-      }
-      objectType.properties.push(propertyEither.unsafeCoerce());
-    }
-
-    // Is the object type an RDF list?
-    objectType.listItemType = this.astObjectTypeListItemType(
-      objectType,
-      nodeShape,
-    ).toMaybe();
-
-    return Either.of(objectType);
-  }
-
   private propertyShapeAstObjectTypeProperty(
     propertyShape: input.PropertyShape,
   ): Either<Error, ast.ObjectType.Property> {
@@ -335,12 +233,13 @@ export class ShapesGraphToAstTransformer {
     const defaultValue = (
       shape instanceof input.PropertyShape ? shape.defaultValue : Maybe.empty()
     ).alt(inherited !== null ? inherited.defaultValue : Maybe.empty());
-    const hasValue = shape.constraints.hasValue;
-    const inline = shape.inline.alt(
-      inherited !== null ? inherited.inline : Maybe.empty(),
-    );
 
     return ((): Either<Error, ast.Type> => {
+      const hasValue = shape.constraints.hasValue;
+      const inline = shape.inline.alt(
+        inherited !== null ? inherited.inline : Maybe.empty(),
+      );
+
       // Conjunctions/disjunctions of multiple types
       if (
         shape.constraints.and.length > 0 ||
@@ -380,7 +279,8 @@ export class ShapesGraphToAstTransformer {
                 ),
               );
             }
-            const classAstTypeEither = this.nodeShapeAstType(classNodeShape);
+            const classAstTypeEither =
+              this.transformNodeShapeToAstType(classNodeShape);
             if (classAstTypeEither.isLeft()) {
               return classAstTypeEither;
             }
@@ -410,7 +310,7 @@ export class ShapesGraphToAstTransformer {
           compositeTypeKind = "IntersectionType";
         } else if (shape.constraints.nodes.length > 0) {
           memberTypeEithers = shape.constraints.nodes.map((nodeShape) =>
-            this.nodeShapeAstType(nodeShape),
+            this.transformNodeShapeToAstType(nodeShape),
           );
           compositeTypeKind = "IntersectionType";
         } else {
@@ -506,77 +406,100 @@ export class ShapesGraphToAstTransformer {
         });
       }
 
-      if (
-        // Treat any shape with the constraints in the list as a literal type
-        [
-          shape.constraints.datatype,
-          shape.constraints.maxExclusive,
-          shape.constraints.maxInclusive,
-          shape.constraints.minExclusive,
-          shape.constraints.minInclusive,
-        ].some((constraint) => constraint.isJust()) ||
-        defaultValue.extractNullable()?.termType === "Literal" ||
-        // Treat any shape with a literal value as a literal type
-        hasValue.extractNullable()?.termType === "Literal" ||
-        // Treat any shape with a single sh:nodeKind of sh:Literal as a literal type
-        (shape.constraints.nodeKinds.size === 1 &&
-          shape.constraints.nodeKinds.has(NodeKind.LITERAL))
-      ) {
-        return Either.of<Error, ast.LiteralType>({
-          datatype: shape.constraints.datatype,
-          defaultValue: defaultValue.filter(
-            (term) => term.termType === "Literal",
-          ),
-          hasValue: hasValue.filter((term) => term.termType === "Literal"),
-          kind: "LiteralType",
-          maxExclusive: shape.constraints.maxExclusive,
-          maxInclusive: shape.constraints.maxInclusive,
-          minExclusive: shape.constraints.minExclusive,
-          minInclusive: shape.constraints.minInclusive,
-        });
+      // Infer nodeKind(s) from various sources
+
+      // Literal type
+      {
+        const literalDefaultValue = defaultValue.filter(
+          (term) => term.termType === "Literal",
+        );
+        const literalHasValue = hasValue.filter(
+          (term) => term.termType === "Literal",
+        );
+        const literalIn = shape.constraints.in_
+          .map((in_) => in_.filter((term) => term.termType === "Literal"))
+          .filter((in_) => in_.length > 0);
+
+        if (
+          [
+            // Treat any shape with the constraints in the list as a literal type
+            shape.constraints.datatype,
+            shape.constraints.maxExclusive,
+            shape.constraints.maxInclusive,
+            shape.constraints.minExclusive,
+            shape.constraints.minInclusive,
+          ].some((constraint) => constraint.isJust()) ||
+          literalDefaultValue.isJust() ||
+          literalHasValue.isJust() ||
+          literalIn.isJust() ||
+          // Treat any shape with a single sh:nodeKind of sh:Literal as a literal type
+          (shape.constraints.nodeKinds.size === 1 &&
+            shape.constraints.nodeKinds.has(NodeKind.LITERAL))
+        ) {
+          return Either.of<Error, ast.LiteralType>({
+            datatype: shape.constraints.datatype,
+            defaultValue: defaultValue.filter(
+              (term) => term.termType === "Literal",
+            ),
+            hasValue: hasValue.filter((term) => term.termType === "Literal"),
+            kind: "LiteralType",
+            maxExclusive: shape.constraints.maxExclusive,
+            maxInclusive: shape.constraints.maxInclusive,
+            minExclusive: shape.constraints.minExclusive,
+            minInclusive: shape.constraints.minInclusive,
+          });
+        }
       }
 
-      // Treat any shape with sh:nodeKind blank node or IRI as an identifier type
-      const identifierDefaultValue = defaultValue.filter(
-        (value) => value.termType !== "Literal",
-      );
-      const hasIdentifierValue = hasValue.filter(
-        (value) => value.termType !== "Literal",
-      );
-      if (
-        hasIdentifierValue.isJust() ||
-        identifierDefaultValue.isJust() ||
-        (shape.constraints.nodeKinds.size > 0 &&
-          shape.constraints.nodeKinds.size <= 2 &&
-          !shape.constraints.nodeKinds.has(NodeKind.LITERAL))
-      ) {
-        const nodeKinds = hasIdentifierValue
-          .map((value) => {
-            const nodeKinds = new Set<NodeKind.BLANK_NODE | NodeKind.IRI>();
-            switch (value.termType) {
-              case "BlankNode":
-                nodeKinds.add(NodeKind.BLANK_NODE);
-                break;
-              case "NamedNode":
-                nodeKinds.add(NodeKind.IRI);
-                break;
-            }
-            return nodeKinds;
-          })
-          .orDefaultLazy(
-            () =>
-              shape.constraints.nodeKinds as Set<
-                NodeKind.BLANK_NODE | NodeKind.IRI
-              >,
-          );
-        invariant(nodeKinds.size > 0);
+      // Identifier type
+      {
+        // Treat any shape with sh:nodeKind blank node or IRI as an identifier type
+        const identifierDefaultValue = defaultValue.filter(
+          (value) => value.termType !== "Literal",
+        );
+        const hasIdentifierValue = hasValue.filter(
+          (value) => value.termType !== "Literal",
+        );
+        const identifierIn = shape.constraints.in_
+          .map((in_) => in_.filter((term) => term.termType !== "Literal"))
+          .filter((in_) => in_.length > 0);
 
-        return Either.of({
-          defaultValue: identifierDefaultValue,
-          hasValue: hasIdentifierValue,
-          kind: "IdentifierType",
-          nodeKinds,
-        });
+        if (
+          hasIdentifierValue.isJust() ||
+          identifierDefaultValue.isJust() ||
+          identifierIn.isJust() ||
+          (shape.constraints.nodeKinds.size > 0 &&
+            shape.constraints.nodeKinds.size <= 2 &&
+            !shape.constraints.nodeKinds.has(NodeKind.LITERAL))
+        ) {
+          const nodeKinds = hasIdentifierValue
+            .map((value) => {
+              const nodeKinds = new Set<NodeKind.BLANK_NODE | NodeKind.IRI>();
+              switch (value.termType) {
+                case "BlankNode":
+                  nodeKinds.add(NodeKind.BLANK_NODE);
+                  break;
+                case "NamedNode":
+                  nodeKinds.add(NodeKind.IRI);
+                  break;
+              }
+              return nodeKinds;
+            })
+            .orDefaultLazy(
+              () =>
+                shape.constraints.nodeKinds as Set<
+                  NodeKind.BLANK_NODE | NodeKind.IRI
+                >,
+            );
+          invariant(nodeKinds.size > 0);
+
+          return Either.of({
+            defaultValue: identifierDefaultValue,
+            hasValue: hasIdentifierValue,
+            kind: "IdentifierType",
+            nodeKinds,
+          });
+        }
       }
 
       return Left(new Error(`unable to transform type on ${shape}`));
@@ -654,5 +577,151 @@ export class ShapesGraphToAstTransformer {
       shName: shape.name.map((name) => name.value),
       shaclmateName: shape.shaclmateName,
     };
+  }
+
+  private transformNodeShapeToAstType(
+    nodeShape: input.NodeShape,
+  ): Either<Error, NodeShapeAstType> {
+    {
+      const type = this.nodeShapeAstTypesByIdentifier.get(
+        nodeShape.resource.identifier,
+      );
+      if (type) {
+        return Either.of(type);
+      }
+    }
+
+    const export_ = nodeShape.export.orDefault(true);
+
+    if (
+      nodeShape.constraints.and.length > 0 ||
+      nodeShape.constraints.or.length > 0
+    ) {
+      let compositeTypeShapes: readonly input.Shape[];
+      let compositeTypeKind:
+        | ast.ObjectIntersectionType["kind"]
+        | ast.ObjectUnionType["kind"];
+      if (nodeShape.constraints.and.length > 0) {
+        compositeTypeShapes = nodeShape.constraints.and;
+        compositeTypeKind = "ObjectIntersectionType";
+      } else {
+        compositeTypeShapes = nodeShape.constraints.or;
+        compositeTypeKind = "ObjectUnionType";
+      }
+
+      const compositeTypeNodeShapes = compositeTypeShapes.filter(
+        (shape) => shape instanceof input.NodeShape,
+      );
+      if (compositeTypeNodeShapes.length < 2) {
+        return Left(
+          new Error(
+            `${nodeShape} only has one node shape in its logical constraint`,
+          ),
+        );
+      }
+
+      // Put a placeholder in the cache to deal with cyclic references
+      const compositeType = {
+        export: export_,
+        kind: compositeTypeKind,
+        memberTypes: [] as ObjectType[],
+        name: this.shapeName(nodeShape),
+      };
+
+      this.nodeShapeAstTypesByIdentifier.set(
+        nodeShape.resource.identifier,
+        compositeType,
+      );
+
+      compositeType.memberTypes.push(
+        ...Either.rights(
+          compositeTypeNodeShapes.map((nodeShape) =>
+            this.transformNodeShapeToAstType(nodeShape),
+          ),
+        ).filter((nodeShapeAstType) => nodeShapeAstType.kind === "ObjectType"),
+      );
+      if (compositeType.memberTypes.length < compositeTypeNodeShapes.length) {
+        return Left(
+          new Error(
+            `${nodeShape} has one or more non-ObjectType node shapes in its logical constraint`,
+          ),
+        );
+      }
+      return Either.of(compositeType);
+    }
+
+    // Put a placeholder in the cache to deal with cyclic references
+    // If this node shape's properties (directly or indirectly) refer to the node shape itself,
+    // we'll return this placeholder.
+    const objectType: ast.ObjectType = {
+      abstract: nodeShape.abstract.orDefault(false),
+      ancestorObjectTypes: [],
+      childObjectTypes: [],
+      descendantObjectTypes: [],
+      export: export_,
+      kind: "ObjectType",
+      listItemType: Maybe.empty(),
+      mintingStrategy: nodeShape.mintingStrategy.toMaybe(),
+      name: this.shapeName(nodeShape),
+      nodeKinds: nodeShape.nodeKinds,
+      properties: [], // This is mutable, we'll populate it below.
+      rdfType: nodeShape.isClass
+        ? Maybe.of(nodeShape.resource.identifier as rdfjs.NamedNode)
+        : Maybe.empty(),
+      parentObjectTypes: [], // This is mutable, we'll populate it below
+    };
+    this.nodeShapeAstTypesByIdentifier.set(
+      nodeShape.resource.identifier,
+      objectType,
+    );
+
+    // Populate ancestor and descendant object types
+    const relatedObjectTypes = (
+      relatedNodeShapes: readonly input.NodeShape[],
+    ): readonly ast.ObjectType[] => {
+      return relatedNodeShapes.flatMap((relatedNodeShape) =>
+        this.transformNodeShapeToAstType(relatedNodeShape)
+          .toMaybe()
+          .filter((astType) => astType.kind === "ObjectType")
+          .toList(),
+      );
+    };
+    objectType.ancestorObjectTypes.push(
+      ...relatedObjectTypes(nodeShape.ancestorNodeShapes),
+    );
+    objectType.childObjectTypes.push(
+      ...relatedObjectTypes(nodeShape.childNodeShapes),
+    );
+    objectType.descendantObjectTypes.push(
+      ...relatedObjectTypes(nodeShape.descendantNodeShapes),
+    );
+    objectType.parentObjectTypes.push(
+      ...relatedObjectTypes(nodeShape.parentNodeShapes),
+    );
+
+    // Populate properties
+    for (const propertyShape of nodeShape.constraints.properties) {
+      const propertyEither =
+        this.propertyShapeAstObjectTypeProperty(propertyShape);
+      if (propertyEither.isLeft()) {
+        logger.warn(
+          "error transforming %s %s: %s",
+          nodeShape,
+          propertyShape,
+          (propertyEither.extract() as Error).message,
+        );
+        continue;
+        // return property;
+      }
+      objectType.properties.push(propertyEither.unsafeCoerce());
+    }
+
+    // Is the object type an RDF list?
+    objectType.listItemType = this.astObjectTypeListItemType(
+      objectType,
+      nodeShape,
+    ).toMaybe();
+
+    return Either.of(objectType);
   }
 }
