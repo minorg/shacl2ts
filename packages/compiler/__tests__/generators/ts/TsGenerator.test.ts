@@ -174,13 +174,13 @@ describe("TsGenerator", () => {
   it("fromRdf (child-parent)", ({ expect }) => {
     testFromRdf({
       expect,
-      model: new kitchenSinkClasses.ChildClassNodeShape({
+      model: new kitchenSinkClasses.ConcreteChildClassNodeShape({
         identifier: dataFactory.blankNode(),
         abcStringProperty: "abc",
         childStringProperty: "child",
         parentStringProperty: "parent",
       }),
-      modelFromRdf: kitchenSinkClasses.ChildClassNodeShape.fromRdf,
+      modelFromRdf: kitchenSinkClasses.ConcreteChildClassNodeShape.fromRdf,
     });
   });
 
@@ -201,7 +201,7 @@ describe("TsGenerator", () => {
     const dataset = new N3.Store();
     const resourceSet = new MutableResourceSet({ dataFactory, dataset });
     const identifier = dataFactory.blankNode();
-    const model = new kitchenSinkClasses.ChildClassNodeShape({
+    const model = new kitchenSinkClasses.ConcreteChildClassNodeShape({
       identifier,
       abcStringProperty: "abc",
       childStringProperty: "child",
@@ -219,7 +219,9 @@ describe("TsGenerator", () => {
         .chain((value) => value.toIri())
         .unsafeCoerce()
         .equals(
-          dataFactory.namedNode("http://example.com/ChildClassNodeShape"),
+          dataFactory.namedNode(
+            "http://example.com/ConcreteChildClassNodeShape",
+          ),
         ),
     ).toStrictEqual(true);
     expect(

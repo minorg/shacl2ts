@@ -1,4 +1,9 @@
-import { type FunctionDeclarationStructure, StructureKind } from "ts-morph";
+import {
+  type FunctionDeclarationStructure,
+  type OptionalKind,
+  type ParameterDeclarationStructure,
+  StructureKind,
+} from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
 import { rdfjsTermExpression } from "../rdfjsTermExpression.js";
 
@@ -13,6 +18,20 @@ export function fromRdfFunctionDeclaration(
 ): FunctionDeclarationStructure {
   this.ensureAtMostOneSuperObjectType();
 
+  const parameters: OptionalKind<ParameterDeclarationStructure>[] = [
+    {
+      name: variables.resource,
+      type: this.rdfjsResourceType().name,
+    },
+  ];
+  if (!this.abstract) {
+    parameters.push({
+      hasQuestionToken: true,
+      name: variables.options,
+      type: `{ ${variables.ignoreRdfType}?: boolean }`,
+    });
+  }
+
   const propertiesByName: Record<
     string,
     {
@@ -22,11 +41,13 @@ export function fromRdfFunctionDeclaration(
   > = {};
   let statements: string[] = [];
 
-  this.rdfType.ifJust((rdfType) => {
-    statements.push(
-      `if (!${variables.options}?.${variables.ignoreRdfType} && !${variables.resource}.isInstanceOf(${rdfjsTermExpression(rdfType, this.configuration)})) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${variables.resource}, message: \`\${rdfjsResource.Resource.Identifier.toString(${variables.resource}.identifier)} has unexpected RDF type\`, predicate: ${rdfjsTermExpression(rdfType, this.configuration)} })); }`,
-    );
-  });
+  if (!this.abstract) {
+    this.rdfType.ifJust((rdfType) => {
+      statements.push(
+        `if (!${variables.options}?.${variables.ignoreRdfType} && !${variables.resource}.isInstanceOf(${rdfjsTermExpression(rdfType, this.configuration)})) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${variables.resource}, message: \`\${rdfjsResource.Resource.Identifier.toString(${variables.resource}.identifier)} has unexpected RDF type\`, predicate: ${rdfjsTermExpression(rdfType, this.configuration)} })); }`,
+      );
+    });
+  }
 
   for (const ancestorObjectType of this.ancestorObjectTypes) {
     for (const property of ancestorObjectType.properties) {
@@ -71,7 +92,7 @@ export function fromRdfFunctionDeclaration(
 
   if (this.parentObjectTypes.length > 0) {
     statements = [
-      `return ${this.parentObjectTypes[0].name}.fromRdf(${variables.resource}, { ${variables.ignoreRdfType}: true }).chain(_super => { ${statements.join("\n")} })`,
+      `return ${this.parentObjectTypes[0].name}.fromRdf(${variables.resource}${!this.parentObjectTypes[0].abstract ? `, { ${variables.ignoreRdfType}: true }` : ""}).chain(_super => { ${statements.join("\n")} })`,
     ];
   }
 
@@ -79,17 +100,7 @@ export function fromRdfFunctionDeclaration(
     isExported: true,
     kind: StructureKind.Function,
     name: "fromRdf",
-    parameters: [
-      {
-        name: variables.resource,
-        type: this.rdfjsResourceType().name,
-      },
-      {
-        hasQuestionToken: true,
-        name: variables.options,
-        type: `{ ${variables.ignoreRdfType}?: boolean }`,
-      },
-    ],
+    parameters,
     returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${returnType}>`,
     statements,
   };

@@ -35,6 +35,8 @@
     "generators/ts/*.js",
     "generators/ts/_ObjectType/*.d.ts",
     "generators/ts/_ObjectType/*.js",
+    "input/*.d.ts",
+    "input/*.js",
     "vocabularies/*.d.ts",
     "vocabularies/*.js"
   ],

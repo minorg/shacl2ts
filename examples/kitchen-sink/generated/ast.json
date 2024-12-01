@@ -3,12 +3,24 @@
     {
       "kind": "ObjectType",
       "name": {
-        "curie": ":AbstractBaseClassNodeShape",
+        "curie": ":AbstractBaseClassWithoutPropertiesNodeShape",
         "identifier": {
           "termType": "NamedNode",
-          "value": "http://example.com/AbstractBaseClassNodeShape"
+          "value": "http://example.com/AbstractBaseClassWithoutPropertiesNodeShape"
         },
-        "shName": "AbstractBaseClassNodeShape"
+        "shName": "AbstractBaseClassWithoutPropertiesNodeShape"
+      },
+      "properties": []
+    },
+    {
+      "kind": "ObjectType",
+      "name": {
+        "curie": ":AbstractBaseClassWithPropertiesNodeShape",
+        "identifier": {
+          "termType": "NamedNode",
+          "value": "http://example.com/AbstractBaseClassWithPropertiesNodeShape"
+        },
+        "shName": "AbstractBaseClassWithPropertiesNodeShape"
       },
       "properties": [
         {
@@ -33,12 +45,12 @@
     {
       "kind": "ObjectType",
       "name": {
-        "curie": ":ChildClassNodeShape",
+        "curie": ":ConcreteChildClassNodeShape",
         "identifier": {
           "termType": "NamedNode",
-          "value": "http://example.com/ChildClassNodeShape"
+          "value": "http://example.com/ConcreteChildClassNodeShape"
         },
-        "shName": "ChildClassNodeShape"
+        "shName": "ConcreteChildClassNodeShape"
       },
       "properties": [
         {
@@ -63,19 +75,19 @@
     {
       "kind": "ObjectType",
       "name": {
-        "curie": ":ParentClassNodeShape",
+        "curie": ":ConcreteParentClassNodeShape",
         "identifier": {
           "termType": "NamedNode",
-          "value": "http://example.com/ParentClassNodeShape"
+          "value": "http://example.com/ConcreteParentClassNodeShape"
         },
-        "shName": "ParentClassNodeShape"
+        "shName": "ConcreteParentClassNodeShape"
       },
       "properties": [
         {
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-93"
+              "value": "n3-75"
             },
             "shName": "parentStringProperty"
           },
@@ -105,7 +117,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-75"
+              "value": "n3-76"
             },
             "shName": "externProperty"
           },
@@ -130,7 +142,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-76"
+              "value": "n3-77"
             },
             "shName": "inlineProperty"
           },
@@ -168,7 +180,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-77"
+              "value": "n3-78"
             },
             "shName": "stringProperty"
           },
@@ -198,7 +210,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-78"
+              "value": "n3-79"
             },
             "shName": "stringProperty"
           },
@@ -228,7 +240,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-79"
+              "value": "n3-80"
             },
             "shName": "stringProperty"
           },
@@ -341,7 +353,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-84"
+              "value": "n3-85"
             },
             "shName": "stringProperty"
           },
@@ -371,7 +383,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-85"
+              "value": "n3-86"
             },
             "shName": "listProperty"
           },
@@ -420,7 +432,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-86"
+              "value": "n3-87"
             },
             "shName": "requiredStringProperty"
           },
@@ -437,7 +449,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-87"
+              "value": "n3-88"
             },
             "shName": "optionalStringProperty"
           },
@@ -457,7 +469,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-88"
+              "value": "n3-89"
             },
             "shName": "setStringProperty"
           },
@@ -490,7 +502,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-91"
+              "value": "n3-92"
             },
             "shName": "stringProperty1"
           },
@@ -520,7 +532,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-92"
+              "value": "n3-93"
             },
             "shName": "stringProperty2"
           },

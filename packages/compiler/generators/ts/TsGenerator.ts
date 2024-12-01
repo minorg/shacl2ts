@@ -10,7 +10,6 @@ import { Configuration as GlobalConfiguration } from "./Configuration.js";
 import { ObjectType } from "./ObjectType.js";
 import { ObjectUnionType } from "./ObjectUnionType.js";
 import { TypeFactory } from "./TypeFactory.js";
-import { tsName } from "./tsName.js";
 
 export class TsGenerator implements Generator {
   protected readonly configuration: TsGenerator.Configuration;
@@ -38,7 +37,9 @@ export class TsGenerator implements Generator {
         return -1;
       }
       // Neither is an ancestor of the other
-      return tsName(left.name).localeCompare(tsName(right.name));
+      // Don't sort by name, since it could conflict with the ancestor sort
+      // return tsName(left.name).localeCompare(tsName(right.name));
+      return 0;
     });
 
     const project = new Project({

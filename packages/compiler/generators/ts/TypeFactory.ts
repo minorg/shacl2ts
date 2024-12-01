@@ -201,9 +201,7 @@ export class TypeFactory {
             abstract: astType.abstract,
             configuration: this.configuration,
             name: this.configuration.objectTypeDiscriminatorPropertyName,
-            override:
-              objectType.parentObjectTypes.length > 0 &&
-              !objectType.parentObjectTypes[0].abstract,
+            override: objectType.parentObjectTypes.length > 0,
             type: {
               name: [...typeDiscriminatorValues]
                 .sort()

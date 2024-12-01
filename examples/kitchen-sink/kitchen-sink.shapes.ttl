@@ -9,22 +9,43 @@
 
 # Node shape that serves as an abstract base class for child node shapes
 # It's marked abstract in TypeScript and not exported from the module.
-:AbstractBaseClassNodeShape
+:AbstractBaseClassWithoutPropertiesNodeShape
   a owl:Class ;
   a sh:NodeShape ;
   shaclmate:abstract true;
   shaclmate:export false ;
-  sh:name "AbstractBaseClassNodeShape" ;
+  # Common pattern: put the minting strategy and nodeKind on an ABC
+  shaclmate:mintingStrategy shaclmate:SHA256 ;
+  sh:name "AbstractBaseClassWithoutPropertiesNodeShape" ;
+  sh:nodeKind sh:BlankNodeOrIRI ;
+.
+
+:AbstractBaseClassWithPropertiesNodeShape
+  a owl:Class ;
+  a sh:NodeShape ;
+  rdfs:subClassOf :AbstractBaseClassWithoutPropertiesNodeShape ;
+  shaclmate:abstract true;
+  shaclmate:export false ;
+  sh:name "AbstractBaseClassWithPropertiesNodeShape" ;
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "abcStringProperty" ; sh:path :abcStringProperty ] ;
 .
 
 # Child (class) of ParentClassNodeShape. Should inherit properties, node kinds, and minting strategy.
-:ChildClassNodeShape
+:ConcreteChildClassNodeShape
   a owl:Class ;
   a sh:NodeShape ;
-  rdfs:subClassOf :ParentClassNodeShape ;
-  sh:name "ChildClassNodeShape" ;
+  rdfs:subClassOf :ConcreteParentClassNodeShape ;
+  sh:name "ConcreteChildClassNodeShape" ;
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "childStringProperty" ; sh:path :childStringProperty ] ;
+.
+
+# Class node shape that inherits the abstract base class and is the parent of the ChildClassNodeShape.
+:ConcreteParentClassNodeShape
+  a owl:Class ;
+  a sh:NodeShape ;
+  rdfs:subClassOf :AbstractBaseClassWithPropertiesNodeShape ;
+  sh:name "ConcreteParentClassNodeShape" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "parentStringProperty" ; sh:path :parentStringProperty ] ;
 .
 
 # Node shape that inlines/nests another node shape and externs/references another.
@@ -144,17 +165,6 @@
   a sh:NodeShape ;
   sh:name "OrNodeShapeMember2" ;
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty2" ; sh:path :stringProperty2 ] ;
-.
-
-# Class node shape that inherits the abstract base class and is the parent of the ChildClassNodeShape.
-:ParentClassNodeShape
-  a owl:Class ;
-  a sh:NodeShape ;
-  rdfs:subClassOf :AbstractBaseClassNodeShape ;
-  shaclmate:mintingStrategy shaclmate:SHA256 ;
-  sh:name "ParentClassNodeShape" ;
-  sh:nodeKind sh:IRI ;
-  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "parentStringProperty" ; sh:path :parentStringProperty ] ;
 .
 
 # A node shape that mints its identifier by hashing (other) contents, if no identifier is supplied
