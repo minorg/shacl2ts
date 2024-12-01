@@ -111,14 +111,12 @@ abstract class AbstractBaseClassWithPropertiesNodeShape extends AbstractBaseClas
   override equals(
     other: AbstractBaseClassWithPropertiesNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          abcStringProperty: purifyHelpers.Equatable.strictEquals,
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        abcStringProperty: purifyHelpers.Equatable.strictEquals,
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -232,14 +230,12 @@ export class ConcreteParentClassNodeShape extends AbstractBaseClassWithPropertie
   override equals(
     other: ConcreteParentClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          parentStringProperty: purifyHelpers.Equatable.strictEquals,
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        parentStringProperty: purifyHelpers.Equatable.strictEquals,
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -398,14 +394,12 @@ export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
   override equals(
     other: ConcreteChildClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          childStringProperty: purifyHelpers.Equatable.strictEquals,
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        childStringProperty: purifyHelpers.Equatable.strictEquals,
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<

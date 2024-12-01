@@ -88,6 +88,15 @@ describe("TsGenerator", () => {
     expect(model.trueBooleanProperty).toStrictEqual(true);
   });
 
+  it("class constructor: union of literals property", ({ expect }) => {
+    expect(
+      new kitchenSinkClasses.NodeShapeWithOrProperties({
+        identifier: dataFactory.blankNode(),
+        orLiteralsProperty: dataFactory.literal("test"),
+      }).orLiteralsProperty.unsafeCoerce().value,
+    ).toStrictEqual("test");
+  });
+
   it("should generate a type alias", ({ expect }) => {
     const instance1: kitchenSinkInterfaces.OrNodeShape = {
       identifier: dataFactory.blankNode(),
@@ -132,11 +141,70 @@ describe("TsGenerator", () => {
     ).not.toStrictEqual(true);
   });
 
-  // it("equals: union types", ({ expect }) => {
-  //   expect({new kitchenSinkClasses.NodeShapeWithOrProperties({
-  //     identifier: dataFactory.blankNode(),
-  //   });
-  // });
+  it("equals: terms union type", ({ expect }) => {
+    const identifier = dataFactory.blankNode();
+    expect(
+      new kitchenSinkClasses.NodeShapeWithOrProperties({
+        identifier,
+        orTermsProperty: dataFactory.namedNode("http://example.com/term"),
+      })
+        .equals(
+          new kitchenSinkClasses.NodeShapeWithOrProperties({
+            identifier,
+            orTermsProperty: dataFactory.namedNode("http://example.com/term"),
+          }),
+        )
+        .extract(),
+    ).toStrictEqual(true);
+
+    expect(
+      new kitchenSinkClasses.NodeShapeWithOrProperties({
+        identifier,
+        orTermsProperty: dataFactory.namedNode("http://example.com/term"),
+      })
+        .equals(
+          new kitchenSinkClasses.NodeShapeWithOrProperties({
+            identifier,
+            orTermsProperty: dataFactory.literal("test"),
+          }),
+        )
+        .extract(),
+    ).not.toStrictEqual(true);
+  });
+
+  it("equals: unrelated union type", ({ expect }) => {
+    const identifier = dataFactory.blankNode();
+    expect(
+      new kitchenSinkClasses.NodeShapeWithOrProperties({
+        identifier,
+        orUnrelatedProperty: { type: "0-number", value: 1 },
+      })
+        .equals(
+          new kitchenSinkClasses.NodeShapeWithOrProperties({
+            identifier,
+            orUnrelatedProperty: { type: "0-number", value: 1 },
+          }),
+        )
+        .extract(),
+    ).toStrictEqual(true);
+
+    expect(
+      new kitchenSinkClasses.NodeShapeWithOrProperties({
+        identifier,
+        orUnrelatedProperty: { type: "0-number", value: 1 },
+      })
+        .equals(
+          new kitchenSinkClasses.NodeShapeWithOrProperties({
+            identifier,
+            orUnrelatedProperty: {
+              type: "1-rdfjs.NamedNode",
+              value: dataFactory.namedNode("http://example.com/term"),
+            },
+          }),
+        )
+        .extract(),
+    ).not.toStrictEqual(true);
+  });
 
   function testFromRdf<
     ModelT extends {
