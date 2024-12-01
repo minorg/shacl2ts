@@ -141,7 +141,7 @@ namespace AbstractBaseClassWithoutPropertiesNodeShape {
 
 abstract class AbstractBaseClassWithPropertiesNodeShape extends AbstractBaseClassWithoutPropertiesNodeShape {
   readonly abcStringProperty: string;
-  abstract readonly type:
+  abstract override readonly type:
     | "ConcreteChildClassNodeShape"
     | "ConcreteParentClassNodeShape";
 
@@ -307,7 +307,7 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
 
 export class ConcreteParentClassNodeShape extends AbstractBaseClassWithPropertiesNodeShape {
   readonly parentStringProperty: string;
-  readonly type:
+  override readonly type:
     | "ConcreteChildClassNodeShape"
     | "ConcreteParentClassNodeShape" = "ConcreteParentClassNodeShape";
 

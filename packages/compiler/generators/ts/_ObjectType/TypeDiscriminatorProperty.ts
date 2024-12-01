@@ -43,8 +43,12 @@ export class TypeDiscriminatorProperty extends Property<TypeDiscriminatorPropert
 
   override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
     return {
-      isAbstract: this.abstract,
-      hasOverrideKeyword: this.override,
+      // Work around a ts-morph bug that puts the override keyword before the abstract keyword
+      leadingTrivia:
+        this.abstract && this.override ? "abstract override " : undefined,
+      isAbstract: this.abstract && this.override ? undefined : this.abstract,
+      hasOverrideKeyword:
+        this.abstract && this.override ? undefined : this.override,
       initializer: !this.abstract ? `"${this.value}"` : undefined,
       isReadonly: true,
       name: this.name,
