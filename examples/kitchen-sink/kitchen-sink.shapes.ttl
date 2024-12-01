@@ -129,11 +129,30 @@
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
 .
 
+# Shape with sh:defaultValue properties
+:NodeShapeWithDefaultValueProperties
+  a sh:NodeShape ;
+  sh:name "NodeShapeWithDefaultValueProperties" ;
+  sh:property [ sh:defaultValue false ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "falseBooleanProperty" ; sh:path :falseBooleanProperty ] ;
+  sh:property [ sh:defaultValue true ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "trueBooleanProperty" ; sh:path :trueBooleanProperty ] ;
+  sh:property [ sh:defaultValue 0 ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "numberProperty" ; sh:path :numberProperty ] ;
+  sh:property [ sh:defaultValue "" ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
+.
+
 # Shape that uses the ListShape in a property.
 :NodeShapeWithListProperty
   a sh:NodeShape ;
   sh:name "NodeShapeWithListProperty" ;
   sh:property [ shaclmate:inline true ; sh:maxCount 1 ; sh:minCount 1 ; sh:node :ListShape ; sh:name "listProperty" ; sh:path :listProperty ]
+.
+
+# Shape with sh:or properties
+:NodeShapeWithOrProperties
+  a sh:NodeShape ;
+  sh:name "NodeShapeWithOrProperties" ;
+  sh:property [ sh:maxCount 1 ; sh:name "orLiteralsProperty" ; sh:or ( [ sh:datatype xsd:integer ] [ sh:datatype xsd:string ] ) ; sh:path :orLiteralsProperty ] ;
+  sh:property [ sh:maxCount 1 ; sh:name "orTermsProperty" ; sh:or ( [ sh:nodeKind sh:Literal ] [ sh:nodeKind sh:IRI ] ) ; sh:path :orTermsProperty ] ;
+  sh:property [ sh:maxCount 1 ; sh:name "orUnrelatedProperty" ; sh:or ( [ sh:datatype xsd:integer ] [ sh:nodeKind sh:IRI ] ) ; sh:path :orUnrelatedProperty ] ;
 .
 
 # Shape that has properties with different cardinalities

@@ -108,6 +108,12 @@ export class UnionType extends Type {
     return Maybe.of(this._discriminatorProperty);
   }
 
+  override get importStatements(): readonly string[] {
+    return this.memberTypes.flatMap(
+      (memberType) => memberType.importStatements,
+    );
+  }
+
   override propertyEqualsFunction(): string {
     return `
 (left: ${this.name}, right: ${this.name}) => {
@@ -117,7 +123,7 @@ ${this.memberTypeTraits
       (
         value,
       ) => `if (left.${this._discriminatorProperty.name} === "${value}" && right.${this._discriminatorProperty.name} === "${value}") {
-  return ${memberTypeTraits.memberType.propertyEqualsFunction()}(left, right);
+  return ${memberTypeTraits.memberType.propertyEqualsFunction()}(${memberTypeTraits.payload("left")}, ${memberTypeTraits.payload("right")});
 }`,
     ),
   )

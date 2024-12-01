@@ -78,6 +78,25 @@ describe("TsGenerator", () => {
     );
   });
 
+  it("class constructor: default values", ({ expect }) => {
+    const model = new kitchenSinkClasses.NodeShapeWithDefaultValueProperties({
+      identifier: dataFactory.blankNode(),
+    });
+    expect(model.falseBooleanProperty).toStrictEqual(false);
+    expect(model.numberProperty).toStrictEqual(0);
+    expect(model.stringProperty).toStrictEqual("");
+    expect(model.trueBooleanProperty).toStrictEqual(true);
+  });
+
+  it("class constructor: union of literals property", ({ expect }) => {
+    expect(
+      new kitchenSinkClasses.NodeShapeWithOrProperties({
+        identifier: dataFactory.blankNode(),
+        orLiteralsProperty: dataFactory.literal("test"),
+      }).orLiteralsProperty.unsafeCoerce().value,
+    ).toStrictEqual("test");
+  });
+
   it("should generate a type alias", ({ expect }) => {
     const instance1: kitchenSinkInterfaces.OrNodeShape = {
       identifier: dataFactory.blankNode(),
@@ -116,6 +135,71 @@ describe("TsGenerator", () => {
           new kitchenSinkClasses.NonClassNodeShape({
             identifier: dataFactory.blankNode(),
             stringProperty: "Test2",
+          }),
+        )
+        .extract(),
+    ).not.toStrictEqual(true);
+  });
+
+  it("equals: terms union type", ({ expect }) => {
+    const identifier = dataFactory.blankNode();
+    expect(
+      new kitchenSinkClasses.NodeShapeWithOrProperties({
+        identifier,
+        orTermsProperty: dataFactory.namedNode("http://example.com/term"),
+      })
+        .equals(
+          new kitchenSinkClasses.NodeShapeWithOrProperties({
+            identifier,
+            orTermsProperty: dataFactory.namedNode("http://example.com/term"),
+          }),
+        )
+        .extract(),
+    ).toStrictEqual(true);
+
+    expect(
+      new kitchenSinkClasses.NodeShapeWithOrProperties({
+        identifier,
+        orTermsProperty: dataFactory.namedNode("http://example.com/term"),
+      })
+        .equals(
+          new kitchenSinkClasses.NodeShapeWithOrProperties({
+            identifier,
+            orTermsProperty: dataFactory.literal("test"),
+          }),
+        )
+        .extract(),
+    ).not.toStrictEqual(true);
+  });
+
+  it("equals: unrelated union type", ({ expect }) => {
+    const identifier = dataFactory.blankNode();
+    expect(
+      new kitchenSinkClasses.NodeShapeWithOrProperties({
+        identifier,
+        orUnrelatedProperty: { type: "0-number", value: 1 },
+      })
+        .equals(
+          new kitchenSinkClasses.NodeShapeWithOrProperties({
+            identifier,
+            orUnrelatedProperty: { type: "0-number", value: 1 },
+          }),
+        )
+        .extract(),
+    ).toStrictEqual(true);
+
+    expect(
+      new kitchenSinkClasses.NodeShapeWithOrProperties({
+        identifier,
+        orUnrelatedProperty: { type: "0-number", value: 1 },
+      })
+        .equals(
+          new kitchenSinkClasses.NodeShapeWithOrProperties({
+            identifier,
+            orUnrelatedProperty: {
+              type: "1-rdfjs.NamedNode",
+              value: dataFactory.namedNode("http://example.com/term"),
+            },
           }),
         )
         .extract(),
@@ -181,6 +265,36 @@ describe("TsGenerator", () => {
         parentStringProperty: "parent",
       }),
       modelFromRdf: kitchenSinkClasses.ConcreteChildClassNodeShape.fromRdf,
+    });
+  });
+
+  it("fromRdf: take on default values", ({ expect }) => {
+    testFromRdf({
+      expect,
+      model: new kitchenSinkClasses.NodeShapeWithDefaultValueProperties({
+        falseBooleanProperty: false,
+        identifier: dataFactory.blankNode(),
+        numberProperty: 0,
+        stringProperty: "",
+        trueBooleanProperty: true,
+      }),
+      modelFromRdf:
+        kitchenSinkClasses.NodeShapeWithDefaultValueProperties.fromRdf,
+    });
+  });
+
+  it("fromRdf: override default values", ({ expect }) => {
+    testFromRdf({
+      expect,
+      model: new kitchenSinkClasses.NodeShapeWithDefaultValueProperties({
+        falseBooleanProperty: true,
+        identifier: dataFactory.blankNode(),
+        numberProperty: 1,
+        stringProperty: "test",
+        trueBooleanProperty: false,
+      }),
+      modelFromRdf:
+        kitchenSinkClasses.NodeShapeWithDefaultValueProperties.fromRdf,
     });
   });
 
@@ -267,5 +381,47 @@ describe("TsGenerator", () => {
         resource,
       ).unsafeCoerce();
     expect(instance.equals(instanceFromRdf).extract()).toStrictEqual(true);
+  });
+
+  it("toRdf: should not serialize default values", ({ expect }) => {
+    const dataset = new N3.Store();
+    const instance = new kitchenSinkClasses.NodeShapeWithDefaultValueProperties(
+      {
+        falseBooleanProperty: false,
+        identifier: dataFactory.blankNode(),
+        numberProperty: 0,
+        stringProperty: "",
+        trueBooleanProperty: true,
+      },
+    );
+    instance.toRdf({
+      mutateGraph: dataFactory.defaultGraph(),
+      resourceSet: new MutableResourceSet({ dataFactory, dataset }),
+    });
+    expect(dataset.size).toStrictEqual(0);
+  });
+
+  it("toRdf: should serialize non-default values", ({ expect }) => {
+    const dataset = new N3.Store();
+    const instance = new kitchenSinkClasses.NodeShapeWithDefaultValueProperties(
+      {
+        falseBooleanProperty: true,
+        identifier: dataFactory.blankNode(),
+        numberProperty: 1,
+        stringProperty: "test",
+        trueBooleanProperty: false,
+      },
+    );
+    const resource = instance.toRdf({
+      mutateGraph: dataFactory.defaultGraph(),
+      resourceSet: new MutableResourceSet({ dataFactory, dataset }),
+    });
+    expect(dataset.size).toStrictEqual(4);
+    expect(
+      resource
+        .value(dataFactory.namedNode("http://example.com/falseBooleanProperty"))
+        .chain((value) => value.toBoolean())
+        .unsafeCoerce(),
+    ).toStrictEqual(true);
   });
 });

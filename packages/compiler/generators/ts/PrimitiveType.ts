@@ -13,7 +13,13 @@ export abstract class PrimitiveType extends LiteralType {
     ];
     this.defaultValue.ifJust((defaultValue) => {
       conversions.push({
-        conversionExpression: () => fromRdf(defaultValue, true),
+        conversionExpression: () => {
+          let primitiveDefaultValue = fromRdf(defaultValue, true);
+          if (typeof primitiveDefaultValue === "string") {
+            primitiveDefaultValue = `"${primitiveDefaultValue}"`;
+          }
+          return primitiveDefaultValue;
+        },
         sourceTypeName: "undefined",
       });
     });
@@ -38,8 +44,18 @@ export abstract class PrimitiveType extends LiteralType {
     return this.defaultValue
       .map((defaultValue) => {
         let primitiveDefaultValue = fromRdf(defaultValue, true);
-        if (typeof primitiveDefaultValue === "string") {
-          primitiveDefaultValue = `"${primitiveDefaultValue}"`;
+        switch (typeof primitiveDefaultValue) {
+          case "boolean": {
+            if (primitiveDefaultValue) {
+              // If the default is true, only serialize the value if it's false
+              return `!${variables.value} ? false : undefined`;
+            }
+            // If the default is false, only serialize the value if it's true
+            return `${variables.value} ? true : undefined`;
+          }
+          case "string":
+            primitiveDefaultValue = `"${primitiveDefaultValue}"`;
+            break;
         }
         return `${variables.value} !== ${primitiveDefaultValue} ? ${variables.value} : undefined`;
       })

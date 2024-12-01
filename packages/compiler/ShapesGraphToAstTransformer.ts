@@ -515,6 +515,7 @@ export class ShapesGraphToAstTransformer {
           shape.constraints.minExclusive,
           shape.constraints.minInclusive,
         ].some((constraint) => constraint.isJust()) ||
+        defaultValue.extractNullable()?.termType === "Literal" ||
         // Treat any shape with a literal value as a literal type
         hasValue.extractNullable()?.termType === "Literal" ||
         // Treat any shape with a single sh:nodeKind of sh:Literal as a literal type
