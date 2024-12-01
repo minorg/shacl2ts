@@ -5,7 +5,7 @@ import {
   StructureKind,
 } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
-import { rdfjsTermExpression } from "../rdfjsTermExpression";
+import { rdfjsTermExpression } from "../rdfjsTermExpression.js";
 
 const ignoreRdfTypeVariable = "ignoreRdfType";
 const optionsVariable = "_options";

@@ -1,5 +1,5 @@
 import { Resource } from "rdfjs-resource";
-import type * as ast from "../../ast";
+import type * as ast from "../../ast/index.js";
 import { stringToValidTsIdentifier } from "./stringToValidTsIdentifier.js";
 
 export function tsName(astName: ast.Name): string {

@@ -1,5 +1,5 @@
 import { Maybe } from "purify-ts";
-import type * as ast from "../../ast";
+import type * as ast from "../../ast/index.js";
 import type { Configuration } from "./Configuration.js";
 
 /**

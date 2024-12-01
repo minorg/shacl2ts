@@ -1,10 +1,10 @@
 import { beforeAll, describe, it } from "vitest";
-import { RdfjsShapesGraph } from "../RdfjsShapesGraph";
+import { RdfjsShapesGraph } from "../RdfjsShapesGraph.js";
 import {
   type DefaultRdfjsShapesGraph,
   defaultRdfjsShapeFactory,
 } from "../defaultRdfjsShapeFactory.js";
-import { testData } from "./testData";
+import { testData } from "./testData.js";
 
 describe("RdfjsShapesGraph", () => {
   let shapesGraph: DefaultRdfjsShapesGraph;

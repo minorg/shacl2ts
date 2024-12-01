@@ -3,7 +3,7 @@ import type { BlankNode, NamedNode } from "@rdfjs/types";
 import { NodeKind } from "@shaclmate/shacl-ast";
 import { xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
-import type * as ast from "../../ast";
+import type * as ast from "../../ast/index.js";
 import { BooleanType } from "./BooleanType.js";
 import type { Configuration } from "./Configuration.js";
 import { IdentifierType } from "./IdentifierType.js";

@@ -1,6 +1,6 @@
 import type { Term as RdfjsTerm } from "@rdfjs/types";
 import * as shaclAst from "@shaclmate/shacl-ast";
-import type * as ast from "../../ast";
+import type * as ast from "../../ast/index.js";
 import type { Generator } from "../Generator.js";
 
 namespace AstJson {

@@ -4,7 +4,7 @@ import {
   type StatementStructures,
   StructureKind,
 } from "ts-morph";
-import type * as ast from "../../ast";
+import type * as ast from "../../ast/index.js";
 import type { Generator } from "../Generator.js";
 import { Configuration as GlobalConfiguration } from "./Configuration.js";
 import { ObjectType } from "./ObjectType.js";

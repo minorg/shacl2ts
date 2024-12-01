@@ -1,6 +1,6 @@
 import { type FunctionDeclarationStructure, StructureKind } from "ts-morph";
-import type { ObjectType } from "../ObjectType";
-import { toRdfFunctionOrMethodDeclaration } from "./toRdfFunctionOrMethodDeclaration";
+import type { ObjectType } from "../ObjectType.js";
+import { toRdfFunctionOrMethodDeclaration } from "./toRdfFunctionOrMethodDeclaration.js";
 
 export function toRdfFunctionDeclaration(
   this: ObjectType,

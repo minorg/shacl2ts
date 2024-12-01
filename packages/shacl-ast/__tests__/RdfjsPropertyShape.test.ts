@@ -1,12 +1,12 @@
 import type { NamedNode } from "@rdfjs/types";
 import { schema, xsd } from "@tpluscode/rdf-ns-builders";
 import { beforeAll, describe, expect, it } from "vitest";
-import { RdfjsShapesGraph } from "../RdfjsShapesGraph";
+import { RdfjsShapesGraph } from "../RdfjsShapesGraph.js";
 import {
   type DefaultRdfjsShapesGraph,
   defaultRdfjsShapeFactory,
 } from "../defaultRdfjsShapeFactory.js";
-import { testData } from "./testData";
+import { testData } from "./testData.js";
 
 describe("RdfjsPropertyShape", () => {
   let shapesGraph: DefaultRdfjsShapesGraph;

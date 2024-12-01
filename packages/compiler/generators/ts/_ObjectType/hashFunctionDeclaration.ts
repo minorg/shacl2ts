@@ -1,6 +1,6 @@
 import { camelCase } from "change-case";
 import { type FunctionDeclarationStructure, StructureKind } from "ts-morph";
-import type { ObjectType } from "../ObjectType";
+import type { ObjectType } from "../ObjectType.js";
 
 const hasherVariable = "_hasher";
 

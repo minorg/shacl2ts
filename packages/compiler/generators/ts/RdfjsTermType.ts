@@ -1,7 +1,7 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import type { Maybe } from "purify-ts";
 import { Type } from "./Type.js";
-import { rdfjsTermExpression } from "./rdfjsTermExpression";
+import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
 /**
  * Abstract base class for IdentifierType and LiteralType.

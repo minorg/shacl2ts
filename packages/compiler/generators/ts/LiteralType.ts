@@ -1,8 +1,8 @@
 import type { Literal } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { RdfjsTermType } from "./RdfjsTermType.js";
-import type { Type } from "./Type";
-import { rdfjsTermExpression } from "./rdfjsTermExpression";
+import type { Type } from "./Type.js";
+import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
 export class LiteralType extends RdfjsTermType<Literal> {
   readonly kind = "LiteralType";
