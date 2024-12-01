@@ -46,11 +46,11 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): {
     usedIgnoreRdfTypeVariable = !this.parentObjectTypes[0].abstract;
   } else if (this.identifierType.isNamedNodeKind) {
     statements.push(
-      `const ${variables.resource} = ${variables.resourceSet}.mutableNamedResource({ identifier: ${thisVariable}.${this.configuration.objectTypeIdentifierPropertyName}, mutateGraph: ${variables.mutateGraph} });`,
+      `const ${variables.resource} = ${variables.resourceSet}.mutableNamedResource({ identifier: ${thisVariable}.${this.configuration.objectTypeIdentifierPropertyName}, ${variables.mutateGraph} });`,
     );
   } else {
     statements.push(
-      `const ${variables.resource} = ${variables.resourceSet}.mutableResource({ identifier: ${thisVariable}.${this.configuration.objectTypeIdentifierPropertyName}, mutateGraph: ${variables.mutateGraph} });`,
+      `const ${variables.resource} = ${variables.resourceSet}.mutableResource({ identifier: ${thisVariable}.${this.configuration.objectTypeIdentifierPropertyName}, ${variables.mutateGraph} });`,
     );
   }
 

@@ -6,7 +6,7 @@ import * as purifyHelpers from "purify-ts-helpers";
 import * as rdfjsResource from "rdfjs-resource";
 
 export interface AbstractBaseClassWithoutPropertiesNodeShape {
-  readonly identifier: rdfjs.NamedNode;
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   readonly type: "ConcreteChildClassNodeShape" | "ConcreteParentClassNodeShape";
 }
 
@@ -22,11 +22,11 @@ namespace AbstractBaseClassWithoutPropertiesNodeShape {
   }
 
   export function fromRdf(
-    _resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _resource: rdfjsResource.Resource,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
-    { identifier: rdfjs.NamedNode }
+    { identifier: rdfjs.BlankNode | rdfjs.NamedNode }
   > {
     if (
       !_options?.ignoreRdfType &&
@@ -87,30 +87,17 @@ namespace AbstractBaseClassWithoutPropertiesNodeShape {
   export function toRdf(
     abstractBaseClassWithoutPropertiesNodeShape: AbstractBaseClassWithoutPropertiesNodeShape,
     {
-      ignoreRdfType,
       mutateGraph,
       resourceSet,
     }: {
-      ignoreRdfType?: boolean;
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
-  ): rdfjsResource.MutableResource<rdfjs.NamedNode> {
-    const _resource = resourceSet.mutableNamedResource({
+  ): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
       identifier: abstractBaseClassWithoutPropertiesNodeShape.identifier,
-      mutateGraph: mutateGraph,
+      mutateGraph,
     });
-    if (!ignoreRdfType) {
-      _resource.add(
-        _resource.dataFactory.namedNode(
-          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        ),
-        _resource.dataFactory.namedNode(
-          "http://example.com/AbstractBaseClassWithoutPropertiesNodeShape",
-        ),
-      );
-    }
-
     return _resource;
   }
 }
@@ -138,11 +125,11 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
   }
 
   export function fromRdf(
-    _resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _resource: rdfjsResource.Resource,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
-    { identifier: rdfjs.NamedNode; abcStringProperty: string }
+    { identifier: rdfjs.BlankNode | rdfjs.NamedNode; abcStringProperty: string }
   > {
     return AbstractBaseClassWithoutPropertiesNodeShape.fromRdf(_resource, {
       ignoreRdfType: true,
@@ -234,30 +221,17 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
   export function toRdf(
     abstractBaseClassWithPropertiesNodeShape: AbstractBaseClassWithPropertiesNodeShape,
     {
-      ignoreRdfType,
       mutateGraph,
       resourceSet,
     }: {
-      ignoreRdfType?: boolean;
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
-  ): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+  ): rdfjsResource.MutableResource {
     const _resource = AbstractBaseClassWithoutPropertiesNodeShape.toRdf(
       abstractBaseClassWithPropertiesNodeShape,
-      { mutateGraph, ignoreRdfType: true, resourceSet },
+      { mutateGraph, resourceSet },
     );
-    if (!ignoreRdfType) {
-      _resource.add(
-        _resource.dataFactory.namedNode(
-          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        ),
-        _resource.dataFactory.namedNode(
-          "http://example.com/AbstractBaseClassWithPropertiesNodeShape",
-        ),
-      );
-    }
-
     _resource.add(
       dataFactory.namedNode("http://example.com/abcStringProperty"),
       abstractBaseClassWithPropertiesNodeShape.abcStringProperty,
@@ -287,13 +261,13 @@ export namespace ConcreteParentClassNodeShape {
   }
 
   export function fromRdf(
-    _resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _resource: rdfjsResource.Resource,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
     {
       abcStringProperty: string;
-      identifier: rdfjs.NamedNode;
+      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
       parentStringProperty: string;
       type: "ConcreteChildClassNodeShape" | "ConcreteParentClassNodeShape";
     }
@@ -400,10 +374,10 @@ export namespace ConcreteParentClassNodeShape {
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
-  ): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+  ): rdfjsResource.MutableResource {
     const _resource = AbstractBaseClassWithPropertiesNodeShape.toRdf(
       concreteParentClassNodeShape,
-      { mutateGraph, ignoreRdfType: true, resourceSet },
+      { mutateGraph, resourceSet },
     );
     if (!ignoreRdfType) {
       _resource.add(
@@ -444,7 +418,7 @@ export namespace ConcreteChildClassNodeShape {
   }
 
   export function fromRdf(
-    _resource: rdfjsResource.Resource<rdfjs.NamedNode>,
+    _resource: rdfjsResource.Resource,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
@@ -452,7 +426,7 @@ export namespace ConcreteChildClassNodeShape {
       parentStringProperty: string;
       type: "ConcreteChildClassNodeShape";
       abcStringProperty: string;
-      identifier: rdfjs.NamedNode;
+      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
       childStringProperty: string;
     }
   > {
@@ -559,7 +533,7 @@ export namespace ConcreteChildClassNodeShape {
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
-  ): rdfjsResource.MutableResource<rdfjs.NamedNode> {
+  ): rdfjsResource.MutableResource {
     const _resource = ConcreteParentClassNodeShape.toRdf(
       concreteChildClassNodeShape,
       { mutateGraph, ignoreRdfType: true, resourceSet },
@@ -710,14 +684,13 @@ export namespace ExterningAndInliningNodeShape {
       mutateGraph,
       resourceSet,
     }: {
-      ignoreRdfType?: boolean;
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
   ): rdfjsResource.MutableResource {
     const _resource = resourceSet.mutableResource({
       identifier: externingAndInliningNodeShape.identifier,
-      mutateGraph: mutateGraph,
+      mutateGraph,
     });
     _resource.add(
       dataFactory.namedNode("http://example.com/externProperty"),
@@ -816,14 +789,13 @@ export namespace ExternNodeShape {
       mutateGraph,
       resourceSet,
     }: {
-      ignoreRdfType?: boolean;
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
   ): rdfjsResource.MutableResource {
     const _resource = resourceSet.mutableResource({
       identifier: externNodeShape.identifier,
-      mutateGraph: mutateGraph,
+      mutateGraph,
     });
     _resource.add(
       dataFactory.namedNode("http://example.com/stringProperty"),
@@ -915,14 +887,13 @@ export namespace InlineNodeShape {
       mutateGraph,
       resourceSet,
     }: {
-      ignoreRdfType?: boolean;
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
   ): rdfjsResource.MutableResource {
     const _resource = resourceSet.mutableResource({
       identifier: inlineNodeShape.identifier,
-      mutateGraph: mutateGraph,
+      mutateGraph,
     });
     _resource.add(
       dataFactory.namedNode("http://example.com/stringProperty"),
@@ -1014,14 +985,13 @@ export namespace IriNodeShape {
       mutateGraph,
       resourceSet,
     }: {
-      ignoreRdfType?: boolean;
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
   ): rdfjsResource.MutableResource<rdfjs.NamedNode> {
     const _resource = resourceSet.mutableNamedResource({
       identifier: iriNodeShape.identifier,
-      mutateGraph: mutateGraph,
+      mutateGraph,
     });
     _resource.add(
       dataFactory.namedNode("http://example.com/stringProperty"),
@@ -1139,14 +1109,13 @@ export namespace NodeShapeWithListProperty {
       mutateGraph,
       resourceSet,
     }: {
-      ignoreRdfType?: boolean;
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
   ): rdfjsResource.MutableResource {
     const _resource = resourceSet.mutableResource({
       identifier: nodeShapeWithListProperty.identifier,
-      mutateGraph: mutateGraph,
+      mutateGraph,
     });
     _resource.add(
       dataFactory.namedNode("http://example.com/listProperty"),
@@ -1379,14 +1348,13 @@ export namespace NodeShapeWithPropertyCardinalities {
       mutateGraph,
       resourceSet,
     }: {
-      ignoreRdfType?: boolean;
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
   ): rdfjsResource.MutableResource {
     const _resource = resourceSet.mutableResource({
       identifier: nodeShapeWithPropertyCardinalities.identifier,
-      mutateGraph: mutateGraph,
+      mutateGraph,
     });
     _resource.add(
       dataFactory.namedNode("http://example.com/optionalStringProperty"),
@@ -1486,14 +1454,13 @@ export namespace NonClassNodeShape {
       mutateGraph,
       resourceSet,
     }: {
-      ignoreRdfType?: boolean;
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
   ): rdfjsResource.MutableResource {
     const _resource = resourceSet.mutableResource({
       identifier: nonClassNodeShape.identifier,
-      mutateGraph: mutateGraph,
+      mutateGraph,
     });
     _resource.add(
       dataFactory.namedNode("http://example.com/stringProperty"),
@@ -1585,14 +1552,13 @@ export namespace OrNodeShapeMember1 {
       mutateGraph,
       resourceSet,
     }: {
-      ignoreRdfType?: boolean;
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
   ): rdfjsResource.MutableResource {
     const _resource = resourceSet.mutableResource({
       identifier: orNodeShapeMember1.identifier,
-      mutateGraph: mutateGraph,
+      mutateGraph,
     });
     _resource.add(
       dataFactory.namedNode("http://example.com/stringProperty1"),
@@ -1684,14 +1650,13 @@ export namespace OrNodeShapeMember2 {
       mutateGraph,
       resourceSet,
     }: {
-      ignoreRdfType?: boolean;
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
   ): rdfjsResource.MutableResource {
     const _resource = resourceSet.mutableResource({
       identifier: orNodeShapeMember2.identifier,
-      mutateGraph: mutateGraph,
+      mutateGraph,
     });
     _resource.add(
       dataFactory.namedNode("http://example.com/stringProperty2"),
@@ -1783,14 +1748,13 @@ export namespace Sha256IriNodeShape {
       mutateGraph,
       resourceSet,
     }: {
-      ignoreRdfType?: boolean;
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
   ): rdfjsResource.MutableResource<rdfjs.NamedNode> {
     const _resource = resourceSet.mutableNamedResource({
       identifier: sha256IriNodeShape.identifier,
-      mutateGraph: mutateGraph,
+      mutateGraph,
     });
     _resource.add(
       dataFactory.namedNode("http://example.com/stringProperty"),
@@ -1882,14 +1846,13 @@ export namespace UuidV4IriNodeShape {
       mutateGraph,
       resourceSet,
     }: {
-      ignoreRdfType?: boolean;
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
   ): rdfjsResource.MutableResource<rdfjs.NamedNode> {
     const _resource = resourceSet.mutableNamedResource({
       identifier: uuidV4IriNodeShape.identifier,
-      mutateGraph: mutateGraph,
+      mutateGraph,
     });
     _resource.add(
       dataFactory.namedNode("http://example.com/stringProperty"),
