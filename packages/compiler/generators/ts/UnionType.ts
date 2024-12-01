@@ -117,7 +117,7 @@ ${this.memberTypeTraits
       (
         value,
       ) => `if (left.${this._discriminatorProperty.name} === "${value}" && right.${this._discriminatorProperty.name} === "${value}") {
-  return ${memberTypeTraits.memberType.propertyEqualsFunction()}(left, right);
+  return ${memberTypeTraits.memberType.propertyEqualsFunction()}(${memberTypeTraits.payload("left")}, ${memberTypeTraits.payload("right")});
 }`,
     ),
   )
