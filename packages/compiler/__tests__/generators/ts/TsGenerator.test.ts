@@ -219,7 +219,9 @@ describe("TsGenerator", () => {
         .chain((value) => value.toIri())
         .unsafeCoerce()
         .equals(
-          dataFactory.namedNode("http://example.com/ChildClassNodeShape"),
+          dataFactory.namedNode(
+            "http://example.com/ConcreteChildClassNodeShape",
+          ),
         ),
     ).toStrictEqual(true);
     expect(
