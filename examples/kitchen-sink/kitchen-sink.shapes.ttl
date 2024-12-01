@@ -129,6 +129,16 @@
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
 .
 
+# Shape with sh:defaultValue properties
+:NodeShapeWithDefaultValueProperties
+  a sh:NodeShape ;
+  sh:name "NodeShapeWithDefaultValueProperties" ;
+  sh:property [ sh:defaultValue false ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "falseBooleanProperty" ; sh:path :falseBooleanProperty ] ;
+  sh:property [ sh:defaultValue true ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "trueBooleanProperty" ; sh:path :trueBooleanProperty ] ;
+  sh:property [ sh:defaultValue 0 ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "numberProperty" ; sh:path :numberProperty ] ;
+  sh:property [ sh:defaultValue "" ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
+.
+
 # Shape that uses the ListShape in a property.
 :NodeShapeWithListProperty
   a sh:NodeShape ;

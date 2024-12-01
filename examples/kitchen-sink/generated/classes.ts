@@ -1017,6 +1017,412 @@ export namespace IriNodeShape {
   }
 }
 
+export class NonClassNodeShape {
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly stringProperty: string;
+  readonly type = "NonClassNodeShape" as const;
+
+  constructor(parameters: {
+    readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+    readonly stringProperty: string;
+  }) {
+    this.identifier = parameters.identifier;
+    this.stringProperty = parameters.stringProperty;
+  }
+
+  equals(other: NonClassNodeShape): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      stringProperty: purifyHelpers.Equatable.strictEquals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(hasher: HasherT): HasherT {
+    return NonClassNodeShape.hash(this, hasher);
+  }
+
+  toRdf({
+    mutateGraph,
+    resourceSet,
+  }: {
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: this.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/stringProperty"),
+      this.stringProperty,
+    );
+    return _resource;
+  }
+}
+
+export namespace NonClassNodeShape {
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<rdfjsResource.Resource.ValueError, NonClassNodeShape> {
+    const identifier = _resource.identifier;
+    const _stringPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/stringProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
+    if (_stringPropertyEither.isLeft()) {
+      return _stringPropertyEither;
+    }
+
+    const stringProperty = _stringPropertyEither.unsafeCoerce();
+    return purify.Either.of(
+      new NonClassNodeShape({ identifier, stringProperty }),
+    );
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _nonClassNodeShape: Omit<
+      NonClassNodeShape,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    >,
+    _hasher: HasherT,
+  ): HasherT {
+    _hasher.update(_nonClassNodeShape.stringProperty);
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/stringProperty"),
+          this.variable("StringProperty"),
+        ),
+      );
+    }
+  }
+}
+
+export class NodeShapeWithDefaultValueProperties {
+  readonly falseBooleanProperty: boolean;
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly numberProperty: number;
+  readonly stringProperty: string;
+  readonly trueBooleanProperty: boolean;
+  readonly type = "NodeShapeWithDefaultValueProperties" as const;
+
+  constructor(parameters: {
+    readonly falseBooleanProperty?: boolean;
+    readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+    readonly numberProperty?: number;
+    readonly stringProperty?: string;
+    readonly trueBooleanProperty?: boolean;
+  }) {
+    if (typeof parameters.falseBooleanProperty === "boolean") {
+      this.falseBooleanProperty = parameters.falseBooleanProperty;
+    } else if (typeof parameters.falseBooleanProperty === "undefined") {
+      this.falseBooleanProperty = false;
+    } else {
+      this.falseBooleanProperty = parameters.falseBooleanProperty; // never
+    }
+
+    this.identifier = parameters.identifier;
+    if (typeof parameters.numberProperty === "number") {
+      this.numberProperty = parameters.numberProperty;
+    } else if (typeof parameters.numberProperty === "undefined") {
+      this.numberProperty = 0;
+    } else {
+      this.numberProperty = parameters.numberProperty; // never
+    }
+
+    if (typeof parameters.stringProperty === "string") {
+      this.stringProperty = parameters.stringProperty;
+    } else if (typeof parameters.stringProperty === "undefined") {
+      this.stringProperty = "";
+    } else {
+      this.stringProperty = parameters.stringProperty; // never
+    }
+
+    if (typeof parameters.trueBooleanProperty === "boolean") {
+      this.trueBooleanProperty = parameters.trueBooleanProperty;
+    } else if (typeof parameters.trueBooleanProperty === "undefined") {
+      this.trueBooleanProperty = true;
+    } else {
+      this.trueBooleanProperty = parameters.trueBooleanProperty; // never
+    }
+  }
+
+  equals(
+    other: NodeShapeWithDefaultValueProperties,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
+      falseBooleanProperty: purifyHelpers.Equatable.strictEquals,
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      numberProperty: purifyHelpers.Equatable.strictEquals,
+      stringProperty: purifyHelpers.Equatable.strictEquals,
+      trueBooleanProperty: purifyHelpers.Equatable.strictEquals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(hasher: HasherT): HasherT {
+    return NodeShapeWithDefaultValueProperties.hash(this, hasher);
+  }
+
+  toRdf({
+    mutateGraph,
+    resourceSet,
+  }: {
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: this.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/falseBooleanProperty"),
+      this.falseBooleanProperty ? true : undefined,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/numberProperty"),
+      this.numberProperty !== 0 ? this.numberProperty : undefined,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/stringProperty"),
+      this.stringProperty !== "" ? this.stringProperty : undefined,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/trueBooleanProperty"),
+      !this.trueBooleanProperty ? false : undefined,
+    );
+    return _resource;
+  }
+}
+
+export namespace NodeShapeWithDefaultValueProperties {
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    NodeShapeWithDefaultValueProperties
+  > {
+    const _falseBooleanPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      boolean
+    > = _resource
+      .values(
+        dataFactory.namedNode("http://example.com/falseBooleanProperty"),
+        { unique: true },
+      )
+      .head()
+      .alt(
+        purify.Either.of(
+          new rdfjsResource.Resource.Value({
+            subject: _resource,
+            predicate: dataFactory.namedNode(
+              "http://example.com/falseBooleanProperty",
+            ),
+            object: dataFactory.literal(
+              "false",
+              dataFactory.namedNode("http://www.w3.org/2001/XMLSchema#boolean"),
+            ),
+          }),
+        ),
+      )
+      .chain((_value) => _value.toBoolean());
+    if (_falseBooleanPropertyEither.isLeft()) {
+      return _falseBooleanPropertyEither;
+    }
+
+    const falseBooleanProperty = _falseBooleanPropertyEither.unsafeCoerce();
+    const identifier = _resource.identifier;
+    const _numberPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      number
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/numberProperty"), {
+        unique: true,
+      })
+      .head()
+      .alt(
+        purify.Either.of(
+          new rdfjsResource.Resource.Value({
+            subject: _resource,
+            predicate: dataFactory.namedNode(
+              "http://example.com/numberProperty",
+            ),
+            object: dataFactory.literal(
+              "0",
+              dataFactory.namedNode("http://www.w3.org/2001/XMLSchema#integer"),
+            ),
+          }),
+        ),
+      )
+      .chain((_value) => _value.toNumber());
+    if (_numberPropertyEither.isLeft()) {
+      return _numberPropertyEither;
+    }
+
+    const numberProperty = _numberPropertyEither.unsafeCoerce();
+    const _stringPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/stringProperty"), {
+        unique: true,
+      })
+      .head()
+      .alt(
+        purify.Either.of(
+          new rdfjsResource.Resource.Value({
+            subject: _resource,
+            predicate: dataFactory.namedNode(
+              "http://example.com/stringProperty",
+            ),
+            object: dataFactory.literal("", ""),
+          }),
+        ),
+      )
+      .chain((_value) => _value.toString());
+    if (_stringPropertyEither.isLeft()) {
+      return _stringPropertyEither;
+    }
+
+    const stringProperty = _stringPropertyEither.unsafeCoerce();
+    const _trueBooleanPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      boolean
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/trueBooleanProperty"), {
+        unique: true,
+      })
+      .head()
+      .alt(
+        purify.Either.of(
+          new rdfjsResource.Resource.Value({
+            subject: _resource,
+            predicate: dataFactory.namedNode(
+              "http://example.com/trueBooleanProperty",
+            ),
+            object: dataFactory.literal(
+              "true",
+              dataFactory.namedNode("http://www.w3.org/2001/XMLSchema#boolean"),
+            ),
+          }),
+        ),
+      )
+      .chain((_value) => _value.toBoolean());
+    if (_trueBooleanPropertyEither.isLeft()) {
+      return _trueBooleanPropertyEither;
+    }
+
+    const trueBooleanProperty = _trueBooleanPropertyEither.unsafeCoerce();
+    return purify.Either.of(
+      new NodeShapeWithDefaultValueProperties({
+        falseBooleanProperty,
+        identifier,
+        numberProperty,
+        stringProperty,
+        trueBooleanProperty,
+      }),
+    );
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _nodeShapeWithDefaultValueProperties: Omit<
+      NodeShapeWithDefaultValueProperties,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    >,
+    _hasher: HasherT,
+  ): HasherT {
+    _hasher.update(
+      _nodeShapeWithDefaultValueProperties.falseBooleanProperty.toString(),
+    );
+    _hasher.update(
+      _nodeShapeWithDefaultValueProperties.numberProperty.toString(),
+    );
+    _hasher.update(_nodeShapeWithDefaultValueProperties.stringProperty);
+    _hasher.update(
+      _nodeShapeWithDefaultValueProperties.trueBooleanProperty.toString(),
+    );
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/falseBooleanProperty"),
+            this.variable("FalseBooleanProperty"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/numberProperty"),
+            this.variable("NumberProperty"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/stringProperty"),
+            this.variable("StringProperty"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/trueBooleanProperty"),
+            this.variable("TrueBooleanProperty"),
+          ),
+        ),
+      );
+    }
+  }
+}
+
 export class NodeShapeWithListProperty {
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   readonly listProperty: readonly string[];
@@ -1418,111 +1824,6 @@ export namespace NodeShapeWithPropertyCardinalities {
           this.subject,
           dataFactory.namedNode("http://example.com/setStringProperty"),
           this.variable("SetStringProperty"),
-        ),
-      );
-    }
-  }
-}
-
-export class NonClassNodeShape {
-  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly stringProperty: string;
-  readonly type = "NonClassNodeShape" as const;
-
-  constructor(parameters: {
-    readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-    readonly stringProperty: string;
-  }) {
-    this.identifier = parameters.identifier;
-    this.stringProperty = parameters.stringProperty;
-  }
-
-  equals(other: NonClassNodeShape): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
-  }
-
-  hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(hasher: HasherT): HasherT {
-    return NonClassNodeShape.hash(this, hasher);
-  }
-
-  toRdf({
-    mutateGraph,
-    resourceSet,
-  }: {
-    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-    resourceSet: rdfjsResource.MutableResourceSet;
-  }): rdfjsResource.MutableResource {
-    const _resource = resourceSet.mutableResource({
-      identifier: this.identifier,
-      mutateGraph,
-    });
-    _resource.add(
-      dataFactory.namedNode("http://example.com/stringProperty"),
-      this.stringProperty,
-    );
-    return _resource;
-  }
-}
-
-export namespace NonClassNodeShape {
-  export function fromRdf(
-    _resource: rdfjsResource.Resource,
-    _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, NonClassNodeShape> {
-    const identifier = _resource.identifier;
-    const _stringPropertyEither: purify.Either<
-      rdfjsResource.Resource.ValueError,
-      string
-    > = _resource
-      .values(dataFactory.namedNode("http://example.com/stringProperty"), {
-        unique: true,
-      })
-      .head()
-      .chain((_value) => _value.toString());
-    if (_stringPropertyEither.isLeft()) {
-      return _stringPropertyEither;
-    }
-
-    const stringProperty = _stringPropertyEither.unsafeCoerce();
-    return purify.Either.of(
-      new NonClassNodeShape({ identifier, stringProperty }),
-    );
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _nonClassNodeShape: Omit<
-      NonClassNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _hasher.update(_nonClassNodeShape.stringProperty);
-    return _hasher;
-  }
-
-  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
-    constructor(
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
-    ) {
-      super(subject);
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://example.com/stringProperty"),
-          this.variable("StringProperty"),
         ),
       );
     }
