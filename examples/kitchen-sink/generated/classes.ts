@@ -66,30 +66,10 @@ abstract class AbstractBaseClassWithoutPropertiesNodeShape {
 namespace AbstractBaseClassWithoutPropertiesNodeShape {
   export function fromRdf(
     _resource: rdfjsResource.Resource,
-    _options?: { ignoreRdfType?: boolean },
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
     { identifier: rdfjs.BlankNode | rdfjs.NamedNode }
   > {
-    if (
-      !_options?.ignoreRdfType &&
-      !_resource.isInstanceOf(
-        dataFactory.namedNode(
-          "http://example.com/AbstractBaseClassWithoutPropertiesNodeShape",
-        ),
-      )
-    ) {
-      return purify.Left(
-        new rdfjsResource.Resource.ValueError({
-          focusResource: _resource,
-          message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
-          predicate: dataFactory.namedNode(
-            "http://example.com/AbstractBaseClassWithoutPropertiesNodeShape",
-          ),
-        }),
-      );
-    }
-
     const identifier = _resource.identifier;
     return purify.Either.of({ identifier });
   }
@@ -184,50 +164,32 @@ abstract class AbstractBaseClassWithPropertiesNodeShape extends AbstractBaseClas
 namespace AbstractBaseClassWithPropertiesNodeShape {
   export function fromRdf(
     _resource: rdfjsResource.Resource,
-    _options?: { ignoreRdfType?: boolean },
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
     { identifier: rdfjs.BlankNode | rdfjs.NamedNode; abcStringProperty: string }
   > {
-    return AbstractBaseClassWithoutPropertiesNodeShape.fromRdf(_resource, {
-      ignoreRdfType: true,
-    }).chain((_super) => {
-      if (
-        !_options?.ignoreRdfType &&
-        !_resource.isInstanceOf(
-          dataFactory.namedNode(
-            "http://example.com/AbstractBaseClassWithPropertiesNodeShape",
-          ),
-        )
-      ) {
-        return purify.Left(
-          new rdfjsResource.Resource.ValueError({
-            focusResource: _resource,
-            message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
-            predicate: dataFactory.namedNode(
-              "http://example.com/AbstractBaseClassWithPropertiesNodeShape",
-            ),
-          }),
-        );
-      }
-      const _abcStringPropertyEither: purify.Either<
-        rdfjsResource.Resource.ValueError,
-        string
-      > = _resource
-        .values(dataFactory.namedNode("http://example.com/abcStringProperty"), {
-          unique: true,
-        })
-        .head()
-        .chain((_value) => _value.toString());
-      if (_abcStringPropertyEither.isLeft()) {
-        return _abcStringPropertyEither;
-      }
-      const abcStringProperty = _abcStringPropertyEither.unsafeCoerce();
-      return purify.Either.of({
-        identifier: _super.identifier,
-        abcStringProperty,
-      });
-    });
+    return AbstractBaseClassWithoutPropertiesNodeShape.fromRdf(_resource).chain(
+      (_super) => {
+        const _abcStringPropertyEither: purify.Either<
+          rdfjsResource.Resource.ValueError,
+          string
+        > = _resource
+          .values(
+            dataFactory.namedNode("http://example.com/abcStringProperty"),
+            { unique: true },
+          )
+          .head()
+          .chain((_value) => _value.toString());
+        if (_abcStringPropertyEither.isLeft()) {
+          return _abcStringPropertyEither;
+        }
+        const abcStringProperty = _abcStringPropertyEither.unsafeCoerce();
+        return purify.Either.of({
+          identifier: _super.identifier,
+          abcStringProperty,
+        });
+      },
+    );
   }
 
   export function hashAbstractBaseClassWithPropertiesNodeShape<
@@ -353,49 +315,49 @@ export namespace ConcreteParentClassNodeShape {
     rdfjsResource.Resource.ValueError,
     ConcreteParentClassNodeShape
   > {
-    return AbstractBaseClassWithPropertiesNodeShape.fromRdf(_resource, {
-      ignoreRdfType: true,
-    }).chain((_super) => {
-      if (
-        !_options?.ignoreRdfType &&
-        !_resource.isInstanceOf(
-          dataFactory.namedNode(
-            "http://example.com/ConcreteParentClassNodeShape",
-          ),
-        )
-      ) {
-        return purify.Left(
-          new rdfjsResource.Resource.ValueError({
-            focusResource: _resource,
-            message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
-            predicate: dataFactory.namedNode(
+    return AbstractBaseClassWithPropertiesNodeShape.fromRdf(_resource).chain(
+      (_super) => {
+        if (
+          !_options?.ignoreRdfType &&
+          !_resource.isInstanceOf(
+            dataFactory.namedNode(
               "http://example.com/ConcreteParentClassNodeShape",
             ),
+          )
+        ) {
+          return purify.Left(
+            new rdfjsResource.Resource.ValueError({
+              focusResource: _resource,
+              message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
+              predicate: dataFactory.namedNode(
+                "http://example.com/ConcreteParentClassNodeShape",
+              ),
+            }),
+          );
+        }
+        const _parentStringPropertyEither: purify.Either<
+          rdfjsResource.Resource.ValueError,
+          string
+        > = _resource
+          .values(
+            dataFactory.namedNode("http://example.com/parentStringProperty"),
+            { unique: true },
+          )
+          .head()
+          .chain((_value) => _value.toString());
+        if (_parentStringPropertyEither.isLeft()) {
+          return _parentStringPropertyEither;
+        }
+        const parentStringProperty = _parentStringPropertyEither.unsafeCoerce();
+        return purify.Either.of(
+          new ConcreteParentClassNodeShape({
+            abcStringProperty: _super.abcStringProperty,
+            identifier: _super.identifier,
+            parentStringProperty,
           }),
         );
-      }
-      const _parentStringPropertyEither: purify.Either<
-        rdfjsResource.Resource.ValueError,
-        string
-      > = _resource
-        .values(
-          dataFactory.namedNode("http://example.com/parentStringProperty"),
-          { unique: true },
-        )
-        .head()
-        .chain((_value) => _value.toString());
-      if (_parentStringPropertyEither.isLeft()) {
-        return _parentStringPropertyEither;
-      }
-      const parentStringProperty = _parentStringPropertyEither.unsafeCoerce();
-      return purify.Either.of(
-        new ConcreteParentClassNodeShape({
-          abcStringProperty: _super.abcStringProperty,
-          identifier: _super.identifier,
-          parentStringProperty,
-        }),
-      );
-    });
+      },
+    );
   }
 
   export function hashConcreteParentClassNodeShape<
