@@ -22,6 +22,12 @@ export class ShapesGraphToAstTransformer {
   protected readonly shapesGraph: input.ShapesGraph;
   protected transformNodeShapeToAstType =
     _ShapesGraphToAstTransformer.transformNodeShapeToAstType;
+  protected transformPropertyShapeToAstCompositeType =
+    _ShapesGraphToAstTransformer.transformPropertyShapeToAstCompositeType;
+  protected transformPropertyShapeToAstIdentifierType =
+    _ShapesGraphToAstTransformer.transformPropertyShapeToAstIdentifierType;
+  protected transformPropertyShapeToAstLiteralType =
+    _ShapesGraphToAstTransformer.transformPropertyShapeToAstLiteralType;
   protected transformPropertyShapeToAstObjectTypeProperty =
     _ShapesGraphToAstTransformer.transformPropertyShapeToAstObjectTypeProperty;
   protected transformPropertyShapeToAstType =
