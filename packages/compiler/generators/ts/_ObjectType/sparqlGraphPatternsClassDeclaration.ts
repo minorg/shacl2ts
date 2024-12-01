@@ -1,4 +1,9 @@
-import { type ClassDeclarationStructure, StructureKind } from "ts-morph";
+import {
+  type ClassDeclarationStructure,
+  type OptionalKind,
+  type ParameterDeclarationStructure,
+  StructureKind,
+} from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
 import { rdfjsTermExpression } from "../rdfjsTermExpression";
 
@@ -11,9 +16,26 @@ export function sparqlGraphPatternsClassDeclaration(
 ): ClassDeclarationStructure {
   this.ensureAtMostOneSuperObjectType();
 
+  const constructorParameters: OptionalKind<ParameterDeclarationStructure>[] = [
+    {
+      name: subjectVariable,
+      type: "sparqlBuilder.ResourceGraphPatterns.SubjectParameter",
+    },
+  ];
+  if (!this.abstract) {
+    constructorParameters.push({
+      hasQuestionToken: true,
+      name: optionsVariable,
+      type: `{ ${ignoreRdfTypeVariable}?: boolean }`,
+    });
+  }
+
   const constructorStatements: string[] = [];
 
-  if (this.parentObjectTypes.length > 0) {
+  if (
+    this.parentObjectTypes.length > 0 &&
+    !this.parentObjectTypes[0].abstract
+  ) {
     constructorStatements.push(
       `super(${subjectVariable}, { ignoreRdfType: true });`,
     );
@@ -21,11 +43,13 @@ export function sparqlGraphPatternsClassDeclaration(
     constructorStatements.push(`super(${subjectVariable});`);
   }
 
-  this.rdfType.ifJust((rdfType) =>
-    constructorStatements.push(
-      `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${rdfjsTermExpression(rdfType, this.configuration)})); }`,
-    ),
-  );
+  if (!this.abstract) {
+    this.rdfType.ifJust((rdfType) =>
+      constructorStatements.push(
+        `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${rdfjsTermExpression(rdfType, this.configuration)})); }`,
+      ),
+    );
+  }
 
   for (const property of this.properties) {
     property
@@ -36,22 +60,15 @@ export function sparqlGraphPatternsClassDeclaration(
   }
 
   return {
-    ctors: [
-      {
-        parameters: [
-          {
-            name: subjectVariable,
-            type: "sparqlBuilder.ResourceGraphPatterns.SubjectParameter",
-          },
-          {
-            hasQuestionToken: true,
-            name: optionsVariable,
-            type: `{ ${ignoreRdfTypeVariable}?: boolean }`,
-          },
-        ],
-        statements: constructorStatements,
-      },
-    ],
+    ctors:
+      constructorStatements.length > 1
+        ? [
+            {
+              parameters: constructorParameters,
+              statements: constructorStatements,
+            },
+          ]
+        : undefined,
     extends:
       this.parentObjectTypes.length > 0
         ? `${this.parentObjectTypes[0].name}.SparqlGraphPatterns`

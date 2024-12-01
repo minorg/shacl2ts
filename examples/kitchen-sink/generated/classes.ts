@@ -88,24 +88,7 @@ namespace AbstractBaseClassWithoutPropertiesNodeShape {
     return _hasher;
   }
 
-  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
-    constructor(
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
-    ) {
-      super(subject);
-      if (!_options?.ignoreRdfType) {
-        this.add(
-          ...new sparqlBuilder.RdfTypeGraphPatterns(
-            subject,
-            dataFactory.namedNode(
-              "http://example.com/AbstractBaseClassWithoutPropertiesNodeShape",
-            ),
-          ),
-        );
-      }
-    }
-  }
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {}
 }
 
 abstract class AbstractBaseClassWithPropertiesNodeShape extends AbstractBaseClassWithoutPropertiesNodeShape {
@@ -212,22 +195,8 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
   }
 
   export class SparqlGraphPatterns extends AbstractBaseClassWithoutPropertiesNodeShape.SparqlGraphPatterns {
-    constructor(
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
-    ) {
-      super(subject, { ignoreRdfType: true });
-      if (!_options?.ignoreRdfType) {
-        this.add(
-          ...new sparqlBuilder.RdfTypeGraphPatterns(
-            subject,
-            dataFactory.namedNode(
-              "http://example.com/AbstractBaseClassWithPropertiesNodeShape",
-            ),
-          ),
-        );
-      }
-
+    constructor(subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter) {
+      super(subject);
       this.add(
         sparqlBuilder.GraphPattern.basic(
           this.subject,
@@ -384,7 +353,7 @@ export namespace ConcreteParentClassNodeShape {
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
       _options?: { ignoreRdfType?: boolean },
     ) {
-      super(subject, { ignoreRdfType: true });
+      super(subject);
       if (!_options?.ignoreRdfType) {
         this.add(
           ...new sparqlBuilder.RdfTypeGraphPatterns(
