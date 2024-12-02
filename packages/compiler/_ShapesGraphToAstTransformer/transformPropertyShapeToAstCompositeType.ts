@@ -78,9 +78,10 @@ export function transformPropertyShapeToAstCompositeType(
 
       return Either.of({
         defaultValue: defaultValue.filter(
-          (term) => term.termType !== "Literal",
+          (term) => term.termType === "NamedNode",
         ),
         hasValue: Maybe.empty(),
+        in_: Maybe.empty(),
         kind: "IdentifierType",
         nodeKinds: classObjectType.nodeKinds,
       });
@@ -147,6 +148,7 @@ export function transformPropertyShapeToAstCompositeType(
       datatype: Maybe.empty(),
       defaultValue: defaultValue.filter((term) => term.termType === "Literal"),
       hasValue: Maybe.empty(),
+      in_: Maybe.empty(),
       kind: "LiteralType",
       maxExclusive: Maybe.empty(),
       maxInclusive: Maybe.empty(),
@@ -163,8 +165,11 @@ export function transformPropertyShapeToAstCompositeType(
   ) {
     // Special case: all member types are blank or named nodes without further constraints
     return Either.of({
-      defaultValue: defaultValue.filter((term) => term.termType !== "Literal"),
+      defaultValue: defaultValue.filter(
+        (term) => term.termType === "NamedNode",
+      ),
       hasValue: Maybe.empty(),
+      in_: Maybe.empty(),
       kind: "IdentifierType",
       nodeKinds: new Set<NodeKind.BLANK_NODE | NodeKind.IRI>(
         memberItemTypes

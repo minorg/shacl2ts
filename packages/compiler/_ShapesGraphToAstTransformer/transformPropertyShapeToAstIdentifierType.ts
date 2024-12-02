@@ -17,17 +17,17 @@ export function transformPropertyShapeToAstIdentifierType(
     inline: Maybe<boolean>;
   } | null,
 ): Either<Error, ast.IdentifierType> {
-  // Treat any shape with sh:nodeKind blank node or IRI as an identifier type
+  // defaultValue / hasValue / in only makes sense with IRIs
   const identifierDefaultValue = (
     shape instanceof input.PropertyShape ? shape.defaultValue : Maybe.empty()
   )
     .alt(inherited !== null ? inherited.defaultValue : Maybe.empty())
-    .filter((value) => value.termType !== "Literal");
+    .filter((value) => value.termType === "NamedNode");
   const identifierHasValue = shape.constraints.hasValue.filter(
-    (value) => value.termType !== "Literal",
+    (value) => value.termType === "NamedNode",
   );
   const identifierIn = shape.constraints.in_
-    .map((in_) => in_.filter((term) => term.termType !== "Literal"))
+    .map((in_) => in_.filter((term) => term.termType === "NamedNode"))
     .filter((in_) => in_.length > 0);
   const nodeKinds = propertyShapeNodeKinds(shape);
 
@@ -42,6 +42,7 @@ export function transformPropertyShapeToAstIdentifierType(
     return Either.of({
       defaultValue: identifierDefaultValue,
       hasValue: identifierHasValue,
+      in_: identifierIn,
       kind: "IdentifierType",
       nodeKinds: nodeKinds as Set<NodeKind.BLANK_NODE | NodeKind.IRI>,
     });
