@@ -68,7 +68,10 @@ function descendantClassIris(
   return [...descendantClassIris];
 }
 
-export class NodeShape extends RdfjsNodeShape<any, PropertyShape, Shape> {
+export class NodeShape
+  extends RdfjsNodeShape<any, PropertyShape, Shape>
+  implements Shape
+{
   get abstract(): Maybe<boolean> {
     return this.resource
       .value(shaclmate.abstract)
