@@ -143,7 +143,7 @@
 :NodeShapeWithInProperties
   a sh:NodeShape ;
   sh:name "NodeShapeWithInProperties" ;
-  sh:property [ sh:maxCount 1 ; sh:name "inIrisProperty" ; sh:in ( :Option1 :Option2 ) ; sh:path :inIrisProperty ] ;
+  sh:property [ sh:maxCount 1 ; sh:name "inIrisProperty" ; sh:in ( :NodeShapeWithInPropertiesIri1 :NodeShapeWithInPropertiesIri2 ) ; sh:path :inIrisProperty ] ;
   sh:property [ sh:maxCount 1 ; sh:name "inLiteralsProperty" ; sh:in ( "text" "html" ) ; sh:path :inLiteralsProperty ] ;
 .
 

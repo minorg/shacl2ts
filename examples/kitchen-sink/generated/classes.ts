@@ -1425,6 +1425,217 @@ export namespace NodeShapeWithDefaultValueProperties {
   }
 }
 
+export class NodeShapeWithInProperties {
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly inIrisProperty: purify.Maybe<rdfjs.NamedNode>;
+  readonly inLiteralsProperty: purify.Maybe<rdfjs.Literal>;
+  readonly type = "NodeShapeWithInProperties" as const;
+
+  constructor(parameters: {
+    readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+    readonly inIrisProperty?: purify.Maybe<rdfjs.NamedNode> | rdfjs.NamedNode;
+    readonly inLiteralsProperty?:
+      | Date
+      | boolean
+      | number
+      | purify.Maybe<rdfjs.Literal>
+      | rdfjs.Literal
+      | string;
+  }) {
+    this.identifier = parameters.identifier;
+    if (purify.Maybe.isMaybe(parameters.inIrisProperty)) {
+      this.inIrisProperty = parameters.inIrisProperty;
+    } else if (typeof parameters.inIrisProperty === "object") {
+      this.inIrisProperty = purify.Maybe.of(parameters.inIrisProperty);
+    } else if (typeof parameters.inIrisProperty === "undefined") {
+      this.inIrisProperty = purify.Maybe.empty();
+    } else {
+      this.inIrisProperty = parameters.inIrisProperty; // never
+    }
+
+    if (purify.Maybe.isMaybe(parameters.inLiteralsProperty)) {
+      this.inLiteralsProperty = parameters.inLiteralsProperty;
+    } else if (typeof parameters.inLiteralsProperty === "boolean") {
+      this.inLiteralsProperty = purify.Maybe.of(
+        rdfLiteral.toRdf(parameters.inLiteralsProperty),
+      );
+    } else if (
+      typeof parameters.inLiteralsProperty === "object" &&
+      parameters.inLiteralsProperty instanceof Date
+    ) {
+      this.inLiteralsProperty = purify.Maybe.of(
+        rdfLiteral.toRdf(parameters.inLiteralsProperty),
+      );
+    } else if (typeof parameters.inLiteralsProperty === "number") {
+      this.inLiteralsProperty = purify.Maybe.of(
+        rdfLiteral.toRdf(parameters.inLiteralsProperty),
+      );
+    } else if (typeof parameters.inLiteralsProperty === "string") {
+      this.inLiteralsProperty = purify.Maybe.of(
+        dataFactory.literal(parameters.inLiteralsProperty),
+      );
+    } else if (typeof parameters.inLiteralsProperty === "object") {
+      this.inLiteralsProperty = purify.Maybe.of(parameters.inLiteralsProperty);
+    } else if (typeof parameters.inLiteralsProperty === "undefined") {
+      this.inLiteralsProperty = purify.Maybe.empty();
+    } else {
+      this.inLiteralsProperty = parameters.inLiteralsProperty; // never
+    }
+  }
+
+  equals(
+    other: NodeShapeWithInProperties,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      inIrisProperty: (left, right) =>
+        purifyHelpers.Maybes.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      inLiteralsProperty: (left, right) =>
+        purifyHelpers.Maybes.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(hasher: HasherT): HasherT {
+    return NodeShapeWithInProperties.hash(this, hasher);
+  }
+
+  toRdf({
+    mutateGraph,
+    resourceSet,
+  }: {
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: this.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/inIrisProperty"),
+      this.inIrisProperty,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/inLiteralsProperty"),
+      this.inLiteralsProperty,
+    );
+    return _resource;
+  }
+}
+
+export namespace NodeShapeWithInProperties {
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    NodeShapeWithInProperties
+  > {
+    const identifier = _resource.identifier;
+    const _inIrisPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<rdfjs.NamedNode>
+    > = purify.Either.of(
+      _resource
+        .values(dataFactory.namedNode("http://example.com/inIrisProperty"), {
+          unique: true,
+        })
+        .head()
+        .chain((_value) => _value.toIri())
+        .toMaybe(),
+    );
+    if (_inIrisPropertyEither.isLeft()) {
+      return _inIrisPropertyEither;
+    }
+
+    const inIrisProperty = _inIrisPropertyEither.unsafeCoerce();
+    const _inLiteralsPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<rdfjs.Literal>
+    > = purify.Either.of(
+      _resource
+        .values(
+          dataFactory.namedNode("http://example.com/inLiteralsProperty"),
+          { unique: true },
+        )
+        .head()
+        .chain((_value) => _value.toLiteral())
+        .toMaybe(),
+    );
+    if (_inLiteralsPropertyEither.isLeft()) {
+      return _inLiteralsPropertyEither;
+    }
+
+    const inLiteralsProperty = _inLiteralsPropertyEither.unsafeCoerce();
+    return purify.Either.of(
+      new NodeShapeWithInProperties({
+        identifier,
+        inIrisProperty,
+        inLiteralsProperty,
+      }),
+    );
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _nodeShapeWithInProperties: Omit<
+      NodeShapeWithInProperties,
+      "equals" | "hash" | "identifier" | "toRdf" | "type"
+    >,
+    _hasher: HasherT,
+  ): HasherT {
+    _nodeShapeWithInProperties.inIrisProperty.ifJust((_value) => {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_value));
+    });
+    _nodeShapeWithInProperties.inLiteralsProperty.ifJust((_value) => {
+      _hasher.update(_value.value);
+    });
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/inIrisProperty"),
+            this.variable("InIrisProperty"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/inLiteralsProperty"),
+            this.variable("InLiteralsProperty"),
+          ),
+        ),
+      );
+    }
+  }
+}
+
 export class NodeShapeWithListProperty {
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   readonly listProperty: readonly string[];
