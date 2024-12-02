@@ -41,6 +41,7 @@ export class TypeFactory {
           configuration: this.configuration,
           defaultValue: astType.defaultValue,
           hasValue: astType.hasValue,
+          in_: astType.in_,
           nodeKinds: astType.nodeKinds,
         });
       case "IntersectionType":
@@ -58,6 +59,7 @@ export class TypeFactory {
             return new BooleanType({
               configuration: this.configuration,
               defaultValue: astType.defaultValue,
+              in_: astType.in_,
               hasValue: astType.hasValue,
             });
           }
@@ -65,6 +67,7 @@ export class TypeFactory {
             return new NumberType({
               configuration: this.configuration,
               defaultValue: astType.defaultValue,
+              in_: astType.in_,
               hasValue: astType.hasValue,
             });
           }
@@ -72,6 +75,7 @@ export class TypeFactory {
             return new StringType({
               configuration: this.configuration,
               defaultValue: astType.defaultValue,
+              in_: astType.in_,
               hasValue: astType.hasValue,
             });
           }
@@ -79,6 +83,7 @@ export class TypeFactory {
         return new LiteralType({
           configuration: this.configuration,
           defaultValue: astType.defaultValue,
+          in_: astType.in_,
           hasValue: astType.hasValue,
         });
       }
@@ -147,6 +152,7 @@ export class TypeFactory {
       configuration: this.configuration,
       defaultValue: Maybe.empty(),
       hasValue: Maybe.empty(),
+      in_: Maybe.empty(),
       nodeKinds: astType.nodeKinds,
     });
 
@@ -246,6 +252,7 @@ export class TypeFactory {
         configuration: this.configuration,
         defaultValue: Maybe.empty(),
         hasValue: Maybe.empty(),
+        in_: Maybe.empty(),
         nodeKinds: astObjectTypeProperty.type.nodeKinds,
       });
     } else {

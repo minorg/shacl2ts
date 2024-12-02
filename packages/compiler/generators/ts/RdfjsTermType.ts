@@ -8,22 +8,27 @@ import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
  */
 export abstract class RdfjsTermType<
   RdfjsTermT extends BlankNode | Literal | NamedNode,
+  ValueRdfjsTermT extends BlankNode | Literal | NamedNode = RdfjsTermT,
 > extends Type {
-  readonly defaultValue: Maybe<RdfjsTermT>;
-  readonly hasValue: Maybe<RdfjsTermT>;
+  readonly defaultValue: Maybe<ValueRdfjsTermT>;
+  readonly hasValue: Maybe<ValueRdfjsTermT>;
+  readonly in_: Maybe<readonly ValueRdfjsTermT[]>;
   abstract override readonly kind: "IdentifierType" | "LiteralType";
 
   constructor({
     defaultValue,
     hasValue,
+    in_,
     ...superParameters
   }: {
-    defaultValue: Maybe<RdfjsTermT>;
-    hasValue: Maybe<RdfjsTermT>;
+    defaultValue: Maybe<ValueRdfjsTermT>;
+    hasValue: Maybe<ValueRdfjsTermT>;
+    in_: Maybe<readonly ValueRdfjsTermT[]>;
   } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
     this.defaultValue = defaultValue;
     this.hasValue = hasValue;
+    this.in_ = in_;
   }
 
   override propertyEqualsFunction(): string {
@@ -46,7 +51,11 @@ export abstract class RdfjsTermType<
     });
     chain.push(
       `chain(_value => ${this.fromRdfResourceValueExpression({
-        variables: { resourceValue: "_value" },
+        variables: {
+          predicate: variables.predicate,
+          resource: variables.resource,
+          resourceValue: "_value",
+        },
       })})`,
     );
     return chain.join(".");
@@ -82,5 +91,7 @@ export abstract class RdfjsTermType<
 
   protected abstract fromRdfResourceValueExpression({
     variables,
-  }: { variables: { resourceValue: string } }): string;
+  }: {
+    variables: { predicate: string; resource: string; resourceValue: string };
+  }): string;
 }

@@ -1305,7 +1305,12 @@ export namespace NodeShapeWithDefaultValueProperties {
 
 export interface NodeShapeWithInProperties {
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly inIrisProperty: purify.Maybe<rdfjs.NamedNode>;
+  readonly inIrisProperty: purify.Maybe<
+    rdfjs.NamedNode<
+      | "http://example.com/NodeShapeWithInPropertiesIri1"
+      | "http://example.com/NodeShapeWithInPropertiesIri2"
+    >
+  >;
   readonly inLiteralsProperty: purify.Maybe<rdfjs.Literal>;
   readonly type: "NodeShapeWithInProperties";
 }
@@ -1340,7 +1345,12 @@ export namespace NodeShapeWithInProperties {
     rdfjsResource.Resource.ValueError,
     {
       identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-      inIrisProperty: purify.Maybe<rdfjs.NamedNode>;
+      inIrisProperty: purify.Maybe<
+        rdfjs.NamedNode<
+          | "http://example.com/NodeShapeWithInPropertiesIri1"
+          | "http://example.com/NodeShapeWithInPropertiesIri2"
+        >
+      >;
       inLiteralsProperty: purify.Maybe<rdfjs.Literal>;
       type: "NodeShapeWithInProperties";
     }
@@ -1348,14 +1358,56 @@ export namespace NodeShapeWithInProperties {
     const identifier = _resource.identifier;
     const _inIrisPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
-      purify.Maybe<rdfjs.NamedNode>
+      purify.Maybe<
+        rdfjs.NamedNode<
+          | "http://example.com/NodeShapeWithInPropertiesIri1"
+          | "http://example.com/NodeShapeWithInPropertiesIri2"
+        >
+      >
     > = purify.Either.of(
       _resource
         .values(dataFactory.namedNode("http://example.com/inIrisProperty"), {
           unique: true,
         })
         .head()
-        .chain((_value) => _value.toIri())
+        .chain((_value) =>
+          _value.toIri().chain((iri) => {
+            switch (iri.value) {
+              case "http://example.com/NodeShapeWithInPropertiesIri1":
+                return purify.Either.of<
+                  rdfjsResource.Resource.ValueError,
+                  rdfjs.NamedNode<
+                    | "http://example.com/NodeShapeWithInPropertiesIri1"
+                    | "http://example.com/NodeShapeWithInPropertiesIri2"
+                  >
+                >(
+                  iri as rdfjs.NamedNode<"http://example.com/NodeShapeWithInPropertiesIri1">,
+                );
+              case "http://example.com/NodeShapeWithInPropertiesIri2":
+                return purify.Either.of<
+                  rdfjsResource.Resource.ValueError,
+                  rdfjs.NamedNode<
+                    | "http://example.com/NodeShapeWithInPropertiesIri1"
+                    | "http://example.com/NodeShapeWithInPropertiesIri2"
+                  >
+                >(
+                  iri as rdfjs.NamedNode<"http://example.com/NodeShapeWithInPropertiesIri2">,
+                );
+              default:
+                return purify.Left(
+                  new rdfjsResource.Resource.MistypedValueError({
+                    actualValue: iri,
+                    expectedValueType:
+                      'rdfjs.NamedNode<"http://example.com/NodeShapeWithInPropertiesIri1" | "http://example.com/NodeShapeWithInPropertiesIri2">',
+                    focusResource: _resource,
+                    predicate: dataFactory.namedNode(
+                      "http://example.com/inIrisProperty",
+                    ),
+                  }),
+                );
+            }
+          }),
+        )
         .toMaybe(),
     );
     if (_inIrisPropertyEither.isLeft()) {

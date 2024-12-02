@@ -111,12 +111,14 @@ abstract class AbstractBaseClassWithPropertiesNodeShape extends AbstractBaseClas
   override equals(
     other: AbstractBaseClassWithPropertiesNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        abcStringProperty: purifyHelpers.Equatable.strictEquals,
-        type: purifyHelpers.Equatable.strictEquals,
-      }),
-    );
+    return super
+      .equals(other)
+      .chain(() =>
+        purifyHelpers.Equatable.objectEquals(this, other, {
+          abcStringProperty: purifyHelpers.Equatable.strictEquals,
+          type: purifyHelpers.Equatable.strictEquals,
+        }),
+      );
   }
 
   override hash<
@@ -230,12 +232,14 @@ export class ConcreteParentClassNodeShape extends AbstractBaseClassWithPropertie
   override equals(
     other: ConcreteParentClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        parentStringProperty: purifyHelpers.Equatable.strictEquals,
-        type: purifyHelpers.Equatable.strictEquals,
-      }),
-    );
+    return super
+      .equals(other)
+      .chain(() =>
+        purifyHelpers.Equatable.objectEquals(this, other, {
+          parentStringProperty: purifyHelpers.Equatable.strictEquals,
+          type: purifyHelpers.Equatable.strictEquals,
+        }),
+      );
   }
 
   override hash<
@@ -394,12 +398,14 @@ export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
   override equals(
     other: ConcreteChildClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        childStringProperty: purifyHelpers.Equatable.strictEquals,
-        type: purifyHelpers.Equatable.strictEquals,
-      }),
-    );
+    return super
+      .equals(other)
+      .chain(() =>
+        purifyHelpers.Equatable.objectEquals(this, other, {
+          childStringProperty: purifyHelpers.Equatable.strictEquals,
+          type: purifyHelpers.Equatable.strictEquals,
+        }),
+      );
   }
 
   override hash<
@@ -1427,13 +1433,28 @@ export namespace NodeShapeWithDefaultValueProperties {
 
 export class NodeShapeWithInProperties {
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly inIrisProperty: purify.Maybe<rdfjs.NamedNode>;
+  readonly inIrisProperty: purify.Maybe<
+    rdfjs.NamedNode<
+      | "http://example.com/NodeShapeWithInPropertiesIri1"
+      | "http://example.com/NodeShapeWithInPropertiesIri2"
+    >
+  >;
   readonly inLiteralsProperty: purify.Maybe<rdfjs.Literal>;
   readonly type = "NodeShapeWithInProperties" as const;
 
   constructor(parameters: {
     readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-    readonly inIrisProperty?: purify.Maybe<rdfjs.NamedNode> | rdfjs.NamedNode;
+    readonly inIrisProperty?:
+      | purify.Maybe<
+          rdfjs.NamedNode<
+            | "http://example.com/NodeShapeWithInPropertiesIri1"
+            | "http://example.com/NodeShapeWithInPropertiesIri2"
+          >
+        >
+      | rdfjs.NamedNode<
+          | "http://example.com/NodeShapeWithInPropertiesIri1"
+          | "http://example.com/NodeShapeWithInPropertiesIri2"
+        >;
     readonly inLiteralsProperty?:
       | Date
       | boolean
@@ -1546,14 +1567,56 @@ export namespace NodeShapeWithInProperties {
     const identifier = _resource.identifier;
     const _inIrisPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
-      purify.Maybe<rdfjs.NamedNode>
+      purify.Maybe<
+        rdfjs.NamedNode<
+          | "http://example.com/NodeShapeWithInPropertiesIri1"
+          | "http://example.com/NodeShapeWithInPropertiesIri2"
+        >
+      >
     > = purify.Either.of(
       _resource
         .values(dataFactory.namedNode("http://example.com/inIrisProperty"), {
           unique: true,
         })
         .head()
-        .chain((_value) => _value.toIri())
+        .chain((_value) =>
+          _value.toIri().chain((iri) => {
+            switch (iri.value) {
+              case "http://example.com/NodeShapeWithInPropertiesIri1":
+                return purify.Either.of<
+                  rdfjsResource.Resource.ValueError,
+                  rdfjs.NamedNode<
+                    | "http://example.com/NodeShapeWithInPropertiesIri1"
+                    | "http://example.com/NodeShapeWithInPropertiesIri2"
+                  >
+                >(
+                  iri as rdfjs.NamedNode<"http://example.com/NodeShapeWithInPropertiesIri1">,
+                );
+              case "http://example.com/NodeShapeWithInPropertiesIri2":
+                return purify.Either.of<
+                  rdfjsResource.Resource.ValueError,
+                  rdfjs.NamedNode<
+                    | "http://example.com/NodeShapeWithInPropertiesIri1"
+                    | "http://example.com/NodeShapeWithInPropertiesIri2"
+                  >
+                >(
+                  iri as rdfjs.NamedNode<"http://example.com/NodeShapeWithInPropertiesIri2">,
+                );
+              default:
+                return purify.Left(
+                  new rdfjsResource.Resource.MistypedValueError({
+                    actualValue: iri,
+                    expectedValueType:
+                      'rdfjs.NamedNode<"http://example.com/NodeShapeWithInPropertiesIri1" | "http://example.com/NodeShapeWithInPropertiesIri2">',
+                    focusResource: _resource,
+                    predicate: dataFactory.namedNode(
+                      "http://example.com/inIrisProperty",
+                    ),
+                  }),
+                );
+            }
+          }),
+        )
         .toMaybe(),
     );
     if (_inIrisPropertyEither.isLeft()) {
