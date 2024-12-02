@@ -12,6 +12,35 @@ import { type ExpectStatic, describe, it } from "vitest";
 import * as kitchenSinkClasses from "../../../../../examples/kitchen-sink/generated/classes.js";
 import * as kitchenSinkInterfaces from "../../../../../examples/kitchen-sink/generated/interfaces.js";
 
+function testFromRdf<
+  ModelT extends {
+    equals: (other: ModelT) => Equatable.EqualsResult;
+    toRdf: (kwds: {
+      mutateGraph: MutableResource.MutateGraph;
+      resourceSet: MutableResourceSet;
+    }) => Resource;
+  },
+>({
+  expect,
+  modelFromRdf,
+  model,
+}: {
+  expect: ExpectStatic;
+  modelFromRdf: (resource: Resource) => Either<Resource.ValueError, ModelT>;
+  model: ModelT;
+}) {
+  const fromRdfModel = modelFromRdf(
+    model.toRdf({
+      mutateGraph: dataFactory.defaultGraph(),
+      resourceSet: new MutableResourceSet({
+        dataFactory,
+        dataset: new N3.Store(),
+      }),
+    }),
+  ).unsafeCoerce();
+  expect(fromRdfModel.equals(model).extract()).toStrictEqual(true);
+}
+
 describe("TsGenerator", () => {
   it("interfaces: should generate valid TypeScript interfaces", ({
     expect,
@@ -206,33 +235,6 @@ describe("TsGenerator", () => {
     ).not.toStrictEqual(true);
   });
 
-  function testFromRdf<
-    ModelT extends {
-      equals: (other: ModelT) => Equatable.EqualsResult;
-      toRdf: (kwds: {
-        mutateGraph: MutableResource.MutateGraph;
-        resourceSet: MutableResourceSet;
-      }) => Resource;
-    },
-  >({
-    expect,
-    modelFromRdf,
-    model,
-  }: {
-    expect: ExpectStatic;
-    modelFromRdf: (resource: Resource) => Either<Resource.ValueError, ModelT>;
-    model: ModelT;
-  }) {
-    const dataset = new N3.Store();
-    const resourceSet = new MutableResourceSet({ dataFactory, dataset });
-    const resource = model.toRdf({
-      mutateGraph: dataFactory.defaultGraph(),
-      resourceSet,
-    });
-    const fromRdfModel = modelFromRdf(resource).unsafeCoerce();
-    expect(fromRdfModel.equals(model).extract()).toStrictEqual(true);
-  }
-
   it("should extern and inline node shapes", ({ expect }) => {
     const instance = new kitchenSinkClasses.ExterningAndInliningNodeShape({
       identifier: dataFactory.blankNode(),
@@ -296,6 +298,53 @@ describe("TsGenerator", () => {
       modelFromRdf:
         kitchenSinkClasses.NodeShapeWithDefaultValueProperties.fromRdf,
     });
+  });
+
+  it("fromRdf: preserve valid IRI values (sh:in)", ({ expect }) => {
+    testFromRdf({
+      expect,
+      model: new kitchenSinkClasses.NodeShapeWithInProperties({
+        identifier: dataFactory.blankNode(),
+        inIrisProperty: dataFactory.namedNode(
+          "http://example.com/NodeShapeWithInPropertiesIri1",
+        ),
+      }),
+      modelFromRdf: kitchenSinkClasses.NodeShapeWithInProperties.fromRdf,
+    });
+
+    const dataset = new N3.Store();
+    const identifier = dataFactory.blankNode();
+    const predicate = dataFactory.namedNode(
+      "http://example.com/inIrisProperty",
+    );
+    const object = dataFactory.namedNode(
+      "http://example.com/NodeShapeWithInPropertiesIri1",
+    );
+    dataset.add(dataFactory.quad(identifier, predicate, object));
+    const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf(
+      new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
+        identifier,
+      ),
+    ).unsafeCoerce();
+    expect(instance.inIrisProperty.unsafeCoerce().equals(object));
+  });
+
+  it("fromRdf: ignore invalid IRI values (sh:in)", ({ expect }) => {
+    const dataset = new N3.Store();
+    const identifier = dataFactory.blankNode();
+    const predicate = dataFactory.namedNode(
+      "http://example.com/inIrisProperty",
+    );
+    const object = dataFactory.namedNode(
+      "http://example.com/NodeShapeWithInPropertiesIriInvalid",
+    );
+    dataset.add(dataFactory.quad(identifier, predicate, object));
+    const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf(
+      new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
+        identifier,
+      ),
+    ).unsafeCoerce();
+    expect(instance.inIrisProperty.isNothing()).toStrictEqual(true);
   });
 
   it("hash", ({ expect }) => {
