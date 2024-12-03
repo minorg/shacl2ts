@@ -347,6 +347,47 @@ describe("TsGenerator", () => {
     expect(instance.inIrisProperty.isNothing()).toStrictEqual(true);
   });
 
+  it("fromRdf: preserve valid literal values (sh:in)", ({ expect }) => {
+    testFromRdf({
+      expect,
+      model: new kitchenSinkClasses.NodeShapeWithInProperties({
+        identifier: dataFactory.blankNode(),
+        inStringsProperty: "text",
+      }),
+      modelFromRdf: kitchenSinkClasses.NodeShapeWithInProperties.fromRdf,
+    });
+
+    const dataset = new N3.Store();
+    const identifier = dataFactory.blankNode();
+    const predicate = dataFactory.namedNode(
+      "http://example.com/inStringsProperty",
+    );
+    const object = dataFactory.literal("text");
+    dataset.add(dataFactory.quad(identifier, predicate, object));
+    const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf(
+      new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
+        identifier,
+      ),
+    ).unsafeCoerce();
+    expect(instance.inStringsProperty.unsafeCoerce()).toStrictEqual("text");
+  });
+
+  it("fromRdf: ignore invalid literal values (sh:in)", ({ expect }) => {
+    const dataset = new N3.Store();
+    const identifier = dataFactory.blankNode();
+    const predicate = dataFactory.namedNode(
+      "http://example.com/inStringsProperty",
+    );
+    const object = dataFactory.literal("somethingelse");
+    dataset.add(dataFactory.quad(identifier, predicate, object));
+    const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf(
+      new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
+        identifier,
+      ),
+    ).unsafeCoerce();
+    expect(instance.inStringsProperty.isNothing()).toStrictEqual(true);
+  });
+
   it("hash", ({ expect }) => {
     expect(
       new kitchenSinkClasses.NonClassNodeShape({
