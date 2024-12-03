@@ -4,7 +4,7 @@ import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type.js";
 import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
-export class LiteralType extends RdfjsTermType<Literal> {
+export class LiteralType extends RdfjsTermType<Literal, Literal> {
   readonly kind = "LiteralType";
 
   override get conversions(): readonly Type.Conversion[] {
@@ -69,7 +69,7 @@ export class LiteralType extends RdfjsTermType<Literal> {
   override fromRdfResourceValueExpression({
     variables,
   }: Parameters<
-    RdfjsTermType<Literal>["fromRdfResourceValueExpression"]
+    RdfjsTermType<Literal, Literal>["fromRdfResourceValueExpression"]
   >[0]): string {
     return `${variables.resourceValue}.toLiteral()`;
   }
@@ -77,7 +77,7 @@ export class LiteralType extends RdfjsTermType<Literal> {
   override propertyHashStatements({
     variables,
   }: Parameters<
-    RdfjsTermType<Literal>["propertyHashStatements"]
+    RdfjsTermType<Literal, Literal>["propertyHashStatements"]
   >[0]): readonly string[] {
     return [`${variables.hasher}.update(${variables.value}.value);`];
   }

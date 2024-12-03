@@ -8,7 +8,12 @@ import type { Configuration } from "./Configuration.js";
  * Subclasses are used for both property types (c.f., property* methods) and node/object types.
  */
 export abstract class Type {
-  abstract readonly kind: ast.Type["kind"] | "ListType";
+  abstract readonly kind:
+    | ast.Type["kind"]
+    | "BooleanType"
+    | "ListType"
+    | "NumberType"
+    | "StringType";
   abstract readonly name: string;
   protected readonly configuration: Configuration;
 

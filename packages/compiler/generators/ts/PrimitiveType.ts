@@ -1,9 +1,31 @@
 import { Maybe } from "purify-ts";
-import { fromRdf } from "rdf-literal";
-import { LiteralType } from "./LiteralType.js";
-import type { Type } from "./Type.js";
+import { toRdf } from "rdf-literal";
+import { Type } from "./Type.js";
+import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
-export abstract class PrimitiveType extends LiteralType {
+export abstract class PrimitiveType<
+  ValueT extends boolean | string | number,
+> extends Type {
+  readonly defaultValue: Maybe<ValueT>;
+  readonly hasValue: Maybe<ValueT>;
+  readonly in_: Maybe<readonly ValueT[]>;
+
+  constructor({
+    defaultValue,
+    hasValue,
+    in_,
+    ...superParameters
+  }: {
+    defaultValue: Maybe<ValueT>;
+    hasValue: Maybe<ValueT>;
+    in_: Maybe<readonly ValueT[]>;
+  } & ConstructorParameters<typeof Type>[0]) {
+    super(superParameters);
+    this.defaultValue = defaultValue;
+    this.hasValue = hasValue;
+    this.in_ = in_;
+  }
+
   override get conversions(): readonly Type.Conversion[] {
     const conversions: Type.Conversion[] = [
       {
@@ -13,13 +35,7 @@ export abstract class PrimitiveType extends LiteralType {
     ];
     this.defaultValue.ifJust((defaultValue) => {
       conversions.push({
-        conversionExpression: () => {
-          let primitiveDefaultValue = fromRdf(defaultValue, true);
-          if (typeof primitiveDefaultValue === "string") {
-            primitiveDefaultValue = `"${primitiveDefaultValue}"`;
-          }
-          return primitiveDefaultValue;
-        },
+        conversionExpression: () => defaultValue.toString(),
         sourceTypeName: "undefined",
       });
     });
@@ -38,27 +54,39 @@ export abstract class PrimitiveType extends LiteralType {
     return "purifyHelpers.Equatable.strictEquals";
   }
 
-  override propertyToRdfExpression({
+  override propertyFromRdfExpression({
     variables,
-  }: Parameters<LiteralType["propertyToRdfExpression"]>[0]): string {
-    return this.defaultValue
-      .map((defaultValue) => {
-        let primitiveDefaultValue = fromRdf(defaultValue, true);
-        switch (typeof primitiveDefaultValue) {
-          case "boolean": {
-            if (primitiveDefaultValue) {
-              // If the default is true, only serialize the value if it's false
-              return `!${variables.value} ? false : undefined`;
-            }
-            // If the default is false, only serialize the value if it's true
-            return `${variables.value} ? true : undefined`;
-          }
-          case "string":
-            primitiveDefaultValue = `"${primitiveDefaultValue}"`;
-            break;
-        }
-        return `${variables.value} !== ${primitiveDefaultValue} ? ${variables.value} : undefined`;
-      })
-      .orDefault(variables.value);
+  }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
+    const chain: string[] = [`${variables.resourceValues}.head()`];
+    this.hasValue.ifJust((hasValue) => {
+      chain.push(
+        `chain<rdfjsResource.Resource.ValueError, ${this.name}>(_term => _term.equals(${rdfjsTermExpression(toRdf(hasValue), this.configuration)}) ? purify.Either.of(_term) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _term, expectedValueType: "${this.name}", focusResource: ${variables.resource}, predicate: ${variables.predicate})))`,
+      );
+    });
+    this.defaultValue.ifJust((defaultValue) => {
+      chain.push(
+        `alt(purify.Either.of(new rdfjsResource.Resource.Value({ subject: ${variables.resource}, predicate: ${variables.predicate}, object: ${rdfjsTermExpression(toRdf(defaultValue), this.configuration)} })))`,
+      );
+    });
+    chain.push(
+      `chain(_value => ${this.fromRdfResourceValueExpression({
+        variables: {
+          resourceValue: "_value",
+        },
+      })})`,
+    );
+    return chain.join(".");
   }
+
+  propertyHashStatements({
+    variables,
+  }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
+    return [`${variables.hasher}.update(${variables.value}.toString());`];
+  }
+
+  protected abstract fromRdfResourceValueExpression({
+    variables,
+  }: {
+    variables: { resourceValue: string };
+  }): string;
 }
