@@ -1,6 +1,6 @@
 import { Memoize } from "typescript-memoize";
 import { PrimitiveType } from "./PrimitiveType.js";
-import type { Type } from "./Type.";
+import type { Type } from "./Type.js";
 
 export class NumberType extends PrimitiveType<number> {
   readonly kind = "NumberType";
@@ -35,7 +35,11 @@ export class NumberType extends PrimitiveType<number> {
   }: Parameters<
     PrimitiveType<number>["fromRdfResourceValueExpression"]
   >[0]): string {
-    return `${variables.resourceValue}.toNumber()`;
+    let expression = `${variables.resourceValue}.toNumber()`;
+    this.in_.ifJust((in_) => {
+      expression = `${expression}.chain(value => { switch (value) { ${in_.map((value) => `case ${value}:`).join(" ")} return purify.Either.of(value); default: return purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: rdfLiteral.toRdf(value), expectedValueType: ${JSON.stringify(this.name)}, focusResource: ${variables.resource}, predicate: ${variables.predicate} })); } })`;
+    });
+    return expression;
   }
 
   override propertyToRdfExpression({

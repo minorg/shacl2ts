@@ -37,7 +37,7 @@ export class StringType extends PrimitiveType<string> {
   >[0]): string {
     let expression = `${variables.resourceValue}.toString()`;
     this.in_.ifJust((in_) => {
-      expression = `${expression}.chain(_value => { switch (_value) { ${in_.map((value) => `case "${value}":`).join(" ")} return purify.Either.of(_value); default: return purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: iri, expectedValueType: ${JSON.stringify(this.name)}, focusResource: ${variables.resource}, predicate: ${variables.predicate} })); })`;
+      expression = `${expression}.chain(value => { switch (value) { ${in_.map((value) => `case "${value}":`).join(" ")} return purify.Either.of(value); default: return purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: rdfLiteral.toRdf(value), expectedValueType: ${JSON.stringify(this.name)}, focusResource: ${variables.resource}, predicate: ${variables.predicate} })); } })`;
     });
     return expression;
   }

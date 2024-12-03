@@ -23,12 +23,14 @@ export class BooleanType extends PrimitiveType<boolean> {
         });
       })
       .ifNothing(() => {
-        conversions.push({
-          conversionExpression: () => "false",
-          sourceTypeCheckExpression: (value) =>
-            `typeof ${value} === "undefined"`,
-          sourceTypeName: "undefined",
-        });
+        if (this.in_.isNothing()) {
+          conversions.push({
+            conversionExpression: () => "false",
+            sourceTypeCheckExpression: (value) =>
+              `typeof ${value} === "undefined"`,
+            sourceTypeName: "undefined",
+          });
+        }
       });
     return conversions;
   }
@@ -45,7 +47,13 @@ export class BooleanType extends PrimitiveType<boolean> {
   }: Parameters<
     PrimitiveType<boolean>["fromRdfResourceValueExpression"]
   >[0]): string {
-    return `${variables.resourceValue}.toBoolean()`;
+    let expression = `${variables.resourceValue}.toBoolean()`;
+    this.in_.ifJust((in_) => {
+      if (in_.length === 1) {
+        expression = `${expression}.chain(value => value === ${in_[0]} ? purify.Either.of(value) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: rdfLiteral.toRdf(value), expectedValueType: ${JSON.stringify(this.name)}, focusResource: ${variables.resource}, predicate: ${variables.predicate} })))`;
+      }
+    });
+    return expression;
   }
 
   override propertyToRdfExpression({
