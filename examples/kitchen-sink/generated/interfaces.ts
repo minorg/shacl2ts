@@ -1223,39 +1223,31 @@ export namespace NodeShapeWithDefaultValueProperties {
     ) {
       super(subject);
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/falseBooleanProperty"),
-            this.variable("FalseBooleanProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/falseBooleanProperty"),
+          this.variable("FalseBooleanProperty"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/numberProperty"),
-            this.variable("NumberProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/numberProperty"),
+          this.variable("NumberProperty"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/stringProperty"),
-            this.variable("StringProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/stringProperty"),
+          this.variable("StringProperty"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/trueBooleanProperty"),
-            this.variable("TrueBooleanProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/trueBooleanProperty"),
+          this.variable("TrueBooleanProperty"),
         ),
       );
     }
@@ -1298,6 +1290,340 @@ export namespace NodeShapeWithDefaultValueProperties {
       !nodeShapeWithDefaultValueProperties.trueBooleanProperty
         ? false
         : undefined,
+    );
+    return _resource;
+  }
+}
+
+export interface NodeShapeWithInProperties {
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly inBooleansProperty: purify.Maybe<true>;
+  readonly inIrisProperty: purify.Maybe<
+    rdfjs.NamedNode<
+      | "http://example.com/NodeShapeWithInPropertiesIri1"
+      | "http://example.com/NodeShapeWithInPropertiesIri2"
+    >
+  >;
+  readonly inNumbersProperty: purify.Maybe<1 | 2>;
+  readonly inStringsProperty: purify.Maybe<"text" | "html">;
+  readonly type: "NodeShapeWithInProperties";
+}
+
+export namespace NodeShapeWithInProperties {
+  export function equals(
+    left: NodeShapeWithInProperties,
+    right: NodeShapeWithInProperties,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      inBooleansProperty: purifyHelpers.Equatable.booleanEquals,
+      inIrisProperty: (left, right) =>
+        purifyHelpers.Maybes.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      inNumbersProperty: purifyHelpers.Equatable.booleanEquals,
+      inStringsProperty: purifyHelpers.Equatable.booleanEquals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+      inBooleansProperty: purify.Maybe<true>;
+      inIrisProperty: purify.Maybe<
+        rdfjs.NamedNode<
+          | "http://example.com/NodeShapeWithInPropertiesIri1"
+          | "http://example.com/NodeShapeWithInPropertiesIri2"
+        >
+      >;
+      inNumbersProperty: purify.Maybe<1 | 2>;
+      inStringsProperty: purify.Maybe<"text" | "html">;
+      type: "NodeShapeWithInProperties";
+    }
+  > {
+    const identifier = _resource.identifier;
+    const _inBooleansPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<true>
+    > = purify.Either.of(
+      _resource
+        .values(
+          dataFactory.namedNode("http://example.com/inBooleansProperty"),
+          { unique: true },
+        )
+        .head()
+        .chain((_value) =>
+          _value.toBoolean().chain((value) =>
+            value === true
+              ? purify.Either.of(value)
+              : purify.Left(
+                  new rdfjsResource.Resource.MistypedValueError({
+                    actualValue: rdfLiteral.toRdf(value),
+                    expectedValueType: "true",
+                    focusResource: _resource,
+                    predicate: dataFactory.namedNode(
+                      "http://example.com/inBooleansProperty",
+                    ),
+                  }),
+                ),
+          ),
+        )
+        .toMaybe(),
+    );
+    if (_inBooleansPropertyEither.isLeft()) {
+      return _inBooleansPropertyEither;
+    }
+
+    const inBooleansProperty = _inBooleansPropertyEither.unsafeCoerce();
+    const _inIrisPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<
+        rdfjs.NamedNode<
+          | "http://example.com/NodeShapeWithInPropertiesIri1"
+          | "http://example.com/NodeShapeWithInPropertiesIri2"
+        >
+      >
+    > = purify.Either.of(
+      _resource
+        .values(dataFactory.namedNode("http://example.com/inIrisProperty"), {
+          unique: true,
+        })
+        .head()
+        .chain((_value) =>
+          _value.toIri().chain((iri) => {
+            switch (iri.value) {
+              case "http://example.com/NodeShapeWithInPropertiesIri1":
+                return purify.Either.of<
+                  rdfjsResource.Resource.ValueError,
+                  rdfjs.NamedNode<
+                    | "http://example.com/NodeShapeWithInPropertiesIri1"
+                    | "http://example.com/NodeShapeWithInPropertiesIri2"
+                  >
+                >(
+                  iri as rdfjs.NamedNode<"http://example.com/NodeShapeWithInPropertiesIri1">,
+                );
+              case "http://example.com/NodeShapeWithInPropertiesIri2":
+                return purify.Either.of<
+                  rdfjsResource.Resource.ValueError,
+                  rdfjs.NamedNode<
+                    | "http://example.com/NodeShapeWithInPropertiesIri1"
+                    | "http://example.com/NodeShapeWithInPropertiesIri2"
+                  >
+                >(
+                  iri as rdfjs.NamedNode<"http://example.com/NodeShapeWithInPropertiesIri2">,
+                );
+              default:
+                return purify.Left(
+                  new rdfjsResource.Resource.MistypedValueError({
+                    actualValue: iri,
+                    expectedValueType:
+                      'rdfjs.NamedNode<"http://example.com/NodeShapeWithInPropertiesIri1" | "http://example.com/NodeShapeWithInPropertiesIri2">',
+                    focusResource: _resource,
+                    predicate: dataFactory.namedNode(
+                      "http://example.com/inIrisProperty",
+                    ),
+                  }),
+                );
+            }
+          }),
+        )
+        .toMaybe(),
+    );
+    if (_inIrisPropertyEither.isLeft()) {
+      return _inIrisPropertyEither;
+    }
+
+    const inIrisProperty = _inIrisPropertyEither.unsafeCoerce();
+    const _inNumbersPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<1 | 2>
+    > = purify.Either.of(
+      _resource
+        .values(dataFactory.namedNode("http://example.com/inNumbersProperty"), {
+          unique: true,
+        })
+        .head()
+        .chain((_value) =>
+          _value.toNumber().chain((value) => {
+            switch (value) {
+              case 1:
+              case 2:
+                return purify.Either.of(value);
+              default:
+                return purify.Left(
+                  new rdfjsResource.Resource.MistypedValueError({
+                    actualValue: rdfLiteral.toRdf(value),
+                    expectedValueType: "1 | 2",
+                    focusResource: _resource,
+                    predicate: dataFactory.namedNode(
+                      "http://example.com/inNumbersProperty",
+                    ),
+                  }),
+                );
+            }
+          }),
+        )
+        .toMaybe(),
+    );
+    if (_inNumbersPropertyEither.isLeft()) {
+      return _inNumbersPropertyEither;
+    }
+
+    const inNumbersProperty = _inNumbersPropertyEither.unsafeCoerce();
+    const _inStringsPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<"text" | "html">
+    > = purify.Either.of(
+      _resource
+        .values(dataFactory.namedNode("http://example.com/inStringsProperty"), {
+          unique: true,
+        })
+        .head()
+        .chain((_value) =>
+          _value.toString().chain((value) => {
+            switch (value) {
+              case "text":
+              case "html":
+                return purify.Either.of(value);
+              default:
+                return purify.Left(
+                  new rdfjsResource.Resource.MistypedValueError({
+                    actualValue: rdfLiteral.toRdf(value),
+                    expectedValueType: '"text" | "html"',
+                    focusResource: _resource,
+                    predicate: dataFactory.namedNode(
+                      "http://example.com/inStringsProperty",
+                    ),
+                  }),
+                );
+            }
+          }),
+        )
+        .toMaybe(),
+    );
+    if (_inStringsPropertyEither.isLeft()) {
+      return _inStringsPropertyEither;
+    }
+
+    const inStringsProperty = _inStringsPropertyEither.unsafeCoerce();
+    const type = "NodeShapeWithInProperties" as const;
+    return purify.Either.of({
+      identifier,
+      inBooleansProperty,
+      inIrisProperty,
+      inNumbersProperty,
+      inStringsProperty,
+      type,
+    });
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _nodeShapeWithInProperties: Omit<
+      NodeShapeWithInProperties,
+      "identifier" | "type"
+    >,
+    _hasher: HasherT,
+  ): HasherT {
+    _nodeShapeWithInProperties.inBooleansProperty.ifJust((_value) => {
+      _hasher.update(_value.toString());
+    });
+    _nodeShapeWithInProperties.inIrisProperty.ifJust((_value) => {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_value));
+    });
+    _nodeShapeWithInProperties.inNumbersProperty.ifJust((_value) => {
+      _hasher.update(_value.toString());
+    });
+    _nodeShapeWithInProperties.inStringsProperty.ifJust((_value) => {
+      _hasher.update(_value);
+    });
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/inBooleansProperty"),
+            this.variable("InBooleansProperty"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/inIrisProperty"),
+            this.variable("InIrisProperty"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/inNumbersProperty"),
+            this.variable("InNumbersProperty"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/inStringsProperty"),
+            this.variable("InStringsProperty"),
+          ),
+        ),
+      );
+    }
+  }
+
+  export function toRdf(
+    nodeShapeWithInProperties: NodeShapeWithInProperties,
+    {
+      mutateGraph,
+      resourceSet,
+    }: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    },
+  ): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: nodeShapeWithInProperties.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/inBooleansProperty"),
+      nodeShapeWithInProperties.inBooleansProperty,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/inIrisProperty"),
+      nodeShapeWithInProperties.inIrisProperty,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/inNumbersProperty"),
+      nodeShapeWithInProperties.inNumbersProperty,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/inStringsProperty"),
+      nodeShapeWithInProperties.inStringsProperty,
     );
     return _resource;
   }

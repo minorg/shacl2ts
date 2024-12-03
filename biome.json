@@ -13,6 +13,18 @@
       "complexity": {
         "useLiteralKeys": "off"
       },
+      "correctness": {
+        "useImportExtensions": {
+          "level": "error",
+          "options": {
+            "suggestedExtensions": {
+              "ts": {
+                "module": "js"
+              }
+            }
+          }
+        }
+      },
       "recommended": true,
       "style": {
         "noNonNullAssertion": "off"

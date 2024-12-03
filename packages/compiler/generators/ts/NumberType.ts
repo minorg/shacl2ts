@@ -1,21 +1,55 @@
+import { Memoize } from "typescript-memoize";
 import { PrimitiveType } from "./PrimitiveType.js";
+import type { Type } from "./Type.js";
 
-export class NumberType extends PrimitiveType {
+export class NumberType extends PrimitiveType<number> {
+  readonly kind = "NumberType";
+
+  override get conversions(): readonly Type.Conversion[] {
+    const conversions: Type.Conversion[] = [
+      {
+        conversionExpression: (value) => value,
+        sourceTypeCheckExpression: (value) => `typeof ${value} === "number"`,
+        sourceTypeName: this.name,
+      },
+    ];
+    this.defaultValue.ifJust((defaultValue) => {
+      conversions.push({
+        conversionExpression: () => defaultValue.toString(),
+        sourceTypeCheckExpression: (value) => `typeof ${value} === "undefined"`,
+        sourceTypeName: "undefined",
+      });
+    });
+    return conversions;
+  }
+
+  @Memoize()
   override get name(): string {
-    return "number";
+    return this.in_
+      .map((values) => values.map((value) => value.toString()).join(" | "))
+      .orDefault("number");
   }
 
   override fromRdfResourceValueExpression({
     variables,
-  }: Parameters<PrimitiveType["fromRdfResourceValueExpression"]>[0]): string {
-    return `${variables.resourceValue}.toNumber()`;
+  }: Parameters<
+    PrimitiveType<number>["fromRdfResourceValueExpression"]
+  >[0]): string {
+    let expression = `${variables.resourceValue}.toNumber()`;
+    this.in_.ifJust((in_) => {
+      expression = `${expression}.chain(value => { switch (value) { ${in_.map((value) => `case ${value}:`).join(" ")} return purify.Either.of(value); default: return purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: rdfLiteral.toRdf(value), expectedValueType: ${JSON.stringify(this.name)}, focusResource: ${variables.resource}, predicate: ${variables.predicate} })); } })`;
+    });
+    return expression;
   }
 
-  override propertyHashStatements({
+  override propertyToRdfExpression({
     variables,
-  }: Parameters<
-    PrimitiveType["propertyHashStatements"]
-  >[0]): readonly string[] {
-    return [`${variables.hasher}.update(${variables.value}.toString());`];
+  }: Parameters<PrimitiveType<string>["propertyToRdfExpression"]>[0]): string {
+    return this.defaultValue
+      .map(
+        (defaultValue) =>
+          `${variables.value} !== ${defaultValue} ? ${variables.value} : undefined`,
+      )
+      .orDefault(variables.value);
   }
 }

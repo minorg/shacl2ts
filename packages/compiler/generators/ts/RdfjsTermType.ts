@@ -1,29 +1,34 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import type { Maybe } from "purify-ts";
 import { Type } from "./Type.js";
-import { rdfjsTermExpression } from "./rdfjsTermExpression";
+import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
 /**
  * Abstract base class for IdentifierType and LiteralType.
  */
 export abstract class RdfjsTermType<
-  RdfjsTermT extends BlankNode | Literal | NamedNode,
+  _RdfjsTermT extends BlankNode | Literal | NamedNode,
+  ValueRdfjsTermT extends Literal | NamedNode,
 > extends Type {
-  readonly defaultValue: Maybe<RdfjsTermT>;
-  readonly hasValue: Maybe<RdfjsTermT>;
+  readonly defaultValue: Maybe<ValueRdfjsTermT>;
+  readonly hasValue: Maybe<ValueRdfjsTermT>;
+  readonly in_: Maybe<readonly ValueRdfjsTermT[]>;
   abstract override readonly kind: "IdentifierType" | "LiteralType";
 
   constructor({
     defaultValue,
     hasValue,
+    in_,
     ...superParameters
   }: {
-    defaultValue: Maybe<RdfjsTermT>;
-    hasValue: Maybe<RdfjsTermT>;
+    defaultValue: Maybe<ValueRdfjsTermT>;
+    hasValue: Maybe<ValueRdfjsTermT>;
+    in_: Maybe<readonly ValueRdfjsTermT[]>;
   } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
     this.defaultValue = defaultValue;
     this.hasValue = hasValue;
+    this.in_ = in_;
   }
 
   override propertyEqualsFunction(): string {
@@ -36,7 +41,7 @@ export abstract class RdfjsTermType<
     const chain: string[] = [`${variables.resourceValues}.head()`];
     this.hasValue.ifJust((hasValue) => {
       chain.push(
-        `chain<rdfjsResource.Resource.ValueError, ${this.name}>(_identifier => _identifier.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_identifier) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _identifier, expectedValueType: "${hasValue.termType}", focusResource: ${variables.resource}, predicate: ${variables.predicate})))`,
+        `chain<rdfjsResource.Resource.ValueError, ${this.name}>(_term => _term.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_term) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _term, expectedValueType: "${hasValue.termType}", focusResource: ${variables.resource}, predicate: ${variables.predicate})))`,
       );
     });
     this.defaultValue.ifJust((defaultValue) => {
@@ -46,7 +51,11 @@ export abstract class RdfjsTermType<
     });
     chain.push(
       `chain(_value => ${this.fromRdfResourceValueExpression({
-        variables: { resourceValue: "_value" },
+        variables: {
+          predicate: variables.predicate,
+          resource: variables.resource,
+          resourceValue: "_value",
+        },
       })})`,
     );
     return chain.join(".");
@@ -82,5 +91,7 @@ export abstract class RdfjsTermType<
 
   protected abstract fromRdfResourceValueExpression({
     variables,
-  }: { variables: { resourceValue: string } }): string;
+  }: {
+    variables: { predicate: string; resource: string; resourceValue: string };
+  }): string;
 }

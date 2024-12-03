@@ -5,8 +5,8 @@ import { NodeKind, RdfjsNodeShape } from "@shaclmate/shacl-ast";
 import { owl, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, type Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
-import { MintingStrategy } from "../MintingStrategy";
-import { shaclmate } from "../vocabularies/index";
+import { MintingStrategy } from "../MintingStrategy.js";
+import { shaclmate } from "../vocabularies/index.js";
 import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
 import { inline } from "./inline.js";
@@ -68,7 +68,10 @@ function descendantClassIris(
   return [...descendantClassIris];
 }
 
-export class NodeShape extends RdfjsNodeShape<any, PropertyShape, Shape> {
+export class NodeShape
+  extends RdfjsNodeShape<any, PropertyShape, Shape>
+  implements Shape
+{
   get abstract(): Maybe<boolean> {
     return this.resource
       .value(shaclmate.abstract)

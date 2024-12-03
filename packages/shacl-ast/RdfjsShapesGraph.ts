@@ -230,7 +230,7 @@ export class RdfjsShapesGraph<
     }
 
     // Member of a SHACL list that is a value of a shape-expecting and list-taking parameter such as sh:or
-    for (const predicate of [sh.and, sh["in"], sh.languageIn, sh.or, sh.xone]) {
+    for (const predicate of [sh.and, sh.or, sh.xone]) {
       for (const quad of this.dataset.match(null, predicate, null, this.node)) {
         switch (quad.object.termType) {
           case "BlankNode":

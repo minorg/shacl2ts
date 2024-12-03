@@ -4,7 +4,7 @@ import {
   type PropertySignatureStructure,
   StructureKind,
 } from "ts-morph";
-import type { ObjectType } from "../ObjectType";
+import type { ObjectType } from "../ObjectType.js";
 
 export function interfaceDeclaration(
   this: ObjectType,

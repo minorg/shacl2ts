@@ -22,13 +22,14 @@ export class SetType extends Type {
   override get conversions(): readonly Type.Conversion[] {
     return [
       {
-        conversionExpression: () => "[]",
-        sourceTypeName: "undefined",
-      },
-      {
         conversionExpression: (value) => value,
         sourceTypeCheckExpression: (value) => `Array.isArray(${value})`,
         sourceTypeName: this.name,
+      },
+      {
+        conversionExpression: () => "[]",
+        sourceTypeCheckExpression: (value) => `typeof ${value} === "undefined"`,
+        sourceTypeName: "undefined",
       },
     ];
   }

@@ -1,2 +1,2 @@
-export * as json from "./json";
-export * as ts from "./ts";
+export * as json from "./json/index.js";
+export * as ts from "./ts/index.js";

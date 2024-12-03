@@ -10,7 +10,7 @@ import {
 } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
 import { hasherTypeConstraint } from "./hashFunctionDeclaration.js";
-import { toRdfFunctionOrMethodDeclaration } from "./toRdfFunctionOrMethodDeclaration";
+import { toRdfFunctionOrMethodDeclaration } from "./toRdfFunctionOrMethodDeclaration.js";
 
 function constructorDeclaration(
   this: ObjectType,

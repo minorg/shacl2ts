@@ -34,6 +34,7 @@ export class OptionType extends Type {
     ) {
       conversions.push({
         conversionExpression: () => "purify.Maybe.empty()",
+        sourceTypeCheckExpression: (value) => `typeof ${value} === "undefined"`,
         sourceTypeName: "undefined",
       });
     }

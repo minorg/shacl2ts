@@ -1,1 +1,1 @@
-export { strict as shaclmate } from "./shaclmate";
+export { strict as shaclmate } from "./shaclmate.js";

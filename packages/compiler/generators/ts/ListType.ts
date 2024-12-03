@@ -31,6 +31,21 @@ export class ListType extends Type {
     this.rdfType = rdfType;
   }
 
+  override get conversions(): readonly Type.Conversion[] {
+    return [
+      {
+        conversionExpression: (value) => value,
+        sourceTypeCheckExpression: (value) => `Array.isArray(${value})`,
+        sourceTypeName: this.name,
+      },
+      {
+        conversionExpression: () => "[]",
+        sourceTypeCheckExpression: (value) => `typeof ${value} === "undefined"`,
+        sourceTypeName: "undefined",
+      },
+    ];
+  }
+
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
     return Maybe.empty();
   }

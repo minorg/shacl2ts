@@ -4,7 +4,7 @@ import { Memoize } from "typescript-memoize";
 import { MintingStrategy } from "../../MintingStrategy.js";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
-import * as _ObjectType from "./_ObjectType";
+import * as _ObjectType from "./_ObjectType/index.js";
 
 export class ObjectType extends Type {
   readonly abstract: boolean;

@@ -1,5 +1,5 @@
 import type { Maybe } from "purify-ts";
-import { shaclmate } from "../vocabularies/index";
+import { shaclmate } from "../vocabularies/index.js";
 import type { Shape } from "./Shape.js";
 
 export function inline(this: Shape): Maybe<boolean> {

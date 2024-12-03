@@ -139,6 +139,16 @@
   sh:property [ sh:defaultValue "" ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
 .
 
+# Shape with sh:in properties
+:NodeShapeWithInProperties
+  a sh:NodeShape ;
+  sh:name "NodeShapeWithInProperties" ;
+  sh:property [ sh:maxCount 1 ; sh:name "inBooleansProperty" ; sh:in ( true ) ; sh:path :inBooleansProperty ] ;
+  sh:property [ sh:maxCount 1 ; sh:name "inIrisProperty" ; sh:in ( :NodeShapeWithInPropertiesIri1 :NodeShapeWithInPropertiesIri2 ) ; sh:path :inIrisProperty ] ;
+  sh:property [ sh:maxCount 1 ; sh:name "inNumbersProperty" ; sh:in ( 1 2 ) ; sh:path :inNumbersProperty ] ;
+  sh:property [ sh:maxCount 1 ; sh:name "inStringsProperty" ; sh:in ( "text" "html" ) ; sh:path :inStringsProperty ] ;
+.
+
 # Shape that uses the ListShape in a property.
 :NodeShapeWithListProperty
   a sh:NodeShape ;

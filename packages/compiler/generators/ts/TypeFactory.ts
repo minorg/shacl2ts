@@ -1,9 +1,12 @@
 import TermMap from "@rdfjs/term-map";
+import TermSet from "@rdfjs/term-set";
 import type { BlankNode, NamedNode } from "@rdfjs/types";
 import { NodeKind } from "@shaclmate/shacl-ast";
 import { xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
-import type * as ast from "../../ast";
+import { fromRdf } from "rdf-literal";
+import type * as ast from "../../ast/index.js";
+import { logger } from "../../logger.js";
 import { BooleanType } from "./BooleanType.js";
 import type { Configuration } from "./Configuration.js";
 import { IdentifierType } from "./IdentifierType.js";
@@ -41,44 +44,89 @@ export class TypeFactory {
           configuration: this.configuration,
           defaultValue: astType.defaultValue,
           hasValue: astType.hasValue,
+          in_: astType.in_,
           nodeKinds: astType.nodeKinds,
         });
       case "IntersectionType":
         throw new Error("not implemented");
       case "LiteralType": {
-        const datatype = astType.datatype
-          .altLazy(() =>
-            astType.defaultValue.map((defaultValue) => defaultValue.datatype),
-          )
-          .altLazy(() => astType.hasValue.map((hasValue) => hasValue.datatype))
-          .extractNullable();
+        // Look at sh:datatype as well as sh:defaultValue/sh:hasValue/sh:in term datatypes
+        // If there's one common datatype than we can refine the type
+        // Otherwise default to rdfjs.Literal
+        const datatypes = new TermSet<NamedNode>();
+        astType.datatype.ifJust((datatype) => datatypes.add(datatype));
+        astType.defaultValue.ifJust((defaultValue) =>
+          datatypes.add(defaultValue.datatype),
+        );
+        astType.hasValue.ifJust((hasValue) => datatypes.add(hasValue.datatype));
+        astType.in_.ifJust((in_) => {
+          for (const value of in_) {
+            datatypes.add(value.datatype);
+          }
+        });
 
-        if (datatype !== null) {
+        if (datatypes.size === 1) {
+          const datatype = [...datatypes][0];
+
           if (datatype.equals(xsd.boolean)) {
             return new BooleanType({
               configuration: this.configuration,
-              defaultValue: astType.defaultValue,
-              hasValue: astType.hasValue,
+              defaultValue: astType.defaultValue
+                .map((value) => fromRdf(value, true))
+                .filter((value) => typeof value === "boolean"),
+              in_: astType.in_.map((values) =>
+                values
+                  .map((value) => fromRdf(value, true))
+                  .filter((value) => typeof value === "boolean"),
+              ),
+              hasValue: astType.hasValue
+                .map((value) => fromRdf(value, true))
+                .filter((value) => typeof value === "boolean"),
             });
           }
+
           if (datatype.equals(xsd.integer)) {
             return new NumberType({
               configuration: this.configuration,
-              defaultValue: astType.defaultValue,
-              hasValue: astType.hasValue,
+              defaultValue: astType.defaultValue
+                .map((value) => fromRdf(value, true))
+                .filter((value) => typeof value === "number"),
+              in_: astType.in_.map((values) =>
+                values
+                  .map((value) => fromRdf(value, true))
+                  .filter((value) => typeof value === "number"),
+              ),
+              hasValue: astType.hasValue
+                .map((value) => fromRdf(value, true))
+                .filter((value) => typeof value === "number"),
             });
           }
+
           if (datatype.equals(xsd.anyURI) || datatype.equals(xsd.string)) {
             return new StringType({
               configuration: this.configuration,
-              defaultValue: astType.defaultValue,
-              hasValue: astType.hasValue,
+              defaultValue: astType.defaultValue.map((value) => value.value),
+              in_: astType.in_.map((values) =>
+                values.map((value) => value.value),
+              ),
+              hasValue: astType.hasValue.map((value) => value.value),
             });
           }
+
+          logger.warn("unrecognized literal datatype: %s", datatype.value);
+        } else if (datatypes.size > 0) {
+          logger.warn(
+            "literal type has multiple datatypes: %s",
+            JSON.stringify([...datatypes].map((datatype) => datatype.value)),
+          );
+        } else {
+          logger.debug("literal type has no datatypes");
         }
+
         return new LiteralType({
           configuration: this.configuration,
           defaultValue: astType.defaultValue,
+          in_: astType.in_,
           hasValue: astType.hasValue,
         });
       }
@@ -147,6 +195,7 @@ export class TypeFactory {
       configuration: this.configuration,
       defaultValue: Maybe.empty(),
       hasValue: Maybe.empty(),
+      in_: Maybe.empty(),
       nodeKinds: astType.nodeKinds,
     });
 
@@ -246,6 +295,7 @@ export class TypeFactory {
         configuration: this.configuration,
         defaultValue: Maybe.empty(),
         hasValue: Maybe.empty(),
+        in_: Maybe.empty(),
         nodeKinds: astObjectTypeProperty.type.nodeKinds,
       });
     } else {
