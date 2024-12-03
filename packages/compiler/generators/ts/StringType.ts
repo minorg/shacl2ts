@@ -32,6 +32,12 @@ export class StringType extends PrimitiveType<string> {
     return `${variables.resourceValue}.toString()`;
   }
 
+  propertyHashStatements({
+    variables,
+  }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
+    return [`${variables.hasher}.update(${variables.value});`];
+  }
+
   override propertyToRdfExpression({
     variables,
   }: Parameters<PrimitiveType<string>["propertyToRdfExpression"]>[0]): string {

@@ -1223,39 +1223,31 @@ export namespace NodeShapeWithDefaultValueProperties {
     ) {
       super(subject);
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/falseBooleanProperty"),
-            this.variable("FalseBooleanProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/falseBooleanProperty"),
+          this.variable("FalseBooleanProperty"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/numberProperty"),
-            this.variable("NumberProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/numberProperty"),
+          this.variable("NumberProperty"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/stringProperty"),
-            this.variable("StringProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/stringProperty"),
+          this.variable("StringProperty"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/trueBooleanProperty"),
-            this.variable("TrueBooleanProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/trueBooleanProperty"),
+          this.variable("TrueBooleanProperty"),
         ),
       );
     }
@@ -1311,7 +1303,7 @@ export interface NodeShapeWithInProperties {
       | "http://example.com/NodeShapeWithInPropertiesIri2"
     >
   >;
-  readonly inLiteralsProperty: purify.Maybe<rdfjs.Literal>;
+  readonly inLiteralsProperty: purify.Maybe<string>;
   readonly type: "NodeShapeWithInProperties";
 }
 
@@ -1328,12 +1320,7 @@ export namespace NodeShapeWithInProperties {
           right,
           purifyHelpers.Equatable.booleanEquals,
         ),
-      inLiteralsProperty: (left, right) =>
-        purifyHelpers.Maybes.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.booleanEquals,
-        ),
+      inLiteralsProperty: purifyHelpers.Equatable.booleanEquals,
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -1351,7 +1338,7 @@ export namespace NodeShapeWithInProperties {
           | "http://example.com/NodeShapeWithInPropertiesIri2"
         >
       >;
-      inLiteralsProperty: purify.Maybe<rdfjs.Literal>;
+      inLiteralsProperty: purify.Maybe<string>;
       type: "NodeShapeWithInProperties";
     }
   > {
@@ -1417,7 +1404,7 @@ export namespace NodeShapeWithInProperties {
     const inIrisProperty = _inIrisPropertyEither.unsafeCoerce();
     const _inLiteralsPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
-      purify.Maybe<rdfjs.Literal>
+      purify.Maybe<string>
     > = purify.Either.of(
       _resource
         .values(
@@ -1425,7 +1412,7 @@ export namespace NodeShapeWithInProperties {
           { unique: true },
         )
         .head()
-        .chain((_value) => _value.toLiteral())
+        .chain((_value) => _value.toString())
         .toMaybe(),
     );
     if (_inLiteralsPropertyEither.isLeft()) {
@@ -1457,7 +1444,7 @@ export namespace NodeShapeWithInProperties {
       _hasher.update(rdfjsResource.Resource.Identifier.toString(_value));
     });
     _nodeShapeWithInProperties.inLiteralsProperty.ifJust((_value) => {
-      _hasher.update(_value.value);
+      _hasher.update(_value);
     });
     return _hasher;
   }

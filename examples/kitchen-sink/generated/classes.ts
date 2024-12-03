@@ -111,14 +111,12 @@ abstract class AbstractBaseClassWithPropertiesNodeShape extends AbstractBaseClas
   override equals(
     other: AbstractBaseClassWithPropertiesNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          abcStringProperty: purifyHelpers.Equatable.strictEquals,
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        abcStringProperty: purifyHelpers.Equatable.strictEquals,
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -232,14 +230,12 @@ export class ConcreteParentClassNodeShape extends AbstractBaseClassWithPropertie
   override equals(
     other: ConcreteParentClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          parentStringProperty: purifyHelpers.Equatable.strictEquals,
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        parentStringProperty: purifyHelpers.Equatable.strictEquals,
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -398,14 +394,12 @@ export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
   override equals(
     other: ConcreteChildClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          childStringProperty: purifyHelpers.Equatable.strictEquals,
-          type: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        childStringProperty: purifyHelpers.Equatable.strictEquals,
+        type: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -1392,39 +1386,31 @@ export namespace NodeShapeWithDefaultValueProperties {
     ) {
       super(subject);
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/falseBooleanProperty"),
-            this.variable("FalseBooleanProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/falseBooleanProperty"),
+          this.variable("FalseBooleanProperty"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/numberProperty"),
-            this.variable("NumberProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/numberProperty"),
+          this.variable("NumberProperty"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/stringProperty"),
-            this.variable("StringProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/stringProperty"),
+          this.variable("StringProperty"),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.optional(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/trueBooleanProperty"),
-            this.variable("TrueBooleanProperty"),
-          ),
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/trueBooleanProperty"),
+          this.variable("TrueBooleanProperty"),
         ),
       );
     }
@@ -1439,7 +1425,7 @@ export class NodeShapeWithInProperties {
       | "http://example.com/NodeShapeWithInPropertiesIri2"
     >
   >;
-  readonly inLiteralsProperty: purify.Maybe<rdfjs.Literal>;
+  readonly inLiteralsProperty: purify.Maybe<string>;
   readonly type = "NodeShapeWithInProperties" as const;
 
   constructor(parameters: {
@@ -1455,13 +1441,7 @@ export class NodeShapeWithInProperties {
           | "http://example.com/NodeShapeWithInPropertiesIri1"
           | "http://example.com/NodeShapeWithInPropertiesIri2"
         >;
-    readonly inLiteralsProperty?:
-      | Date
-      | boolean
-      | number
-      | purify.Maybe<rdfjs.Literal>
-      | rdfjs.Literal
-      | string;
+    readonly inLiteralsProperty?: purify.Maybe<string> | string;
   }) {
     this.identifier = parameters.identifier;
     if (purify.Maybe.isMaybe(parameters.inIrisProperty)) {
@@ -1476,26 +1456,7 @@ export class NodeShapeWithInProperties {
 
     if (purify.Maybe.isMaybe(parameters.inLiteralsProperty)) {
       this.inLiteralsProperty = parameters.inLiteralsProperty;
-    } else if (typeof parameters.inLiteralsProperty === "boolean") {
-      this.inLiteralsProperty = purify.Maybe.of(
-        rdfLiteral.toRdf(parameters.inLiteralsProperty),
-      );
-    } else if (
-      typeof parameters.inLiteralsProperty === "object" &&
-      parameters.inLiteralsProperty instanceof Date
-    ) {
-      this.inLiteralsProperty = purify.Maybe.of(
-        rdfLiteral.toRdf(parameters.inLiteralsProperty),
-      );
-    } else if (typeof parameters.inLiteralsProperty === "number") {
-      this.inLiteralsProperty = purify.Maybe.of(
-        rdfLiteral.toRdf(parameters.inLiteralsProperty),
-      );
     } else if (typeof parameters.inLiteralsProperty === "string") {
-      this.inLiteralsProperty = purify.Maybe.of(
-        dataFactory.literal(parameters.inLiteralsProperty),
-      );
-    } else if (typeof parameters.inLiteralsProperty === "object") {
       this.inLiteralsProperty = purify.Maybe.of(parameters.inLiteralsProperty);
     } else if (typeof parameters.inLiteralsProperty === "undefined") {
       this.inLiteralsProperty = purify.Maybe.empty();
@@ -1515,12 +1476,7 @@ export class NodeShapeWithInProperties {
           right,
           purifyHelpers.Equatable.booleanEquals,
         ),
-      inLiteralsProperty: (left, right) =>
-        purifyHelpers.Maybes.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.booleanEquals,
-        ),
+      inLiteralsProperty: purifyHelpers.Equatable.booleanEquals,
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -1626,7 +1582,7 @@ export namespace NodeShapeWithInProperties {
     const inIrisProperty = _inIrisPropertyEither.unsafeCoerce();
     const _inLiteralsPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
-      purify.Maybe<rdfjs.Literal>
+      purify.Maybe<string>
     > = purify.Either.of(
       _resource
         .values(
@@ -1634,7 +1590,7 @@ export namespace NodeShapeWithInProperties {
           { unique: true },
         )
         .head()
-        .chain((_value) => _value.toLiteral())
+        .chain((_value) => _value.toString())
         .toMaybe(),
     );
     if (_inLiteralsPropertyEither.isLeft()) {
@@ -1666,7 +1622,7 @@ export namespace NodeShapeWithInProperties {
       _hasher.update(rdfjsResource.Resource.Identifier.toString(_value));
     });
     _nodeShapeWithInProperties.inLiteralsProperty.ifJust((_value) => {
-      _hasher.update(_value.value);
+      _hasher.update(_value);
     });
     return _hasher;
   }
