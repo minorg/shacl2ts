@@ -26,22 +26,6 @@ export abstract class PrimitiveType<
     this.in_ = in_;
   }
 
-  override get conversions(): readonly Type.Conversion[] {
-    const conversions: Type.Conversion[] = [
-      {
-        conversionExpression: (value) => value,
-        sourceTypeName: this.name,
-      },
-    ];
-    this.defaultValue.ifJust((defaultValue) => {
-      conversions.push({
-        conversionExpression: () => defaultValue.toString(),
-        sourceTypeName: "undefined",
-      });
-    });
-    return conversions;
-  }
-
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
     return Maybe.empty();
   }
@@ -71,6 +55,8 @@ export abstract class PrimitiveType<
     chain.push(
       `chain(_value => ${this.fromRdfResourceValueExpression({
         variables: {
+          predicate: variables.predicate,
+          resource: variables.resource,
           resourceValue: "_value",
         },
       })})`,
@@ -87,6 +73,6 @@ export abstract class PrimitiveType<
   protected abstract fromRdfResourceValueExpression({
     variables,
   }: {
-    variables: { resourceValue: string };
+    variables: { predicate: string; resource: string; resourceValue: string };
   }): string;
 }

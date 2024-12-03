@@ -12,6 +12,7 @@ export class LiteralType extends RdfjsTermType<Literal, Literal> {
 
     conversions.push({
       conversionExpression: (value) => `rdfLiteral.toRdf(${value})`,
+      sourceTypeCheckExpression: (value) => `typeof ${value} === "boolean"`,
       sourceTypeName: "boolean",
     });
 
@@ -24,12 +25,14 @@ export class LiteralType extends RdfjsTermType<Literal, Literal> {
 
     conversions.push({
       conversionExpression: (value) => `rdfLiteral.toRdf(${value})`,
+      sourceTypeCheckExpression: (value) => `typeof ${value} === "number"`,
       sourceTypeName: "number",
     });
 
     conversions.push({
       conversionExpression: (value) =>
         `${this.configuration.dataFactoryVariable}.literal(${value})`,
+      sourceTypeCheckExpression: (value) => `typeof ${value} === "string"`,
       sourceTypeName: "string",
     });
 
@@ -37,6 +40,7 @@ export class LiteralType extends RdfjsTermType<Literal, Literal> {
       conversions.push({
         conversionExpression: () =>
           rdfjsTermExpression(defaultValue, this.configuration),
+        sourceTypeCheckExpression: (value) => `typeof ${value} === "undefined"`,
         sourceTypeName: "undefined",
       });
     });

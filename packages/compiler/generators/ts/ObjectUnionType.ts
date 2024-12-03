@@ -45,6 +45,16 @@ export class ObjectUnionType extends Type {
     this.name = name;
   }
 
+  override get conversions(): readonly Type.Conversion[] {
+    return [
+      {
+        conversionExpression: (value) => value,
+        sourceTypeCheckExpression: (value) => `typeof ${value} === "object"`,
+        sourceTypeName: this.name,
+      },
+    ];
+  }
+
   get equalsFunctionDeclaration(): FunctionDeclarationStructure {
     const caseBlocks = this.memberTypes.map((memberType) => {
       let returnExpression: string;

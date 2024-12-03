@@ -1,10 +1,43 @@
+import { Memoize } from "typescript-memoize";
 import { PrimitiveType } from "./PrimitiveType.js";
+import type { Type } from "./Type.js";
 
 export class BooleanType extends PrimitiveType<boolean> {
   readonly kind = "BooleanType";
 
+  override get conversions(): readonly Type.Conversion[] {
+    const conversions: Type.Conversion[] = [
+      {
+        conversionExpression: (value) => value,
+        sourceTypeCheckExpression: (value) => `typeof ${value} === "boolean"`,
+        sourceTypeName: this.name,
+      },
+    ];
+    this.defaultValue
+      .ifJust((defaultValue) => {
+        conversions.push({
+          conversionExpression: () => defaultValue.toString(),
+          sourceTypeCheckExpression: (value) =>
+            `typeof ${value} === "undefined"`,
+          sourceTypeName: "undefined",
+        });
+      })
+      .ifNothing(() => {
+        conversions.push({
+          conversionExpression: () => "false",
+          sourceTypeCheckExpression: (value) =>
+            `typeof ${value} === "undefined"`,
+          sourceTypeName: "undefined",
+        });
+      });
+    return conversions;
+  }
+
+  @Memoize()
   override get name(): string {
-    return "boolean";
+    return this.in_
+      .map((values) => values.map((value) => value.toString()).join(" | "))
+      .orDefault("boolean");
   }
 
   override fromRdfResourceValueExpression({

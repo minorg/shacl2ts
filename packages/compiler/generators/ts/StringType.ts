@@ -1,3 +1,4 @@
+import { Memoize } from "typescript-memoize";
 import { PrimitiveType } from "./PrimitiveType.js";
 import type { Type } from "./Type.js";
 
@@ -8,20 +9,25 @@ export class StringType extends PrimitiveType<string> {
     const conversions: Type.Conversion[] = [
       {
         conversionExpression: (value) => value,
+        sourceTypeCheckExpression: (value) => `typeof ${value} === "string"`,
         sourceTypeName: this.name,
       },
     ];
     this.defaultValue.ifJust((defaultValue) => {
       conversions.push({
         conversionExpression: () => `"${defaultValue}"`,
+        sourceTypeCheckExpression: (value) => `typeof ${value} === "undefined"`,
         sourceTypeName: "undefined",
       });
     });
     return conversions;
   }
 
+  @Memoize()
   override get name(): string {
-    return "string";
+    return this.in_
+      .map((values) => values.map((value) => `"${value}"`).join(" | "))
+      .orDefault("string");
   }
 
   fromRdfResourceValueExpression({
@@ -29,7 +35,11 @@ export class StringType extends PrimitiveType<string> {
   }: Parameters<
     PrimitiveType<string>["fromRdfResourceValueExpression"]
   >[0]): string {
-    return `${variables.resourceValue}.toString()`;
+    let expression = `${variables.resourceValue}.toString()`;
+    this.in_.ifJust((in_) => {
+      expression = `${expression}.chain(_value => { switch (_value) { ${in_.map((value) => `case "${value}":`).join(" ")} return purify.Either.of(_value); default: return purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: iri, expectedValueType: ${JSON.stringify(this.name)}, focusResource: ${variables.resource}, predicate: ${variables.predicate} })); })`;
+    });
+    return expression;
   }
 
   override propertyHashStatements({

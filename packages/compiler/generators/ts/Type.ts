@@ -8,13 +8,20 @@ import type { Configuration } from "./Configuration.js";
  * Subclasses are used for both property types (c.f., property* methods) and node/object types.
  */
 export abstract class Type {
+  /**
+   * Expressions that convert a source type or types to this type. It should include the type itself.
+   */
+  abstract readonly conversions: readonly Type.Conversion[];
+
   abstract readonly kind:
     | ast.Type["kind"]
     | "BooleanType"
     | "ListType"
     | "NumberType"
     | "StringType";
+
   abstract readonly name: string;
+
   protected readonly configuration: Configuration;
 
   constructor({
@@ -23,18 +30,6 @@ export abstract class Type {
     configuration: Configuration;
   }) {
     this.configuration = configuration;
-  }
-
-  /**
-   * Expressions that convert a source type or types to this type. It should include the type itself.
-   */
-  get conversions(): readonly Type.Conversion[] {
-    return [
-      {
-        conversionExpression: (value) => value,
-        sourceTypeName: this.name,
-      },
-    ];
   }
 
   /**
@@ -134,7 +129,7 @@ export abstract class Type {
 export namespace Type {
   export interface Conversion {
     readonly conversionExpression: (value: string) => string;
-    readonly sourceTypeCheckExpression?: (value: string) => string;
+    readonly sourceTypeCheckExpression: (value: string) => string;
     readonly sourceTypeName: string;
   }
 

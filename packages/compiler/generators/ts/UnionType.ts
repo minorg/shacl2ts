@@ -103,6 +103,16 @@ export class UnionType extends Type {
     }
   }
 
+  override get conversions(): readonly Type.Conversion[] {
+    return [
+      {
+        conversionExpression: (value) => value,
+        sourceTypeCheckExpression: (value) => `typeof ${value} === "object"`,
+        sourceTypeName: this.name,
+      },
+    ];
+  }
+
   @Memoize()
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
     return Maybe.of(this._discriminatorProperty);
