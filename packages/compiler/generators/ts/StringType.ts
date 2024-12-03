@@ -32,7 +32,7 @@ export class StringType extends PrimitiveType<string> {
     return `${variables.resourceValue}.toString()`;
   }
 
-  propertyHashStatements({
+  override propertyHashStatements({
     variables,
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     return [`${variables.hasher}.update(${variables.value});`];
