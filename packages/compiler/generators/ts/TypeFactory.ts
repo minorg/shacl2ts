@@ -114,11 +114,13 @@ export class TypeFactory {
           }
 
           logger.warn("unrecognized literal datatype: %s", datatype.value);
-        } else {
+        } else if (datatypes.size > 0) {
           logger.warn(
             "literal type has multiple datatypes: %s",
             JSON.stringify([...datatypes].map((datatype) => datatype.value)),
           );
+        } else {
+          logger.debug("literal type has no datatypes");
         }
 
         return new LiteralType({
