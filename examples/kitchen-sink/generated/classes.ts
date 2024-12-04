@@ -1812,16 +1812,10 @@ export class NodeShapeWithListProperty {
 
   constructor(parameters: {
     readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-    readonly listProperty?: readonly string[];
+    readonly listProperty: readonly string[];
   }) {
     this.identifier = parameters.identifier;
-    if (Array.isArray(parameters.listProperty)) {
-      this.listProperty = parameters.listProperty;
-    } else if (typeof parameters.listProperty === "undefined") {
-      this.listProperty = [];
-    } else {
-      this.listProperty = parameters.listProperty; // never
-    }
+    this.listProperty = parameters.listProperty;
   }
 
   equals(

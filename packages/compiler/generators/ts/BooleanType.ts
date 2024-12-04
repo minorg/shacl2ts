@@ -13,25 +13,13 @@ export class BooleanType extends PrimitiveType<boolean> {
         sourceTypeName: this.name,
       },
     ];
-    this.defaultValue
-      .ifJust((defaultValue) => {
-        conversions.push({
-          conversionExpression: () => defaultValue.toString(),
-          sourceTypeCheckExpression: (value) =>
-            `typeof ${value} === "undefined"`,
-          sourceTypeName: "undefined",
-        });
-      })
-      .ifNothing(() => {
-        if (this.in_.isNothing()) {
-          conversions.push({
-            conversionExpression: () => "false",
-            sourceTypeCheckExpression: (value) =>
-              `typeof ${value} === "undefined"`,
-            sourceTypeName: "undefined",
-          });
-        }
+    this.defaultValue.ifJust((defaultValue) => {
+      conversions.push({
+        conversionExpression: () => defaultValue.toString(),
+        sourceTypeCheckExpression: (value) => `typeof ${value} === "undefined"`,
+        sourceTypeName: "undefined",
       });
+    });
     return conversions;
   }
 

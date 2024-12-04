@@ -38,11 +38,6 @@ export class ListType extends Type {
         sourceTypeCheckExpression: (value) => `Array.isArray(${value})`,
         sourceTypeName: this.name,
       },
-      {
-        conversionExpression: () => "[]",
-        sourceTypeCheckExpression: (value) => `typeof ${value} === "undefined"`,
-        sourceTypeName: "undefined",
-      },
     ];
   }
 
