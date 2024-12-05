@@ -4,7 +4,7 @@ import {
   type StatementStructures,
   StructureKind,
 } from "ts-morph";
-import type * as ast from "../../ast/index.js";
+import * as ast from "../../ast/index.js";
 import type { Generator } from "../Generator.js";
 import { Configuration as GlobalConfiguration } from "./Configuration.js";
 import { ObjectType } from "./ObjectType.js";
@@ -18,29 +18,8 @@ export class TsGenerator implements Generator {
     this.configuration = configuration ?? new TsGenerator.Configuration();
   }
 
-  generate(ast: ast.Ast): string {
-    const astObjectTypes = ast.objectTypes.concat().sort((left, right) => {
-      if (
-        left.ancestorObjectTypes.some((ancestorObjectType) =>
-          ancestorObjectType.name.identifier.equals(right.name.identifier),
-        )
-      ) {
-        // Right is an ancestor of left, right must come first
-        return 1;
-      }
-      if (
-        right.ancestorObjectTypes.some((ancestorObjectType) =>
-          ancestorObjectType.name.identifier.equals(left.name.identifier),
-        )
-      ) {
-        // Left is an ancestor of right, left must come first
-        return -1;
-      }
-      // Neither is an ancestor of the other
-      // Don't sort by name, since it could conflict with the ancestor sort
-      // return tsName(left.name).localeCompare(tsName(right.name));
-      return 0;
-    });
+  generate(ast_: ast.Ast): string {
+    const sortedAstObjectTypes = ast.ObjectType.toposort(ast_.objectTypes);
 
     const project = new Project({
       useInMemoryFileSystem: true,
@@ -50,11 +29,11 @@ export class TsGenerator implements Generator {
     const typeFactory = new TypeFactory({ configuration: this.configuration });
 
     this.addDeclarations({
-      objectTypes: astObjectTypes.flatMap((astObjectType) => {
+      objectTypes: sortedAstObjectTypes.flatMap((astObjectType) => {
         const type = typeFactory.createTypeFromAstType(astObjectType);
         return type instanceof ObjectType ? [type] : [];
       }),
-      objectUnionTypes: ast.objectUnionTypes.flatMap((astObjectUnionType) => {
+      objectUnionTypes: ast_.objectUnionTypes.flatMap((astObjectUnionType) => {
         const type = typeFactory.createTypeFromAstType(astObjectUnionType);
         return type instanceof ObjectUnionType ? [type] : [];
       }),
