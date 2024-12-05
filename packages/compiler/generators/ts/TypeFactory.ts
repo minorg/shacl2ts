@@ -245,21 +245,23 @@ export class TypeFactory {
             );
           }
         }
-        properties.push(
-          new ObjectType.TypeDiscriminatorProperty({
-            abstract: astType.abstract,
-            configuration: this.configuration,
-            name: this.configuration.objectTypeDiscriminatorPropertyName,
-            override: objectType.parentObjectTypes.length > 0,
-            type: {
-              name: [...typeDiscriminatorValues]
-                .sort()
-                .map((name) => `"${name}"`)
-                .join("|"),
-            },
-            value: objectType.discriminatorValue,
-          }),
-        );
+        if (typeDiscriminatorValues.size > 0) {
+          properties.push(
+            new ObjectType.TypeDiscriminatorProperty({
+              abstract: astType.abstract,
+              configuration: this.configuration,
+              name: this.configuration.objectTypeDiscriminatorPropertyName,
+              override: objectType.parentObjectTypes.length > 0,
+              type: {
+                name: [...typeDiscriminatorValues]
+                  .sort()
+                  .map((name) => `"${name}"`)
+                  .join("|"),
+              },
+              value: objectType.discriminatorValue,
+            }),
+          );
+        }
 
         return properties.sort((left, right) =>
           left.name.localeCompare(right.name),
