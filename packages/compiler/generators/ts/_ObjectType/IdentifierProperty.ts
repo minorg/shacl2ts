@@ -6,30 +6,30 @@ import {
   type PropertySignatureStructure,
   Scope,
 } from "ts-morph";
-import { MintingStrategy } from "../../../MintingStrategy.js";
+import { IriMintingStrategy } from "../../../IriMintingStrategy.js";
 import type { IdentifierType } from "../IdentifierType.js";
 import { Property } from "./Property.js";
 
 export class IdentifierProperty extends Property<IdentifierType> {
   readonly equalsFunction = "purifyHelpers.Equatable.booleanEquals";
-  private readonly mintingStrategy: Maybe<MintingStrategy>;
+  private readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
 
   constructor({
-    mintingStrategy,
+    iriMintingStrategy,
     ...superParameters
   }: {
-    mintingStrategy: Maybe<MintingStrategy>;
+    iriMintingStrategy: Maybe<IriMintingStrategy>;
     type: IdentifierType;
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
-    this.mintingStrategy = mintingStrategy;
+    this.iriMintingStrategy = iriMintingStrategy;
   }
 
   override get classConstructorParametersPropertySignature(): Maybe<
     OptionalKind<PropertySignatureStructure>
   > {
     return Maybe.of({
-      hasQuestionToken: this.mintingStrategy.isJust(),
+      hasQuestionToken: this.iriMintingStrategy.isJust(),
       isReadonly: true,
       name: this.name,
       type: this.type.name,
@@ -39,17 +39,17 @@ export class IdentifierProperty extends Property<IdentifierType> {
   override get classGetAccessorDeclaration(): Maybe<
     OptionalKind<GetAccessorDeclarationStructure>
   > {
-    if (!this.mintingStrategy.isJust()) {
+    if (!this.iriMintingStrategy.isJust()) {
       return Maybe.empty();
     }
 
     let mintIdentifier: string;
-    switch (this.mintingStrategy.unsafeCoerce()) {
-      case MintingStrategy.SHA256:
+    switch (this.iriMintingStrategy.unsafeCoerce()) {
+      case IriMintingStrategy.SHA256:
         mintIdentifier =
           "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${this.hash(sha256.create())}`)";
         break;
-      case MintingStrategy.UUIDv4:
+      case IriMintingStrategy.UUIDv4:
         mintIdentifier =
           "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${uuid.v4()}`)";
         break;
@@ -65,7 +65,7 @@ export class IdentifierProperty extends Property<IdentifierType> {
   }
 
   override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
-    if (this.mintingStrategy.isJust()) {
+    if (this.iriMintingStrategy.isJust()) {
       // Mutable _identifier that will be lazily initialized by the getter
       return {
         name: `_${this.name}`,
@@ -94,7 +94,7 @@ export class IdentifierProperty extends Property<IdentifierType> {
     Property<IdentifierType>["classConstructorStatements"]
   >[0]): readonly string[] {
     return [
-      `this.${this.mintingStrategy.isJust() ? "_" : ""}${this.name} = ${variables.parameter};`,
+      `this.${this.iriMintingStrategy.isJust() ? "_" : ""}${this.name} = ${variables.parameter};`,
     ];
   }
 

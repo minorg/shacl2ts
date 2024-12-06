@@ -1,7 +1,7 @@
 import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { Memoize } from "typescript-memoize";
-import { MintingStrategy } from "../../MintingStrategy.js";
+import { IriMintingStrategy } from "../../IriMintingStrategy";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
@@ -15,8 +15,8 @@ export class ObjectType extends Type {
   hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
   readonly identifierType: IdentifierType;
   interfaceDeclaration = _ObjectType.interfaceDeclaration;
+  readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
   readonly kind = "ObjectType";
-  readonly mintingStrategy: Maybe<MintingStrategy>;
   readonly name: string;
   readonly rdfType: Maybe<NamedNode>;
   sparqlGraphPatternsClassDeclaration =
@@ -35,7 +35,7 @@ export class ObjectType extends Type {
     lazyDescendantObjectTypes,
     lazyParentObjectTypes,
     lazyProperties,
-    mintingStrategy,
+    iriMintingStrategy,
     name,
     rdfType,
     ...superParameters
@@ -47,7 +47,7 @@ export class ObjectType extends Type {
     lazyDescendantObjectTypes: () => readonly ObjectType[];
     lazyParentObjectTypes: () => readonly ObjectType[];
     lazyProperties: () => readonly ObjectType.Property[];
-    mintingStrategy: Maybe<MintingStrategy>;
+    iriMintingStrategy: Maybe<IriMintingStrategy>;
     name: string;
     rdfType: Maybe<NamedNode>;
   } & ConstructorParameters<typeof Type>[0]) {
@@ -60,7 +60,7 @@ export class ObjectType extends Type {
     this.lazyParentObjectTypes = lazyParentObjectTypes;
     this.lazyProperties = lazyProperties;
     this.identifierType = identifierType;
-    this.mintingStrategy = mintingStrategy;
+    this.iriMintingStrategy = iriMintingStrategy;
     this.rdfType = rdfType;
     this.name = name;
   }
@@ -114,12 +114,12 @@ export class ObjectType extends Type {
       (property) => property.importStatements,
     );
     if (this.configuration.objectTypeDeclarationType === "class") {
-      this.mintingStrategy.ifJust((mintingStrategy) => {
-        switch (mintingStrategy) {
-          case MintingStrategy.SHA256:
+      this.iriMintingStrategy.ifJust((iriMintingStrategy) => {
+        switch (iriMintingStrategy) {
+          case IriMintingStrategy.SHA256:
             importStatements.push('import { sha256 } from "js-sha256";');
             break;
-          case MintingStrategy.UUIDv4:
+          case IriMintingStrategy.UUIDv4:
             importStatements.push('import * as uuid from "uuid";');
             break;
         }
