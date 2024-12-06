@@ -1,35 +1,54 @@
+import { NodeKind } from "@shaclmate/shacl-ast";
 import { Maybe } from "purify-ts";
-import {
-  type GetAccessorDeclarationStructure,
-  type OptionalKind,
-  type PropertyDeclarationStructure,
-  type PropertySignatureStructure,
+import { invariant } from "ts-invariant";
+import type {
+  GetAccessorDeclarationStructure,
+  OptionalKind,
+  PropertyDeclarationStructure,
+  PropertySignatureStructure,
   Scope,
 } from "ts-morph";
-import { MintingStrategy } from "../../../MintingStrategy.js";
+import { IriMintingStrategy } from "../../../IriMintingStrategy.js";
 import type { IdentifierType } from "../IdentifierType.js";
 import { Property } from "./Property.js";
 
 export class IdentifierProperty extends Property<IdentifierType> {
+  readonly abstract: boolean;
   readonly equalsFunction = "purifyHelpers.Equatable.booleanEquals";
-  private readonly mintingStrategy: Maybe<MintingStrategy>;
+  private readonly classDeclarationScope: Maybe<Scope>;
+  private readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
+  private readonly override: boolean;
 
   constructor({
-    mintingStrategy,
+    abstract,
+    classDeclarationScope,
+    iriMintingStrategy,
+    override,
     ...superParameters
   }: {
-    mintingStrategy: Maybe<MintingStrategy>;
+    abstract: boolean;
+    classDeclarationScope: Maybe<Scope>;
+    iriMintingStrategy: Maybe<IriMintingStrategy>;
+    override: boolean;
     type: IdentifierType;
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
-    this.mintingStrategy = mintingStrategy;
+    this.abstract = abstract;
+    this.classDeclarationScope = classDeclarationScope;
+    this.iriMintingStrategy = iriMintingStrategy;
+    this.override = override;
   }
 
   override get classConstructorParametersPropertySignature(): Maybe<
     OptionalKind<PropertySignatureStructure>
   > {
+    if (this.abstract) {
+      return Maybe.empty();
+    }
+
+    // Identifier is always optional
     return Maybe.of({
-      hasQuestionToken: this.mintingStrategy.isJust(),
+      hasQuestionToken: true,
       isReadonly: true,
       name: this.name,
       type: this.type.name,
@@ -39,45 +58,70 @@ export class IdentifierProperty extends Property<IdentifierType> {
   override get classGetAccessorDeclaration(): Maybe<
     OptionalKind<GetAccessorDeclarationStructure>
   > {
-    if (!this.mintingStrategy.isJust()) {
+    if (this.abstract) {
       return Maybe.empty();
     }
 
     let mintIdentifier: string;
-    switch (this.mintingStrategy.unsafeCoerce()) {
-      case MintingStrategy.SHA256:
-        mintIdentifier =
-          "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${this.hash(sha256.create())}`)";
-        break;
-      case MintingStrategy.UUIDv4:
-        mintIdentifier =
-          "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${uuid.v4()}`)";
-        break;
+    if (this.type.nodeKinds.has(NodeKind.IRI)) {
+      const sha256MintIdentifier =
+        "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${this.hash(sha256.create())}`)";
+      if (this.iriMintingStrategy.isJust()) {
+        switch (this.iriMintingStrategy.unsafeCoerce()) {
+          case IriMintingStrategy.SHA256:
+            mintIdentifier = sha256MintIdentifier;
+            break;
+          case IriMintingStrategy.UUIDv4:
+            mintIdentifier =
+              "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${uuid.v4()}`)";
+            break;
+        }
+      } else {
+        mintIdentifier = sha256MintIdentifier;
+      }
+    } else {
+      invariant(this.type.nodeKinds.has(NodeKind.BLANK_NODE));
+      mintIdentifier = "dataFactory.blankNode()";
     }
 
     return Maybe.of({
+      leadingTrivia: this.override ? "override " : undefined,
       name: this.name,
       returnType: this.type.name,
       statements: [
         `if (typeof this._${this.name} === "undefined") { this._${this.name} = ${mintIdentifier}; } return this._${this.name};`,
       ],
-    });
+    } satisfies OptionalKind<GetAccessorDeclarationStructure>);
   }
 
-  override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
-    if (this.mintingStrategy.isJust()) {
-      // Mutable _identifier that will be lazily initialized by the getter
-      return {
-        name: `_${this.name}`,
-        scope: Scope.Private,
-        type: `${this.type.name} | undefined`,
-      } satisfies OptionalKind<PropertyDeclarationStructure>;
+  override get classPropertyDeclaration(): Maybe<
+    OptionalKind<PropertyDeclarationStructure>
+  > {
+    if (this.abstract) {
+      // Abstract version of the accessor
+      // Work around a ts-morph bug that puts the override keyword before the abstract keyword
+      return Maybe.of({
+        hasOverrideKeyword:
+          this.abstract && this.override ? undefined : this.override,
+        isAbstract: this.abstract && this.override ? undefined : this.abstract,
+        isReadonly: true,
+        leadingTrivia:
+          this.abstract && this.override ? "abstract override " : undefined,
+        name: this.name,
+        type: this.type.name,
+      });
     }
-    return {
-      isReadonly: true,
-      name: this.name,
-      type: this.type.name,
-    };
+
+    if (this.classDeclarationScope.isJust()) {
+      // Mutable _identifier that will be lazily initialized by the getter
+      return Maybe.of({
+        name: `_${this.name}`,
+        scope: this.classDeclarationScope.unsafeCoerce(),
+        type: `${this.type.name} | undefined`,
+      });
+    }
+
+    return Maybe.empty();
   }
 
   override get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {
@@ -93,9 +137,10 @@ export class IdentifierProperty extends Property<IdentifierType> {
   }: Parameters<
     Property<IdentifierType>["classConstructorStatements"]
   >[0]): readonly string[] {
-    return [
-      `this.${this.mintingStrategy.isJust() ? "_" : ""}${this.name} = ${variables.parameter};`,
-    ];
+    if (this.classDeclarationScope.isJust()) {
+      return [`this._${this.name} = ${variables.parameter};`];
+    }
+    return [];
   }
 
   override fromRdfStatements({

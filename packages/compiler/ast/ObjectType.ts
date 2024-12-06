@@ -2,7 +2,9 @@ import type { NamedNode } from "@rdfjs/types";
 import type { NodeKind } from "@shaclmate/shacl-ast";
 import type { PredicatePath } from "@shaclmate/shacl-ast";
 import type { Maybe } from "purify-ts";
-import type { MintingStrategy } from "../MintingStrategy.js";
+import { Resource } from "rdfjs-resource";
+import genericToposort from "toposort";
+import type { IriMintingStrategy } from "../IriMintingStrategy.js";
 import type { Name } from "./Name.js";
 import type { Type } from "./Type.js";
 
@@ -41,9 +43,11 @@ export interface ObjectType {
    * Defaults to true.
    */
   readonly export: boolean;
-
+  /**
+   * Strategy for minting new object identifiers. If not specified, require an identifier on construction.
+   */
+  readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
   readonly kind: "ObjectType";
-
   /**
    * If the ObjectType is an RDF list, this is the type of rdf:first.
    * https://www.w3.org/TR/rdf-schema/#ch_collectionvocab
@@ -51,12 +55,6 @@ export interface ObjectType {
    * Mutable to support cycle-handling logic in the compiler.
    */
   listItemType: Maybe<Type>;
-
-  /**
-   * Strategy for minting new object identifiers. If not specified, require an identifier on construction.
-   */
-  readonly mintingStrategy: Maybe<MintingStrategy>;
-
   /**
    * Name of this type, usually derived from sh:name or shaclmate:name.
    */
@@ -98,5 +96,32 @@ export namespace ObjectType {
     readonly name: Name;
     readonly path: PredicatePath;
     readonly type: Type;
+  }
+
+  export function toposort(
+    objectTypes: readonly ObjectType[],
+  ): readonly ObjectType[] {
+    const objectTypesByIdentifier: Record<string, ObjectType> = {};
+    const objectTypeGraphNodes: string[] = [];
+    const objectTypeGraphEdges: [string, string | undefined][] = [];
+    for (const objectType of objectTypes) {
+      const objectTypeIdentifier = Resource.Identifier.toString(
+        objectType.name.identifier,
+      );
+      objectTypesByIdentifier[objectTypeIdentifier] = objectType;
+      objectTypeGraphNodes.push(objectTypeIdentifier);
+      for (const parentAstObjectType of objectType.parentObjectTypes) {
+        objectTypeGraphEdges.push([
+          objectTypeIdentifier,
+          Resource.Identifier.toString(parentAstObjectType.name.identifier),
+        ]);
+      }
+    }
+    return genericToposort
+      .array(objectTypeGraphNodes, objectTypeGraphEdges)
+      .map(
+        (objectTypeIdentifier) => objectTypesByIdentifier[objectTypeIdentifier],
+      )
+      .reverse();
   }
 }

@@ -2,32 +2,34 @@ import type { NamedNode } from "@rdfjs/types";
 import { NodeKind } from "@shaclmate/shacl-ast";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
-import { MintingStrategy } from "../../MintingStrategy.js";
+import { IriMintingStrategy } from "../../IriMintingStrategy.js";
 import { Type } from "./Type.js";
 
 export class ListType extends Type {
   readonly itemType: Type;
   readonly kind = "ListType";
   private readonly identifierNodeKind: NodeKind.BLANK_NODE | NodeKind.IRI;
-  private readonly mintingStrategy: MintingStrategy;
+  private readonly iriMintingStrategy: IriMintingStrategy;
   private readonly rdfType: Maybe<NamedNode>;
 
   constructor({
     identifierNodeKind,
     itemType,
-    mintingStrategy,
+    iriMintingStrategy,
     rdfType,
     ...superParameters
   }: {
     identifierNodeKind: ListType["identifierNodeKind"];
     itemType: Type;
-    mintingStrategy: Maybe<MintingStrategy>;
+    iriMintingStrategy: Maybe<IriMintingStrategy>;
     rdfType: Maybe<NamedNode>;
   } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
     this.identifierNodeKind = identifierNodeKind;
     this.itemType = itemType;
-    this.mintingStrategy = mintingStrategy.orDefault(MintingStrategy.SHA256);
+    this.iriMintingStrategy = iriMintingStrategy.orDefault(
+      IriMintingStrategy.SHA256,
+    );
     this.rdfType = rdfType;
   }
 
@@ -111,8 +113,8 @@ export class ListType extends Type {
         break;
       }
       case NodeKind.IRI: {
-        switch (this.mintingStrategy) {
-          case MintingStrategy.SHA256:
+        switch (this.iriMintingStrategy) {
+          case IriMintingStrategy.SHA256:
             listIdentifier = `dataFactory.namedNode(\`urn:shaclmate:list:\${${variables.value}.reduce(
         (_hasher, _item) => {
           ${this.itemType.propertyHashStatements({ variables: { hasher: "_hasher", value: "_item" } })}
@@ -121,7 +123,7 @@ export class ListType extends Type {
         sha256.create(),
       )}\`)`;
             break;
-          case MintingStrategy.UUIDv4:
+          case IriMintingStrategy.UUIDv4:
             listIdentifier =
               "dataFactory.namedNode(`urn:shaclmate:list:${uuid.v4()}`)";
             break;

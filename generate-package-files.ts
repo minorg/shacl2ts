@@ -65,10 +65,12 @@ const packages: readonly Package[] = [
           externalDependencyVersions["@types/rdfjs__term-map"],
         "@types/rdfjs__term-set":
           externalDependencyVersions["@types/rdfjs__term-set"],
+        "@types/toposort": "2.0.7",
         "change-case": "^5.4.4",
         n3: externalDependencyVersions["n3"],
         pino: externalDependencyVersions["pino"],
         "reserved-identifiers": "^1.0.0",
+        toposort: "2.0.2",
         "ts-invariant": "^0.10.3",
         "ts-morph": "^24.0.0",
         "typescript-memoize": "^1.1.1",

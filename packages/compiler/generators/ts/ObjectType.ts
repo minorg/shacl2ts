@@ -1,7 +1,8 @@
 import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
+import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
-import { MintingStrategy } from "../../MintingStrategy.js";
+import { IriMintingStrategy } from "../../IriMintingStrategy.js";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
@@ -13,10 +14,9 @@ export class ObjectType extends Type {
   readonly export_: boolean;
   fromRdfFunctionDeclaration = _ObjectType.fromRdfFunctionDeclaration;
   hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
-  readonly identifierType: IdentifierType;
   interfaceDeclaration = _ObjectType.interfaceDeclaration;
+  readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
   readonly kind = "ObjectType";
-  readonly mintingStrategy: Maybe<MintingStrategy>;
   readonly name: string;
   readonly rdfType: Maybe<NamedNode>;
   sparqlGraphPatternsClassDeclaration =
@@ -29,25 +29,23 @@ export class ObjectType extends Type {
 
   constructor({
     abstract,
-    identifierType,
     export_,
     lazyAncestorObjectTypes,
     lazyDescendantObjectTypes,
     lazyParentObjectTypes,
     lazyProperties,
-    mintingStrategy,
+    iriMintingStrategy,
     name,
     rdfType,
     ...superParameters
   }: {
     abstract: boolean;
     export_: boolean;
-    identifierType: IdentifierType;
     lazyAncestorObjectTypes: () => readonly ObjectType[];
     lazyDescendantObjectTypes: () => readonly ObjectType[];
     lazyParentObjectTypes: () => readonly ObjectType[];
     lazyProperties: () => readonly ObjectType.Property[];
-    mintingStrategy: Maybe<MintingStrategy>;
+    iriMintingStrategy: Maybe<IriMintingStrategy>;
     name: string;
     rdfType: Maybe<NamedNode>;
   } & ConstructorParameters<typeof Type>[0]) {
@@ -59,8 +57,7 @@ export class ObjectType extends Type {
     this.lazyDescendantObjectTypes = lazyDescendantObjectTypes;
     this.lazyParentObjectTypes = lazyParentObjectTypes;
     this.lazyProperties = lazyProperties;
-    this.identifierType = identifierType;
-    this.mintingStrategy = mintingStrategy;
+    this.iriMintingStrategy = iriMintingStrategy;
     this.rdfType = rdfType;
     this.name = name;
   }
@@ -109,17 +106,31 @@ export class ObjectType extends Type {
     return "hash";
   }
 
+  @Memoize()
+  get identifierProperty(): ObjectType.IdentifierProperty {
+    const identifierProperty = this.properties.find(
+      (property) => property instanceof ObjectType.IdentifierProperty,
+    );
+    invariant(identifierProperty);
+    return identifierProperty;
+  }
+
+  @Memoize()
+  get identifierType(): IdentifierType {
+    return this.identifierProperty.type;
+  }
+
   override get importStatements(): readonly string[] {
     const importStatements = this.properties.flatMap(
       (property) => property.importStatements,
     );
     if (this.configuration.objectTypeDeclarationType === "class") {
-      this.mintingStrategy.ifJust((mintingStrategy) => {
-        switch (mintingStrategy) {
-          case MintingStrategy.SHA256:
+      this.iriMintingStrategy.ifJust((iriMintingStrategy) => {
+        switch (iriMintingStrategy) {
+          case IriMintingStrategy.SHA256:
             importStatements.push('import { sha256 } from "js-sha256";');
             break;
-          case MintingStrategy.UUIDv4:
+          case IriMintingStrategy.UUIDv4:
             importStatements.push('import * as uuid from "uuid";');
             break;
         }
@@ -177,9 +188,14 @@ export class ObjectType extends Type {
   override propertyHashStatements({
     variables,
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
-    return [
-      `${this.name}.${this.hashFunctionName}(${variables.value}, ${variables.hasher});`,
-    ];
+    switch (this.configuration.objectTypeDeclarationType) {
+      case "class":
+        return [`${variables.value}.hash(${variables.hasher});`];
+      case "interface":
+        return [
+          `${this.name}.${this.hashFunctionName}(${variables.value}, ${variables.hasher});`,
+        ];
+    }
   }
 
   override propertyToRdfExpression({

@@ -11,10 +11,12 @@
     "@types/rdfjs__prefix-map": "^0.1.5",
     "@types/rdfjs__term-map": "^2.0.10",
     "@types/rdfjs__term-set": "^2.0.9",
+    "@types/toposort": "2.0.7",
     "change-case": "^5.4.4",
     "n3": "^1.21.3",
     "pino": "^9.1.0",
     "reserved-identifiers": "^1.0.0",
+    "toposort": "2.0.2",
     "ts-invariant": "^0.10.3",
     "ts-morph": "^24.0.0",
     "typescript-memoize": "^1.1.1"
@@ -25,6 +27,8 @@
   "files": [
     "*.d.ts",
     "*.js",
+    "_ShapesGraphToAstTransformer/*.d.ts",
+    "_ShapesGraphToAstTransformer/*.js",
     "ast/*.d.ts",
     "ast/*.js",
     "generators/*.d.ts",

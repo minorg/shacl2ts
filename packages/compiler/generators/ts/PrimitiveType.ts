@@ -70,6 +70,23 @@ export abstract class PrimitiveType<
     return [`${variables.hasher}.update(${variables.value}.toString());`];
   }
 
+  override propertySparqlGraphPatternExpression({
+    variables,
+  }: Parameters<
+    Type["propertySparqlGraphPatternExpression"]
+  >[0]): Type.SparqlGraphPatternExpression {
+    let expression = super
+      .propertySparqlGraphPatternExpression({
+        variables,
+      })
+      .toSparqlGraphPatternExpression()
+      .toString();
+    if (this.defaultValue.isJust()) {
+      expression = `sparqlBuilder.GraphPattern.optional(${expression})`;
+    }
+    return new Type.SparqlGraphPatternExpression(expression);
+  }
+
   protected abstract fromRdfResourceValueExpression({
     variables,
   }: {

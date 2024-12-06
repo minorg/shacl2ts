@@ -52,12 +52,14 @@ export class ShaclProperty extends Property<Type> {
     return Maybe.empty();
   }
 
-  override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
-    return {
+  override get classPropertyDeclaration(): Maybe<
+    OptionalKind<PropertyDeclarationStructure>
+  > {
+    return Maybe.of({
       isReadonly: true,
       name: this.name,
       type: this.type.name,
-    };
+    });
   }
 
   override get equalsFunction(): string {

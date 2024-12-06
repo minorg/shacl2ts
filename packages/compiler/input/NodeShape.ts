@@ -5,7 +5,7 @@ import { NodeKind, RdfjsNodeShape } from "@shaclmate/shacl-ast";
 import { owl, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, type Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
-import { MintingStrategy } from "../MintingStrategy.js";
+import { IriMintingStrategy } from "../IriMintingStrategy.js";
 import { shaclmate } from "../vocabularies/index.js";
 import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
@@ -114,14 +114,7 @@ export class NodeShape
     return inline.bind(this)();
   }
 
-  get isClass(): boolean {
-    return (
-      this.resource.isInstanceOf(owl.Class) ||
-      this.resource.isInstanceOf(rdfs.Class)
-    );
-  }
-
-  get mintingStrategy(): Either<Error, MintingStrategy> {
+  get iriMintingStrategy(): Either<Error, IriMintingStrategy> {
     const thisMintingStrategy = this._mintingStrategy;
     if (thisMintingStrategy.isLeft()) {
       for (const ancestorNodeShape of this.ancestorNodeShapes) {
@@ -132,6 +125,13 @@ export class NodeShape
       }
     }
     return thisMintingStrategy;
+  }
+
+  get isClass(): boolean {
+    return (
+      this.resource.isInstanceOf(owl.Class) ||
+      this.resource.isInstanceOf(rdfs.Class)
+    );
   }
 
   get nodeKinds(): Set<NodeKind.BLANK_NODE | NodeKind.IRI> {
@@ -186,16 +186,16 @@ export class NodeShape
     return shaclmateName.bind(this)();
   }
 
-  private get _mintingStrategy(): Either<Error, MintingStrategy> {
+  private get _mintingStrategy(): Either<Error, IriMintingStrategy> {
     return this.resource
       .value(shaclmate.mintingStrategy)
       .chain((value) => value.toIri())
       .chain((iri) => {
         if (iri.equals(shaclmate.SHA256)) {
-          return Either.of(MintingStrategy.SHA256);
+          return Either.of(IriMintingStrategy.SHA256);
         }
         if (iri.equals(shaclmate.UUIDv4)) {
-          return Either.of(MintingStrategy.UUIDv4);
+          return Either.of(IriMintingStrategy.UUIDv4);
         }
         return Left(new Error(`unrecognizing minting strategy: ${iri.value}`));
       });

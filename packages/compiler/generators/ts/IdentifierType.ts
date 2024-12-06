@@ -12,7 +12,7 @@ export class IdentifierType extends RdfjsTermType<
   NamedNode
 > {
   readonly kind = "IdentifierType";
-  private readonly nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
+  readonly nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
 
   constructor({
     nodeKinds,

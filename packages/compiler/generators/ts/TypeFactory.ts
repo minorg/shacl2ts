@@ -5,6 +5,7 @@ import { NodeKind } from "@shaclmate/shacl-ast";
 import { xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import { fromRdf } from "rdf-literal";
+import { Scope } from "ts-morph";
 import type * as ast from "../../ast/index.js";
 import { logger } from "../../logger.js";
 import { BooleanType } from "./BooleanType.js";
@@ -142,7 +143,7 @@ export class TypeFactory {
             itemType: this.createTypeFromAstType(
               astType.listItemType.unsafeCoerce(),
             ),
-            mintingStrategy: astType.mintingStrategy,
+            iriMintingStrategy: astType.iriMintingStrategy,
             rdfType: astType.rdfType,
           });
         }
@@ -203,7 +204,6 @@ export class TypeFactory {
       abstract: astType.abstract,
       configuration: this.configuration,
       export_: astType.export,
-      identifierType,
       lazyAncestorObjectTypes: () =>
         astType.ancestorObjectTypes.map((astType) =>
           this.createObjectTypeFromAstType(astType),
@@ -222,16 +222,39 @@ export class TypeFactory {
             this.createObjectTypePropertyFromAstProperty(astProperty),
         );
 
-        if (astType.parentObjectTypes.length === 0) {
-          properties.push(
-            new ObjectType.IdentifierProperty({
-              configuration: this.configuration,
-              mintingStrategy: astType.mintingStrategy,
-              name: this.configuration.objectTypeIdentifierPropertyName,
-              type: identifierType,
-            }),
-          );
-        } // Else parent will have the identifier property
+        let identifierPropertyClassDeclarationScope: Maybe<Scope>;
+        if (astType.abstract) {
+          // If the type is abstract, don't declare a property.
+          identifierPropertyClassDeclarationScope = Maybe.empty();
+        } else if (
+          astType.ancestorObjectTypes.some(
+            (ancestorObjectType) => !ancestorObjectType.abstract,
+          )
+        ) {
+          // If the type has a non-abstract ancestor, that ancestor will declare the identifier property
+          identifierPropertyClassDeclarationScope = Maybe.empty();
+        } else if (
+          astType.descendantObjectTypes.some(
+            (descendantObjectType) => !descendantObjectType.abstract,
+          )
+        ) {
+          // If the type has a non-abstract descendant, declare the identifier property for it
+          identifierPropertyClassDeclarationScope = Maybe.of(Scope.Protected);
+        } else {
+          identifierPropertyClassDeclarationScope = Maybe.of(Scope.Private);
+        }
+
+        const identifierProperty: ObjectType.IdentifierProperty =
+          new ObjectType.IdentifierProperty({
+            abstract: astType.abstract,
+            classDeclarationScope: identifierPropertyClassDeclarationScope,
+            configuration: this.configuration,
+            iriMintingStrategy: astType.iriMintingStrategy,
+            name: this.configuration.objectTypeIdentifierPropertyName,
+            override: astType.parentObjectTypes.length > 0,
+            type: identifierType,
+          });
+        properties.push(identifierProperty);
 
         // Type discriminator property
         const typeDiscriminatorValues = new Set<string>();
@@ -245,27 +268,29 @@ export class TypeFactory {
             );
           }
         }
-        properties.push(
-          new ObjectType.TypeDiscriminatorProperty({
-            abstract: astType.abstract,
-            configuration: this.configuration,
-            name: this.configuration.objectTypeDiscriminatorPropertyName,
-            override: objectType.parentObjectTypes.length > 0,
-            type: {
-              name: [...typeDiscriminatorValues]
-                .sort()
-                .map((name) => `"${name}"`)
-                .join("|"),
-            },
-            value: objectType.discriminatorValue,
-          }),
-        );
+        if (typeDiscriminatorValues.size > 0) {
+          properties.push(
+            new ObjectType.TypeDiscriminatorProperty({
+              abstract: astType.abstract,
+              configuration: this.configuration,
+              name: this.configuration.objectTypeDiscriminatorPropertyName,
+              override: objectType.parentObjectTypes.length > 0,
+              type: {
+                name: [...typeDiscriminatorValues]
+                  .sort()
+                  .map((name) => `"${name}"`)
+                  .join("|"),
+              },
+              value: objectType.discriminatorValue,
+            }),
+          );
+        }
 
         return properties.sort((left, right) =>
           left.name.localeCompare(right.name),
         );
       },
-      mintingStrategy: astType.mintingStrategy,
+      iriMintingStrategy: astType.iriMintingStrategy,
       name: tsName(astType.name),
       rdfType: astType.rdfType,
     });
