@@ -188,9 +188,14 @@ export class ObjectType extends Type {
   override propertyHashStatements({
     variables,
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
-    return [
-      `${this.name}.${this.hashFunctionName}(${variables.value}, ${variables.hasher});`,
-    ];
+    switch (this.configuration.objectTypeDeclarationType) {
+      case "class":
+        return [`${variables.value}.hash(${variables.hasher});`];
+      case "interface":
+        return [
+          `${this.name}.${this.hashFunctionName}(${variables.value}, ${variables.hasher});`,
+        ];
+    }
   }
 
   override propertyToRdfExpression({

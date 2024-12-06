@@ -144,7 +144,10 @@ export class TsGenerator implements Generator {
       moduleStatements.push(objectType.fromRdfFunctionDeclaration());
     }
 
-    if (this.configuration.features.has("hash")) {
+    if (
+      this.configuration.features.has("hash") &&
+      this.configuration.objectTypeDeclarationType === "interface"
+    ) {
       moduleStatements.push(objectType.hashFunctionDeclaration());
     }
 

@@ -43,8 +43,9 @@ export class UuidV4IriNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return UuidV4IriNodeShape.hash(this, hasher);
+  >(_hasher: HasherT): HasherT {
+    _hasher.update(this.stringProperty);
+    return _hasher;
   }
 
   toRdf({
@@ -89,21 +90,6 @@ export namespace UuidV4IriNodeShape {
     return purify.Either.of(
       new UuidV4IriNodeShape({ identifier, stringProperty }),
     );
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _uuidV4IriNodeShape: Omit<
-      UuidV4IriNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _hasher.update(_uuidV4IriNodeShape.stringProperty);
-    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -157,8 +143,9 @@ export class Sha256IriNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return Sha256IriNodeShape.hash(this, hasher);
+  >(_hasher: HasherT): HasherT {
+    _hasher.update(this.stringProperty);
+    return _hasher;
   }
 
   toRdf({
@@ -203,21 +190,6 @@ export namespace Sha256IriNodeShape {
     return purify.Either.of(
       new Sha256IriNodeShape({ identifier, stringProperty }),
     );
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _sha256IriNodeShape: Omit<
-      Sha256IriNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _hasher.update(_sha256IriNodeShape.stringProperty);
-    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -271,8 +243,9 @@ export class OrNodeShapeMember2 {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return OrNodeShapeMember2.hash(this, hasher);
+  >(_hasher: HasherT): HasherT {
+    _hasher.update(this.stringProperty2);
+    return _hasher;
   }
 
   toRdf({
@@ -317,21 +290,6 @@ export namespace OrNodeShapeMember2 {
     return purify.Either.of(
       new OrNodeShapeMember2({ identifier, stringProperty2 }),
     );
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _orNodeShapeMember2: Omit<
-      OrNodeShapeMember2,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _hasher.update(_orNodeShapeMember2.stringProperty2);
-    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -385,8 +343,9 @@ export class OrNodeShapeMember1 {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return OrNodeShapeMember1.hash(this, hasher);
+  >(_hasher: HasherT): HasherT {
+    _hasher.update(this.stringProperty1);
+    return _hasher;
   }
 
   toRdf({
@@ -431,21 +390,6 @@ export namespace OrNodeShapeMember1 {
     return purify.Either.of(
       new OrNodeShapeMember1({ identifier, stringProperty1 }),
     );
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _orNodeShapeMember1: Omit<
-      OrNodeShapeMember1,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _hasher.update(_orNodeShapeMember1.stringProperty1);
-    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -531,8 +475,16 @@ export class NodeShapeWithPropertyCardinalities {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return NodeShapeWithPropertyCardinalities.hash(this, hasher);
+  >(_hasher: HasherT): HasherT {
+    this.optionalStringProperty.ifJust((_value) => {
+      _hasher.update(_value);
+    });
+    _hasher.update(this.requiredStringProperty);
+    for (const _element of this.setStringProperty) {
+      _hasher.update(_element);
+    }
+
+    return _hasher;
   }
 
   toRdf({
@@ -634,30 +586,6 @@ export namespace NodeShapeWithPropertyCardinalities {
         setStringProperty,
       }),
     );
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _nodeShapeWithPropertyCardinalities: Omit<
-      NodeShapeWithPropertyCardinalities,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _nodeShapeWithPropertyCardinalities.optionalStringProperty.ifJust(
-      (_value) => {
-        _hasher.update(_value);
-      },
-    );
-    _hasher.update(_nodeShapeWithPropertyCardinalities.requiredStringProperty);
-    for (const _element of _nodeShapeWithPropertyCardinalities.setStringProperty) {
-      _hasher.update(_element);
-    }
-
-    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -878,8 +806,37 @@ export class NodeShapeWithOrProperties {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return NodeShapeWithOrProperties.hash(this, hasher);
+  >(_hasher: HasherT): HasherT {
+    this.orLiteralsProperty.ifJust((_value) => {
+      _hasher.update(_value.value);
+    });
+    this.orTermsProperty.ifJust((_value) => {
+      switch (_value.termType) {
+        case "Literal": {
+          _hasher.update(_value.value);
+          break;
+        }
+        case "NamedNode": {
+          _hasher.update(rdfjsResource.Resource.Identifier.toString(_value));
+          break;
+        }
+      }
+    });
+    this.orUnrelatedProperty.ifJust((_value) => {
+      switch (_value.type) {
+        case "0-number": {
+          _hasher.update(_value.value.toString());
+          break;
+        }
+        case "1-rdfjs.NamedNode": {
+          _hasher.update(
+            rdfjsResource.Resource.Identifier.toString(_value.value),
+          );
+          break;
+        }
+      }
+    });
+    return _hasher;
   }
 
   toRdf({
@@ -1038,49 +995,6 @@ export namespace NodeShapeWithOrProperties {
     );
   }
 
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _nodeShapeWithOrProperties: Omit<
-      NodeShapeWithOrProperties,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _nodeShapeWithOrProperties.orLiteralsProperty.ifJust((_value) => {
-      _hasher.update(_value.value);
-    });
-    _nodeShapeWithOrProperties.orTermsProperty.ifJust((_value) => {
-      switch (_value.termType) {
-        case "Literal": {
-          _hasher.update(_value.value);
-          break;
-        }
-        case "NamedNode": {
-          _hasher.update(rdfjsResource.Resource.Identifier.toString(_value));
-          break;
-        }
-      }
-    });
-    _nodeShapeWithOrProperties.orUnrelatedProperty.ifJust((_value) => {
-      switch (_value.type) {
-        case "0-number": {
-          _hasher.update(_value.value.toString());
-          break;
-        }
-        case "1-rdfjs.NamedNode": {
-          _hasher.update(
-            rdfjsResource.Resource.Identifier.toString(_value.value),
-          );
-          break;
-        }
-      }
-    });
-    return _hasher;
-  }
-
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
@@ -1173,8 +1087,12 @@ export class NodeShapeWithListProperty {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return NodeShapeWithListProperty.hash(this, hasher);
+  >(_hasher: HasherT): HasherT {
+    for (const _element of this.listProperty) {
+      _hasher.update(_element);
+    }
+
+    return _hasher;
   }
 
   toRdf({
@@ -1287,24 +1205,6 @@ export namespace NodeShapeWithListProperty {
     return purify.Either.of(
       new NodeShapeWithListProperty({ identifier, listProperty }),
     );
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _nodeShapeWithListProperty: Omit<
-      NodeShapeWithListProperty,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    for (const _element of _nodeShapeWithListProperty.listProperty) {
-      _hasher.update(_element);
-    }
-
-    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -1435,8 +1335,20 @@ export class NodeShapeWithInProperties {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return NodeShapeWithInProperties.hash(this, hasher);
+  >(_hasher: HasherT): HasherT {
+    this.inBooleansProperty.ifJust((_value) => {
+      _hasher.update(_value.toString());
+    });
+    this.inIrisProperty.ifJust((_value) => {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_value));
+    });
+    this.inNumbersProperty.ifJust((_value) => {
+      _hasher.update(_value.toString());
+    });
+    this.inStringsProperty.ifJust((_value) => {
+      _hasher.update(_value);
+    });
+    return _hasher;
   }
 
   toRdf({
@@ -1654,32 +1566,6 @@ export namespace NodeShapeWithInProperties {
     );
   }
 
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _nodeShapeWithInProperties: Omit<
-      NodeShapeWithInProperties,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _nodeShapeWithInProperties.inBooleansProperty.ifJust((_value) => {
-      _hasher.update(_value.toString());
-    });
-    _nodeShapeWithInProperties.inIrisProperty.ifJust((_value) => {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_value));
-    });
-    _nodeShapeWithInProperties.inNumbersProperty.ifJust((_value) => {
-      _hasher.update(_value.toString());
-    });
-    _nodeShapeWithInProperties.inStringsProperty.ifJust((_value) => {
-      _hasher.update(_value);
-    });
-    return _hasher;
-  }
-
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
@@ -1801,8 +1687,12 @@ export class NodeShapeWithDefaultValueProperties {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return NodeShapeWithDefaultValueProperties.hash(this, hasher);
+  >(_hasher: HasherT): HasherT {
+    _hasher.update(this.falseBooleanProperty.toString());
+    _hasher.update(this.numberProperty.toString());
+    _hasher.update(this.stringProperty);
+    _hasher.update(this.trueBooleanProperty.toString());
+    return _hasher;
   }
 
   toRdf({
@@ -1966,30 +1856,6 @@ export namespace NodeShapeWithDefaultValueProperties {
     );
   }
 
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _nodeShapeWithDefaultValueProperties: Omit<
-      NodeShapeWithDefaultValueProperties,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _hasher.update(
-      _nodeShapeWithDefaultValueProperties.falseBooleanProperty.toString(),
-    );
-    _hasher.update(
-      _nodeShapeWithDefaultValueProperties.numberProperty.toString(),
-    );
-    _hasher.update(_nodeShapeWithDefaultValueProperties.stringProperty);
-    _hasher.update(
-      _nodeShapeWithDefaultValueProperties.trueBooleanProperty.toString(),
-    );
-    return _hasher;
-  }
-
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
@@ -2062,8 +1928,9 @@ export class NonClassNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return NonClassNodeShape.hash(this, hasher);
+  >(_hasher: HasherT): HasherT {
+    _hasher.update(this.stringProperty);
+    return _hasher;
   }
 
   toRdf({
@@ -2108,21 +1975,6 @@ export namespace NonClassNodeShape {
     return purify.Either.of(
       new NonClassNodeShape({ identifier, stringProperty }),
     );
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _nonClassNodeShape: Omit<
-      NonClassNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _hasher.update(_nonClassNodeShape.stringProperty);
-    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -2176,8 +2028,9 @@ export class IriNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return IriNodeShape.hash(this, hasher);
+  >(_hasher: HasherT): HasherT {
+    _hasher.update(this.stringProperty);
+    return _hasher;
   }
 
   toRdf({
@@ -2220,21 +2073,6 @@ export namespace IriNodeShape {
 
     const stringProperty = _stringPropertyEither.unsafeCoerce();
     return purify.Either.of(new IriNodeShape({ identifier, stringProperty }));
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _iriNodeShape: Omit<
-      IriNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _hasher.update(_iriNodeShape.stringProperty);
-    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -2288,8 +2126,9 @@ export class InlineNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return InlineNodeShape.hash(this, hasher);
+  >(_hasher: HasherT): HasherT {
+    _hasher.update(this.stringProperty);
+    return _hasher;
   }
 
   toRdf({
@@ -2334,21 +2173,6 @@ export namespace InlineNodeShape {
     return purify.Either.of(
       new InlineNodeShape({ identifier, stringProperty }),
     );
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _inlineNodeShape: Omit<
-      InlineNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _hasher.update(_inlineNodeShape.stringProperty);
-    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -2402,8 +2226,9 @@ export class ExternNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return ExternNodeShape.hash(this, hasher);
+  >(_hasher: HasherT): HasherT {
+    _hasher.update(this.stringProperty);
+    return _hasher;
   }
 
   toRdf({
@@ -2448,21 +2273,6 @@ export namespace ExternNodeShape {
     return purify.Either.of(
       new ExternNodeShape({ identifier, stringProperty }),
     );
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _externNodeShape: Omit<
-      ExternNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _hasher.update(_externNodeShape.stringProperty);
-    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
@@ -2522,8 +2332,12 @@ export class ExterningAndInliningNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return ExterningAndInliningNodeShape.hash(this, hasher);
+  >(_hasher: HasherT): HasherT {
+    _hasher.update(
+      rdfjsResource.Resource.Identifier.toString(this.externProperty),
+    );
+    this.inlineProperty.hash(_hasher);
+    return _hasher;
   }
 
   toRdf({
@@ -2599,29 +2413,6 @@ export namespace ExterningAndInliningNodeShape {
     );
   }
 
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _externingAndInliningNodeShape: Omit<
-      ExterningAndInliningNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    _hasher.update(
-      rdfjsResource.Resource.Identifier.toString(
-        _externingAndInliningNodeShape.externProperty,
-      ),
-    );
-    InlineNodeShape.hash(
-      _externingAndInliningNodeShape.inlineProperty,
-      _hasher,
-    );
-    return _hasher;
-  }
-
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
@@ -2669,11 +2460,8 @@ abstract class AbstractBaseClassWithoutPropertiesNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return AbstractBaseClassWithoutPropertiesNodeShape.hashAbstractBaseClassWithoutPropertiesNodeShape(
-      this,
-      hasher,
-    );
+  >(_hasher: HasherT): HasherT {
+    return _hasher;
   }
 
   toRdf({
@@ -2700,20 +2488,6 @@ namespace AbstractBaseClassWithoutPropertiesNodeShape {
   > {
     const identifier = _resource.identifier;
     return purify.Either.of({ identifier });
-  }
-
-  export function hashAbstractBaseClassWithoutPropertiesNodeShape<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _abstractBaseClassWithoutPropertiesNodeShape: Omit<
-      AbstractBaseClassWithoutPropertiesNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    return _hasher;
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {}
@@ -2747,11 +2521,10 @@ abstract class AbstractBaseClassWithPropertiesNodeShape extends AbstractBaseClas
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return AbstractBaseClassWithPropertiesNodeShape.hashAbstractBaseClassWithPropertiesNodeShape(
-      this,
-      hasher,
-    );
+  >(_hasher: HasherT): HasherT {
+    super.hash(_hasher);
+    _hasher.update(this.abcStringProperty);
+    return _hasher;
   }
 
   override toRdf({
@@ -2797,25 +2570,6 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
         return purify.Either.of({ identifier, abcStringProperty });
       },
     );
-  }
-
-  export function hashAbstractBaseClassWithPropertiesNodeShape<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _abstractBaseClassWithPropertiesNodeShape: Omit<
-      AbstractBaseClassWithPropertiesNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    AbstractBaseClassWithoutPropertiesNodeShape.hashAbstractBaseClassWithoutPropertiesNodeShape(
-      _abstractBaseClassWithPropertiesNodeShape,
-      _hasher,
-    );
-    _hasher.update(_abstractBaseClassWithPropertiesNodeShape.abcStringProperty);
-    return _hasher;
   }
 
   export class SparqlGraphPatterns extends AbstractBaseClassWithoutPropertiesNodeShape.SparqlGraphPatterns {
@@ -2877,11 +2631,10 @@ export class ConcreteParentClassNodeShape extends AbstractBaseClassWithPropertie
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return ConcreteParentClassNodeShape.hashConcreteParentClassNodeShape(
-      this,
-      hasher,
-    );
+  >(_hasher: HasherT): HasherT {
+    super.hash(_hasher);
+    _hasher.update(this.parentStringProperty);
+    return _hasher;
   }
 
   override toRdf({
@@ -2967,25 +2720,6 @@ export namespace ConcreteParentClassNodeShape {
     );
   }
 
-  export function hashConcreteParentClassNodeShape<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _concreteParentClassNodeShape: Omit<
-      ConcreteParentClassNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    AbstractBaseClassWithPropertiesNodeShape.hashAbstractBaseClassWithPropertiesNodeShape(
-      _concreteParentClassNodeShape,
-      _hasher,
-    );
-    _hasher.update(_concreteParentClassNodeShape.parentStringProperty);
-    return _hasher;
-  }
-
   export class SparqlGraphPatterns extends AbstractBaseClassWithPropertiesNodeShape.SparqlGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
@@ -3053,11 +2787,10 @@ export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(hasher: HasherT): HasherT {
-    return ConcreteChildClassNodeShape.hashConcreteChildClassNodeShape(
-      this,
-      hasher,
-    );
+  >(_hasher: HasherT): HasherT {
+    super.hash(_hasher);
+    _hasher.update(this.childStringProperty);
+    return _hasher;
   }
 
   override toRdf({
@@ -3146,25 +2879,6 @@ export namespace ConcreteChildClassNodeShape {
         }),
       );
     });
-  }
-
-  export function hashConcreteChildClassNodeShape<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _concreteChildClassNodeShape: Omit<
-      ConcreteChildClassNodeShape,
-      "equals" | "hash" | "identifier" | "toRdf" | "type"
-    >,
-    _hasher: HasherT,
-  ): HasherT {
-    ConcreteParentClassNodeShape.hashConcreteParentClassNodeShape(
-      _concreteChildClassNodeShape,
-      _hasher,
-    );
-    _hasher.update(_concreteChildClassNodeShape.childStringProperty);
-    return _hasher;
   }
 
   export class SparqlGraphPatterns extends ConcreteParentClassNodeShape.SparqlGraphPatterns {

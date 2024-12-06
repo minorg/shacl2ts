@@ -59,10 +59,7 @@ export namespace UuidV4IriNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(
-    _uuidV4IriNodeShape: Omit<UuidV4IriNodeShape, "identifier" | "type">,
-    _hasher: HasherT,
-  ): HasherT {
+  >(_uuidV4IriNodeShape: UuidV4IriNodeShape, _hasher: HasherT): HasherT {
     _hasher.update(_uuidV4IriNodeShape.stringProperty);
     return _hasher;
   }
@@ -157,10 +154,7 @@ export namespace Sha256IriNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(
-    _sha256IriNodeShape: Omit<Sha256IriNodeShape, "identifier" | "type">,
-    _hasher: HasherT,
-  ): HasherT {
+  >(_sha256IriNodeShape: Sha256IriNodeShape, _hasher: HasherT): HasherT {
     _hasher.update(_sha256IriNodeShape.stringProperty);
     return _hasher;
   }
@@ -255,10 +249,7 @@ export namespace OrNodeShapeMember2 {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(
-    _orNodeShapeMember2: Omit<OrNodeShapeMember2, "identifier" | "type">,
-    _hasher: HasherT,
-  ): HasherT {
+  >(_orNodeShapeMember2: OrNodeShapeMember2, _hasher: HasherT): HasherT {
     _hasher.update(_orNodeShapeMember2.stringProperty2);
     return _hasher;
   }
@@ -353,10 +344,7 @@ export namespace OrNodeShapeMember1 {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(
-    _orNodeShapeMember1: Omit<OrNodeShapeMember1, "identifier" | "type">,
-    _hasher: HasherT,
-  ): HasherT {
+  >(_orNodeShapeMember1: OrNodeShapeMember1, _hasher: HasherT): HasherT {
     _hasher.update(_orNodeShapeMember1.stringProperty1);
     return _hasher;
   }
@@ -510,10 +498,7 @@ export namespace NodeShapeWithPropertyCardinalities {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    _nodeShapeWithPropertyCardinalities: Omit<
-      NodeShapeWithPropertyCardinalities,
-      "identifier" | "type"
-    >,
+    _nodeShapeWithPropertyCardinalities: NodeShapeWithPropertyCardinalities,
     _hasher: HasherT,
   ): HasherT {
     _nodeShapeWithPropertyCardinalities.optionalStringProperty.ifJust(
@@ -829,10 +814,7 @@ export namespace NodeShapeWithOrProperties {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    _nodeShapeWithOrProperties: Omit<
-      NodeShapeWithOrProperties,
-      "identifier" | "type"
-    >,
+    _nodeShapeWithOrProperties: NodeShapeWithOrProperties,
     _hasher: HasherT,
   ): HasherT {
     _nodeShapeWithOrProperties.orLiteralsProperty.ifJust((_value) => {
@@ -1019,10 +1001,7 @@ export namespace NodeShapeWithListProperty {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    _nodeShapeWithListProperty: Omit<
-      NodeShapeWithListProperty,
-      "identifier" | "type"
-    >,
+    _nodeShapeWithListProperty: NodeShapeWithListProperty,
     _hasher: HasherT,
   ): HasherT {
     for (const _element of _nodeShapeWithListProperty.listProperty) {
@@ -1364,10 +1343,7 @@ export namespace NodeShapeWithInProperties {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    _nodeShapeWithInProperties: Omit<
-      NodeShapeWithInProperties,
-      "identifier" | "type"
-    >,
+    _nodeShapeWithInProperties: NodeShapeWithInProperties,
     _hasher: HasherT,
   ): HasherT {
     _nodeShapeWithInProperties.inBooleansProperty.ifJust((_value) => {
@@ -1629,10 +1605,7 @@ export namespace NodeShapeWithDefaultValueProperties {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    _nodeShapeWithDefaultValueProperties: Omit<
-      NodeShapeWithDefaultValueProperties,
-      "identifier" | "type"
-    >,
+    _nodeShapeWithDefaultValueProperties: NodeShapeWithDefaultValueProperties,
     _hasher: HasherT,
   ): HasherT {
     _hasher.update(
@@ -1779,10 +1752,7 @@ export namespace NonClassNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(
-    _nonClassNodeShape: Omit<NonClassNodeShape, "identifier" | "type">,
-    _hasher: HasherT,
-  ): HasherT {
+  >(_nonClassNodeShape: NonClassNodeShape, _hasher: HasherT): HasherT {
     _hasher.update(_nonClassNodeShape.stringProperty);
     return _hasher;
   }
@@ -1877,10 +1847,7 @@ export namespace IriNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(
-    _iriNodeShape: Omit<IriNodeShape, "identifier" | "type">,
-    _hasher: HasherT,
-  ): HasherT {
+  >(_iriNodeShape: IriNodeShape, _hasher: HasherT): HasherT {
     _hasher.update(_iriNodeShape.stringProperty);
     return _hasher;
   }
@@ -1975,10 +1942,7 @@ export namespace InlineNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(
-    _inlineNodeShape: Omit<InlineNodeShape, "identifier" | "type">,
-    _hasher: HasherT,
-  ): HasherT {
+  >(_inlineNodeShape: InlineNodeShape, _hasher: HasherT): HasherT {
     _hasher.update(_inlineNodeShape.stringProperty);
     return _hasher;
   }
@@ -2073,10 +2037,7 @@ export namespace ExternNodeShape {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(
-    _externNodeShape: Omit<ExternNodeShape, "identifier" | "type">,
-    _hasher: HasherT,
-  ): HasherT {
+  >(_externNodeShape: ExternNodeShape, _hasher: HasherT): HasherT {
     _hasher.update(_externNodeShape.stringProperty);
     return _hasher;
   }
@@ -2195,10 +2156,7 @@ export namespace ExterningAndInliningNodeShape {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    _externingAndInliningNodeShape: Omit<
-      ExterningAndInliningNodeShape,
-      "identifier" | "type"
-    >,
+    _externingAndInliningNodeShape: ExterningAndInliningNodeShape,
     _hasher: HasherT,
   ): HasherT {
     _hasher.update(
@@ -2300,10 +2258,7 @@ namespace AbstractBaseClassWithoutPropertiesNodeShape {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    _abstractBaseClassWithoutPropertiesNodeShape: Omit<
-      AbstractBaseClassWithoutPropertiesNodeShape,
-      "identifier" | "type"
-    >,
+    _abstractBaseClassWithoutPropertiesNodeShape: AbstractBaseClassWithoutPropertiesNodeShape,
     _hasher: HasherT,
   ): HasherT {
     return _hasher;
@@ -2386,10 +2341,7 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    _abstractBaseClassWithPropertiesNodeShape: Omit<
-      AbstractBaseClassWithPropertiesNodeShape,
-      "identifier" | "type"
-    >,
+    _abstractBaseClassWithPropertiesNodeShape: AbstractBaseClassWithPropertiesNodeShape,
     _hasher: HasherT,
   ): HasherT {
     AbstractBaseClassWithoutPropertiesNodeShape.hashAbstractBaseClassWithoutPropertiesNodeShape(
@@ -2520,10 +2472,7 @@ export namespace ConcreteParentClassNodeShape {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    _concreteParentClassNodeShape: Omit<
-      ConcreteParentClassNodeShape,
-      "identifier" | "type"
-    >,
+    _concreteParentClassNodeShape: ConcreteParentClassNodeShape,
     _hasher: HasherT,
   ): HasherT {
     AbstractBaseClassWithPropertiesNodeShape.hashAbstractBaseClassWithPropertiesNodeShape(
@@ -2682,10 +2631,7 @@ export namespace ConcreteChildClassNodeShape {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    _concreteChildClassNodeShape: Omit<
-      ConcreteChildClassNodeShape,
-      "identifier" | "type"
-    >,
+    _concreteChildClassNodeShape: ConcreteChildClassNodeShape,
     _hasher: HasherT,
   ): HasherT {
     ConcreteParentClassNodeShape.hashConcreteParentClassNodeShape(

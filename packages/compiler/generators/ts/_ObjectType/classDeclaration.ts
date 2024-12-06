@@ -10,7 +10,7 @@ import {
   StructureKind,
 } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
-import { hasherTypeConstraint } from "./hashFunctionDeclaration.js";
+import { hashFunctionOrMethodDeclaration } from "./hashFunctionOrMethodDeclaration.js";
 import { toRdfFunctionOrMethodDeclaration } from "./toRdfFunctionOrMethodDeclaration.js";
 
 function constructorDeclaration(
@@ -150,22 +150,9 @@ function hashMethodDeclaration(
   this: ObjectType,
 ): OptionalKind<MethodDeclarationStructure> {
   return {
+    ...hashFunctionOrMethodDeclaration.bind(this)(),
     hasOverrideKeyword: this.parentObjectTypes.length > 0,
     name: "hash",
-    parameters: [
-      {
-        name: "hasher",
-        type: "HasherT",
-      },
-    ],
-    returnType: "HasherT",
-    statements: [`return ${this.name}.${this.hashFunctionName}(this, hasher);`],
-    typeParameters: [
-      {
-        name: "HasherT",
-        constraint: hasherTypeConstraint,
-      },
-    ],
   };
 }
 

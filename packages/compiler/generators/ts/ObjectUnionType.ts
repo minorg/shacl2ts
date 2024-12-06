@@ -10,7 +10,7 @@ import {
 } from "ts-morph";
 import type { ObjectType } from "./ObjectType.js";
 import { Type } from "./Type.js";
-import { hasherTypeConstraint } from "./_ObjectType/hashFunctionDeclaration.js";
+import { hasherTypeConstraint } from "./_ObjectType/hashFunctionOrMethodDeclaration.js";
 
 /**
  * A union of object types, generated as a type alias
