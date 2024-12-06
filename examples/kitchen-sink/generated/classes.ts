@@ -1863,31 +1863,39 @@ export namespace NodeShapeWithDefaultValueProperties {
     ) {
       super(subject);
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://example.com/falseBooleanProperty"),
-          this.variable("FalseBooleanProperty"),
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/falseBooleanProperty"),
+            this.variable("FalseBooleanProperty"),
+          ),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://example.com/numberProperty"),
-          this.variable("NumberProperty"),
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/numberProperty"),
+            this.variable("NumberProperty"),
+          ),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://example.com/stringProperty"),
-          this.variable("StringProperty"),
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/stringProperty"),
+            this.variable("StringProperty"),
+          ),
         ),
       );
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://example.com/trueBooleanProperty"),
-          this.variable("TrueBooleanProperty"),
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/trueBooleanProperty"),
+            this.variable("TrueBooleanProperty"),
+          ),
         ),
       );
     }
