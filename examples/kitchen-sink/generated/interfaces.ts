@@ -1174,20 +1174,22 @@ export namespace NodeShapeWithInProperties {
         )
         .head()
         .chain((_value) =>
-          _value.toBoolean().chain((value) =>
-            value === true
-              ? purify.Either.of(value)
-              : purify.Left(
-                  new rdfjsResource.Resource.MistypedValueError({
-                    actualValue: rdfLiteral.toRdf(value),
-                    expectedValueType: "true",
-                    focusResource: _resource,
-                    predicate: dataFactory.namedNode(
-                      "http://example.com/inBooleansProperty",
-                    ),
-                  }),
-                ),
-          ),
+          _value
+            .toBoolean()
+            .chain((value) =>
+              value === true
+                ? purify.Either.of(value)
+                : purify.Left(
+                    new rdfjsResource.Resource.MistypedValueError({
+                      actualValue: rdfLiteral.toRdf(value),
+                      expectedValueType: "true",
+                      focusResource: _resource,
+                      predicate: dataFactory.namedNode(
+                        "http://example.com/inBooleansProperty",
+                      ),
+                    }),
+                  ),
+            ),
         )
         .toMaybe(),
     );
@@ -2235,65 +2237,7 @@ export namespace ExterningAndInliningNodeShape {
   }
 }
 
-export interface AbstractBaseClassWithoutPropertiesNodeShape {
-  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly type: "ConcreteChildClassNodeShape" | "ConcreteParentClassNodeShape";
-}
-
-namespace AbstractBaseClassWithoutPropertiesNodeShape {
-  export function equals(
-    left: AbstractBaseClassWithoutPropertiesNodeShape,
-    right: AbstractBaseClassWithoutPropertiesNodeShape,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
-  }
-
-  export function fromRdf(
-    _resource: rdfjsResource.Resource,
-  ): purify.Either<
-    rdfjsResource.Resource.ValueError,
-    { identifier: rdfjs.BlankNode | rdfjs.NamedNode }
-  > {
-    const identifier = _resource.identifier;
-    return purify.Either.of({ identifier });
-  }
-
-  export function hashAbstractBaseClassWithoutPropertiesNodeShape<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _abstractBaseClassWithoutPropertiesNodeShape: AbstractBaseClassWithoutPropertiesNodeShape,
-    _hasher: HasherT,
-  ): HasherT {
-    return _hasher;
-  }
-
-  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {}
-
-  export function toRdf(
-    abstractBaseClassWithoutPropertiesNodeShape: AbstractBaseClassWithoutPropertiesNodeShape,
-    {
-      mutateGraph,
-      resourceSet,
-    }: {
-      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-      resourceSet: rdfjsResource.MutableResourceSet;
-    },
-  ): rdfjsResource.MutableResource {
-    const _resource = resourceSet.mutableResource({
-      identifier: abstractBaseClassWithoutPropertiesNodeShape.identifier,
-      mutateGraph,
-    });
-    return _resource;
-  }
-}
-
-export interface AbstractBaseClassWithPropertiesNodeShape
-  extends AbstractBaseClassWithoutPropertiesNodeShape {
+export interface AbstractBaseClassWithPropertiesNodeShape {
   readonly abcStringProperty: string;
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   readonly type: "ConcreteChildClassNodeShape" | "ConcreteParentClassNodeShape";
@@ -2304,44 +2248,35 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
     left: AbstractBaseClassWithPropertiesNodeShape,
     right: AbstractBaseClassWithPropertiesNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return AbstractBaseClassWithoutPropertiesNodeShape.equals(
-      left,
-      right,
-    ).chain(() =>
-      purifyHelpers.Equatable.objectEquals(left, right, {
-        abcStringProperty: purifyHelpers.Equatable.strictEquals,
-        identifier: purifyHelpers.Equatable.booleanEquals,
-        type: purifyHelpers.Equatable.strictEquals,
-      }),
-    );
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      abcStringProperty: purifyHelpers.Equatable.strictEquals,
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
   }
 
   export function fromRdf(
     _resource: rdfjsResource.Resource,
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
-    { identifier: rdfjs.BlankNode | rdfjs.NamedNode; abcStringProperty: string }
+    { abcStringProperty: string; identifier: rdfjs.BlankNode | rdfjs.NamedNode }
   > {
-    return AbstractBaseClassWithoutPropertiesNodeShape.fromRdf(_resource).chain(
-      (_super) => {
-        const _abcStringPropertyEither: purify.Either<
-          rdfjsResource.Resource.ValueError,
-          string
-        > = _resource
-          .values(
-            dataFactory.namedNode("http://example.com/abcStringProperty"),
-            { unique: true },
-          )
-          .head()
-          .chain((_value) => _value.toString());
-        if (_abcStringPropertyEither.isLeft()) {
-          return _abcStringPropertyEither;
-        }
-        const abcStringProperty = _abcStringPropertyEither.unsafeCoerce();
-        const identifier = _resource.identifier;
-        return purify.Either.of({ identifier, abcStringProperty });
-      },
-    );
+    const _abcStringPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/abcStringProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
+    if (_abcStringPropertyEither.isLeft()) {
+      return _abcStringPropertyEither;
+    }
+
+    const abcStringProperty = _abcStringPropertyEither.unsafeCoerce();
+    const identifier = _resource.identifier;
+    return purify.Either.of({ abcStringProperty, identifier });
   }
 
   export function hashAbstractBaseClassWithPropertiesNodeShape<
@@ -2352,15 +2287,11 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
     _abstractBaseClassWithPropertiesNodeShape: AbstractBaseClassWithPropertiesNodeShape,
     _hasher: HasherT,
   ): HasherT {
-    AbstractBaseClassWithoutPropertiesNodeShape.hashAbstractBaseClassWithoutPropertiesNodeShape(
-      _abstractBaseClassWithPropertiesNodeShape,
-      _hasher,
-    );
     _hasher.update(_abstractBaseClassWithPropertiesNodeShape.abcStringProperty);
     return _hasher;
   }
 
-  export class SparqlGraphPatterns extends AbstractBaseClassWithoutPropertiesNodeShape.SparqlGraphPatterns {
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
     constructor(subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter) {
       super(subject);
       this.add(
@@ -2383,10 +2314,10 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
       resourceSet: rdfjsResource.MutableResourceSet;
     },
   ): rdfjsResource.MutableResource {
-    const _resource = AbstractBaseClassWithoutPropertiesNodeShape.toRdf(
-      abstractBaseClassWithPropertiesNodeShape,
-      { mutateGraph, resourceSet },
-    );
+    const _resource = resourceSet.mutableResource({
+      identifier: abstractBaseClassWithPropertiesNodeShape.identifier,
+      mutateGraph,
+    });
     _resource.add(
       dataFactory.namedNode("http://example.com/abcStringProperty"),
       abstractBaseClassWithPropertiesNodeShape.abcStringProperty,
@@ -2395,8 +2326,67 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
   }
 }
 
-export interface ConcreteParentClassNodeShape
+export interface AbstractBaseClassWithoutPropertiesNodeShape
   extends AbstractBaseClassWithPropertiesNodeShape {
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly type: "ConcreteChildClassNodeShape" | "ConcreteParentClassNodeShape";
+}
+
+namespace AbstractBaseClassWithoutPropertiesNodeShape {
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    { abcStringProperty: string; identifier: rdfjs.BlankNode | rdfjs.NamedNode }
+  > {
+    return AbstractBaseClassWithPropertiesNodeShape.fromRdf(_resource).chain(
+      (_super) => {
+        const identifier = _resource.identifier;
+        return purify.Either.of({
+          abcStringProperty: _super.abcStringProperty,
+          identifier,
+        });
+      },
+    );
+  }
+
+  export function hashAbstractBaseClassWithoutPropertiesNodeShape<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _abstractBaseClassWithoutPropertiesNodeShape: AbstractBaseClassWithoutPropertiesNodeShape,
+    _hasher: HasherT,
+  ): HasherT {
+    AbstractBaseClassWithPropertiesNodeShape.hashAbstractBaseClassWithPropertiesNodeShape(
+      _abstractBaseClassWithoutPropertiesNodeShape,
+      _hasher,
+    );
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends AbstractBaseClassWithPropertiesNodeShape.SparqlGraphPatterns {}
+
+  export function toRdf(
+    abstractBaseClassWithoutPropertiesNodeShape: AbstractBaseClassWithoutPropertiesNodeShape,
+    {
+      mutateGraph,
+      resourceSet,
+    }: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    },
+  ): rdfjsResource.MutableResource {
+    const _resource = AbstractBaseClassWithPropertiesNodeShape.toRdf(
+      abstractBaseClassWithoutPropertiesNodeShape,
+      { mutateGraph, resourceSet },
+    );
+    return _resource;
+  }
+}
+
+export interface ConcreteParentClassNodeShape
+  extends AbstractBaseClassWithoutPropertiesNodeShape {
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   readonly parentStringProperty: string;
   readonly type: "ConcreteChildClassNodeShape" | "ConcreteParentClassNodeShape";
@@ -2410,9 +2400,7 @@ export namespace ConcreteParentClassNodeShape {
     return AbstractBaseClassWithPropertiesNodeShape.equals(left, right).chain(
       () =>
         purifyHelpers.Equatable.objectEquals(left, right, {
-          identifier: purifyHelpers.Equatable.booleanEquals,
           parentStringProperty: purifyHelpers.Equatable.strictEquals,
-          type: purifyHelpers.Equatable.strictEquals,
         }),
     );
   }
@@ -2423,13 +2411,13 @@ export namespace ConcreteParentClassNodeShape {
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
     {
-      abcStringProperty: string;
       identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+      abcStringProperty: string;
       parentStringProperty: string;
       type: "ConcreteChildClassNodeShape" | "ConcreteParentClassNodeShape";
     }
   > {
-    return AbstractBaseClassWithPropertiesNodeShape.fromRdf(_resource).chain(
+    return AbstractBaseClassWithoutPropertiesNodeShape.fromRdf(_resource).chain(
       (_super) => {
         if (
           !_options?.ignoreRdfType &&
@@ -2466,8 +2454,8 @@ export namespace ConcreteParentClassNodeShape {
         const parentStringProperty = _parentStringPropertyEither.unsafeCoerce();
         const type = "ConcreteParentClassNodeShape" as const;
         return purify.Either.of({
-          abcStringProperty: _super.abcStringProperty,
           identifier,
+          abcStringProperty: _super.abcStringProperty,
           parentStringProperty,
           type,
         });
@@ -2483,7 +2471,7 @@ export namespace ConcreteParentClassNodeShape {
     _concreteParentClassNodeShape: ConcreteParentClassNodeShape,
     _hasher: HasherT,
   ): HasherT {
-    AbstractBaseClassWithPropertiesNodeShape.hashAbstractBaseClassWithPropertiesNodeShape(
+    AbstractBaseClassWithoutPropertiesNodeShape.hashAbstractBaseClassWithoutPropertiesNodeShape(
       _concreteParentClassNodeShape,
       _hasher,
     );
@@ -2491,7 +2479,7 @@ export namespace ConcreteParentClassNodeShape {
     return _hasher;
   }
 
-  export class SparqlGraphPatterns extends AbstractBaseClassWithPropertiesNodeShape.SparqlGraphPatterns {
+  export class SparqlGraphPatterns extends AbstractBaseClassWithoutPropertiesNodeShape.SparqlGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
       _options?: { ignoreRdfType?: boolean },
@@ -2530,7 +2518,7 @@ export namespace ConcreteParentClassNodeShape {
       resourceSet: rdfjsResource.MutableResourceSet;
     },
   ): rdfjsResource.MutableResource {
-    const _resource = AbstractBaseClassWithPropertiesNodeShape.toRdf(
+    const _resource = AbstractBaseClassWithoutPropertiesNodeShape.toRdf(
       concreteParentClassNodeShape,
       { mutateGraph, resourceSet },
     );
@@ -2568,8 +2556,6 @@ export namespace ConcreteChildClassNodeShape {
     return ConcreteParentClassNodeShape.equals(left, right).chain(() =>
       purifyHelpers.Equatable.objectEquals(left, right, {
         childStringProperty: purifyHelpers.Equatable.strictEquals,
-        identifier: purifyHelpers.Equatable.booleanEquals,
-        type: purifyHelpers.Equatable.strictEquals,
       }),
     );
   }

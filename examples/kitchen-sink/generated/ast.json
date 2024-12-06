@@ -3,18 +3,6 @@
     {
       "kind": "ObjectType",
       "name": {
-        "curie": ":AbstractBaseClassWithoutPropertiesNodeShape",
-        "identifier": {
-          "termType": "NamedNode",
-          "value": "http://example.com/AbstractBaseClassWithoutPropertiesNodeShape"
-        },
-        "shName": "AbstractBaseClassWithoutPropertiesNodeShape"
-      },
-      "properties": []
-    },
-    {
-      "kind": "ObjectType",
-      "name": {
         "curie": ":AbstractBaseClassWithPropertiesNodeShape",
         "identifier": {
           "termType": "NamedNode",
@@ -41,6 +29,18 @@
           }
         }
       ]
+    },
+    {
+      "kind": "ObjectType",
+      "name": {
+        "curie": ":AbstractBaseClassWithoutPropertiesNodeShape",
+        "identifier": {
+          "termType": "NamedNode",
+          "value": "http://example.com/AbstractBaseClassWithoutPropertiesNodeShape"
+        },
+        "shName": "AbstractBaseClassWithoutPropertiesNodeShape"
+      },
+      "properties": []
     },
     {
       "kind": "ObjectType",

@@ -131,14 +131,9 @@ export class TsGenerator implements Generator {
         break;
     }
 
-    const moduleStatements: StatementStructures[] = [];
-
-    if (
-      this.configuration.features.has("equals") &&
-      this.configuration.objectTypeDeclarationType === "interface"
-    ) {
-      moduleStatements.push(objectType.equalsFunctionDeclaration());
-    }
+    const moduleStatements: StatementStructures[] = [
+      ...objectType.equalsFunctionDeclaration().toList(),
+    ];
 
     if (this.configuration.features.has("fromRdf")) {
       moduleStatements.push(objectType.fromRdfFunctionDeclaration());

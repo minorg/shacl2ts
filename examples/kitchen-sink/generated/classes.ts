@@ -31,8 +31,11 @@ export class UuidV4IriNodeShape {
     return this._identifier;
   }
 
-  equals(other: UuidV4IriNodeShape): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+  equals(
+    left: UuidV4IriNodeShape,
+    right: UuidV4IriNodeShape,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -131,8 +134,11 @@ export class Sha256IriNodeShape {
     return this._identifier;
   }
 
-  equals(other: Sha256IriNodeShape): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+  equals(
+    left: Sha256IriNodeShape,
+    right: Sha256IriNodeShape,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -231,8 +237,11 @@ export class OrNodeShapeMember2 {
     return this._identifier;
   }
 
-  equals(other: OrNodeShapeMember2): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+  equals(
+    left: OrNodeShapeMember2,
+    right: OrNodeShapeMember2,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty2: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -331,8 +340,11 @@ export class OrNodeShapeMember1 {
     return this._identifier;
   }
 
-  equals(other: OrNodeShapeMember1): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+  equals(
+    left: OrNodeShapeMember1,
+    right: OrNodeShapeMember1,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty1: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -455,9 +467,10 @@ export class NodeShapeWithPropertyCardinalities {
   }
 
   equals(
-    other: NodeShapeWithPropertyCardinalities,
+    left: NodeShapeWithPropertyCardinalities,
+    right: NodeShapeWithPropertyCardinalities,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       optionalStringProperty: purifyHelpers.Equatable.booleanEquals,
       requiredStringProperty: purifyHelpers.Equatable.strictEquals,
@@ -716,9 +729,10 @@ export class NodeShapeWithOrProperties {
   }
 
   equals(
-    other: NodeShapeWithOrProperties,
+    left: NodeShapeWithOrProperties,
+    right: NodeShapeWithOrProperties,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       orLiteralsProperty: (left, right) =>
         purifyHelpers.Maybes.equals(
@@ -1069,9 +1083,10 @@ export class NodeShapeWithListProperty {
   }
 
   equals(
-    other: NodeShapeWithListProperty,
+    left: NodeShapeWithListProperty,
+    right: NodeShapeWithListProperty,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       listProperty: (left, right) =>
         purifyHelpers.Arrays.equals(
@@ -1314,9 +1329,10 @@ export class NodeShapeWithInProperties {
   }
 
   equals(
-    other: NodeShapeWithInProperties,
+    left: NodeShapeWithInProperties,
+    right: NodeShapeWithInProperties,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       inBooleansProperty: purifyHelpers.Equatable.booleanEquals,
       inIrisProperty: (left, right) =>
@@ -1402,20 +1418,22 @@ export namespace NodeShapeWithInProperties {
         )
         .head()
         .chain((_value) =>
-          _value.toBoolean().chain((value) =>
-            value === true
-              ? purify.Either.of(value)
-              : purify.Left(
-                  new rdfjsResource.Resource.MistypedValueError({
-                    actualValue: rdfLiteral.toRdf(value),
-                    expectedValueType: "true",
-                    focusResource: _resource,
-                    predicate: dataFactory.namedNode(
-                      "http://example.com/inBooleansProperty",
-                    ),
-                  }),
-                ),
-          ),
+          _value
+            .toBoolean()
+            .chain((value) =>
+              value === true
+                ? purify.Either.of(value)
+                : purify.Left(
+                    new rdfjsResource.Resource.MistypedValueError({
+                      actualValue: rdfLiteral.toRdf(value),
+                      expectedValueType: "true",
+                      focusResource: _resource,
+                      predicate: dataFactory.namedNode(
+                        "http://example.com/inBooleansProperty",
+                      ),
+                    }),
+                  ),
+            ),
         )
         .toMaybe(),
     );
@@ -1671,9 +1689,10 @@ export class NodeShapeWithDefaultValueProperties {
   }
 
   equals(
-    other: NodeShapeWithDefaultValueProperties,
+    left: NodeShapeWithDefaultValueProperties,
+    right: NodeShapeWithDefaultValueProperties,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
       falseBooleanProperty: purifyHelpers.Equatable.strictEquals,
       identifier: purifyHelpers.Equatable.booleanEquals,
       numberProperty: purifyHelpers.Equatable.strictEquals,
@@ -1924,8 +1943,11 @@ export class NonClassNodeShape {
     return this._identifier;
   }
 
-  equals(other: NonClassNodeShape): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+  equals(
+    left: NonClassNodeShape,
+    right: NonClassNodeShape,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -2024,8 +2046,11 @@ export class IriNodeShape {
     return this._identifier;
   }
 
-  equals(other: IriNodeShape): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+  equals(
+    left: IriNodeShape,
+    right: IriNodeShape,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -2122,8 +2147,11 @@ export class InlineNodeShape {
     return this._identifier;
   }
 
-  equals(other: InlineNodeShape): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+  equals(
+    left: InlineNodeShape,
+    right: InlineNodeShape,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -2222,8 +2250,11 @@ export class ExternNodeShape {
     return this._identifier;
   }
 
-  equals(other: ExternNodeShape): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+  equals(
+    left: ExternNodeShape,
+    right: ExternNodeShape,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -2326,9 +2357,10 @@ export class ExterningAndInliningNodeShape {
   }
 
   equals(
-    other: ExterningAndInliningNodeShape,
+    left: ExterningAndInliningNodeShape,
+    right: ExterningAndInliningNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
       externProperty: purifyHelpers.Equatable.booleanEquals,
       identifier: purifyHelpers.Equatable.booleanEquals,
       inlineProperty: purifyHelpers.Equatable.equals,
@@ -2449,16 +2481,23 @@ export namespace ExterningAndInliningNodeShape {
   }
 }
 
-abstract class AbstractBaseClassWithoutPropertiesNodeShape {
+abstract class AbstractBaseClassWithPropertiesNodeShape {
+  readonly abcStringProperty: string;
   abstract readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   abstract readonly type:
     | "ConcreteChildClassNodeShape"
     | "ConcreteParentClassNodeShape";
 
+  constructor(parameters: { readonly abcStringProperty: string }) {
+    this.abcStringProperty = parameters.abcStringProperty;
+  }
+
   equals(
-    other: AbstractBaseClassWithoutPropertiesNodeShape,
+    left: AbstractBaseClassWithPropertiesNodeShape,
+    right: AbstractBaseClassWithPropertiesNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      abcStringProperty: purifyHelpers.Equatable.strictEquals,
       identifier: purifyHelpers.Equatable.booleanEquals,
       type: purifyHelpers.Equatable.strictEquals,
     });
@@ -2469,6 +2508,7 @@ abstract class AbstractBaseClassWithoutPropertiesNodeShape {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(_hasher: HasherT): HasherT {
+    _hasher.update(this.abcStringProperty);
     return _hasher;
   }
 
@@ -2483,66 +2523,6 @@ abstract class AbstractBaseClassWithoutPropertiesNodeShape {
       identifier: this.identifier,
       mutateGraph,
     });
-    return _resource;
-  }
-}
-
-namespace AbstractBaseClassWithoutPropertiesNodeShape {
-  export function fromRdf(
-    _resource: rdfjsResource.Resource,
-  ): purify.Either<
-    rdfjsResource.Resource.ValueError,
-    { identifier: rdfjs.BlankNode | rdfjs.NamedNode }
-  > {
-    const identifier = _resource.identifier;
-    return purify.Either.of({ identifier });
-  }
-
-  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {}
-}
-
-abstract class AbstractBaseClassWithPropertiesNodeShape extends AbstractBaseClassWithoutPropertiesNodeShape {
-  readonly abcStringProperty: string;
-  abstract override readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  abstract override readonly type:
-    | "ConcreteChildClassNodeShape"
-    | "ConcreteParentClassNodeShape";
-
-  constructor(parameters: { readonly abcStringProperty: string }) {
-    super();
-    this.abcStringProperty = parameters.abcStringProperty;
-  }
-
-  override equals(
-    other: AbstractBaseClassWithPropertiesNodeShape,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        abcStringProperty: purifyHelpers.Equatable.strictEquals,
-        identifier: purifyHelpers.Equatable.booleanEquals,
-        type: purifyHelpers.Equatable.strictEquals,
-      }),
-    );
-  }
-
-  override hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(_hasher: HasherT): HasherT {
-    super.hash(_hasher);
-    _hasher.update(this.abcStringProperty);
-    return _hasher;
-  }
-
-  override toRdf({
-    mutateGraph,
-    resourceSet,
-  }: {
-    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-    resourceSet: rdfjsResource.MutableResourceSet;
-  }): rdfjsResource.MutableResource {
-    const _resource = super.toRdf({ mutateGraph, resourceSet });
     _resource.add(
       dataFactory.namedNode("http://example.com/abcStringProperty"),
       this.abcStringProperty,
@@ -2556,31 +2536,27 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
     _resource: rdfjsResource.Resource,
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
-    { identifier: rdfjs.BlankNode | rdfjs.NamedNode; abcStringProperty: string }
+    { abcStringProperty: string; identifier: rdfjs.BlankNode | rdfjs.NamedNode }
   > {
-    return AbstractBaseClassWithoutPropertiesNodeShape.fromRdf(_resource).chain(
-      (_super) => {
-        const _abcStringPropertyEither: purify.Either<
-          rdfjsResource.Resource.ValueError,
-          string
-        > = _resource
-          .values(
-            dataFactory.namedNode("http://example.com/abcStringProperty"),
-            { unique: true },
-          )
-          .head()
-          .chain((_value) => _value.toString());
-        if (_abcStringPropertyEither.isLeft()) {
-          return _abcStringPropertyEither;
-        }
-        const abcStringProperty = _abcStringPropertyEither.unsafeCoerce();
-        const identifier = _resource.identifier;
-        return purify.Either.of({ identifier, abcStringProperty });
-      },
-    );
+    const _abcStringPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/abcStringProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
+    if (_abcStringPropertyEither.isLeft()) {
+      return _abcStringPropertyEither;
+    }
+
+    const abcStringProperty = _abcStringPropertyEither.unsafeCoerce();
+    const identifier = _resource.identifier;
+    return purify.Either.of({ abcStringProperty, identifier });
   }
 
-  export class SparqlGraphPatterns extends AbstractBaseClassWithoutPropertiesNodeShape.SparqlGraphPatterns {
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
     constructor(subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter) {
       super(subject);
       this.add(
@@ -2594,7 +2570,55 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
   }
 }
 
-export class ConcreteParentClassNodeShape extends AbstractBaseClassWithPropertiesNodeShape {
+abstract class AbstractBaseClassWithoutPropertiesNodeShape extends AbstractBaseClassWithPropertiesNodeShape {
+  abstract override readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  abstract override readonly type:
+    | "ConcreteChildClassNodeShape"
+    | "ConcreteParentClassNodeShape";
+
+  override hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(_hasher: HasherT): HasherT {
+    super.hash(_hasher);
+    return _hasher;
+  }
+
+  override toRdf({
+    mutateGraph,
+    resourceSet,
+  }: {
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource {
+    const _resource = super.toRdf({ mutateGraph, resourceSet });
+    return _resource;
+  }
+}
+
+namespace AbstractBaseClassWithoutPropertiesNodeShape {
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    { abcStringProperty: string; identifier: rdfjs.BlankNode | rdfjs.NamedNode }
+  > {
+    return AbstractBaseClassWithPropertiesNodeShape.fromRdf(_resource).chain(
+      (_super) => {
+        const identifier = _resource.identifier;
+        return purify.Either.of({
+          abcStringProperty: _super.abcStringProperty,
+          identifier,
+        });
+      },
+    );
+  }
+
+  export class SparqlGraphPatterns extends AbstractBaseClassWithPropertiesNodeShape.SparqlGraphPatterns {}
+}
+
+export class ConcreteParentClassNodeShape extends AbstractBaseClassWithoutPropertiesNodeShape {
   protected _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly parentStringProperty: string;
   override readonly type:
@@ -2606,7 +2630,7 @@ export class ConcreteParentClassNodeShape extends AbstractBaseClassWithPropertie
       readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
       readonly parentStringProperty: string;
     } & ConstructorParameters<
-      typeof AbstractBaseClassWithPropertiesNodeShape
+      typeof AbstractBaseClassWithoutPropertiesNodeShape
     >[0],
   ) {
     super(parameters);
@@ -2623,16 +2647,13 @@ export class ConcreteParentClassNodeShape extends AbstractBaseClassWithPropertie
     return this._identifier;
   }
 
-  override equals(
-    other: ConcreteParentClassNodeShape,
+  equals(
+    left: ConcreteParentClassNodeShape,
+    right: ConcreteParentClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        identifier: purifyHelpers.Equatable.booleanEquals,
-        parentStringProperty: purifyHelpers.Equatable.strictEquals,
-        type: purifyHelpers.Equatable.strictEquals,
-      }),
-    );
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      parentStringProperty: purifyHelpers.Equatable.strictEquals,
+    });
   }
 
   override hash<
@@ -2682,7 +2703,7 @@ export namespace ConcreteParentClassNodeShape {
     rdfjsResource.Resource.ValueError,
     ConcreteParentClassNodeShape
   > {
-    return AbstractBaseClassWithPropertiesNodeShape.fromRdf(_resource).chain(
+    return AbstractBaseClassWithoutPropertiesNodeShape.fromRdf(_resource).chain(
       (_super) => {
         if (
           !_options?.ignoreRdfType &&
@@ -2719,8 +2740,8 @@ export namespace ConcreteParentClassNodeShape {
         const parentStringProperty = _parentStringPropertyEither.unsafeCoerce();
         return purify.Either.of(
           new ConcreteParentClassNodeShape({
-            abcStringProperty: _super.abcStringProperty,
             identifier,
+            abcStringProperty: _super.abcStringProperty,
             parentStringProperty,
           }),
         );
@@ -2728,7 +2749,7 @@ export namespace ConcreteParentClassNodeShape {
     );
   }
 
-  export class SparqlGraphPatterns extends AbstractBaseClassWithPropertiesNodeShape.SparqlGraphPatterns {
+  export class SparqlGraphPatterns extends AbstractBaseClassWithoutPropertiesNodeShape.SparqlGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
       _options?: { ignoreRdfType?: boolean },
@@ -2779,16 +2800,13 @@ export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
     return this._identifier;
   }
 
-  override equals(
-    other: ConcreteChildClassNodeShape,
+  equals(
+    left: ConcreteChildClassNodeShape,
+    right: ConcreteChildClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        childStringProperty: purifyHelpers.Equatable.strictEquals,
-        identifier: purifyHelpers.Equatable.booleanEquals,
-        type: purifyHelpers.Equatable.strictEquals,
-      }),
-    );
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      childStringProperty: purifyHelpers.Equatable.strictEquals,
+    });
   }
 
   override hash<
