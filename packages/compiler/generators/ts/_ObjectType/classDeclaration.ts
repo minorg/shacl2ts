@@ -1,3 +1,4 @@
+import { Maybe } from "purify-ts";
 import {
   type ClassDeclarationStructure,
   type ConstructorDeclarationStructure,
@@ -14,16 +15,25 @@ import { toRdfFunctionOrMethodDeclaration } from "./toRdfFunctionOrMethodDeclara
 
 function constructorDeclaration(
   this: ObjectType,
-): OptionalKind<ConstructorDeclarationStructure> | null {
+): Maybe<OptionalKind<ConstructorDeclarationStructure>> {
   if (this.properties.length === 0) {
-    return null;
+    return Maybe.empty();
   }
 
   const statements: (string | StatementStructures)[] = [];
 
-  if (this.parentObjectTypes.length > 0) {
+  if (
+    this.ancestorObjectTypes.some(
+      (ancestorObjectType) =>
+        ancestorObjectType.classDeclaration().ctors?.length,
+    )
+  ) {
+    // If some ancestor type has a constructor then pass up parameters
     statements.push("super(parameters);");
+  } else if (this.parentObjectTypes.length > 0) {
+    statements.push("super();");
   }
+
   for (const property of this.properties) {
     for (const statement of property.classConstructorStatements({
       variables: { parameter: `parameters.${property.name}` },
@@ -42,17 +52,23 @@ function constructorDeclaration(
         .toList(),
   );
   if (constructorParameterPropertySignatures.length === 0) {
-    return null;
+    return Maybe.empty();
   }
 
   let constructorParametersType = `{ ${constructorParameterPropertySignatures.join(
     ", ",
   )} }`;
-  if (this.parentObjectTypes.length > 0) {
+  if (
+    this.ancestorObjectTypes.some(
+      (ancestorObjectType) =>
+        ancestorObjectType.classDeclaration().ctors?.length,
+    )
+  ) {
+    // If some ancestor type has a constructor then pass up parameters
     constructorParametersType = `${constructorParametersType} & ConstructorParameters<typeof ${this.parentObjectTypes[0].name}>[0]`;
   }
 
-  return {
+  return Maybe.of({
     parameters: [
       {
         name: "parameters",
@@ -60,7 +76,7 @@ function constructorDeclaration(
       },
     ],
     statements,
-  };
+  });
 }
 
 export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
@@ -82,15 +98,16 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
   const getAccessors: OptionalKind<GetAccessorDeclarationStructure>[] = [];
   const properties: OptionalKind<PropertyDeclarationStructure>[] = [];
   for (const property of this.properties) {
-    properties.push(property.classPropertyDeclaration);
+    property.classPropertyDeclaration.ifJust((propertyDeclaration) =>
+      properties.push(propertyDeclaration),
+    );
     property.classGetAccessorDeclaration.ifJust((getAccessor) =>
       getAccessors.push(getAccessor),
     );
   }
 
   return {
-    ctors:
-      constructorDeclaration_ !== null ? [constructorDeclaration_] : undefined,
+    ctors: constructorDeclaration_.toList(),
     extends:
       this.parentObjectTypes.length > 0
         ? this.parentObjectTypes[0].name

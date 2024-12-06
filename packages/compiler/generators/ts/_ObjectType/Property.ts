@@ -15,7 +15,9 @@ export abstract class Property<TypeT extends { readonly name: string }> {
   abstract readonly classGetAccessorDeclaration: Maybe<
     OptionalKind<GetAccessorDeclarationStructure>
   >;
-  abstract readonly classPropertyDeclaration: OptionalKind<PropertyDeclarationStructure>;
+  abstract readonly classPropertyDeclaration: Maybe<
+    OptionalKind<PropertyDeclarationStructure>
+  >;
   abstract readonly equalsFunction: string;
   abstract readonly interfacePropertySignature: OptionalKind<PropertySignatureStructure>;
   readonly name: string;

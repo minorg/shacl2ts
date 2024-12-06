@@ -4,7 +4,7 @@ import type { PredicatePath } from "@shaclmate/shacl-ast";
 import type { Maybe } from "purify-ts";
 import { Resource } from "rdfjs-resource";
 import genericToposort from "toposort";
-import type { IriMintingStrategy } from "../IriMintingStrategy";
+import type { IriMintingStrategy } from "../IriMintingStrategy.js";
 import type { Name } from "./Name.js";
 import type { Type } from "./Type.js";
 

@@ -41,19 +41,21 @@ export class TypeDiscriminatorProperty extends Property<TypeDiscriminatorPropert
     return Maybe.empty();
   }
 
-  override get classPropertyDeclaration(): OptionalKind<PropertyDeclarationStructure> {
-    return {
+  override get classPropertyDeclaration(): Maybe<
+    OptionalKind<PropertyDeclarationStructure>
+  > {
+    return Maybe.of({
       // Work around a ts-morph bug that puts the override keyword before the abstract keyword
-      leadingTrivia:
-        this.abstract && this.override ? "abstract override " : undefined,
       isAbstract: this.abstract && this.override ? undefined : this.abstract,
       hasOverrideKeyword:
         this.abstract && this.override ? undefined : this.override,
       initializer: !this.abstract ? `"${this.value}"` : undefined,
       isReadonly: true,
+      leadingTrivia:
+        this.abstract && this.override ? "abstract override " : undefined,
       name: this.name,
       type: this.type.name,
-    };
+    });
   }
 
   override get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {

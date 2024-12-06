@@ -1,7 +1,8 @@
 import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
+import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
-import { IriMintingStrategy } from "../../IriMintingStrategy";
+import { IriMintingStrategy } from "../../IriMintingStrategy.js";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
@@ -13,7 +14,6 @@ export class ObjectType extends Type {
   readonly export_: boolean;
   fromRdfFunctionDeclaration = _ObjectType.fromRdfFunctionDeclaration;
   hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
-  readonly identifierType: IdentifierType;
   interfaceDeclaration = _ObjectType.interfaceDeclaration;
   readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
   readonly kind = "ObjectType";
@@ -29,7 +29,6 @@ export class ObjectType extends Type {
 
   constructor({
     abstract,
-    identifierType,
     export_,
     lazyAncestorObjectTypes,
     lazyDescendantObjectTypes,
@@ -42,7 +41,6 @@ export class ObjectType extends Type {
   }: {
     abstract: boolean;
     export_: boolean;
-    identifierType: IdentifierType;
     lazyAncestorObjectTypes: () => readonly ObjectType[];
     lazyDescendantObjectTypes: () => readonly ObjectType[];
     lazyParentObjectTypes: () => readonly ObjectType[];
@@ -59,7 +57,6 @@ export class ObjectType extends Type {
     this.lazyDescendantObjectTypes = lazyDescendantObjectTypes;
     this.lazyParentObjectTypes = lazyParentObjectTypes;
     this.lazyProperties = lazyProperties;
-    this.identifierType = identifierType;
     this.iriMintingStrategy = iriMintingStrategy;
     this.rdfType = rdfType;
     this.name = name;
@@ -107,6 +104,20 @@ export class ObjectType extends Type {
       return `hash${this.name}`;
     }
     return "hash";
+  }
+
+  @Memoize()
+  get identifierProperty(): ObjectType.IdentifierProperty {
+    const identifierProperty = this.properties.find(
+      (property) => property instanceof ObjectType.IdentifierProperty,
+    );
+    invariant(identifierProperty);
+    return identifierProperty;
+  }
+
+  @Memoize()
+  get identifierType(): IdentifierType {
+    return this.identifierProperty.type;
   }
 
   override get importStatements(): readonly string[] {
