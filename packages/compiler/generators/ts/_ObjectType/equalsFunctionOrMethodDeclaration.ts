@@ -33,16 +33,20 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     return Maybe.empty();
   }
 
-  let expression = `purifyHelpers.Equatable.objectEquals(left, right, { ${ownProperties
-    .map((property) => `${property.name}: ${property.equalsFunction}`)
-    .join()} })`;
-
+  let expression: string;
   let hasOverrideKeyword = false;
   switch (this.configuration.objectTypeDeclarationType) {
     case "class": {
+      expression = `purifyHelpers.Equatable.objectEquals(this, other, { ${ownProperties
+        .map((property) => `${property.name}: ${property.equalsFunction}`)
+        .join()} })`;
       // If there's an ancestor with an equals implementation then delegate to super.
       for (const ancestorObjectType of this.ancestorObjectTypes) {
-        if (ancestorObjectType.equalsFunctionDeclaration().isJust()) {
+        if (
+          (ancestorObjectType.classDeclaration().methods ?? []).some(
+            (method) => method.name === "equals",
+          )
+        ) {
           expression = `super.equals(other).chain(() => ${expression})`;
           hasOverrideKeyword = true;
           break;
@@ -51,6 +55,9 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
       break;
     }
     case "interface": {
+      expression = `purifyHelpers.Equatable.objectEquals(left, right, { ${ownProperties
+        .map((property) => `${property.name}: ${property.equalsFunction}`)
+        .join()} })`;
       // For every parent, find the nearest equals implementation
       for (const parentObjectType of this.parentObjectTypes) {
         if (parentObjectType.equalsFunctionDeclaration().isJust()) {
@@ -71,16 +78,24 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   return Maybe.of({
     hasOverrideKeyword,
     name: "equals",
-    parameters: [
-      {
-        name: "left",
-        type: this.name,
-      },
-      {
-        name: "right",
-        type: this.name,
-      },
-    ],
+    parameters:
+      this.configuration.objectTypeDeclarationType === "interface"
+        ? [
+            {
+              name: "left",
+              type: this.name,
+            },
+            {
+              name: "right",
+              type: this.name,
+            },
+          ]
+        : [
+            {
+              name: "other",
+              type: this.name,
+            },
+          ],
     returnType: "purifyHelpers.Equatable.EqualsResult",
     statements: [`return ${expression};`],
   });

@@ -31,11 +31,8 @@ export class UuidV4IriNodeShape {
     return this._identifier;
   }
 
-  equals(
-    left: UuidV4IriNodeShape,
-    right: UuidV4IriNodeShape,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+  equals(other: UuidV4IriNodeShape): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -134,11 +131,8 @@ export class Sha256IriNodeShape {
     return this._identifier;
   }
 
-  equals(
-    left: Sha256IriNodeShape,
-    right: Sha256IriNodeShape,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+  equals(other: Sha256IriNodeShape): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -237,11 +231,8 @@ export class OrNodeShapeMember2 {
     return this._identifier;
   }
 
-  equals(
-    left: OrNodeShapeMember2,
-    right: OrNodeShapeMember2,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+  equals(other: OrNodeShapeMember2): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty2: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -340,11 +331,8 @@ export class OrNodeShapeMember1 {
     return this._identifier;
   }
 
-  equals(
-    left: OrNodeShapeMember1,
-    right: OrNodeShapeMember1,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+  equals(other: OrNodeShapeMember1): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty1: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -467,10 +455,9 @@ export class NodeShapeWithPropertyCardinalities {
   }
 
   equals(
-    left: NodeShapeWithPropertyCardinalities,
-    right: NodeShapeWithPropertyCardinalities,
+    other: NodeShapeWithPropertyCardinalities,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       optionalStringProperty: purifyHelpers.Equatable.booleanEquals,
       requiredStringProperty: purifyHelpers.Equatable.strictEquals,
@@ -729,10 +716,9 @@ export class NodeShapeWithOrProperties {
   }
 
   equals(
-    left: NodeShapeWithOrProperties,
-    right: NodeShapeWithOrProperties,
+    other: NodeShapeWithOrProperties,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       orLiteralsProperty: (left, right) =>
         purifyHelpers.Maybes.equals(
@@ -1083,10 +1069,9 @@ export class NodeShapeWithListProperty {
   }
 
   equals(
-    left: NodeShapeWithListProperty,
-    right: NodeShapeWithListProperty,
+    other: NodeShapeWithListProperty,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       listProperty: (left, right) =>
         purifyHelpers.Arrays.equals(
@@ -1329,10 +1314,9 @@ export class NodeShapeWithInProperties {
   }
 
   equals(
-    left: NodeShapeWithInProperties,
-    right: NodeShapeWithInProperties,
+    other: NodeShapeWithInProperties,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       inBooleansProperty: purifyHelpers.Equatable.booleanEquals,
       inIrisProperty: (left, right) =>
@@ -1689,10 +1673,9 @@ export class NodeShapeWithDefaultValueProperties {
   }
 
   equals(
-    left: NodeShapeWithDefaultValueProperties,
-    right: NodeShapeWithDefaultValueProperties,
+    other: NodeShapeWithDefaultValueProperties,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       falseBooleanProperty: purifyHelpers.Equatable.strictEquals,
       identifier: purifyHelpers.Equatable.booleanEquals,
       numberProperty: purifyHelpers.Equatable.strictEquals,
@@ -1943,11 +1926,8 @@ export class NonClassNodeShape {
     return this._identifier;
   }
 
-  equals(
-    left: NonClassNodeShape,
-    right: NonClassNodeShape,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+  equals(other: NonClassNodeShape): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -2046,11 +2026,8 @@ export class IriNodeShape {
     return this._identifier;
   }
 
-  equals(
-    left: IriNodeShape,
-    right: IriNodeShape,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+  equals(other: IriNodeShape): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -2147,11 +2124,8 @@ export class InlineNodeShape {
     return this._identifier;
   }
 
-  equals(
-    left: InlineNodeShape,
-    right: InlineNodeShape,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+  equals(other: InlineNodeShape): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -2250,11 +2224,8 @@ export class ExternNodeShape {
     return this._identifier;
   }
 
-  equals(
-    left: ExternNodeShape,
-    right: ExternNodeShape,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+  equals(other: ExternNodeShape): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       stringProperty: purifyHelpers.Equatable.strictEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -2357,10 +2328,9 @@ export class ExterningAndInliningNodeShape {
   }
 
   equals(
-    left: ExterningAndInliningNodeShape,
-    right: ExterningAndInliningNodeShape,
+    other: ExterningAndInliningNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       externProperty: purifyHelpers.Equatable.booleanEquals,
       identifier: purifyHelpers.Equatable.booleanEquals,
       inlineProperty: purifyHelpers.Equatable.equals,
@@ -2493,10 +2463,9 @@ abstract class AbstractBaseClassWithPropertiesNodeShape {
   }
 
   equals(
-    left: AbstractBaseClassWithPropertiesNodeShape,
-    right: AbstractBaseClassWithPropertiesNodeShape,
+    other: AbstractBaseClassWithPropertiesNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
       abcStringProperty: purifyHelpers.Equatable.strictEquals,
       identifier: purifyHelpers.Equatable.booleanEquals,
       type: purifyHelpers.Equatable.strictEquals,
@@ -2647,13 +2616,16 @@ export class ConcreteParentClassNodeShape extends AbstractBaseClassWithoutProper
     return this._identifier;
   }
 
-  equals(
-    left: ConcreteParentClassNodeShape,
-    right: ConcreteParentClassNodeShape,
+  override equals(
+    other: ConcreteParentClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      parentStringProperty: purifyHelpers.Equatable.strictEquals,
-    });
+    return super
+      .equals(other)
+      .chain(() =>
+        purifyHelpers.Equatable.objectEquals(this, other, {
+          parentStringProperty: purifyHelpers.Equatable.strictEquals,
+        }),
+      );
   }
 
   override hash<
@@ -2800,13 +2772,16 @@ export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
     return this._identifier;
   }
 
-  equals(
-    left: ConcreteChildClassNodeShape,
-    right: ConcreteChildClassNodeShape,
+  override equals(
+    other: ConcreteChildClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      childStringProperty: purifyHelpers.Equatable.strictEquals,
-    });
+    return super
+      .equals(other)
+      .chain(() =>
+        purifyHelpers.Equatable.objectEquals(this, other, {
+          childStringProperty: purifyHelpers.Equatable.strictEquals,
+        }),
+      );
   }
 
   override hash<
