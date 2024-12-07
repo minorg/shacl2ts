@@ -131,49 +131,22 @@ export class TsGenerator implements Generator {
         break;
     }
 
-    const moduleStatements: StatementStructures[] = [];
+    const moduleStatements: StatementStructures[] = [
+      ...objectType.equalsFunctionDeclaration().toList(),
+      ...objectType.fromRdfFunctionDeclaration().toList(),
+      ...objectType.hashFunctionDeclaration().toList(),
+      ...objectType.sparqlGraphPatternsClassDeclaration().toList(),
+      ...objectType.toRdfFunctionDeclaration().toList(),
+    ];
 
-    if (
-      this.configuration.features.has("equals") &&
-      this.configuration.objectTypeDeclarationType === "interface"
-    ) {
-      moduleStatements.push(objectType.equalsFunctionDeclaration());
+    if (moduleStatements.length > 0) {
+      sourceFile.addModule({
+        isExported: objectType.export_,
+        kind: StructureKind.Module,
+        name: objectType.name,
+        statements: moduleStatements,
+      });
     }
-
-    if (this.configuration.features.has("fromRdf")) {
-      moduleStatements.push(objectType.fromRdfFunctionDeclaration());
-    }
-
-    if (
-      this.configuration.features.has("hash") &&
-      this.configuration.objectTypeDeclarationType === "interface"
-    ) {
-      moduleStatements.push(objectType.hashFunctionDeclaration());
-    }
-
-    if (this.configuration.features.has("sparql-graph-patterns")) {
-      if (objectType.parentObjectTypes.length > 1) {
-        throw new RangeError(
-          `object type '${objectType.name}' has multiple super object types, can't use with SPARQL graph patterns`,
-        );
-      }
-
-      moduleStatements.push(objectType.sparqlGraphPatternsClassDeclaration());
-    }
-
-    if (
-      this.configuration.features.has("toRdf") &&
-      this.configuration.objectTypeDeclarationType === "interface"
-    ) {
-      moduleStatements.push(objectType.toRdfFunctionDeclaration());
-    }
-
-    sourceFile.addModule({
-      isExported: objectType.export_,
-      kind: StructureKind.Module,
-      name: objectType.name,
-      statements: moduleStatements,
-    });
   }
 
   private addObjectUnionTypeDeclarations({

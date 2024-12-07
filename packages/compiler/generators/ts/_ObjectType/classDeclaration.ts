@@ -10,6 +10,7 @@ import {
   StructureKind,
 } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
+import { equalsFunctionOrMethodDeclaration } from "./equalsFunctionOrMethodDeclaration.js";
 import { hashFunctionOrMethodDeclaration } from "./hashFunctionOrMethodDeclaration.js";
 import { toRdfFunctionOrMethodDeclaration } from "./toRdfFunctionOrMethodDeclaration.js";
 
@@ -84,17 +85,6 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
 
   const constructorDeclaration_ = constructorDeclaration.bind(this)();
 
-  const methods: OptionalKind<MethodDeclarationStructure>[] = [];
-  if (this.configuration.features.has("equals")) {
-    methods.push(equalsMethodDeclaration.bind(this)());
-  }
-  if (this.configuration.features.has("hash")) {
-    methods.push(hashMethodDeclaration.bind(this)());
-  }
-  if (this.configuration.features.has("toRdf")) {
-    methods.push(toRdfMethodDeclaration.bind(this)());
-  }
-
   const getAccessors: OptionalKind<GetAccessorDeclarationStructure>[] = [];
   const properties: OptionalKind<PropertyDeclarationStructure>[] = [];
   for (const property of this.properties) {
@@ -116,7 +106,11 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
     isAbstract: this.abstract,
     kind: StructureKind.Class,
     isExported: this.export_,
-    methods,
+    methods: [
+      ...equalsMethodDeclaration.bind(this)().toList(),
+      ...hashMethodDeclaration.bind(this)().toList(),
+      ...toRdfMethodDeclaration.bind(this)().toList(),
+    ],
     name: this.name,
     properties,
   };
@@ -124,43 +118,28 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
 
 function equalsMethodDeclaration(
   this: ObjectType,
-): OptionalKind<MethodDeclarationStructure> {
-  let expression = `purifyHelpers.Equatable.objectEquals(this, other, { ${this.properties
-    .map((property) => `${property.name}: ${property.equalsFunction}`)
-    .join()} })`;
-  if (this.parentObjectTypes.length > 0) {
-    expression = `super.equals(other).chain(() => ${expression})`;
-  }
-
-  return {
-    hasOverrideKeyword: this.parentObjectTypes.length > 0,
-    name: "equals",
-    parameters: [
-      {
-        name: "other",
-        type: this.name,
-      },
-    ],
-    statements: [`return ${expression};`],
-    returnType: "purifyHelpers.Equatable.EqualsResult",
-  };
+): Maybe<OptionalKind<MethodDeclarationStructure>> {
+  return equalsFunctionOrMethodDeclaration.bind(this)();
 }
 
 function hashMethodDeclaration(
   this: ObjectType,
-): OptionalKind<MethodDeclarationStructure> {
-  return {
-    ...hashFunctionOrMethodDeclaration.bind(this)(),
-    hasOverrideKeyword: this.parentObjectTypes.length > 0,
-    name: "hash",
-  };
+): Maybe<OptionalKind<MethodDeclarationStructure>> {
+  return hashFunctionOrMethodDeclaration
+    .bind(this)()
+    .map((hashFunctionOrMethodDeclaration) => ({
+      ...hashFunctionOrMethodDeclaration,
+      name: "hash",
+    }));
 }
 
 function toRdfMethodDeclaration(
   this: ObjectType,
-): OptionalKind<MethodDeclarationStructure> {
-  return {
-    ...toRdfFunctionOrMethodDeclaration.bind(this)(),
-    hasOverrideKeyword: this.parentObjectTypes.length > 0,
-  };
+): Maybe<OptionalKind<MethodDeclarationStructure>> {
+  return toRdfFunctionOrMethodDeclaration
+    .bind(this)()
+    .map((toRdfFunctionOrMethodDeclaration) => ({
+      ...toRdfFunctionOrMethodDeclaration,
+      hasOverrideKeyword: this.parentObjectTypes.length > 0,
+    }));
 }

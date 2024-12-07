@@ -9,25 +9,26 @@
 
 # Node shape that serves as an abstract base class for child node shapes
 # It's marked abstract in TypeScript and not exported from the module.
-:AbstractBaseClassWithoutPropertiesNodeShape
+:AbstractBaseClassWithPropertiesNodeShape
   a owl:Class ;
   a sh:NodeShape ;
   shaclmate:abstract true;
   shaclmate:export false ;
   # Common pattern: put the minting strategy and nodeKind on an ABC
   shaclmate:mintingStrategy shaclmate:SHA256 ;
-  sh:name "AbstractBaseClassWithoutPropertiesNodeShape" ;
+  sh:name "AbstractBaseClassWithPropertiesNodeShape" ;
   sh:nodeKind sh:BlankNodeOrIRI ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "abcStringProperty" ; sh:path :abcStringProperty ] ;
 .
 
-:AbstractBaseClassWithPropertiesNodeShape
+:AbstractBaseClassWithoutPropertiesNodeShape
   a owl:Class ;
   a sh:NodeShape ;
-  rdfs:subClassOf :AbstractBaseClassWithoutPropertiesNodeShape ;
+  # Put the shape with properties above the shape without
+  rdfs:subClassOf :AbstractBaseClassWithPropertiesNodeShape ;
   shaclmate:abstract true;
   shaclmate:export false ;
-  sh:name "AbstractBaseClassWithPropertiesNodeShape" ;
-  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "abcStringProperty" ; sh:path :abcStringProperty ] ;
+  sh:name "AbstractBaseClassWithoutPropertiesNodeShape" ;
 .
 
 # Child (class) of ParentClassNodeShape. Should inherit properties, node kinds, and minting strategy.
@@ -43,7 +44,7 @@
 :ConcreteParentClassNodeShape
   a owl:Class ;
   a sh:NodeShape ;
-  rdfs:subClassOf :AbstractBaseClassWithPropertiesNodeShape ;
+  rdfs:subClassOf :AbstractBaseClassWithoutPropertiesNodeShape ;
   sh:name "ConcreteParentClassNodeShape" ;
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "parentStringProperty" ; sh:path :parentStringProperty ] ;
 .

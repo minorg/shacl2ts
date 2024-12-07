@@ -1,9 +1,11 @@
+import { Maybe } from "purify-ts";
 import {
   type ClassDeclarationStructure,
   type OptionalKind,
   type ParameterDeclarationStructure,
   StructureKind,
 } from "ts-morph";
+import { logger } from "../../../logger.js";
 import type { ObjectType } from "../ObjectType.js";
 import { rdfjsTermExpression } from "../rdfjsTermExpression.js";
 
@@ -13,8 +15,37 @@ const subjectVariable = "subject";
 
 export function sparqlGraphPatternsClassDeclaration(
   this: ObjectType,
-): ClassDeclarationStructure {
-  this.ensureAtMostOneSuperObjectType();
+): Maybe<ClassDeclarationStructure> {
+  if (!this.configuration.features.has("sparql-graph-patterns")) {
+    return Maybe.empty();
+  }
+
+  if (this.parentObjectTypes.length > 1) {
+    logger.warn(
+      "object type %s has multiple super object types, can't use with SPARQL graph patterns",
+      this.name,
+    );
+    return Maybe.empty();
+  }
+
+  const addStatements: string[] = [];
+  if (!this.abstract) {
+    this.rdfType.ifJust((rdfType) =>
+      addStatements.push(
+        `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${rdfjsTermExpression(rdfType, this.configuration)})); }`,
+      ),
+    );
+  }
+  for (const property of this.properties) {
+    property
+      .sparqlGraphPatternExpression()
+      .ifJust((sparqlGraphPattern) =>
+        addStatements.push(`this.add(${sparqlGraphPattern});`),
+      );
+  }
+  if (addStatements.length === 0) {
+    return Maybe.empty();
+  }
 
   const constructorParameters: OptionalKind<ParameterDeclarationStructure>[] = [
     {
@@ -31,50 +62,33 @@ export function sparqlGraphPatternsClassDeclaration(
   }
 
   const constructorStatements: string[] = [];
-
-  if (
-    this.parentObjectTypes.length > 0 &&
-    !this.parentObjectTypes[0].abstract
-  ) {
-    constructorStatements.push(
-      `super(${subjectVariable}, { ignoreRdfType: true });`,
-    );
-  } else {
+  let extends_ = "sparqlBuilder.ResourceGraphPatterns";
+  for (const ancestorObjectType of this.ancestorObjectTypes) {
+    if (ancestorObjectType.sparqlGraphPatternsClassDeclaration().isJust()) {
+      if (!ancestorObjectType.abstract) {
+        constructorStatements.push(
+          `super(${subjectVariable}, { ignoreRdfType: true });`,
+        );
+      }
+      extends_ = `${ancestorObjectType.name}.SparqlGraphPatterns`;
+      break;
+    }
+  }
+  if (constructorStatements.length === 0) {
     constructorStatements.push(`super(${subjectVariable});`);
   }
+  constructorStatements.push(...addStatements);
 
-  if (!this.abstract) {
-    this.rdfType.ifJust((rdfType) =>
-      constructorStatements.push(
-        `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${rdfjsTermExpression(rdfType, this.configuration)})); }`,
-      ),
-    );
-  }
-
-  for (const property of this.properties) {
-    property
-      .sparqlGraphPatternExpression()
-      .ifJust((sparqlGraphPattern) =>
-        constructorStatements.push(`this.add(${sparqlGraphPattern});`),
-      );
-  }
-
-  return {
-    ctors:
-      constructorStatements.length > 1
-        ? [
-            {
-              parameters: constructorParameters,
-              statements: constructorStatements,
-            },
-          ]
-        : undefined,
-    extends:
-      this.parentObjectTypes.length > 0
-        ? `${this.parentObjectTypes[0].name}.SparqlGraphPatterns`
-        : "sparqlBuilder.ResourceGraphPatterns",
+  return Maybe.of({
+    ctors: [
+      {
+        parameters: constructorParameters,
+        statements: constructorStatements,
+      },
+    ],
+    extends: extends_,
     isExported: true,
     kind: StructureKind.Class,
     name: "SparqlGraphPatterns",
-  };
+  });
 }
