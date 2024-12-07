@@ -2475,7 +2475,7 @@ export namespace ConcreteParentClassNodeShape {
     return _hasher;
   }
 
-  export class SparqlGraphPatterns extends AbstractBaseClassWithoutPropertiesNodeShape.SparqlGraphPatterns {
+  export class SparqlGraphPatterns extends AbstractBaseClassWithPropertiesNodeShape.SparqlGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
       _options?: { ignoreRdfType?: boolean },
