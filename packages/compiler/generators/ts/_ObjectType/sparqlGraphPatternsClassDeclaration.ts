@@ -28,6 +28,25 @@ export function sparqlGraphPatternsClassDeclaration(
     return Maybe.empty();
   }
 
+  const addStatements: string[] = [];
+  if (!this.abstract) {
+    this.rdfType.ifJust((rdfType) =>
+      addStatements.push(
+        `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${rdfjsTermExpression(rdfType, this.configuration)})); }`,
+      ),
+    );
+  }
+  for (const property of this.properties) {
+    property
+      .sparqlGraphPatternExpression()
+      .ifJust((sparqlGraphPattern) =>
+        addStatements.push(`this.add(${sparqlGraphPattern});`),
+      );
+  }
+  if (addStatements.length === 0) {
+    return Maybe.empty();
+  }
+
   const constructorParameters: OptionalKind<ParameterDeclarationStructure>[] = [
     {
       name: subjectVariable,
@@ -43,44 +62,28 @@ export function sparqlGraphPatternsClassDeclaration(
   }
 
   const constructorStatements: string[] = [];
-
-  if (
-    this.parentObjectTypes.length > 0 &&
-    !this.parentObjectTypes[0].abstract
-  ) {
-    constructorStatements.push(
-      `super(${subjectVariable}, { ignoreRdfType: true });`,
-    );
-  } else {
+  for (const ancestorObjectType of this.ancestorObjectTypes) {
+    if (ancestorObjectType.sparqlGraphPatternsClassDeclaration().isJust()) {
+      if (!this.parentObjectTypes[0].abstract) {
+        constructorStatements.push(
+          `super(${subjectVariable}, { ignoreRdfType: true });`,
+        );
+      }
+      break;
+    }
+  }
+  if (constructorStatements.length === 0) {
     constructorStatements.push(`super(${subjectVariable});`);
   }
-
-  if (!this.abstract) {
-    this.rdfType.ifJust((rdfType) =>
-      constructorStatements.push(
-        `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${rdfjsTermExpression(rdfType, this.configuration)})); }`,
-      ),
-    );
-  }
-
-  for (const property of this.properties) {
-    property
-      .sparqlGraphPatternExpression()
-      .ifJust((sparqlGraphPattern) =>
-        constructorStatements.push(`this.add(${sparqlGraphPattern});`),
-      );
-  }
+  constructorStatements.push(...addStatements);
 
   return Maybe.of({
-    ctors:
-      constructorStatements.length > 1
-        ? [
-            {
-              parameters: constructorParameters,
-              statements: constructorStatements,
-            },
-          ]
-        : undefined,
+    ctors: [
+      {
+        parameters: constructorParameters,
+        statements: constructorStatements,
+      },
+    ],
     extends:
       this.parentObjectTypes.length > 0
         ? `${this.parentObjectTypes[0].name}.SparqlGraphPatterns`

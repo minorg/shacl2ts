@@ -2572,8 +2572,6 @@ namespace AbstractBaseClassWithoutPropertiesNodeShape {
       },
     );
   }
-
-  export class SparqlGraphPatterns extends AbstractBaseClassWithPropertiesNodeShape.SparqlGraphPatterns {}
 }
 
 export class ConcreteParentClassNodeShape extends AbstractBaseClassWithoutPropertiesNodeShape {

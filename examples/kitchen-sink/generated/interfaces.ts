@@ -2363,8 +2363,6 @@ namespace AbstractBaseClassWithoutPropertiesNodeShape {
     return _hasher;
   }
 
-  export class SparqlGraphPatterns extends AbstractBaseClassWithPropertiesNodeShape.SparqlGraphPatterns {}
-
   export function toRdf(
     abstractBaseClassWithoutPropertiesNodeShape: AbstractBaseClassWithoutPropertiesNodeShape,
     {
