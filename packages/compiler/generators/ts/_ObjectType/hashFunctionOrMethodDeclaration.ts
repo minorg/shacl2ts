@@ -32,6 +32,21 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
       break;
   }
 
+  const propertyHashStatements = this.properties.flatMap((property) =>
+    property.hashStatements({
+      variables: {
+        hasher: hasherVariable,
+        value: `${thisVariable}.${property.name}`,
+      },
+    }),
+  );
+  if (
+    this.configuration.objectTypeDeclarationType === "class" &&
+    propertyHashStatements.length === 0
+  ) {
+    return Maybe.empty();
+  }
+
   const parameters: OptionalKind<ParameterDeclarationStructure>[] = [];
   if (this.configuration.objectTypeDeclarationType === "interface") {
     parameters.push({
@@ -44,64 +59,45 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     type: "HasherT",
   });
 
-  const omitPropertyNamesSet = new Set<string>();
-  omitPropertyNamesSet.add(this.configuration.objectTypeIdentifierPropertyName);
-  omitPropertyNamesSet.add(
-    this.configuration.objectTypeDiscriminatorPropertyName,
-  );
-  if (this.configuration.objectTypeDeclarationType === "class") {
-    omitPropertyNamesSet.add("equals");
-    omitPropertyNamesSet.add("hash");
-    omitPropertyNamesSet.add("toRdf");
-  }
-
   const statements: string[] = [];
 
+  let hasOverrideKeyword = false;
   switch (this.configuration.objectTypeDeclarationType) {
     case "class": {
-      if (this.parentObjectTypes.length > 0) {
-        statements.push(`super.hash(${hasherVariable});`);
+      // If there's an ancestor with a hash implementation then delegate to super.
+      for (const ancestorObjectType of this.ancestorObjectTypes) {
+        if (
+          (ancestorObjectType.classDeclaration().methods ?? []).some(
+            (method) => method.name === "hash",
+          )
+        ) {
+          statements.push(`super.hash(${hasherVariable});`);
+          hasOverrideKeyword = true;
+          break;
+        }
       }
       break;
     }
     case "interface": {
       for (const parentObjectType of this.parentObjectTypes) {
-        statements.push(
-          `${parentObjectType.name}.${parentObjectType.hashFunctionName}(${thisVariable}, ${hasherVariable});`,
-        );
+        parentObjectType
+          .hashFunctionDeclaration()
+          .ifJust((hashFunctionDeclaration) => {
+            statements.push(
+              `${parentObjectType.name}.${hashFunctionDeclaration.name}(${thisVariable}, ${hasherVariable});`,
+            );
+          });
       }
       break;
     }
   }
 
-  for (const property of this.properties) {
-    const propertyValueVariable = `${thisVariable}.${property.name}`;
-    const propertyHashStatements = property.hashStatements({
-      variables: {
-        hasher: hasherVariable,
-        value: propertyValueVariable,
-      },
-    });
-
-    if (propertyHashStatements.length === 0) {
-      omitPropertyNamesSet.add(property.name);
-      continue;
-    }
-
-    if (property.name === this.configuration.objectTypeIdentifierPropertyName) {
-      // Don't hash the identifier since we may be using hash to calculate the identifier, leading to infinite recursion
-      continue;
-    }
-
-    statements.push(...propertyHashStatements);
-  }
-
-  const omitPropertyNames = [...omitPropertyNamesSet];
-  omitPropertyNames.sort();
+  statements.push(...propertyHashStatements);
 
   statements.push(`return ${hasherVariable};`);
 
   return Maybe.of({
+    hasOverrideKeyword,
     parameters,
     returnType: "HasherT",
     statements,

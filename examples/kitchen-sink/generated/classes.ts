@@ -2543,15 +2543,6 @@ abstract class AbstractBaseClassWithoutPropertiesNodeShape extends AbstractBaseC
     | "ConcreteChildClassNodeShape"
     | "ConcreteParentClassNodeShape";
 
-  override hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(_hasher: HasherT): HasherT {
-    super.hash(_hasher);
-    return _hasher;
-  }
-
   override toRdf({
     mutateGraph,
     resourceSet,

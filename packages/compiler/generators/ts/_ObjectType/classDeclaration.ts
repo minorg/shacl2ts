@@ -129,7 +129,6 @@ function hashMethodDeclaration(
     .bind(this)()
     .map((hashFunctionOrMethodDeclaration) => ({
       ...hashFunctionOrMethodDeclaration,
-      hasOverrideKeyword: this.parentObjectTypes.length > 0,
       name: "hash",
     }));
 }

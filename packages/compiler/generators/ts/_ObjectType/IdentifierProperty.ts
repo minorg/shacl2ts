@@ -151,10 +151,8 @@ export class IdentifierProperty extends Property<IdentifierType> {
     return [`const ${this.name} = ${variables.resource}.identifier`];
   }
 
-  override hashStatements(
-    parameters: Parameters<Property<IdentifierType>["hashStatements"]>[0],
-  ): readonly string[] {
-    return this.type.propertyHashStatements(parameters);
+  override hashStatements(): readonly string[] {
+    return [];
   }
 
   override sparqlGraphPatternExpression(): Maybe<string> {
