@@ -108,8 +108,8 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
     isExported: this.export_,
     methods: [
       ...equalsMethodDeclaration.bind(this)().toList(),
-      ...toRdfMethodDeclaration.bind(this)().toList(),
       ...hashMethodDeclaration.bind(this)().toList(),
+      ...toRdfMethodDeclaration.bind(this)().toList(),
     ],
     name: this.name,
     properties,
