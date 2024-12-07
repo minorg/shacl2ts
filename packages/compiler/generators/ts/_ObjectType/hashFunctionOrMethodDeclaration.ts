@@ -1,4 +1,5 @@
 import { camelCase } from "change-case";
+import { Maybe } from "purify-ts";
 import type {
   OptionalKind,
   ParameterDeclarationStructure,
@@ -11,12 +12,16 @@ const hasherVariable = "_hasher";
 export const hasherTypeConstraint =
   "{ update: (message: string | number[] | ArrayBuffer | Uint8Array) => void; }";
 
-export function hashFunctionOrMethodDeclaration(this: ObjectType): {
+export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   parameters: OptionalKind<ParameterDeclarationStructure>[];
   returnType: string;
   statements: string[];
   typeParameters: OptionalKind<TypeParameterDeclarationStructure>[];
-} {
+}> {
+  if (!this.configuration.features.has("hash")) {
+    return Maybe.empty();
+  }
+
   let thisVariable: string;
   switch (this.configuration.objectTypeDeclarationType) {
     case "class":
@@ -96,7 +101,7 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): {
 
   statements.push(`return ${hasherVariable};`);
 
-  return {
+  return Maybe.of({
     parameters,
     returnType: "HasherT",
     statements,
@@ -106,5 +111,5 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): {
         constraint: hasherTypeConstraint,
       },
     ],
-  };
+  });
 }

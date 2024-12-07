@@ -1,9 +1,11 @@
+import { Maybe } from "purify-ts";
 import {
   type ClassDeclarationStructure,
   type OptionalKind,
   type ParameterDeclarationStructure,
   StructureKind,
 } from "ts-morph";
+import { logger } from "../../../logger.js";
 import type { ObjectType } from "../ObjectType.js";
 import { rdfjsTermExpression } from "../rdfjsTermExpression.js";
 
@@ -13,8 +15,18 @@ const subjectVariable = "subject";
 
 export function sparqlGraphPatternsClassDeclaration(
   this: ObjectType,
-): ClassDeclarationStructure {
-  this.ensureAtMostOneSuperObjectType();
+): Maybe<ClassDeclarationStructure> {
+  if (!this.configuration.features.has("sparql-graph-patterns")) {
+    return Maybe.empty();
+  }
+
+  if (this.parentObjectTypes.length > 1) {
+    logger.warn(
+      "object type %s has multiple super object types, can't use with SPARQL graph patterns",
+      this.name,
+    );
+    return Maybe.empty();
+  }
 
   const constructorParameters: OptionalKind<ParameterDeclarationStructure>[] = [
     {
@@ -59,7 +71,7 @@ export function sparqlGraphPatternsClassDeclaration(
       );
   }
 
-  return {
+  return Maybe.of({
     ctors:
       constructorStatements.length > 1
         ? [
@@ -76,5 +88,5 @@ export function sparqlGraphPatternsClassDeclaration(
     isExported: true,
     kind: StructureKind.Class,
     name: "SparqlGraphPatterns",
-  };
+  });
 }

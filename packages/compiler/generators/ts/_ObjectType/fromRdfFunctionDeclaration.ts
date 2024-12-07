@@ -1,3 +1,4 @@
+import { Maybe } from "purify-ts";
 import {
   type FunctionDeclarationStructure,
   type OptionalKind,
@@ -15,7 +16,11 @@ const variables = {
 
 export function fromRdfFunctionDeclaration(
   this: ObjectType,
-): FunctionDeclarationStructure {
+): Maybe<FunctionDeclarationStructure> {
+  if (!this.configuration.features.has("fromRdf")) {
+    return Maybe.empty();
+  }
+
   this.ensureAtMostOneSuperObjectType();
 
   const parameters: OptionalKind<ParameterDeclarationStructure>[] = [
@@ -96,12 +101,12 @@ export function fromRdfFunctionDeclaration(
     ];
   }
 
-  return {
+  return Maybe.of({
     isExported: true,
     kind: StructureKind.Function,
     name: "fromRdf",
     parameters,
     returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${returnType}>`,
     statements,
-  };
+  });
 }

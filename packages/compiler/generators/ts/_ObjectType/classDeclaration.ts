@@ -85,16 +85,6 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
 
   const constructorDeclaration_ = constructorDeclaration.bind(this)();
 
-  const methods: OptionalKind<MethodDeclarationStructure>[] = [
-    ...equalsMethodDeclaration.bind(this)().toList(),
-  ];
-  if (this.configuration.features.has("hash")) {
-    methods.push(hashMethodDeclaration.bind(this)());
-  }
-  if (this.configuration.features.has("toRdf")) {
-    methods.push(toRdfMethodDeclaration.bind(this)());
-  }
-
   const getAccessors: OptionalKind<GetAccessorDeclarationStructure>[] = [];
   const properties: OptionalKind<PropertyDeclarationStructure>[] = [];
   for (const property of this.properties) {
@@ -116,7 +106,11 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
     isAbstract: this.abstract,
     kind: StructureKind.Class,
     isExported: this.export_,
-    methods,
+    methods: [
+      ...equalsMethodDeclaration.bind(this)().toList(),
+      ...toRdfMethodDeclaration.bind(this)().toList(),
+      ...hashMethodDeclaration.bind(this)().toList(),
+    ],
     name: this.name,
     properties,
   };
@@ -130,19 +124,23 @@ function equalsMethodDeclaration(
 
 function hashMethodDeclaration(
   this: ObjectType,
-): OptionalKind<MethodDeclarationStructure> {
-  return {
-    ...hashFunctionOrMethodDeclaration.bind(this)(),
-    hasOverrideKeyword: this.parentObjectTypes.length > 0,
-    name: "hash",
-  };
+): Maybe<OptionalKind<MethodDeclarationStructure>> {
+  return hashFunctionOrMethodDeclaration
+    .bind(this)()
+    .map((hashFunctionOrMethodDeclaration) => ({
+      ...hashFunctionOrMethodDeclaration,
+      hasOverrideKeyword: this.parentObjectTypes.length > 0,
+      name: "hash",
+    }));
 }
 
 function toRdfMethodDeclaration(
   this: ObjectType,
-): OptionalKind<MethodDeclarationStructure> {
-  return {
-    ...toRdfFunctionOrMethodDeclaration.bind(this)(),
-    hasOverrideKeyword: this.parentObjectTypes.length > 0,
-  };
+): Maybe<OptionalKind<MethodDeclarationStructure>> {
+  return toRdfFunctionOrMethodDeclaration
+    .bind(this)()
+    .map((toRdfFunctionOrMethodDeclaration) => ({
+      ...toRdfFunctionOrMethodDeclaration,
+      hasOverrideKeyword: this.parentObjectTypes.length > 0,
+    }));
 }

@@ -1,5 +1,6 @@
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import { camelCase } from "change-case";
+import { Maybe } from "purify-ts";
 import type { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
 
@@ -10,12 +11,16 @@ const variables = {
   resourceSet: "resourceSet",
 };
 
-export function toRdfFunctionOrMethodDeclaration(this: ObjectType): {
+export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   name: string;
   parameters: OptionalKind<ParameterDeclarationStructure>[];
   returnType: string;
   statements: string[];
-} {
+}> {
+  if (!this.configuration.features.has("toRdf")) {
+    return Maybe.empty();
+  }
+
   this.ensureAtMostOneSuperObjectType();
 
   let thisVariable: string;
@@ -85,10 +90,10 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): {
     type: `{ ${usedIgnoreRdfTypeVariable ? `${variables.ignoreRdfType}?: boolean; ` : ""}${variables.mutateGraph}: rdfjsResource.MutableResource.MutateGraph, ${variables.resourceSet}: rdfjsResource.MutableResourceSet }`,
   });
 
-  return {
+  return Maybe.of({
     name: "toRdf",
     parameters,
     returnType: this.rdfjsResourceType({ mutable: true }).name,
     statements,
-  };
+  });
 }
