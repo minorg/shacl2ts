@@ -6,10 +6,6 @@ import { IriMintingStrategy } from "../../IriMintingStrategy.js";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
-import {
-  IdentifierProperty,
-  TypeDiscriminatorProperty,
-} from "./_ObjectType/index.js";
 
 export class ObjectType extends Type {
   readonly abstract: boolean;
@@ -141,26 +137,6 @@ export class ObjectType extends Type {
       });
     }
     return importStatements;
-  }
-
-  /**
-   * An ObjectType may have properties it's overriding from ancestor ObjectTypes.
-   *
-   * These are the other properties "owned" by the ObjectType.
-   */
-  @Memoize()
-  get ownProperties(): readonly ObjectType.Property[] {
-    if (this.parentObjectTypes.length === 0) {
-      // Consider that a root of the object type hierarchy "owns" the identifier and type discriminator properties
-      // for all of its subtypes in the hierarchy.
-      return this.properties;
-    }
-    // Non-root, doesn't own the identifier and type discriminator properties.
-    return this.properties.filter(
-      (property) =>
-        !(property instanceof IdentifierProperty) &&
-        !(property instanceof TypeDiscriminatorProperty),
-    );
   }
 
   @Memoize()
