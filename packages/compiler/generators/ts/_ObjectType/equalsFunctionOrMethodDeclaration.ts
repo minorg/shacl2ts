@@ -1,8 +1,6 @@
 import { Maybe } from "purify-ts";
 import type { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
-import { IdentifierProperty } from "./IdentifierProperty.js";
-import { TypeDiscriminatorProperty } from "./TypeDiscriminatorProperty.js";
 
 export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   hasOverrideKeyword: boolean;
@@ -15,21 +13,7 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     return Maybe.empty();
   }
 
-  let ownProperties: readonly ObjectType.Property[];
-  if (this.parentObjectTypes.length === 0) {
-    // For the purposes of equals(), consider that the root of the object type hierarchy "owns" the identifier and
-    // type discriminator properties
-    ownProperties = this.properties;
-  } else {
-    // Non-root, doesn't own the identifier and type discriminator properties.
-    ownProperties = this.properties.filter(
-      (property) =>
-        !(property instanceof IdentifierProperty) &&
-        !(property instanceof TypeDiscriminatorProperty),
-    );
-  }
-
-  if (ownProperties.length === 0) {
+  if (this.ownProperties.length === 0) {
     return Maybe.empty();
   }
 
@@ -37,7 +21,7 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   let hasOverrideKeyword = false;
   switch (this.configuration.objectTypeDeclarationType) {
     case "class": {
-      expression = `purifyHelpers.Equatable.objectEquals(this, other, { ${ownProperties
+      expression = `purifyHelpers.Equatable.objectEquals(this, other, { ${this.ownProperties
         .map((property) => `${property.name}: ${property.equalsFunction}`)
         .join()} })`;
       // If there's an ancestor with an equals implementation then delegate to super.
@@ -55,7 +39,7 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
       break;
     }
     case "interface": {
-      expression = `purifyHelpers.Equatable.objectEquals(left, right, { ${ownProperties
+      expression = `purifyHelpers.Equatable.objectEquals(left, right, { ${this.ownProperties
         .map((property) => `${property.name}: ${property.equalsFunction}`)
         .join()} })`;
       // For every parent, find the nearest equals implementation
