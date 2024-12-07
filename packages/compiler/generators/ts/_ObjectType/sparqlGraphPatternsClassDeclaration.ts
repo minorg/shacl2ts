@@ -62,13 +62,15 @@ export function sparqlGraphPatternsClassDeclaration(
   }
 
   const constructorStatements: string[] = [];
+  let extends_ = "sparqlBuilder.ResourceGraphPatterns";
   for (const ancestorObjectType of this.ancestorObjectTypes) {
     if (ancestorObjectType.sparqlGraphPatternsClassDeclaration().isJust()) {
-      if (!this.parentObjectTypes[0].abstract) {
+      if (!ancestorObjectType.abstract) {
         constructorStatements.push(
           `super(${subjectVariable}, { ignoreRdfType: true });`,
         );
       }
+      extends_ = `${ancestorObjectType.name}.SparqlGraphPatterns`;
       break;
     }
   }
@@ -84,10 +86,7 @@ export function sparqlGraphPatternsClassDeclaration(
         statements: constructorStatements,
       },
     ],
-    extends:
-      this.parentObjectTypes.length > 0
-        ? `${this.parentObjectTypes[0].name}.SparqlGraphPatterns`
-        : "sparqlBuilder.ResourceGraphPatterns",
+    extends: extends_,
     isExported: true,
     kind: StructureKind.Class,
     name: "SparqlGraphPatterns",
