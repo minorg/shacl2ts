@@ -2,7 +2,7 @@ import TermMap from "@rdfjs/term-map";
 import TermSet from "@rdfjs/term-set";
 import type { BlankNode, NamedNode } from "@rdfjs/types";
 import { NodeKind } from "@shaclmate/shacl-ast";
-import { xsd } from "@tpluscode/rdf-ns-builders";
+import { rdf, xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import { fromRdf } from "rdf-literal";
 import { Scope } from "ts-morph";
@@ -114,7 +114,11 @@ export class TypeFactory {
             });
           }
 
-          logger.warn("unrecognized literal datatype: %s", datatype.value);
+          if (datatype.equals(rdf.langString)) {
+            // Drop down
+          } else {
+            logger.warn("unrecognized literal datatype: %s", datatype.value);
+          }
         } else if (datatypes.size > 0) {
           logger.warn(
             "literal type has multiple datatypes: %s",
