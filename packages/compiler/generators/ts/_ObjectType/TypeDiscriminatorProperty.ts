@@ -54,7 +54,10 @@ export class TypeDiscriminatorProperty extends Property<TypeDiscriminatorPropert
       leadingTrivia:
         this.abstract && this.override ? "abstract override " : undefined,
       name: this.name,
-      type: this.type.name,
+      type:
+        !this.abstract && this.type.name === `"${this.value}"`
+          ? undefined
+          : this.type.name,
     });
   }
 
