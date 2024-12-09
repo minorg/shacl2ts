@@ -91,10 +91,11 @@ export class ListType extends Type {
   }
 
   override propertyHashStatements({
+    depth,
     variables,
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     return [
-      `for (const _element of ${variables.value}) { ${this.itemType.propertyHashStatements({ variables: { ...variables, value: "_element" } }).join("\n")} }`,
+      `for (const _element${depth} of ${variables.value}) { ${this.itemType.propertyHashStatements({ depth: depth + 1, variables: { ...variables, value: `_element${depth}` } }).join("\n")} }`,
     ];
   }
 
@@ -117,7 +118,7 @@ export class ListType extends Type {
           case IriMintingStrategy.SHA256:
             listIdentifier = `dataFactory.namedNode(\`urn:shaclmate:list:\${${variables.value}.reduce(
         (_hasher, _item) => {
-          ${this.itemType.propertyHashStatements({ variables: { hasher: "_hasher", value: "_item" } })}
+          ${this.itemType.propertyHashStatements({ depth: 0, variables: { hasher: "_hasher", value: "_item" } })}
           return _hasher;
         },
         sha256.create(),

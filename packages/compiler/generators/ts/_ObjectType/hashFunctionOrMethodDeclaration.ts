@@ -34,6 +34,7 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
 
   const propertyHashStatements = this.properties.flatMap((property) =>
     property.hashStatements({
+      depth: 0,
       variables: {
         hasher: hasherVariable,
         value: `${thisVariable}.${property.name}`,

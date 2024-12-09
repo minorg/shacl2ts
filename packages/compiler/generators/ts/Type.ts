@@ -84,6 +84,7 @@ export abstract class Type {
    * Statements that use hasher.update to hash a property value of this type.
    */
   abstract propertyHashStatements(parameters: {
+    depth: number;
     variables: {
       hasher: string;
       value: string;

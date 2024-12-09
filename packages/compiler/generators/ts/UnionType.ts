@@ -163,6 +163,7 @@ ${this.memberTypeTraits
   }
 
   override propertyHashStatements({
+    depth,
     variables,
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     const caseBlocks: string[] = [];
@@ -171,6 +172,7 @@ ${this.memberTypeTraits
         caseBlocks.push(
           `case "${discriminatorPropertyValue}": { ${memberTypeTraits.memberType.propertyHashStatements(
             {
+              depth: depth + 1,
               variables: {
                 hasher: variables.hasher,
                 value: `${memberTypeTraits.payload(variables.value)}`,

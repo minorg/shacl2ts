@@ -76,14 +76,16 @@ export class OptionType extends Type {
   }
 
   override propertyHashStatements({
+    depth,
     variables,
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     return [
-      `${variables.value}.ifJust((_value) => { ${this.itemType
+      `${variables.value}.ifJust((_value${depth}) => { ${this.itemType
         .propertyHashStatements({
+          depth: depth + 1,
           variables: {
             hasher: variables.hasher,
-            value: "_value",
+            value: `_value${depth}`,
           },
         })
         .join("\n")} })`,

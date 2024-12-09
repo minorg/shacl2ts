@@ -66,14 +66,16 @@ export class SetType extends Type {
   }
 
   override propertyHashStatements({
+    depth,
     variables,
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     return [
-      `for (const _element of ${variables.value}) { ${this.itemType
+      `for (const _element${depth} of ${variables.value}) { ${this.itemType
         .propertyHashStatements({
+          depth: depth + 1,
           variables: {
             hasher: variables.hasher,
-            value: "_element",
+            value: `_element${depth}`,
           },
         })
         .join("\n")} }`,
