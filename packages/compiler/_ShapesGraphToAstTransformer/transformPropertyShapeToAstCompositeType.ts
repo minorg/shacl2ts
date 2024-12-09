@@ -31,6 +31,44 @@ export function transformPropertyShapeToAstCompositeType(
   let memberTypeEithers: readonly Either<Error, ast.Type>[];
   let compositeTypeKind: "IntersectionType" | "UnionType";
 
+  const transformNodeShapeToAstCompositeMemberType = (
+    nodeShape: input.NodeShape,
+  ): Either<Error, ast.Type> => {
+    const astTypeEither = this.transformNodeShapeToAstType(nodeShape);
+    if (astTypeEither.isLeft()) {
+      return astTypeEither;
+    }
+    const astType = astTypeEither.unsafeCoerce();
+
+    if (inline.orDefault(false)) {
+      return Either.of(astType);
+    }
+
+    // Not inline
+    // Use the identifier type instead
+    let nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
+    if (astType.kind === "ObjectType") {
+      nodeKinds = astType.nodeKinds;
+    } else {
+      nodeKinds = new Set();
+      for (const memberType of astType.memberTypes) {
+        for (const nodeKind of memberType.nodeKinds) {
+          nodeKinds.add(nodeKind);
+        }
+      }
+    }
+
+    return Either.of({
+      defaultValue: defaultValue.filter(
+        (term) => term.termType === "NamedNode",
+      ),
+      hasValue: Maybe.empty(),
+      in_: Maybe.empty(),
+      kind: "IdentifierType",
+      nodeKinds,
+    });
+  };
+
   if (shape.constraints.and.length > 0) {
     memberTypeEithers = shape.constraints.and.map((memberShape) =>
       this.transformPropertyShapeToAstType(memberShape, {
@@ -57,39 +95,13 @@ export function transformPropertyShapeToAstCompositeType(
           new Error(`class ${classIri.value} did not resolve to a node shape`),
         );
       }
-      const classAstTypeEither =
-        this.transformNodeShapeToAstType(classNodeShape);
-      if (classAstTypeEither.isLeft()) {
-        return classAstTypeEither;
-      }
-      const classAstType = classAstTypeEither.unsafeCoerce();
-      if (classAstType.kind !== "ObjectType") {
-        return Left(
-          new Error(
-            `class ${classIri.value} was transformed into a non-ObjectType`,
-          ),
-        );
-      }
-      const classObjectType: ast.ObjectType = classAstType;
 
-      if (inline.orDefault(false)) {
-        return Either.of(classObjectType);
-      }
-
-      return Either.of({
-        defaultValue: defaultValue.filter(
-          (term) => term.termType === "NamedNode",
-        ),
-        hasValue: Maybe.empty(),
-        in_: Maybe.empty(),
-        kind: "IdentifierType",
-        nodeKinds: classObjectType.nodeKinds,
-      });
+      return transformNodeShapeToAstCompositeMemberType(classNodeShape);
     });
     compositeTypeKind = "IntersectionType";
   } else if (shape.constraints.nodes.length > 0) {
     memberTypeEithers = shape.constraints.nodes.map((nodeShape) =>
-      this.transformNodeShapeToAstType(nodeShape),
+      transformNodeShapeToAstCompositeMemberType(nodeShape),
     );
     compositeTypeKind = "IntersectionType";
   } else if (shape.constraints.or.length > 0) {
