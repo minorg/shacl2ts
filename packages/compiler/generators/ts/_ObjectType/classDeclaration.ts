@@ -17,7 +17,15 @@ import { toRdfFunctionOrMethodDeclaration } from "./toRdfFunctionOrMethodDeclara
 function constructorDeclaration(
   this: ObjectType,
 ): Maybe<OptionalKind<ConstructorDeclarationStructure>> {
-  if (this.properties.length === 0) {
+  const propertyStatements: string[] = [];
+  for (const property of this.properties) {
+    for (const statement of property.classConstructorStatements({
+      variables: { parameter: `parameters.${property.name}` },
+    })) {
+      propertyStatements.push(statement);
+    }
+  }
+  if (propertyStatements.length === 0) {
     return Maybe.empty();
   }
 
@@ -34,14 +42,7 @@ function constructorDeclaration(
   } else if (this.parentObjectTypes.length > 0) {
     statements.push("super();");
   }
-
-  for (const property of this.properties) {
-    for (const statement of property.classConstructorStatements({
-      variables: { parameter: `parameters.${property.name}` },
-    })) {
-      statements.push(statement);
-    }
-  }
+  statements.push(...propertyStatements);
 
   const constructorParameterPropertySignatures = this.properties.flatMap(
     (property) =>
