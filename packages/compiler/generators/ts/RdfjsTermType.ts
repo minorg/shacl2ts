@@ -40,9 +40,19 @@ export abstract class RdfjsTermType<
   }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
     const chain: string[] = [`${variables.resourceValues}.head()`];
     this.hasValue.ifJust((hasValue) => {
-      chain.push(
-        `chain<rdfjsResource.Resource.ValueError, ${this.name}>(_term => _term.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_term) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _term, expectedValueType: "${hasValue.termType}", focusResource: ${variables.resource}, predicate: ${variables.predicate})))`,
-      );
+      const nestedChain = `chain(_term => _term.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_value) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _term, expectedValueType: "${hasValue.termType}", focusResource: ${variables.resource}, predicate: ${variables.predicate} })))`;
+      switch (hasValue.termType) {
+        case "Literal":
+          chain.push(
+            `chain<rdfjsResource.Resource.ValueError, rdfjsResource.Resource.Value>(_value => _value.toLiteral().${nestedChain})`,
+          );
+          break;
+        case "NamedNode":
+          chain.push(
+            `chain<rdfjsResource.Resource.ValueError, rdfjsResource.Resource.Value>(_value => _value.toIri().${nestedChain})`,
+          );
+          break;
+      }
     });
     this.defaultValue.ifJust((defaultValue) => {
       chain.push(

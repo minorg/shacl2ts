@@ -42,10 +42,8 @@ export abstract class PrimitiveType<
     variables,
   }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
     const chain: string[] = [`${variables.resourceValues}.head()`];
-    this.hasValue.ifJust((hasValue) => {
-      chain.push(
-        `chain<rdfjsResource.Resource.ValueError, ${this.name}>(_term => _term.equals(${rdfjsTermExpression(toRdf(hasValue), this.configuration)}) ? purify.Either.of(_term) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _term, expectedValueType: "${this.name}", focusResource: ${variables.resource}, predicate: ${variables.predicate})))`,
-      );
+    this.hasValue.ifJust(() => {
+      throw new Error("re-implement from RdfjsTermType");
     });
     this.defaultValue.ifJust((defaultValue) => {
       chain.push(
