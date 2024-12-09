@@ -24,4 +24,4 @@ cd "$(dirname "$0")/.."
 #./packages/cli/cli.sh generate --object-type-declaration-type interface $PWD/examples/skos/skos.shapes.ttl >examples/skos/generated/interfaces.ts
 
 
-npm run check:write:unsafe
+npm exec biome -- check --write --unsafe $PWD/examples
