@@ -140,6 +140,14 @@
   sh:property [ sh:defaultValue "" ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
 .
 
+# Shape with sh:hasValue properties
+:NodeShapeWithHasValueProperties
+  a sh:NodeShape ;
+  sh:name "NodeShapeWithHasValueProperties" ;
+  sh:property [ sh:maxCount 1 ; sh:name "hasIriProperty" ; sh:hasValue :NodeShapeWithHasValuePropertiesIri1 ; sh:path :hasIriProperty ] ;
+  sh:property [ sh:maxCount 1 ; sh:name "hasLiteralProperty" ; sh:hasValue "test" ; sh:path :hasLiteralProperty ] ;
+.
+
 # Shape with sh:in properties
 :NodeShapeWithInProperties
   a sh:NodeShape ;

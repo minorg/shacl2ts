@@ -13,7 +13,7 @@ export class NumberType extends PrimitiveType<number> {
         sourceTypeName: this.name,
       },
     ];
-    this.defaultValue.ifJust((defaultValue) => {
+    this.primitiveDefaultValue.ifJust((defaultValue) => {
       conversions.push({
         conversionExpression: () => defaultValue.toString(),
         sourceTypeCheckExpression: (value) => `typeof ${value} === "undefined"`,
@@ -25,7 +25,7 @@ export class NumberType extends PrimitiveType<number> {
 
   @Memoize()
   override get name(): string {
-    return this.in_
+    return this.primitiveIn
       .map((values) => values.map((value) => value.toString()).join(" | "))
       .orDefault("number");
   }
@@ -36,7 +36,7 @@ export class NumberType extends PrimitiveType<number> {
     PrimitiveType<number>["fromRdfResourceValueExpression"]
   >[0]): string {
     let expression = `${variables.resourceValue}.toNumber()`;
-    this.in_.ifJust((in_) => {
+    this.primitiveIn.ifJust((in_) => {
       expression = `${expression}.chain(value => { switch (value) { ${in_.map((value) => `case ${value}:`).join(" ")} return purify.Either.of(value); default: return purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: rdfLiteral.toRdf(value), expectedValueType: ${JSON.stringify(this.name)}, focusResource: ${variables.resource}, predicate: ${variables.predicate} })); } })`;
     });
     return expression;
@@ -45,7 +45,7 @@ export class NumberType extends PrimitiveType<number> {
   override propertyToRdfExpression({
     variables,
   }: Parameters<PrimitiveType<string>["propertyToRdfExpression"]>[0]): string {
-    return this.defaultValue
+    return this.primitiveDefaultValue
       .map(
         (defaultValue) =>
           `${variables.value} !== ${defaultValue} ? ${variables.value} : undefined`,
