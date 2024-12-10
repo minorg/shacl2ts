@@ -112,6 +112,7 @@ describe("TsGenerator", () => {
       identifier: dataFactory.blankNode(),
     });
     expect(model.falseBooleanProperty).toStrictEqual(false);
+    expect(model.dateTimeProperty.getTime()).toStrictEqual(1523268000000);
     expect(model.numberProperty).toStrictEqual(0);
     expect(model.stringProperty).toStrictEqual("");
     expect(model.trueBooleanProperty).toStrictEqual(true);
@@ -275,6 +276,7 @@ describe("TsGenerator", () => {
       expect,
       model: new kitchenSinkClasses.NodeShapeWithDefaultValueProperties({
         falseBooleanProperty: false,
+        dateTimeProperty: new Date(1523268000000),
         identifier: dataFactory.blankNode(),
         numberProperty: 0,
         stringProperty: "",
@@ -290,6 +292,7 @@ describe("TsGenerator", () => {
       expect,
       model: new kitchenSinkClasses.NodeShapeWithDefaultValueProperties({
         falseBooleanProperty: true,
+        dateTimeProperty: new Date(),
         identifier: dataFactory.blankNode(),
         numberProperty: 1,
         stringProperty: "test",

@@ -5,8 +5,12 @@ import type { Type } from "./Type.js";
 import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
 export class LiteralType extends RdfjsTermType<Literal, Literal> {
-  readonly kind: "BooleanType" | "LiteralType" | "NumberType" | "StringType" =
-    "LiteralType";
+  readonly kind:
+    | "BooleanType"
+    | "DateTimeType"
+    | "LiteralType"
+    | "NumberType"
+    | "StringType" = "LiteralType";
 
   override get conversions(): readonly Type.Conversion[] {
     const conversions: Type.Conversion[] = [];

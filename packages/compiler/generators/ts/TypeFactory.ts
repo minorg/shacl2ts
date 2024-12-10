@@ -10,6 +10,7 @@ import type * as ast from "../../ast/index.js";
 import { logger } from "../../logger.js";
 import { BooleanType } from "./BooleanType.js";
 import type { Configuration } from "./Configuration.js";
+import { DateTimeType } from "./DateTimeType.js";
 import { IdentifierType } from "./IdentifierType.js";
 import { ListType } from "./ListType.js";
 import { LiteralType } from "./LiteralType.js";
@@ -82,6 +83,28 @@ export class TypeFactory {
                 values
                   .map((value) => fromRdf(value, true))
                   .filter((value) => typeof value === "boolean"),
+              ),
+            });
+          }
+
+          if (datatype.equals(xsd.dateTime)) {
+            return new DateTimeType({
+              configuration: this.configuration,
+              defaultValue: astType.defaultValue,
+              hasValue: astType.hasValue,
+              in_: astType.in_,
+              primitiveDefaultValue: astType.defaultValue
+                .map((value) => fromRdf(value, true))
+                .filter(
+                  (value) => typeof value === "object" && value instanceof Date,
+                ),
+              primitiveIn: astType.in_.map((values) =>
+                values
+                  .map((value) => fromRdf(value, true))
+                  .filter(
+                    (value) =>
+                      typeof value === "object" && value instanceof Date,
+                  ),
               ),
             });
           }

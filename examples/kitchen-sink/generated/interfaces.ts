@@ -1112,6 +1112,7 @@ export namespace NodeShapeWithListProperty {
 export interface NodeShapeWithInProperties {
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   readonly inBooleansProperty: purify.Maybe<true>;
+  readonly inDateTimesProperty: purify.Maybe<Date>;
   readonly inIrisProperty: purify.Maybe<
     rdfjs.NamedNode<
       | "http://example.com/NodeShapeWithInPropertiesIri1"
@@ -1131,6 +1132,14 @@ export namespace NodeShapeWithInProperties {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
       inBooleansProperty: purifyHelpers.Equatable.booleanEquals,
+      inDateTimesProperty: (left, right) =>
+        purifyHelpers.Maybes.equals(left, right, (left, right) =>
+          purifyHelpers.Equatable.EqualsResult.fromBooleanEqualsResult(
+            left,
+            right,
+            left.getTime() === right.getTime(),
+          ),
+        ),
       inIrisProperty: (left, right) =>
         purifyHelpers.Maybes.equals(
           left,
@@ -1151,6 +1160,7 @@ export namespace NodeShapeWithInProperties {
     {
       identifier: rdfjs.BlankNode | rdfjs.NamedNode;
       inBooleansProperty: purify.Maybe<true>;
+      inDateTimesProperty: purify.Maybe<Date>;
       inIrisProperty: purify.Maybe<
         rdfjs.NamedNode<
           | "http://example.com/NodeShapeWithInPropertiesIri1"
@@ -1174,22 +1184,20 @@ export namespace NodeShapeWithInProperties {
         )
         .head()
         .chain((_value) =>
-          _value
-            .toBoolean()
-            .chain((value) =>
-              value === true
-                ? purify.Either.of(value)
-                : purify.Left(
-                    new rdfjsResource.Resource.MistypedValueError({
-                      actualValue: rdfLiteral.toRdf(value),
-                      expectedValueType: "true",
-                      focusResource: _resource,
-                      predicate: dataFactory.namedNode(
-                        "http://example.com/inBooleansProperty",
-                      ),
-                    }),
-                  ),
-            ),
+          _value.toBoolean().chain((value) =>
+            value === true
+              ? purify.Either.of(value)
+              : purify.Left(
+                  new rdfjsResource.Resource.MistypedValueError({
+                    actualValue: rdfLiteral.toRdf(value),
+                    expectedValueType: "true",
+                    focusResource: _resource,
+                    predicate: dataFactory.namedNode(
+                      "http://example.com/inBooleansProperty",
+                    ),
+                  }),
+                ),
+          ),
         )
         .toMaybe(),
     );
@@ -1198,6 +1206,40 @@ export namespace NodeShapeWithInProperties {
     }
 
     const inBooleansProperty = _inBooleansPropertyEither.unsafeCoerce();
+    const _inDateTimesPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<Date>
+    > = purify.Either.of(
+      _resource
+        .values(
+          dataFactory.namedNode("http://example.com/inDateTimesProperty"),
+          { unique: true },
+        )
+        .head()
+        .chain((_value) =>
+          _value.toDate().chain((value) => {
+            if (value.getTime() === 1523268000000) {
+              return purify.Either.of(value);
+            }
+            return purify.Left(
+              new rdfjsResource.Resource.MistypedValueError({
+                actualValue: rdfLiteral.toRdf(value),
+                expectedValueType: "Date",
+                focusResource: _resource,
+                predicate: dataFactory.namedNode(
+                  "http://example.com/inDateTimesProperty",
+                ),
+              }),
+            );
+          }),
+        )
+        .toMaybe(),
+    );
+    if (_inDateTimesPropertyEither.isLeft()) {
+      return _inDateTimesPropertyEither;
+    }
+
+    const inDateTimesProperty = _inDateTimesPropertyEither.unsafeCoerce();
     const _inIrisPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       purify.Maybe<
@@ -1333,6 +1375,7 @@ export namespace NodeShapeWithInProperties {
     return purify.Either.of({
       identifier,
       inBooleansProperty,
+      inDateTimesProperty,
       inIrisProperty,
       inNumbersProperty,
       inStringsProperty,
@@ -1350,6 +1393,9 @@ export namespace NodeShapeWithInProperties {
   ): HasherT {
     _nodeShapeWithInProperties.inBooleansProperty.ifJust((_value0) => {
       _hasher.update(_value0.toString());
+    });
+    _nodeShapeWithInProperties.inDateTimesProperty.ifJust((_value0) => {
+      _hasher.update(_value0.toISOString());
     });
     _nodeShapeWithInProperties.inIrisProperty.ifJust((_value0) => {
       _hasher.update(rdfjsResource.Resource.Identifier.toString(_value0));
@@ -1375,6 +1421,15 @@ export namespace NodeShapeWithInProperties {
             this.subject,
             dataFactory.namedNode("http://example.com/inBooleansProperty"),
             this.variable("InBooleansProperty"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/inDateTimesProperty"),
+            this.variable("InDateTimesProperty"),
           ),
         ),
       );
@@ -1425,6 +1480,10 @@ export namespace NodeShapeWithInProperties {
     _resource.add(
       dataFactory.namedNode("http://example.com/inBooleansProperty"),
       nodeShapeWithInProperties.inBooleansProperty,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/inDateTimesProperty"),
+      nodeShapeWithInProperties.inDateTimesProperty,
     );
     _resource.add(
       dataFactory.namedNode("http://example.com/inIrisProperty"),
@@ -1605,6 +1664,7 @@ export namespace NodeShapeWithHasValueProperties {
 }
 
 export interface NodeShapeWithDefaultValueProperties {
+  readonly dateTimeProperty: Date;
   readonly falseBooleanProperty: boolean;
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   readonly numberProperty: number;
@@ -1619,6 +1679,12 @@ export namespace NodeShapeWithDefaultValueProperties {
     right: NodeShapeWithDefaultValueProperties,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
+      dateTimeProperty: (left, right) =>
+        purifyHelpers.Equatable.EqualsResult.fromBooleanEqualsResult(
+          left,
+          right,
+          left.getTime() === right.getTime(),
+        ),
       falseBooleanProperty: purifyHelpers.Equatable.strictEquals,
       identifier: purifyHelpers.Equatable.booleanEquals,
       numberProperty: purifyHelpers.Equatable.strictEquals,
@@ -1634,6 +1700,7 @@ export namespace NodeShapeWithDefaultValueProperties {
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
     {
+      dateTimeProperty: Date;
       falseBooleanProperty: boolean;
       identifier: rdfjs.BlankNode | rdfjs.NamedNode;
       numberProperty: number;
@@ -1642,6 +1709,36 @@ export namespace NodeShapeWithDefaultValueProperties {
       type: "NodeShapeWithDefaultValueProperties";
     }
   > {
+    const _dateTimePropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      Date
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/dateTimeProperty"), {
+        unique: true,
+      })
+      .head()
+      .alt(
+        purify.Either.of(
+          new rdfjsResource.Resource.Value({
+            subject: _resource,
+            predicate: dataFactory.namedNode(
+              "http://example.com/dateTimeProperty",
+            ),
+            object: dataFactory.literal(
+              "2018-04-09T10:00:00Z",
+              dataFactory.namedNode(
+                "http://www.w3.org/2001/XMLSchema#dateTime",
+              ),
+            ),
+          }),
+        ),
+      )
+      .chain((_value) => _value.toDate());
+    if (_dateTimePropertyEither.isLeft()) {
+      return _dateTimePropertyEither;
+    }
+
+    const dateTimeProperty = _dateTimePropertyEither.unsafeCoerce();
     const _falseBooleanPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       boolean
@@ -1755,6 +1852,7 @@ export namespace NodeShapeWithDefaultValueProperties {
     const trueBooleanProperty = _trueBooleanPropertyEither.unsafeCoerce();
     const type = "NodeShapeWithDefaultValueProperties" as const;
     return purify.Either.of({
+      dateTimeProperty,
       falseBooleanProperty,
       identifier,
       numberProperty,
@@ -1772,6 +1870,9 @@ export namespace NodeShapeWithDefaultValueProperties {
     _nodeShapeWithDefaultValueProperties: NodeShapeWithDefaultValueProperties,
     _hasher: HasherT,
   ): HasherT {
+    _hasher.update(
+      _nodeShapeWithDefaultValueProperties.dateTimeProperty.toISOString(),
+    );
     _hasher.update(
       _nodeShapeWithDefaultValueProperties.falseBooleanProperty.toString(),
     );
@@ -1791,6 +1892,15 @@ export namespace NodeShapeWithDefaultValueProperties {
       _options?: { ignoreRdfType?: boolean },
     ) {
       super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/dateTimeProperty"),
+            this.variable("DateTimeProperty"),
+          ),
+        ),
+      );
       this.add(
         sparqlBuilder.GraphPattern.optional(
           sparqlBuilder.GraphPattern.basic(
@@ -1844,6 +1954,13 @@ export namespace NodeShapeWithDefaultValueProperties {
       identifier: nodeShapeWithDefaultValueProperties.identifier,
       mutateGraph,
     });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/dateTimeProperty"),
+      nodeShapeWithDefaultValueProperties.dateTimeProperty.getTime() !==
+        1523268000000
+        ? nodeShapeWithDefaultValueProperties.dateTimeProperty
+        : undefined,
+    );
     _resource.add(
       dataFactory.namedNode("http://example.com/falseBooleanProperty"),
       nodeShapeWithDefaultValueProperties.falseBooleanProperty
