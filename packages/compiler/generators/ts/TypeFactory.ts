@@ -109,21 +109,42 @@ export class TypeFactory {
             });
           }
 
-          if (datatype.equals(xsd.integer)) {
-            return new NumberType({
-              configuration: this.configuration,
-              defaultValue: astType.defaultValue,
-              hasValue: astType.hasValue,
-              in_: astType.in_,
-              primitiveDefaultValue: astType.defaultValue
-                .map((value) => fromRdf(value, true))
-                .filter((value) => typeof value === "number"),
-              primitiveIn: astType.in_.map((values) =>
-                values
+          for (const numberDatatype of [
+            // Integers
+            xsd.byte,
+            xsd.int,
+            xsd.integer,
+            xsd.long,
+            xsd.negativeInteger,
+            xsd.nonNegativeInteger,
+            xsd.nonPositiveInteger,
+            xsd.positiveInteger,
+            xsd.short,
+            xsd.unsignedByte,
+            xsd.unsignedInt,
+            xsd.unsignedLong,
+            xsd.unsignedShort,
+            // Floating point
+            xsd.decimal,
+            xsd.double,
+            xsd.float,
+          ]) {
+            if (datatype.equals(numberDatatype)) {
+              return new NumberType({
+                configuration: this.configuration,
+                defaultValue: astType.defaultValue,
+                hasValue: astType.hasValue,
+                in_: astType.in_,
+                primitiveDefaultValue: astType.defaultValue
                   .map((value) => fromRdf(value, true))
                   .filter((value) => typeof value === "number"),
-              ),
-            });
+                primitiveIn: astType.in_.map((values) =>
+                  values
+                    .map((value) => fromRdf(value, true))
+                    .filter((value) => typeof value === "number"),
+                ),
+              });
+            }
           }
 
           if (datatype.equals(xsd.anyURI) || datatype.equals(xsd.string)) {
