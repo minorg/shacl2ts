@@ -300,6 +300,63 @@ describe("TsGenerator", () => {
     });
   });
 
+  it("fromRdf: ensure hasValue (sh:hasValue)", ({ expect }) => {
+    testFromRdf({
+      expect,
+      model: new kitchenSinkClasses.NodeShapeWithHasValueProperties({
+        identifier: dataFactory.blankNode(),
+        hasIriProperty: dataFactory.namedNode(
+          "http://example.com/NodeShapeWithHasValuePropertiesIri1",
+        ),
+      }),
+      modelFromRdf: kitchenSinkClasses.NodeShapeWithHasValueProperties.fromRdf,
+    });
+
+    const dataset = new N3.Store();
+    const identifier = dataFactory.blankNode();
+    const predicate = dataFactory.namedNode(
+      "http://example.com/hasIriProperty",
+    );
+    const object = dataFactory.namedNode(
+      "http://example.com/NodeShapeWithHasValuePropertiesIri1",
+    );
+    dataset.add(dataFactory.quad(identifier, predicate, object));
+    // Add an extra object of the same predicate, which should be ignored
+    dataset.add(
+      dataFactory.quad(
+        identifier,
+        predicate,
+        dataFactory.namedNode(
+          "http://example.com/NodeShapeWithHasValuePropertiesIri2",
+        ),
+      ),
+    );
+    const instance = kitchenSinkClasses.NodeShapeWithHasValueProperties.fromRdf(
+      new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
+        identifier,
+      ),
+    ).unsafeCoerce();
+    expect(instance.hasIriProperty.unsafeCoerce().equals(object));
+  });
+
+  it("fromRdf: ignore invalid values (sh:hasValue)", ({ expect }) => {
+    const dataset = new N3.Store();
+    const identifier = dataFactory.blankNode();
+    dataset.add(
+      dataFactory.quad(
+        identifier,
+        dataFactory.namedNode("http://example.com/hasLiteralProperty"),
+        dataFactory.literal("nottest"),
+      ),
+    );
+    const instance = kitchenSinkClasses.NodeShapeWithHasValueProperties.fromRdf(
+      new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
+        identifier,
+      ),
+    ).unsafeCoerce();
+    expect(instance.hasLiteralProperty.isNothing()).toStrictEqual(true);
+  });
+
   it("fromRdf: preserve valid IRI values (sh:in)", ({ expect }) => {
     testFromRdf({
       expect,
@@ -314,13 +371,16 @@ describe("TsGenerator", () => {
 
     const dataset = new N3.Store();
     const identifier = dataFactory.blankNode();
-    const predicate = dataFactory.namedNode(
-      "http://example.com/inIrisProperty",
-    );
     const object = dataFactory.namedNode(
       "http://example.com/NodeShapeWithInPropertiesIri1",
     );
-    dataset.add(dataFactory.quad(identifier, predicate, object));
+    dataset.add(
+      dataFactory.quad(
+        identifier,
+        dataFactory.namedNode("http://example.com/inIrisProperty"),
+        object,
+      ),
+    );
     const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf(
       new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
         identifier,
@@ -332,13 +392,15 @@ describe("TsGenerator", () => {
   it("fromRdf: ignore invalid IRI values (sh:in)", ({ expect }) => {
     const dataset = new N3.Store();
     const identifier = dataFactory.blankNode();
-    const predicate = dataFactory.namedNode(
-      "http://example.com/inIrisProperty",
+    dataset.add(
+      dataFactory.quad(
+        identifier,
+        dataFactory.namedNode("http://example.com/inIrisProperty"),
+        dataFactory.namedNode(
+          "http://example.com/NodeShapeWithInPropertiesIriInvalid",
+        ),
+      ),
     );
-    const object = dataFactory.namedNode(
-      "http://example.com/NodeShapeWithInPropertiesIriInvalid",
-    );
-    dataset.add(dataFactory.quad(identifier, predicate, object));
     const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf(
       new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
         identifier,
@@ -359,11 +421,13 @@ describe("TsGenerator", () => {
 
     const dataset = new N3.Store();
     const identifier = dataFactory.blankNode();
-    const predicate = dataFactory.namedNode(
-      "http://example.com/inStringsProperty",
+    dataset.add(
+      dataFactory.quad(
+        identifier,
+        dataFactory.namedNode("http://example.com/inStringsProperty"),
+        dataFactory.literal("text"),
+      ),
     );
-    const object = dataFactory.literal("text");
-    dataset.add(dataFactory.quad(identifier, predicate, object));
     const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf(
       new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
         identifier,

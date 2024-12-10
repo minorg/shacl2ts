@@ -43,22 +43,14 @@ export abstract class RdfjsTermType<
   override propertyFromRdfExpression({
     variables,
   }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
-    const chain: string[] = [`${variables.resourceValues}.head()`];
-    this.hasValue.ifJust((hasValue) => {
-      const nestedChain = `chain(_term => _term.equals(${rdfjsTermExpression(hasValue, this.configuration)}) ? purify.Either.of(_value) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: _term, expectedValueType: "${hasValue.termType}", focusResource: ${variables.resource}, predicate: ${variables.predicate} })))`;
-      switch (hasValue.termType) {
-        case "Literal":
-          chain.push(
-            `chain<rdfjsResource.Resource.ValueError, rdfjsResource.Resource.Value>(_value => _value.toLiteral().${nestedChain})`,
-          );
-          break;
-        case "NamedNode":
-          chain.push(
-            `chain<rdfjsResource.Resource.ValueError, rdfjsResource.Resource.Value>(_value => _value.toIri().${nestedChain})`,
-          );
-          break;
-      }
-    });
+    const chain: string[] = [`${variables.resourceValues}`];
+    this.hasValue
+      .ifJust((hasValue) => {
+        chain.push(
+          `find(_value => _value.toTerm().equals(${rdfjsTermExpression(hasValue, this.configuration)}))`,
+        );
+      })
+      .ifNothing(() => chain.push("head()"));
     this.defaultValue.ifJust((defaultValue) => {
       chain.push(
         `alt(purify.Either.of(new rdfjsResource.Resource.Value({ subject: ${variables.resource}, predicate: ${variables.predicate}, object: ${rdfjsTermExpression(defaultValue, this.configuration)} })))`,

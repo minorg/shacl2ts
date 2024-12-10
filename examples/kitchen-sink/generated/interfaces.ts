@@ -1442,6 +1442,168 @@ export namespace NodeShapeWithInProperties {
   }
 }
 
+export interface NodeShapeWithHasValueProperties {
+  readonly hasIriProperty: purify.Maybe<rdfjs.NamedNode>;
+  readonly hasLiteralProperty: purify.Maybe<string>;
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly type: "NodeShapeWithHasValueProperties";
+}
+
+export namespace NodeShapeWithHasValueProperties {
+  export function equals(
+    left: NodeShapeWithHasValueProperties,
+    right: NodeShapeWithHasValueProperties,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      hasIriProperty: (left, right) =>
+        purifyHelpers.Maybes.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      hasLiteralProperty: purifyHelpers.Equatable.booleanEquals,
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      hasIriProperty: purify.Maybe<rdfjs.NamedNode>;
+      hasLiteralProperty: purify.Maybe<string>;
+      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+      type: "NodeShapeWithHasValueProperties";
+    }
+  > {
+    const _hasIriPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<rdfjs.NamedNode>
+    > = purify.Either.of(
+      _resource
+        .values(dataFactory.namedNode("http://example.com/hasIriProperty"), {
+          unique: true,
+        })
+        .find((_value) =>
+          _value
+            .toTerm()
+            .equals(
+              dataFactory.namedNode(
+                "http://example.com/NodeShapeWithHasValuePropertiesIri1",
+              ),
+            ),
+        )
+        .chain((_value) => _value.toIri())
+        .toMaybe(),
+    );
+    if (_hasIriPropertyEither.isLeft()) {
+      return _hasIriPropertyEither;
+    }
+
+    const hasIriProperty = _hasIriPropertyEither.unsafeCoerce();
+    const _hasLiteralPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<string>
+    > = purify.Either.of(
+      _resource
+        .values(
+          dataFactory.namedNode("http://example.com/hasLiteralProperty"),
+          { unique: true },
+        )
+        .find((_value) =>
+          _value.toTerm().equals(dataFactory.literal("test", "")),
+        )
+        .chain((_value) => _value.toString())
+        .toMaybe(),
+    );
+    if (_hasLiteralPropertyEither.isLeft()) {
+      return _hasLiteralPropertyEither;
+    }
+
+    const hasLiteralProperty = _hasLiteralPropertyEither.unsafeCoerce();
+    const identifier = _resource.identifier;
+    const type = "NodeShapeWithHasValueProperties" as const;
+    return purify.Either.of({
+      hasIriProperty,
+      hasLiteralProperty,
+      identifier,
+      type,
+    });
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _nodeShapeWithHasValueProperties: NodeShapeWithHasValueProperties,
+    _hasher: HasherT,
+  ): HasherT {
+    _nodeShapeWithHasValueProperties.hasIriProperty.ifJust((_value0) => {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_value0));
+    });
+    _nodeShapeWithHasValueProperties.hasLiteralProperty.ifJust((_value0) => {
+      _hasher.update(_value0);
+    });
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/hasIriProperty"),
+            this.variable("HasIriProperty"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/hasLiteralProperty"),
+            this.variable("HasLiteralProperty"),
+          ),
+        ),
+      );
+    }
+  }
+
+  export function toRdf(
+    nodeShapeWithHasValueProperties: NodeShapeWithHasValueProperties,
+    {
+      mutateGraph,
+      resourceSet,
+    }: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    },
+  ): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: nodeShapeWithHasValueProperties.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/hasIriProperty"),
+      nodeShapeWithHasValueProperties.hasIriProperty,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/hasLiteralProperty"),
+      nodeShapeWithHasValueProperties.hasLiteralProperty,
+    );
+    return _resource;
+  }
+}
+
 export interface NodeShapeWithDefaultValueProperties {
   readonly falseBooleanProperty: boolean;
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;

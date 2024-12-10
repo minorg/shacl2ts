@@ -1614,6 +1614,193 @@ export namespace NodeShapeWithInProperties {
   }
 }
 
+export class NodeShapeWithHasValueProperties {
+  readonly hasIriProperty: purify.Maybe<rdfjs.NamedNode>;
+  readonly hasLiteralProperty: purify.Maybe<string>;
+  private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
+  readonly type = "NodeShapeWithHasValueProperties";
+
+  constructor(parameters: {
+    readonly hasIriProperty?: purify.Maybe<rdfjs.NamedNode> | rdfjs.NamedNode;
+    readonly hasLiteralProperty?: purify.Maybe<string> | string;
+    readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
+  }) {
+    if (purify.Maybe.isMaybe(parameters.hasIriProperty)) {
+      this.hasIriProperty = parameters.hasIriProperty;
+    } else if (typeof parameters.hasIriProperty === "object") {
+      this.hasIriProperty = purify.Maybe.of(parameters.hasIriProperty);
+    } else if (typeof parameters.hasIriProperty === "undefined") {
+      this.hasIriProperty = purify.Maybe.empty();
+    } else {
+      this.hasIriProperty = parameters.hasIriProperty; // never
+    }
+
+    if (purify.Maybe.isMaybe(parameters.hasLiteralProperty)) {
+      this.hasLiteralProperty = parameters.hasLiteralProperty;
+    } else if (typeof parameters.hasLiteralProperty === "string") {
+      this.hasLiteralProperty = purify.Maybe.of(parameters.hasLiteralProperty);
+    } else if (typeof parameters.hasLiteralProperty === "undefined") {
+      this.hasLiteralProperty = purify.Maybe.empty();
+    } else {
+      this.hasLiteralProperty = parameters.hasLiteralProperty; // never
+    }
+
+    this._identifier = parameters.identifier;
+  }
+
+  get identifier(): rdfjs.BlankNode | rdfjs.NamedNode {
+    if (typeof this._identifier === "undefined") {
+      this._identifier = dataFactory.namedNode(
+        `urn:shaclmate:object:${this.type}:${this.hash(sha256.create())}`,
+      );
+    }
+    return this._identifier;
+  }
+
+  equals(
+    other: NodeShapeWithHasValueProperties,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
+      hasIriProperty: (left, right) =>
+        purifyHelpers.Maybes.equals(
+          left,
+          right,
+          purifyHelpers.Equatable.booleanEquals,
+        ),
+      hasLiteralProperty: purifyHelpers.Equatable.booleanEquals,
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(_hasher: HasherT): HasherT {
+    this.hasIriProperty.ifJust((_value0) => {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_value0));
+    });
+    this.hasLiteralProperty.ifJust((_value0) => {
+      _hasher.update(_value0);
+    });
+    return _hasher;
+  }
+
+  toRdf({
+    mutateGraph,
+    resourceSet,
+  }: {
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: this.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/hasIriProperty"),
+      this.hasIriProperty,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/hasLiteralProperty"),
+      this.hasLiteralProperty,
+    );
+    return _resource;
+  }
+}
+
+export namespace NodeShapeWithHasValueProperties {
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    NodeShapeWithHasValueProperties
+  > {
+    const _hasIriPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<rdfjs.NamedNode>
+    > = purify.Either.of(
+      _resource
+        .values(dataFactory.namedNode("http://example.com/hasIriProperty"), {
+          unique: true,
+        })
+        .find((_value) =>
+          _value
+            .toTerm()
+            .equals(
+              dataFactory.namedNode(
+                "http://example.com/NodeShapeWithHasValuePropertiesIri1",
+              ),
+            ),
+        )
+        .chain((_value) => _value.toIri())
+        .toMaybe(),
+    );
+    if (_hasIriPropertyEither.isLeft()) {
+      return _hasIriPropertyEither;
+    }
+
+    const hasIriProperty = _hasIriPropertyEither.unsafeCoerce();
+    const _hasLiteralPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<string>
+    > = purify.Either.of(
+      _resource
+        .values(
+          dataFactory.namedNode("http://example.com/hasLiteralProperty"),
+          { unique: true },
+        )
+        .find((_value) =>
+          _value.toTerm().equals(dataFactory.literal("test", "")),
+        )
+        .chain((_value) => _value.toString())
+        .toMaybe(),
+    );
+    if (_hasLiteralPropertyEither.isLeft()) {
+      return _hasLiteralPropertyEither;
+    }
+
+    const hasLiteralProperty = _hasLiteralPropertyEither.unsafeCoerce();
+    const identifier = _resource.identifier;
+    return purify.Either.of(
+      new NodeShapeWithHasValueProperties({
+        hasIriProperty,
+        hasLiteralProperty,
+        identifier,
+      }),
+    );
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/hasIriProperty"),
+            this.variable("HasIriProperty"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/hasLiteralProperty"),
+            this.variable("HasLiteralProperty"),
+          ),
+        ),
+      );
+    }
+  }
+}
+
 export class NodeShapeWithDefaultValueProperties {
   readonly falseBooleanProperty: boolean;
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
