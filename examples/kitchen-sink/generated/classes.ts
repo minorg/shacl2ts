@@ -12,7 +12,7 @@ import * as uuid from "uuid";
 export class UuidV4IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
   readonly stringProperty: string;
-  readonly type = "UuidV4IriNodeShape" as const;
+  readonly type = "UuidV4IriNodeShape";
 
   constructor(parameters: {
     readonly identifier?: rdfjs.NamedNode;
@@ -112,7 +112,7 @@ export namespace UuidV4IriNodeShape {
 export class Sha256IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
   readonly stringProperty: string;
-  readonly type = "Sha256IriNodeShape" as const;
+  readonly type = "Sha256IriNodeShape";
 
   constructor(parameters: {
     readonly identifier?: rdfjs.NamedNode;
@@ -212,7 +212,7 @@ export namespace Sha256IriNodeShape {
 export class OrNodeShapeMember2 {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly stringProperty2: string;
-  readonly type = "OrNodeShapeMember2" as const;
+  readonly type = "OrNodeShapeMember2";
 
   constructor(parameters: {
     readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
@@ -312,7 +312,7 @@ export namespace OrNodeShapeMember2 {
 export class OrNodeShapeMember1 {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly stringProperty1: string;
-  readonly type = "OrNodeShapeMember1" as const;
+  readonly type = "OrNodeShapeMember1";
 
   constructor(parameters: {
     readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
@@ -414,7 +414,7 @@ export class NodeShapeWithPropertyCardinalities {
   readonly optionalStringProperty: purify.Maybe<string>;
   readonly requiredStringProperty: string;
   readonly setStringProperty: readonly string[];
-  readonly type = "NodeShapeWithPropertyCardinalities" as const;
+  readonly type = "NodeShapeWithPropertyCardinalities";
 
   constructor(parameters: {
     readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
@@ -476,12 +476,12 @@ export class NodeShapeWithPropertyCardinalities {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(_hasher: HasherT): HasherT {
-    this.optionalStringProperty.ifJust((_value) => {
-      _hasher.update(_value);
+    this.optionalStringProperty.ifJust((_value0) => {
+      _hasher.update(_value0);
     });
     _hasher.update(this.requiredStringProperty);
-    for (const _element of this.setStringProperty) {
-      _hasher.update(_element);
+    for (const _element0 of this.setStringProperty) {
+      _hasher.update(_element0);
     }
 
     return _hasher;
@@ -629,7 +629,7 @@ export class NodeShapeWithOrProperties {
     | { type: "0-number"; value: number }
     | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode }
   >;
-  readonly type = "NodeShapeWithOrProperties" as const;
+  readonly type = "NodeShapeWithOrProperties";
 
   constructor(parameters: {
     readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
@@ -807,30 +807,30 @@ export class NodeShapeWithOrProperties {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(_hasher: HasherT): HasherT {
-    this.orLiteralsProperty.ifJust((_value) => {
-      _hasher.update(_value.value);
+    this.orLiteralsProperty.ifJust((_value0) => {
+      _hasher.update(_value0.value);
     });
-    this.orTermsProperty.ifJust((_value) => {
-      switch (_value.termType) {
+    this.orTermsProperty.ifJust((_value0) => {
+      switch (_value0.termType) {
         case "Literal": {
-          _hasher.update(_value.value);
+          _hasher.update(_value0.value);
           break;
         }
         case "NamedNode": {
-          _hasher.update(rdfjsResource.Resource.Identifier.toString(_value));
+          _hasher.update(rdfjsResource.Resource.Identifier.toString(_value0));
           break;
         }
       }
     });
-    this.orUnrelatedProperty.ifJust((_value) => {
-      switch (_value.type) {
+    this.orUnrelatedProperty.ifJust((_value0) => {
+      switch (_value0.type) {
         case "0-number": {
-          _hasher.update(_value.value.toString());
+          _hasher.update(_value0.value.toString());
           break;
         }
         case "1-rdfjs.NamedNode": {
           _hasher.update(
-            rdfjsResource.Resource.Identifier.toString(_value.value),
+            rdfjsResource.Resource.Identifier.toString(_value0.value),
           );
           break;
         }
@@ -1049,7 +1049,7 @@ export namespace NodeShapeWithOrProperties {
 export class NodeShapeWithListProperty {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly listProperty: readonly string[];
-  readonly type = "NodeShapeWithListProperty" as const;
+  readonly type = "NodeShapeWithListProperty";
 
   constructor(parameters: {
     readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
@@ -1088,8 +1088,8 @@ export class NodeShapeWithListProperty {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(_hasher: HasherT): HasherT {
-    for (const _element of this.listProperty) {
-      _hasher.update(_element);
+    for (const _element0 of this.listProperty) {
+      _hasher.update(_element0);
     }
 
     return _hasher;
@@ -1240,7 +1240,7 @@ export class NodeShapeWithInProperties {
   >;
   readonly inNumbersProperty: purify.Maybe<1 | 2>;
   readonly inStringsProperty: purify.Maybe<"text" | "html">;
-  readonly type = "NodeShapeWithInProperties" as const;
+  readonly type = "NodeShapeWithInProperties";
 
   constructor(parameters: {
     readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
@@ -1336,17 +1336,17 @@ export class NodeShapeWithInProperties {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(_hasher: HasherT): HasherT {
-    this.inBooleansProperty.ifJust((_value) => {
-      _hasher.update(_value.toString());
+    this.inBooleansProperty.ifJust((_value0) => {
+      _hasher.update(_value0.toString());
     });
-    this.inIrisProperty.ifJust((_value) => {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_value));
+    this.inIrisProperty.ifJust((_value0) => {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_value0));
     });
-    this.inNumbersProperty.ifJust((_value) => {
-      _hasher.update(_value.toString());
+    this.inNumbersProperty.ifJust((_value0) => {
+      _hasher.update(_value0.toString());
     });
-    this.inStringsProperty.ifJust((_value) => {
-      _hasher.update(_value);
+    this.inStringsProperty.ifJust((_value0) => {
+      _hasher.update(_value0);
     });
     return _hasher;
   }
@@ -1620,7 +1620,7 @@ export class NodeShapeWithDefaultValueProperties {
   readonly numberProperty: number;
   readonly stringProperty: string;
   readonly trueBooleanProperty: boolean;
-  readonly type = "NodeShapeWithDefaultValueProperties" as const;
+  readonly type = "NodeShapeWithDefaultValueProperties";
 
   constructor(parameters: {
     readonly falseBooleanProperty?: boolean;
@@ -1907,7 +1907,7 @@ export namespace NodeShapeWithDefaultValueProperties {
 export class NonClassNodeShape {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly stringProperty: string;
-  readonly type = "NonClassNodeShape" as const;
+  readonly type = "NonClassNodeShape";
 
   constructor(parameters: {
     readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
@@ -2007,7 +2007,7 @@ export namespace NonClassNodeShape {
 export class IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
   readonly stringProperty: string;
-  readonly type = "IriNodeShape" as const;
+  readonly type = "IriNodeShape";
 
   constructor(parameters: {
     readonly identifier?: rdfjs.NamedNode;
@@ -2105,7 +2105,7 @@ export namespace IriNodeShape {
 export class InlineNodeShape {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly stringProperty: string;
-  readonly type = "InlineNodeShape" as const;
+  readonly type = "InlineNodeShape";
 
   constructor(parameters: {
     readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
@@ -2205,7 +2205,7 @@ export namespace InlineNodeShape {
 export class ExternNodeShape {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly stringProperty: string;
-  readonly type = "ExternNodeShape" as const;
+  readonly type = "ExternNodeShape";
 
   constructor(parameters: {
     readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
@@ -2306,7 +2306,7 @@ export class ExterningAndInliningNodeShape {
   readonly externProperty: rdfjs.BlankNode | rdfjs.NamedNode;
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly inlineProperty: InlineNodeShape;
-  readonly type = "ExterningAndInliningNodeShape" as const;
+  readonly type = "ExterningAndInliningNodeShape";
 
   constructor(parameters: {
     readonly externProperty: rdfjs.BlankNode | rdfjs.NamedNode;
@@ -2740,7 +2740,7 @@ export namespace ConcreteParentClassNodeShape {
 
 export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
   readonly childStringProperty: string;
-  override readonly type = "ConcreteChildClassNodeShape" as const;
+  override readonly type = "ConcreteChildClassNodeShape";
 
   constructor(
     parameters: {

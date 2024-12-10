@@ -502,13 +502,13 @@ export namespace NodeShapeWithPropertyCardinalities {
     _hasher: HasherT,
   ): HasherT {
     _nodeShapeWithPropertyCardinalities.optionalStringProperty.ifJust(
-      (_value) => {
-        _hasher.update(_value);
+      (_value0) => {
+        _hasher.update(_value0);
       },
     );
     _hasher.update(_nodeShapeWithPropertyCardinalities.requiredStringProperty);
-    for (const _element of _nodeShapeWithPropertyCardinalities.setStringProperty) {
-      _hasher.update(_element);
+    for (const _element0 of _nodeShapeWithPropertyCardinalities.setStringProperty) {
+      _hasher.update(_element0);
     }
 
     return _hasher;
@@ -817,30 +817,30 @@ export namespace NodeShapeWithOrProperties {
     _nodeShapeWithOrProperties: NodeShapeWithOrProperties,
     _hasher: HasherT,
   ): HasherT {
-    _nodeShapeWithOrProperties.orLiteralsProperty.ifJust((_value) => {
-      _hasher.update(_value.value);
+    _nodeShapeWithOrProperties.orLiteralsProperty.ifJust((_value0) => {
+      _hasher.update(_value0.value);
     });
-    _nodeShapeWithOrProperties.orTermsProperty.ifJust((_value) => {
-      switch (_value.termType) {
+    _nodeShapeWithOrProperties.orTermsProperty.ifJust((_value0) => {
+      switch (_value0.termType) {
         case "Literal": {
-          _hasher.update(_value.value);
+          _hasher.update(_value0.value);
           break;
         }
         case "NamedNode": {
-          _hasher.update(rdfjsResource.Resource.Identifier.toString(_value));
+          _hasher.update(rdfjsResource.Resource.Identifier.toString(_value0));
           break;
         }
       }
     });
-    _nodeShapeWithOrProperties.orUnrelatedProperty.ifJust((_value) => {
-      switch (_value.type) {
+    _nodeShapeWithOrProperties.orUnrelatedProperty.ifJust((_value0) => {
+      switch (_value0.type) {
         case "0-number": {
-          _hasher.update(_value.value.toString());
+          _hasher.update(_value0.value.toString());
           break;
         }
         case "1-rdfjs.NamedNode": {
           _hasher.update(
-            rdfjsResource.Resource.Identifier.toString(_value.value),
+            rdfjsResource.Resource.Identifier.toString(_value0.value),
           );
           break;
         }
@@ -1004,8 +1004,8 @@ export namespace NodeShapeWithListProperty {
     _nodeShapeWithListProperty: NodeShapeWithListProperty,
     _hasher: HasherT,
   ): HasherT {
-    for (const _element of _nodeShapeWithListProperty.listProperty) {
-      _hasher.update(_element);
+    for (const _element0 of _nodeShapeWithListProperty.listProperty) {
+      _hasher.update(_element0);
     }
 
     return _hasher;
@@ -1348,17 +1348,17 @@ export namespace NodeShapeWithInProperties {
     _nodeShapeWithInProperties: NodeShapeWithInProperties,
     _hasher: HasherT,
   ): HasherT {
-    _nodeShapeWithInProperties.inBooleansProperty.ifJust((_value) => {
-      _hasher.update(_value.toString());
+    _nodeShapeWithInProperties.inBooleansProperty.ifJust((_value0) => {
+      _hasher.update(_value0.toString());
     });
-    _nodeShapeWithInProperties.inIrisProperty.ifJust((_value) => {
-      _hasher.update(rdfjsResource.Resource.Identifier.toString(_value));
+    _nodeShapeWithInProperties.inIrisProperty.ifJust((_value0) => {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_value0));
     });
-    _nodeShapeWithInProperties.inNumbersProperty.ifJust((_value) => {
-      _hasher.update(_value.toString());
+    _nodeShapeWithInProperties.inNumbersProperty.ifJust((_value0) => {
+      _hasher.update(_value0.toString());
     });
-    _nodeShapeWithInProperties.inStringsProperty.ifJust((_value) => {
-      _hasher.update(_value);
+    _nodeShapeWithInProperties.inStringsProperty.ifJust((_value0) => {
+      _hasher.update(_value0);
     });
     return _hasher;
   }

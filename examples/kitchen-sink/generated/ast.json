@@ -123,15 +123,7 @@
           },
           "path": "http://example.com/externProperty",
           "type": {
-            "kind": "ObjectType",
-            "name": {
-              "curie": ":ExterningAndInliningNodeShape-ExternNodeShape",
-              "identifier": {
-                "termType": "NamedNode",
-                "value": "http://example.com/ExterningAndInliningNodeShape-ExternNodeShape"
-              },
-              "shName": "ExternNodeShape"
-            },
+            "kind": "IdentifierType",
             "nodeKinds": [
               "BlankNode",
               "NamedNode"
