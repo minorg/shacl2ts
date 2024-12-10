@@ -13,7 +13,12 @@ export abstract class RdfjsTermType<
   readonly defaultValue: Maybe<ValueRdfjsTermT>;
   readonly hasValue: Maybe<ValueRdfjsTermT>;
   readonly in_: Maybe<readonly ValueRdfjsTermT[]>;
-  abstract override readonly kind: "IdentifierType" | "LiteralType";
+  abstract override readonly kind:
+    | "BooleanType"
+    | "IdentifierType"
+    | "LiteralType"
+    | "NumberType"
+    | "StringType";
 
   constructor({
     defaultValue,

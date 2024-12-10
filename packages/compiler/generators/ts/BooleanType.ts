@@ -13,7 +13,7 @@ export class BooleanType extends PrimitiveType<boolean> {
         sourceTypeName: this.name,
       },
     ];
-    this.defaultValue.ifJust((defaultValue) => {
+    this.primitiveDefaultValue.ifJust((defaultValue) => {
       conversions.push({
         conversionExpression: () => defaultValue.toString(),
         sourceTypeCheckExpression: (value) => `typeof ${value} === "undefined"`,
@@ -25,7 +25,7 @@ export class BooleanType extends PrimitiveType<boolean> {
 
   @Memoize()
   override get name(): string {
-    return this.in_
+    return this.primitiveIn
       .map((values) => values.map((value) => value.toString()).join(" | "))
       .orDefault("boolean");
   }
@@ -36,7 +36,7 @@ export class BooleanType extends PrimitiveType<boolean> {
     PrimitiveType<boolean>["fromRdfResourceValueExpression"]
   >[0]): string {
     let expression = `${variables.resourceValue}.toBoolean()`;
-    this.in_.ifJust((in_) => {
+    this.primitiveIn.ifJust((in_) => {
       if (in_.length === 1) {
         expression = `${expression}.chain(value => value === ${in_[0]} ? purify.Either.of(value) : purify.Left(new rdfjsResource.Resource.MistypedValueError({ actualValue: rdfLiteral.toRdf(value), expectedValueType: ${JSON.stringify(this.name)}, focusResource: ${variables.resource}, predicate: ${variables.predicate} })))`;
       }
@@ -47,7 +47,7 @@ export class BooleanType extends PrimitiveType<boolean> {
   override propertyToRdfExpression({
     variables,
   }: Parameters<PrimitiveType<string>["propertyToRdfExpression"]>[0]): string {
-    return this.defaultValue
+    return this.primitiveDefaultValue
       .map((defaultValue) => {
         if (defaultValue) {
           // If the default is true, only serialize the value if it's false

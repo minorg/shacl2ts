@@ -72,45 +72,49 @@ export class TypeFactory {
           if (datatype.equals(xsd.boolean)) {
             return new BooleanType({
               configuration: this.configuration,
-              defaultValue: astType.defaultValue
+              defaultValue: astType.defaultValue,
+              hasValue: astType.hasValue,
+              in_: astType.in_,
+              primitiveDefaultValue: astType.defaultValue
                 .map((value) => fromRdf(value, true))
                 .filter((value) => typeof value === "boolean"),
-              in_: astType.in_.map((values) =>
+              primitiveIn: astType.in_.map((values) =>
                 values
                   .map((value) => fromRdf(value, true))
                   .filter((value) => typeof value === "boolean"),
               ),
-              hasValue: astType.hasValue
-                .map((value) => fromRdf(value, true))
-                .filter((value) => typeof value === "boolean"),
             });
           }
 
           if (datatype.equals(xsd.integer)) {
             return new NumberType({
               configuration: this.configuration,
-              defaultValue: astType.defaultValue
+              defaultValue: astType.defaultValue,
+              hasValue: astType.hasValue,
+              in_: astType.in_,
+              primitiveDefaultValue: astType.defaultValue
                 .map((value) => fromRdf(value, true))
                 .filter((value) => typeof value === "number"),
-              in_: astType.in_.map((values) =>
+              primitiveIn: astType.in_.map((values) =>
                 values
                   .map((value) => fromRdf(value, true))
                   .filter((value) => typeof value === "number"),
               ),
-              hasValue: astType.hasValue
-                .map((value) => fromRdf(value, true))
-                .filter((value) => typeof value === "number"),
             });
           }
 
           if (datatype.equals(xsd.anyURI) || datatype.equals(xsd.string)) {
             return new StringType({
               configuration: this.configuration,
-              defaultValue: astType.defaultValue.map((value) => value.value),
-              in_: astType.in_.map((values) =>
+              defaultValue: astType.defaultValue,
+              hasValue: astType.hasValue,
+              in_: astType.in_,
+              primitiveDefaultValue: astType.defaultValue.map(
+                (value) => value.value,
+              ),
+              primitiveIn: astType.in_.map((values) =>
                 values.map((value) => value.value),
               ),
-              hasValue: astType.hasValue.map((value) => value.value),
             });
           }
 
