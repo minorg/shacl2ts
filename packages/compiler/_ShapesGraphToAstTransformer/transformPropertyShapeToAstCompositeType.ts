@@ -99,6 +99,15 @@ export function transformPropertyShapeToAstCompositeType(
       return transformNodeShapeToAstCompositeMemberType(classNodeShape);
     });
     compositeTypeKind = "IntersectionType";
+
+    if (Either.rights(memberTypeEithers).length === 0) {
+      // This frequently happens with e.g., sh:class skos:Concept
+      logger.debug(
+        "shape %s sh:class(es) did not map to any node shapes",
+        shape,
+      );
+      return memberTypeEithers[0];
+    }
   } else if (shape.constraints.nodes.length > 0) {
     memberTypeEithers = shape.constraints.nodes.map((nodeShape) =>
       transformNodeShapeToAstCompositeMemberType(nodeShape),
