@@ -16,6 +16,7 @@ export abstract class Type {
   abstract readonly kind:
     | ast.Type["kind"]
     | "BooleanType"
+    | "DateTimeType"
     | "ListType"
     | "NumberType"
     | "StringType";

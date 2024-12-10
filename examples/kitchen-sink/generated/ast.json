@@ -390,9 +390,9 @@
               "termType": "BlankNode",
               "value": "n3-87"
             },
-            "shName": "trueBooleanProperty"
+            "shName": "dateTimeProperty"
           },
-          "path": "http://example.com/trueBooleanProperty",
+          "path": "http://example.com/dateTimeProperty",
           "type": {
             "kind": "LiteralType"
           }
@@ -422,6 +422,19 @@
           "type": {
             "kind": "LiteralType"
           }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-90"
+            },
+            "shName": "trueBooleanProperty"
+          },
+          "path": "http://example.com/trueBooleanProperty",
+          "type": {
+            "kind": "LiteralType"
+          }
         }
       ]
     },
@@ -440,7 +453,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-90"
+              "value": "n3-91"
             },
             "shName": "hasIriProperty"
           },
@@ -463,7 +476,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-91"
+              "value": "n3-92"
             },
             "shName": "hasLiteralProperty"
           },
@@ -498,7 +511,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-92"
+              "value": "n3-93"
             },
             "shName": "inBooleansProperty"
           },
@@ -514,7 +527,23 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-94"
+              "value": "n3-95"
+            },
+            "shName": "inDateTimesProperty"
+          },
+          "path": "http://example.com/inDateTimesProperty",
+          "type": {
+            "itemType": {
+              "kind": "LiteralType"
+            },
+            "kind": "OptionType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-97"
             },
             "shName": "inIrisProperty"
           },
@@ -533,7 +562,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-97"
+              "value": "n3-100"
             },
             "shName": "inNumbersProperty"
           },
@@ -549,7 +578,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-100"
+              "value": "n3-103"
             },
             "shName": "inStringsProperty"
           },
@@ -578,7 +607,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-103"
+              "value": "n3-106"
             },
             "shName": "listProperty"
           },
@@ -627,7 +656,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-104"
+              "value": "n3-107"
             },
             "shName": "orLiteralsProperty"
           },
@@ -643,7 +672,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-109"
+              "value": "n3-112"
             },
             "shName": "orTermsProperty"
           },
@@ -670,7 +699,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-114"
+              "value": "n3-117"
             },
             "shName": "orUnrelatedProperty"
           },
@@ -714,7 +743,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-119"
+              "value": "n3-122"
             },
             "shName": "requiredStringProperty"
           },
@@ -731,7 +760,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-120"
+              "value": "n3-123"
             },
             "shName": "optionalStringProperty"
           },
@@ -751,7 +780,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-121"
+              "value": "n3-124"
             },
             "shName": "setStringProperty"
           },
@@ -784,7 +813,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-124"
+              "value": "n3-127"
             },
             "shName": "stringProperty1"
           },
@@ -814,7 +843,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-125"
+              "value": "n3-128"
             },
             "shName": "stringProperty2"
           },
@@ -844,7 +873,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-126"
+              "value": "n3-129"
             },
             "shName": "stringProperty"
           },
@@ -874,7 +903,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-127"
+              "value": "n3-130"
             },
             "shName": "stringProperty"
           },

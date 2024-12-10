@@ -15,6 +15,7 @@ export abstract class RdfjsTermType<
   readonly in_: Maybe<readonly ValueRdfjsTermT[]>;
   abstract override readonly kind:
     | "BooleanType"
+    | "DateTimeType"
     | "IdentifierType"
     | "LiteralType"
     | "NumberType"

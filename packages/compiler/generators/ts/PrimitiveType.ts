@@ -3,9 +3,13 @@ import { LiteralType } from "./LiteralType.js";
 import type { Type } from "./Type.js";
 
 export abstract class PrimitiveType<
-  ValueT extends boolean | string | number,
+  ValueT extends boolean | Date | string | number,
 > extends LiteralType {
-  abstract override readonly kind: "BooleanType" | "NumberType" | "StringType";
+  abstract override readonly kind:
+    | "BooleanType"
+    | "DateTimeType"
+    | "NumberType"
+    | "StringType";
   readonly primitiveDefaultValue: Maybe<ValueT>;
   readonly primitiveIn: Maybe<readonly ValueT[]>;
 
