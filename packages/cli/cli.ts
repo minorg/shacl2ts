@@ -105,9 +105,13 @@ function generate({
   );
   if (!validationReport.conforms) {
     process.stderr.write("input is not valid SHACL:\n");
+    const n3WriterPrefixes: Record<string, string> = {};
+    for (const prefixEntry of iriPrefixMap.entries()) {
+      n3WriterPrefixes[prefixEntry[0]] = prefixEntry[1].value;
+    }
     const n3Writer = new N3.Writer({
       format: "text/turtle",
-      prefixes: iriPrefixMap,
+      prefixes: n3WriterPrefixes,
     });
     for (const quad of validationReport.dataset) {
       n3Writer.addQuad(quad);
