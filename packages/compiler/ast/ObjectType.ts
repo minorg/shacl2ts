@@ -5,6 +5,7 @@ import type { Maybe } from "purify-ts";
 import { Resource } from "rdfjs-resource";
 import genericToposort from "toposort";
 import type { IriMintingStrategy } from "../IriMintingStrategy.js";
+import type { PropertyVisibility } from "../PropertyVisibility.js";
 import type { Name } from "./Name.js";
 import type { Type } from "./Type.js";
 
@@ -96,6 +97,7 @@ export namespace ObjectType {
     readonly name: Name;
     readonly path: PredicatePath;
     readonly type: Type;
+    readonly visibility: PropertyVisibility;
   }
 
   export function toposort(

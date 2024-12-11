@@ -801,6 +801,70 @@
     {
       "kind": "ObjectType",
       "name": {
+        "curie": ":NodeShapeWithPropertyVisibilities",
+        "identifier": {
+          "termType": "NamedNode",
+          "value": "http://example.com/NodeShapeWithPropertyVisibilities"
+        },
+        "shName": "NodeShapeWithPropertyVisibilities"
+      },
+      "properties": [
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-191"
+            },
+            "shName": "protectedProperty"
+          },
+          "path": "http://example.com/publicProperty",
+          "type": {
+            "datatype": {
+              "termType": "NamedNode",
+              "value": "http://www.w3.org/2001/XMLSchema#string"
+            },
+            "kind": "LiteralType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-192"
+            },
+            "shName": "privateProperty"
+          },
+          "path": "http://example.com/privateProperty",
+          "type": {
+            "datatype": {
+              "termType": "NamedNode",
+              "value": "http://www.w3.org/2001/XMLSchema#string"
+            },
+            "kind": "LiteralType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-193"
+            },
+            "shName": "publicProperty"
+          },
+          "path": "http://example.com/publicProperty",
+          "type": {
+            "datatype": {
+              "termType": "NamedNode",
+              "value": "http://www.w3.org/2001/XMLSchema#string"
+            },
+            "kind": "LiteralType"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "ObjectType",
+      "name": {
         "curie": ":OrNodeShapeMember1",
         "identifier": {
           "termType": "NamedNode",
@@ -813,7 +877,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-193"
+              "value": "n3-196"
             },
             "shName": "stringProperty1"
           },
@@ -843,7 +907,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-194"
+              "value": "n3-197"
             },
             "shName": "stringProperty2"
           },
@@ -873,7 +937,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-195"
+              "value": "n3-198"
             },
             "shName": "stringProperty"
           },
@@ -903,7 +967,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-196"
+              "value": "n3-199"
             },
             "shName": "stringProperty"
           },

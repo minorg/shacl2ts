@@ -188,6 +188,15 @@
   sh:property [ sh:datatype xsd:string ; sh:minCount 1 ; sh:name "setStringProperty" ; sh:path :setStringProperty ; ] ;
 .
 
+# Shape with properties that have visibility modifiers (private, protected, public)
+:NodeShapeWithPropertyVisibilities
+  a sh:NodeShape ;
+  sh:name "NodeShapeWithPropertyVisibilities" ;
+  sh:property [ shaclmate:visibility shaclmate:Protected ; sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "protectedProperty" ; sh:path :publicProperty ] ;
+  sh:property [ shaclmate:visibility shaclmate:Private ; sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "privateProperty" ; sh:path :privateProperty ] ;
+  sh:property [ shaclmate:visibility shaclmate:Public ; sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "publicProperty" ; sh:path :publicProperty ] ;
+.
+
 # Node that that sh:or's other node shapes. This will usually be generated as a discriminated union.
 :OrNodeShape
   a sh:NodeShape ;

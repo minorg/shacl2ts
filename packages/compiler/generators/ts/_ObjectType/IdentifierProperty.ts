@@ -6,35 +6,36 @@ import type {
   OptionalKind,
   PropertyDeclarationStructure,
   PropertySignatureStructure,
-  Scope,
 } from "ts-morph";
 import { IriMintingStrategy } from "../../../IriMintingStrategy.js";
+import { PropertyVisibility } from "../../../PropertyVisibility.js";
 import type { IdentifierType } from "../IdentifierType.js";
 import { Property } from "./Property.js";
 
 export class IdentifierProperty extends Property<IdentifierType> {
   readonly abstract: boolean;
   readonly equalsFunction = "purifyHelpers.Equatable.booleanEquals";
-  private readonly classDeclarationScope: Maybe<Scope>;
+  private readonly classDeclarationVisibility: Maybe<PropertyVisibility>;
   private readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
   private readonly override: boolean;
 
   constructor({
     abstract,
-    classDeclarationScope,
+    classDeclarationVisibility,
     iriMintingStrategy,
     override,
     ...superParameters
   }: {
     abstract: boolean;
-    classDeclarationScope: Maybe<Scope>;
+    classDeclarationVisibility: Maybe<PropertyVisibility>;
     iriMintingStrategy: Maybe<IriMintingStrategy>;
     override: boolean;
     type: IdentifierType;
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
+    invariant(this.visibility === PropertyVisibility.PUBLIC);
     this.abstract = abstract;
-    this.classDeclarationScope = classDeclarationScope;
+    this.classDeclarationVisibility = classDeclarationVisibility;
     this.iriMintingStrategy = iriMintingStrategy;
     this.override = override;
   }
@@ -112,11 +113,13 @@ export class IdentifierProperty extends Property<IdentifierType> {
       });
     }
 
-    if (this.classDeclarationScope.isJust()) {
+    if (this.classDeclarationVisibility.isJust()) {
       // Mutable _identifier that will be lazily initialized by the getter
       return Maybe.of({
         name: `_${this.name}`,
-        scope: this.classDeclarationScope.unsafeCoerce(),
+        scope: this.classDeclarationVisibility
+          .map(Property.visibilityToScope)
+          .unsafeCoerce(),
         type: `${this.type.name} | undefined`,
       });
     }
@@ -137,7 +140,7 @@ export class IdentifierProperty extends Property<IdentifierType> {
   }: Parameters<
     Property<IdentifierType>["classConstructorStatements"]
   >[0]): readonly string[] {
-    if (this.classDeclarationScope.isJust()) {
+    if (this.classDeclarationVisibility.isJust()) {
       return [`this._${this.name} = ${variables.parameter};`];
     }
     return [];

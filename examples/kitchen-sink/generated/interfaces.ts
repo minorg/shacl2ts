@@ -387,6 +387,166 @@ export namespace OrNodeShapeMember1 {
   }
 }
 
+export interface NodeShapeWithPropertyVisibilities {
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly privateProperty: string;
+  readonly protectedProperty: string;
+  readonly publicProperty: string;
+  readonly type: "NodeShapeWithPropertyVisibilities";
+}
+
+export namespace NodeShapeWithPropertyVisibilities {
+  export function equals(
+    left: NodeShapeWithPropertyVisibilities,
+    right: NodeShapeWithPropertyVisibilities,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      publicProperty: purifyHelpers.Equatable.strictEquals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+      privateProperty: string;
+      protectedProperty: string;
+      publicProperty: string;
+      type: "NodeShapeWithPropertyVisibilities";
+    }
+  > {
+    const identifier = _resource.identifier;
+    const _privatePropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/privateProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
+    if (_privatePropertyEither.isLeft()) {
+      return _privatePropertyEither;
+    }
+
+    const privateProperty = _privatePropertyEither.unsafeCoerce();
+    const _protectedPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/publicProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
+    if (_protectedPropertyEither.isLeft()) {
+      return _protectedPropertyEither;
+    }
+
+    const protectedProperty = _protectedPropertyEither.unsafeCoerce();
+    const _publicPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/publicProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
+    if (_publicPropertyEither.isLeft()) {
+      return _publicPropertyEither;
+    }
+
+    const publicProperty = _publicPropertyEither.unsafeCoerce();
+    const type = "NodeShapeWithPropertyVisibilities" as const;
+    return purify.Either.of({
+      identifier,
+      privateProperty,
+      protectedProperty,
+      publicProperty,
+      type,
+    });
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _nodeShapeWithPropertyVisibilities: NodeShapeWithPropertyVisibilities,
+    _hasher: HasherT,
+  ): HasherT {
+    _hasher.update(_nodeShapeWithPropertyVisibilities.privateProperty);
+    _hasher.update(_nodeShapeWithPropertyVisibilities.protectedProperty);
+    _hasher.update(_nodeShapeWithPropertyVisibilities.publicProperty);
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/privateProperty"),
+          this.variable("PrivateProperty"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/publicProperty"),
+          this.variable("ProtectedProperty"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/publicProperty"),
+          this.variable("PublicProperty"),
+        ),
+      );
+    }
+  }
+
+  export function toRdf(
+    nodeShapeWithPropertyVisibilities: NodeShapeWithPropertyVisibilities,
+    {
+      mutateGraph,
+      resourceSet,
+    }: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    },
+  ): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: nodeShapeWithPropertyVisibilities.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/privateProperty"),
+      nodeShapeWithPropertyVisibilities.privateProperty,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/publicProperty"),
+      nodeShapeWithPropertyVisibilities.protectedProperty,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/publicProperty"),
+      nodeShapeWithPropertyVisibilities.publicProperty,
+    );
+    return _resource;
+  }
+}
+
 export interface NodeShapeWithPropertyCardinalities {
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   readonly optionalStringProperty: purify.Maybe<string>;
@@ -1184,20 +1344,22 @@ export namespace NodeShapeWithInProperties {
         )
         .head()
         .chain((_value) =>
-          _value.toBoolean().chain((value) =>
-            value === true
-              ? purify.Either.of(value)
-              : purify.Left(
-                  new rdfjsResource.Resource.MistypedValueError({
-                    actualValue: rdfLiteral.toRdf(value),
-                    expectedValueType: "true",
-                    focusResource: _resource,
-                    predicate: dataFactory.namedNode(
-                      "http://example.com/inBooleansProperty",
-                    ),
-                  }),
-                ),
-          ),
+          _value
+            .toBoolean()
+            .chain((value) =>
+              value === true
+                ? purify.Either.of(value)
+                : purify.Left(
+                    new rdfjsResource.Resource.MistypedValueError({
+                      actualValue: rdfLiteral.toRdf(value),
+                      expectedValueType: "true",
+                      focusResource: _resource,
+                      predicate: dataFactory.namedNode(
+                        "http://example.com/inBooleansProperty",
+                      ),
+                    }),
+                  ),
+            ),
         )
         .toMaybe(),
     );

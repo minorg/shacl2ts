@@ -5,7 +5,7 @@ import { NodeKind } from "@shaclmate/shacl-ast";
 import { rdf, xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import { fromRdf } from "rdf-literal";
-import { Scope } from "ts-morph";
+import { PropertyVisibility } from "../../PropertyVisibility.js";
 import type * as ast from "../../ast/index.js";
 import { logger } from "../../logger.js";
 import { BooleanType } from "./BooleanType.js";
@@ -274,37 +274,43 @@ export class TypeFactory {
             this.createObjectTypePropertyFromAstProperty(astProperty),
         );
 
-        let identifierPropertyClassDeclarationScope: Maybe<Scope>;
+        let identifierPropertyClassDeclarationVisibility: Maybe<PropertyVisibility>;
         if (astType.abstract) {
           // If the type is abstract, don't declare a property.
-          identifierPropertyClassDeclarationScope = Maybe.empty();
+          identifierPropertyClassDeclarationVisibility = Maybe.empty();
         } else if (
           astType.ancestorObjectTypes.some(
             (ancestorObjectType) => !ancestorObjectType.abstract,
           )
         ) {
           // If the type has a non-abstract ancestor, that ancestor will declare the identifier property
-          identifierPropertyClassDeclarationScope = Maybe.empty();
+          identifierPropertyClassDeclarationVisibility = Maybe.empty();
         } else if (
           astType.descendantObjectTypes.some(
             (descendantObjectType) => !descendantObjectType.abstract,
           )
         ) {
           // If the type has a non-abstract descendant, declare the identifier property for it
-          identifierPropertyClassDeclarationScope = Maybe.of(Scope.Protected);
+          identifierPropertyClassDeclarationVisibility = Maybe.of(
+            PropertyVisibility.PROTECTED,
+          );
         } else {
-          identifierPropertyClassDeclarationScope = Maybe.of(Scope.Private);
+          identifierPropertyClassDeclarationVisibility = Maybe.of(
+            PropertyVisibility.PRIVATE,
+          );
         }
 
         const identifierProperty: ObjectType.IdentifierProperty =
           new ObjectType.IdentifierProperty({
             abstract: astType.abstract,
-            classDeclarationScope: identifierPropertyClassDeclarationScope,
+            classDeclarationVisibility:
+              identifierPropertyClassDeclarationVisibility,
             configuration: this.configuration,
             iriMintingStrategy: astType.iriMintingStrategy,
             name: this.configuration.objectTypeIdentifierPropertyName,
             override: astType.parentObjectTypes.length > 0,
             type: identifierType,
+            visibility: PropertyVisibility.PUBLIC,
           });
         properties.push(identifierProperty);
 
@@ -333,6 +339,7 @@ export class TypeFactory {
                   .map((name) => `"${name}"`)
                   .join("|"),
               },
+              visibility: PropertyVisibility.PUBLIC,
               value: objectType.discriminatorValue,
             }),
           );
@@ -384,6 +391,7 @@ export class TypeFactory {
       name: tsName(astObjectTypeProperty.name),
       path: astObjectTypeProperty.path.iri,
       type,
+      visibility: astObjectTypeProperty.visibility,
     });
     this.cachedObjectTypePropertiesByIdentifier.set(
       astObjectTypeProperty.name.identifier,
