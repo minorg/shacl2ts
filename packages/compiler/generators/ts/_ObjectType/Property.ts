@@ -48,14 +48,16 @@ export abstract class Property<TypeT extends { readonly name: string }> {
     return [];
   }
 
-  protected static visibilityToScope(visibility: PropertyVisibility): Scope {
+  protected static visibilityToScope(
+    visibility: PropertyVisibility,
+  ): Scope | undefined {
     switch (visibility) {
       case PropertyVisibility.PRIVATE:
         return Scope.Private;
       case PropertyVisibility.PROTECTED:
         return Scope.Protected;
       case PropertyVisibility.PUBLIC:
-        return Scope.Public;
+        return undefined;
     }
   }
 

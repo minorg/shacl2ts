@@ -11,7 +11,7 @@ import * as uuid from "uuid";
 
 export class UuidV4IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
-  public readonly stringProperty: string;
+  readonly stringProperty: string;
   readonly type = "UuidV4IriNodeShape";
 
   constructor(parameters: {
@@ -111,7 +111,7 @@ export namespace UuidV4IriNodeShape {
 
 export class Sha256IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
-  public readonly stringProperty: string;
+  readonly stringProperty: string;
   readonly type = "Sha256IriNodeShape";
 
   constructor(parameters: {
@@ -211,7 +211,7 @@ export namespace Sha256IriNodeShape {
 
 export class OrNodeShapeMember2 {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  public readonly stringProperty2: string;
+  readonly stringProperty2: string;
   readonly type = "OrNodeShapeMember2";
 
   constructor(parameters: {
@@ -311,7 +311,7 @@ export namespace OrNodeShapeMember2 {
 
 export class OrNodeShapeMember1 {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  public readonly stringProperty1: string;
+  readonly stringProperty1: string;
   readonly type = "OrNodeShapeMember1";
 
   constructor(parameters: {
@@ -413,7 +413,7 @@ export class NodeShapeWithPropertyVisibilities {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   private readonly privateProperty: string;
   protected readonly protectedProperty: string;
-  public readonly publicProperty: string;
+  readonly publicProperty: string;
   readonly type = "NodeShapeWithPropertyVisibilities";
 
   constructor(parameters: {
@@ -579,9 +579,9 @@ export namespace NodeShapeWithPropertyVisibilities {
 
 export class NodeShapeWithPropertyCardinalities {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  public readonly optionalStringProperty: purify.Maybe<string>;
-  public readonly requiredStringProperty: string;
-  public readonly setStringProperty: readonly string[];
+  readonly optionalStringProperty: purify.Maybe<string>;
+  readonly requiredStringProperty: string;
+  readonly setStringProperty: readonly string[];
   readonly type = "NodeShapeWithPropertyCardinalities";
 
   constructor(parameters: {
@@ -791,11 +791,9 @@ export namespace NodeShapeWithPropertyCardinalities {
 
 export class NodeShapeWithOrProperties {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  public readonly orLiteralsProperty: purify.Maybe<rdfjs.Literal>;
-  public readonly orTermsProperty: purify.Maybe<
-    rdfjs.Literal | rdfjs.NamedNode
-  >;
-  public readonly orUnrelatedProperty: purify.Maybe<
+  readonly orLiteralsProperty: purify.Maybe<rdfjs.Literal>;
+  readonly orTermsProperty: purify.Maybe<rdfjs.Literal | rdfjs.NamedNode>;
+  readonly orUnrelatedProperty: purify.Maybe<
     | { type: "0-number"; value: number }
     | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode }
   >;
@@ -1218,7 +1216,7 @@ export namespace NodeShapeWithOrProperties {
 
 export class NodeShapeWithListProperty {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  public readonly listProperty: readonly string[];
+  readonly listProperty: readonly string[];
   readonly type = "NodeShapeWithListProperty";
 
   constructor(parameters: {
@@ -1401,16 +1399,16 @@ export namespace NodeShapeWithListProperty {
 
 export class NodeShapeWithInProperties {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  public readonly inBooleansProperty: purify.Maybe<true>;
-  public readonly inDateTimesProperty: purify.Maybe<Date>;
-  public readonly inIrisProperty: purify.Maybe<
+  readonly inBooleansProperty: purify.Maybe<true>;
+  readonly inDateTimesProperty: purify.Maybe<Date>;
+  readonly inIrisProperty: purify.Maybe<
     rdfjs.NamedNode<
       | "http://example.com/NodeShapeWithInPropertiesIri1"
       | "http://example.com/NodeShapeWithInPropertiesIri2"
     >
   >;
-  public readonly inNumbersProperty: purify.Maybe<1 | 2>;
-  public readonly inStringsProperty: purify.Maybe<"text" | "html">;
+  readonly inNumbersProperty: purify.Maybe<1 | 2>;
+  readonly inStringsProperty: purify.Maybe<"text" | "html">;
   readonly type = "NodeShapeWithInProperties";
 
   constructor(parameters: {
@@ -1861,8 +1859,8 @@ export namespace NodeShapeWithInProperties {
 }
 
 export class NodeShapeWithHasValueProperties {
-  public readonly hasIriProperty: purify.Maybe<rdfjs.NamedNode>;
-  public readonly hasLiteralProperty: purify.Maybe<string>;
+  readonly hasIriProperty: purify.Maybe<rdfjs.NamedNode>;
+  readonly hasLiteralProperty: purify.Maybe<string>;
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly type = "NodeShapeWithHasValueProperties";
 
@@ -2048,12 +2046,12 @@ export namespace NodeShapeWithHasValueProperties {
 }
 
 export class NodeShapeWithDefaultValueProperties {
-  public readonly dateTimeProperty: Date;
-  public readonly falseBooleanProperty: boolean;
+  readonly dateTimeProperty: Date;
+  readonly falseBooleanProperty: boolean;
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  public readonly numberProperty: number;
-  public readonly stringProperty: string;
-  public readonly trueBooleanProperty: boolean;
+  readonly numberProperty: number;
+  readonly stringProperty: string;
+  readonly trueBooleanProperty: boolean;
   readonly type = "NodeShapeWithDefaultValueProperties";
 
   constructor(parameters: {
@@ -2405,7 +2403,7 @@ export namespace NodeShapeWithDefaultValueProperties {
 
 export class NonClassNodeShape {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  public readonly stringProperty: string;
+  readonly stringProperty: string;
   readonly type = "NonClassNodeShape";
 
   constructor(parameters: {
@@ -2505,7 +2503,7 @@ export namespace NonClassNodeShape {
 
 export class IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
-  public readonly stringProperty: string;
+  readonly stringProperty: string;
   readonly type = "IriNodeShape";
 
   constructor(parameters: {
@@ -2603,7 +2601,7 @@ export namespace IriNodeShape {
 
 export class InlineNodeShape {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  public readonly stringProperty: string;
+  readonly stringProperty: string;
   readonly type = "InlineNodeShape";
 
   constructor(parameters: {
@@ -2703,7 +2701,7 @@ export namespace InlineNodeShape {
 
 export class ExternNodeShape {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  public readonly stringProperty: string;
+  readonly stringProperty: string;
   readonly type = "ExternNodeShape";
 
   constructor(parameters: {
@@ -2802,9 +2800,9 @@ export namespace ExternNodeShape {
 }
 
 export class ExterningAndInliningNodeShape {
-  public readonly externProperty: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly externProperty: rdfjs.BlankNode | rdfjs.NamedNode;
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  public readonly inlineProperty: InlineNodeShape;
+  readonly inlineProperty: InlineNodeShape;
   readonly type = "ExterningAndInliningNodeShape";
 
   constructor(parameters: {
@@ -2951,7 +2949,7 @@ export namespace ExterningAndInliningNodeShape {
 }
 
 abstract class AbstractBaseClassWithPropertiesNodeShape {
-  public readonly abcStringProperty: string;
+  readonly abcStringProperty: string;
   abstract readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   abstract readonly type:
     | "ConcreteChildClassNodeShape"
@@ -3077,7 +3075,7 @@ namespace AbstractBaseClassWithoutPropertiesNodeShape {
 
 export class ConcreteParentClassNodeShape extends AbstractBaseClassWithoutPropertiesNodeShape {
   protected _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  public readonly parentStringProperty: string;
+  readonly parentStringProperty: string;
   override readonly type:
     | "ConcreteChildClassNodeShape"
     | "ConcreteParentClassNodeShape" = "ConcreteParentClassNodeShape";
@@ -3238,7 +3236,7 @@ export namespace ConcreteParentClassNodeShape {
 }
 
 export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
-  public readonly childStringProperty: string;
+  readonly childStringProperty: string;
   override readonly type = "ConcreteChildClassNodeShape";
 
   constructor(
