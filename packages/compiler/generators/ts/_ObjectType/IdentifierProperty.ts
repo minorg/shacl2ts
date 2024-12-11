@@ -1,12 +1,11 @@
 import { NodeKind } from "@shaclmate/shacl-ast";
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
-import {
-  type GetAccessorDeclarationStructure,
-  type OptionalKind,
-  type PropertyDeclarationStructure,
-  type PropertySignatureStructure,
-  Scope,
+import type {
+  GetAccessorDeclarationStructure,
+  OptionalKind,
+  PropertyDeclarationStructure,
+  PropertySignatureStructure,
 } from "ts-morph";
 import { IriMintingStrategy } from "../../../IriMintingStrategy.js";
 import { PropertyVisibility } from "../../../PropertyVisibility.js";
@@ -34,6 +33,7 @@ export class IdentifierProperty extends Property<IdentifierType> {
     type: IdentifierType;
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
+    invariant(this.visibility === PropertyVisibility.PUBLIC);
     this.abstract = abstract;
     this.classDeclarationVisibility = classDeclarationVisibility;
     this.iriMintingStrategy = iriMintingStrategy;
@@ -118,16 +118,7 @@ export class IdentifierProperty extends Property<IdentifierType> {
       return Maybe.of({
         name: `_${this.name}`,
         scope: this.classDeclarationVisibility
-          .map((visibility) => {
-            switch (visibility) {
-              case PropertyVisibility.PRIVATE:
-                return Scope.Private;
-              case PropertyVisibility.PROTECTED:
-                return Scope.Protected;
-              case PropertyVisibility.PUBLIC:
-                return Scope.Public;
-            }
-          })
+          .map(Property.visibilityToScope)
           .unsafeCoerce(),
         type: `${this.type.name} | undefined`,
       });

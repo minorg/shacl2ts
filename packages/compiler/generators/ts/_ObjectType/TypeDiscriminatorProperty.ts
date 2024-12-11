@@ -1,10 +1,12 @@
 import { Maybe } from "purify-ts";
+import { invariant } from "ts-invariant";
 import type {
   GetAccessorDeclarationStructure,
   OptionalKind,
   PropertyDeclarationStructure,
   PropertySignatureStructure,
 } from "ts-morph";
+import { PropertyVisibility } from "../../../PropertyVisibility.js";
 import { Property } from "./Property.js";
 
 export class TypeDiscriminatorProperty extends Property<TypeDiscriminatorProperty.Type> {
@@ -24,6 +26,7 @@ export class TypeDiscriminatorProperty extends Property<TypeDiscriminatorPropert
     value: string;
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
+    invariant(this.visibility === PropertyVisibility.PUBLIC);
     this.abstract = abstract;
     this.override = override;
     this.value = value;

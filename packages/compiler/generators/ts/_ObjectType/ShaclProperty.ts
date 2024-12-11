@@ -58,6 +58,7 @@ export class ShaclProperty extends Property<Type> {
     return Maybe.of({
       isReadonly: true,
       name: this.name,
+      scope: Property.visibilityToScope(this.visibility),
       type: this.type.name,
     });
   }

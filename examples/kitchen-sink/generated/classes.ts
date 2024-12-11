@@ -11,7 +11,7 @@ import * as uuid from "uuid";
 
 export class UuidV4IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
-  readonly stringProperty: string;
+  public readonly stringProperty: string;
   readonly type = "UuidV4IriNodeShape";
 
   constructor(parameters: {
@@ -111,7 +111,7 @@ export namespace UuidV4IriNodeShape {
 
 export class Sha256IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
-  readonly stringProperty: string;
+  public readonly stringProperty: string;
   readonly type = "Sha256IriNodeShape";
 
   constructor(parameters: {
@@ -211,7 +211,7 @@ export namespace Sha256IriNodeShape {
 
 export class OrNodeShapeMember2 {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  readonly stringProperty2: string;
+  public readonly stringProperty2: string;
   readonly type = "OrNodeShapeMember2";
 
   constructor(parameters: {
@@ -311,7 +311,7 @@ export namespace OrNodeShapeMember2 {
 
 export class OrNodeShapeMember1 {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  readonly stringProperty1: string;
+  public readonly stringProperty1: string;
   readonly type = "OrNodeShapeMember1";
 
   constructor(parameters: {
@@ -409,11 +409,179 @@ export namespace OrNodeShapeMember1 {
   }
 }
 
+export class NodeShapeWithPropertyVisibilities {
+  private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
+  private readonly privateProperty: string;
+  protected readonly protectedProperty: string;
+  public readonly publicProperty: string;
+  readonly type = "NodeShapeWithPropertyVisibilities";
+
+  constructor(parameters: {
+    readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
+    readonly privateProperty: string;
+    readonly protectedProperty: string;
+    readonly publicProperty: string;
+  }) {
+    this._identifier = parameters.identifier;
+    this.privateProperty = parameters.privateProperty;
+    this.protectedProperty = parameters.protectedProperty;
+    this.publicProperty = parameters.publicProperty;
+  }
+
+  get identifier(): rdfjs.BlankNode | rdfjs.NamedNode {
+    if (typeof this._identifier === "undefined") {
+      this._identifier = dataFactory.namedNode(
+        `urn:shaclmate:object:${this.type}:${this.hash(sha256.create())}`,
+      );
+    }
+    return this._identifier;
+  }
+
+  equals(
+    other: NodeShapeWithPropertyVisibilities,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      publicProperty: purifyHelpers.Equatable.strictEquals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(_hasher: HasherT): HasherT {
+    _hasher.update(this.privateProperty);
+    _hasher.update(this.protectedProperty);
+    _hasher.update(this.publicProperty);
+    return _hasher;
+  }
+
+  toRdf({
+    mutateGraph,
+    resourceSet,
+  }: {
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: this.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/privateProperty"),
+      this.privateProperty,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/publicProperty"),
+      this.protectedProperty,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/publicProperty"),
+      this.publicProperty,
+    );
+    return _resource;
+  }
+}
+
+export namespace NodeShapeWithPropertyVisibilities {
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    NodeShapeWithPropertyVisibilities
+  > {
+    const identifier = _resource.identifier;
+    const _privatePropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/privateProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
+    if (_privatePropertyEither.isLeft()) {
+      return _privatePropertyEither;
+    }
+
+    const privateProperty = _privatePropertyEither.unsafeCoerce();
+    const _protectedPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/publicProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
+    if (_protectedPropertyEither.isLeft()) {
+      return _protectedPropertyEither;
+    }
+
+    const protectedProperty = _protectedPropertyEither.unsafeCoerce();
+    const _publicPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/publicProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
+    if (_publicPropertyEither.isLeft()) {
+      return _publicPropertyEither;
+    }
+
+    const publicProperty = _publicPropertyEither.unsafeCoerce();
+    return purify.Either.of(
+      new NodeShapeWithPropertyVisibilities({
+        identifier,
+        privateProperty,
+        protectedProperty,
+        publicProperty,
+      }),
+    );
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/privateProperty"),
+          this.variable("PrivateProperty"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/publicProperty"),
+          this.variable("ProtectedProperty"),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/publicProperty"),
+          this.variable("PublicProperty"),
+        ),
+      );
+    }
+  }
+}
+
 export class NodeShapeWithPropertyCardinalities {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  readonly optionalStringProperty: purify.Maybe<string>;
-  readonly requiredStringProperty: string;
-  readonly setStringProperty: readonly string[];
+  public readonly optionalStringProperty: purify.Maybe<string>;
+  public readonly requiredStringProperty: string;
+  public readonly setStringProperty: readonly string[];
   readonly type = "NodeShapeWithPropertyCardinalities";
 
   constructor(parameters: {
@@ -623,9 +791,11 @@ export namespace NodeShapeWithPropertyCardinalities {
 
 export class NodeShapeWithOrProperties {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  readonly orLiteralsProperty: purify.Maybe<rdfjs.Literal>;
-  readonly orTermsProperty: purify.Maybe<rdfjs.Literal | rdfjs.NamedNode>;
-  readonly orUnrelatedProperty: purify.Maybe<
+  public readonly orLiteralsProperty: purify.Maybe<rdfjs.Literal>;
+  public readonly orTermsProperty: purify.Maybe<
+    rdfjs.Literal | rdfjs.NamedNode
+  >;
+  public readonly orUnrelatedProperty: purify.Maybe<
     | { type: "0-number"; value: number }
     | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode }
   >;
@@ -1048,7 +1218,7 @@ export namespace NodeShapeWithOrProperties {
 
 export class NodeShapeWithListProperty {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  readonly listProperty: readonly string[];
+  public readonly listProperty: readonly string[];
   readonly type = "NodeShapeWithListProperty";
 
   constructor(parameters: {
@@ -1231,16 +1401,16 @@ export namespace NodeShapeWithListProperty {
 
 export class NodeShapeWithInProperties {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  readonly inBooleansProperty: purify.Maybe<true>;
-  readonly inDateTimesProperty: purify.Maybe<Date>;
-  readonly inIrisProperty: purify.Maybe<
+  public readonly inBooleansProperty: purify.Maybe<true>;
+  public readonly inDateTimesProperty: purify.Maybe<Date>;
+  public readonly inIrisProperty: purify.Maybe<
     rdfjs.NamedNode<
       | "http://example.com/NodeShapeWithInPropertiesIri1"
       | "http://example.com/NodeShapeWithInPropertiesIri2"
     >
   >;
-  readonly inNumbersProperty: purify.Maybe<1 | 2>;
-  readonly inStringsProperty: purify.Maybe<"text" | "html">;
+  public readonly inNumbersProperty: purify.Maybe<1 | 2>;
+  public readonly inStringsProperty: purify.Maybe<"text" | "html">;
   readonly type = "NodeShapeWithInProperties";
 
   constructor(parameters: {
@@ -1434,20 +1604,22 @@ export namespace NodeShapeWithInProperties {
         )
         .head()
         .chain((_value) =>
-          _value.toBoolean().chain((value) =>
-            value === true
-              ? purify.Either.of(value)
-              : purify.Left(
-                  new rdfjsResource.Resource.MistypedValueError({
-                    actualValue: rdfLiteral.toRdf(value),
-                    expectedValueType: "true",
-                    focusResource: _resource,
-                    predicate: dataFactory.namedNode(
-                      "http://example.com/inBooleansProperty",
-                    ),
-                  }),
-                ),
-          ),
+          _value
+            .toBoolean()
+            .chain((value) =>
+              value === true
+                ? purify.Either.of(value)
+                : purify.Left(
+                    new rdfjsResource.Resource.MistypedValueError({
+                      actualValue: rdfLiteral.toRdf(value),
+                      expectedValueType: "true",
+                      focusResource: _resource,
+                      predicate: dataFactory.namedNode(
+                        "http://example.com/inBooleansProperty",
+                      ),
+                    }),
+                  ),
+            ),
         )
         .toMaybe(),
     );
@@ -1689,8 +1861,8 @@ export namespace NodeShapeWithInProperties {
 }
 
 export class NodeShapeWithHasValueProperties {
-  readonly hasIriProperty: purify.Maybe<rdfjs.NamedNode>;
-  readonly hasLiteralProperty: purify.Maybe<string>;
+  public readonly hasIriProperty: purify.Maybe<rdfjs.NamedNode>;
+  public readonly hasLiteralProperty: purify.Maybe<string>;
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly type = "NodeShapeWithHasValueProperties";
 
@@ -1876,12 +2048,12 @@ export namespace NodeShapeWithHasValueProperties {
 }
 
 export class NodeShapeWithDefaultValueProperties {
-  readonly dateTimeProperty: Date;
-  readonly falseBooleanProperty: boolean;
+  public readonly dateTimeProperty: Date;
+  public readonly falseBooleanProperty: boolean;
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  readonly numberProperty: number;
-  readonly stringProperty: string;
-  readonly trueBooleanProperty: boolean;
+  public readonly numberProperty: number;
+  public readonly stringProperty: string;
+  public readonly trueBooleanProperty: boolean;
   readonly type = "NodeShapeWithDefaultValueProperties";
 
   constructor(parameters: {
@@ -2233,7 +2405,7 @@ export namespace NodeShapeWithDefaultValueProperties {
 
 export class NonClassNodeShape {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  readonly stringProperty: string;
+  public readonly stringProperty: string;
   readonly type = "NonClassNodeShape";
 
   constructor(parameters: {
@@ -2333,7 +2505,7 @@ export namespace NonClassNodeShape {
 
 export class IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
-  readonly stringProperty: string;
+  public readonly stringProperty: string;
   readonly type = "IriNodeShape";
 
   constructor(parameters: {
@@ -2431,7 +2603,7 @@ export namespace IriNodeShape {
 
 export class InlineNodeShape {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  readonly stringProperty: string;
+  public readonly stringProperty: string;
   readonly type = "InlineNodeShape";
 
   constructor(parameters: {
@@ -2531,7 +2703,7 @@ export namespace InlineNodeShape {
 
 export class ExternNodeShape {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  readonly stringProperty: string;
+  public readonly stringProperty: string;
   readonly type = "ExternNodeShape";
 
   constructor(parameters: {
@@ -2630,9 +2802,9 @@ export namespace ExternNodeShape {
 }
 
 export class ExterningAndInliningNodeShape {
-  readonly externProperty: rdfjs.BlankNode | rdfjs.NamedNode;
+  public readonly externProperty: rdfjs.BlankNode | rdfjs.NamedNode;
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  readonly inlineProperty: InlineNodeShape;
+  public readonly inlineProperty: InlineNodeShape;
   readonly type = "ExterningAndInliningNodeShape";
 
   constructor(parameters: {
@@ -2779,7 +2951,7 @@ export namespace ExterningAndInliningNodeShape {
 }
 
 abstract class AbstractBaseClassWithPropertiesNodeShape {
-  readonly abcStringProperty: string;
+  public readonly abcStringProperty: string;
   abstract readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   abstract readonly type:
     | "ConcreteChildClassNodeShape"
@@ -2905,7 +3077,7 @@ namespace AbstractBaseClassWithoutPropertiesNodeShape {
 
 export class ConcreteParentClassNodeShape extends AbstractBaseClassWithoutPropertiesNodeShape {
   protected _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  readonly parentStringProperty: string;
+  public readonly parentStringProperty: string;
   override readonly type:
     | "ConcreteChildClassNodeShape"
     | "ConcreteParentClassNodeShape" = "ConcreteParentClassNodeShape";
@@ -2935,11 +3107,13 @@ export class ConcreteParentClassNodeShape extends AbstractBaseClassWithoutProper
   override equals(
     other: ConcreteParentClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        parentStringProperty: purifyHelpers.Equatable.strictEquals,
-      }),
-    );
+    return super
+      .equals(other)
+      .chain(() =>
+        purifyHelpers.Equatable.objectEquals(this, other, {
+          parentStringProperty: purifyHelpers.Equatable.strictEquals,
+        }),
+      );
   }
 
   override hash<
@@ -3064,7 +3238,7 @@ export namespace ConcreteParentClassNodeShape {
 }
 
 export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
-  readonly childStringProperty: string;
+  public readonly childStringProperty: string;
   override readonly type = "ConcreteChildClassNodeShape";
 
   constructor(
@@ -3089,11 +3263,13 @@ export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
   override equals(
     other: ConcreteChildClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super.equals(other).chain(() =>
-      purifyHelpers.Equatable.objectEquals(this, other, {
-        childStringProperty: purifyHelpers.Equatable.strictEquals,
-      }),
-    );
+    return super
+      .equals(other)
+      .chain(() =>
+        purifyHelpers.Equatable.objectEquals(this, other, {
+          childStringProperty: purifyHelpers.Equatable.strictEquals,
+        }),
+      );
   }
 
   override hash<

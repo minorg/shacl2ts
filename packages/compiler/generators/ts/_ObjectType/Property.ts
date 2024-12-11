@@ -1,11 +1,12 @@
 import type { Maybe } from "purify-ts";
-import type {
-  GetAccessorDeclarationStructure,
-  OptionalKind,
-  PropertyDeclarationStructure,
-  PropertySignatureStructure,
+import {
+  type GetAccessorDeclarationStructure,
+  type OptionalKind,
+  type PropertyDeclarationStructure,
+  type PropertySignatureStructure,
+  Scope,
 } from "ts-morph";
-import type { PropertyVisibility } from "../../../PropertyVisibility";
+import { PropertyVisibility } from "../../../PropertyVisibility.js";
 import type { Configuration } from "../Configuration.js";
 import type { Type } from "../Type.js";
 
@@ -45,6 +46,17 @@ export abstract class Property<TypeT extends { readonly name: string }> {
 
   get importStatements(): readonly string[] {
     return [];
+  }
+
+  protected static visibilityToScope(visibility: PropertyVisibility): Scope {
+    switch (visibility) {
+      case PropertyVisibility.PRIVATE:
+        return Scope.Private;
+      case PropertyVisibility.PROTECTED:
+        return Scope.Protected;
+      case PropertyVisibility.PUBLIC:
+        return Scope.Public;
+    }
   }
 
   abstract classConstructorStatements(parameters: {
