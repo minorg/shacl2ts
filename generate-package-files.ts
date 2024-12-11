@@ -60,6 +60,7 @@ const packages: readonly Package[] = [
         "@tpluscode/rdf-ns-builders":
           externalDependencyVersions["@tpluscode/rdf-ns-builders"],
         "@types/n3": externalDependencyVersions["@types/n3"],
+        "@types/rdf-validate-shacl": "^0.4.7",
         "@types/rdfjs__prefix-map": "^0.1.5",
         "@types/rdfjs__term-map":
           externalDependencyVersions["@types/rdfjs__term-map"],
@@ -69,6 +70,7 @@ const packages: readonly Package[] = [
         "change-case": "^5.4.4",
         n3: externalDependencyVersions["n3"],
         pino: externalDependencyVersions["pino"],
+        "rdf-validate-shacl": "^0.5.6",
         "reserved-identifiers": "^1.0.0",
         toposort: "2.0.2",
         "ts-invariant": "^0.10.3",
@@ -114,13 +116,11 @@ const packages: readonly Package[] = [
         "@rdfjs/types": externalDependencyVersions["@rdfjs/types"],
         "@tpluscode/rdf-ns-builders":
           externalDependencyVersions["@tpluscode/rdf-ns-builders"],
-        "@types/rdf-validate-shacl": "^0.4.7",
         "@types/rdfjs__term-map":
           externalDependencyVersions["@types/rdfjs__term-map"],
         "@types/rdfjs__term-set":
           externalDependencyVersions["@types/rdfjs__term-set"],
         "purify-ts": externalDependencyVersions["purify-ts"],
-        "rdf-validate-shacl": "^0.5.6",
         "rdfjs-resource": externalDependencyVersions["rdfjs-resource"],
       },
     },
