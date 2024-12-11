@@ -5,6 +5,7 @@ import type {
   PropertyDeclarationStructure,
   PropertySignatureStructure,
 } from "ts-morph";
+import type { PropertyVisibility } from "../../../PropertyVisibility";
 import type { Configuration } from "../Configuration.js";
 import type { Type } from "../Type.js";
 
@@ -22,20 +23,24 @@ export abstract class Property<TypeT extends { readonly name: string }> {
   abstract readonly interfacePropertySignature: OptionalKind<PropertySignatureStructure>;
   readonly name: string;
   readonly type: TypeT;
+  readonly visibility: PropertyVisibility;
   protected readonly configuration: Configuration;
 
   constructor({
     configuration,
     name,
     type,
+    visibility,
   }: {
     configuration: Configuration;
     name: string;
     type: TypeT;
+    visibility: PropertyVisibility;
   }) {
     this.configuration = configuration;
     this.name = name;
     this.type = type;
+    this.visibility = visibility;
   }
 
   get importStatements(): readonly string[] {

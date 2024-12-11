@@ -33,6 +33,7 @@ export function transformPropertyShapeToAstObjectTypeProperty(
     name: this.shapeAstName(propertyShape),
     path,
     type: type.extract() as ast.Type,
+    visibility: propertyShape.visibility,
   };
   this.astObjectTypePropertiesByIdentifier.set(
     propertyShape.resource.identifier,
