@@ -114,11 +114,13 @@ const packages: readonly Package[] = [
         "@rdfjs/types": externalDependencyVersions["@rdfjs/types"],
         "@tpluscode/rdf-ns-builders":
           externalDependencyVersions["@tpluscode/rdf-ns-builders"],
+        "@types/rdf-validate-shacl": "^0.4.7",
         "@types/rdfjs__term-map":
           externalDependencyVersions["@types/rdfjs__term-map"],
         "@types/rdfjs__term-set":
           externalDependencyVersions["@types/rdfjs__term-set"],
         "purify-ts": externalDependencyVersions["purify-ts"],
+        "rdf-validate-shacl": "^0.5.6",
         "rdfjs-resource": externalDependencyVersions["rdfjs-resource"],
       },
     },
