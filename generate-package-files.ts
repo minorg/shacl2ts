@@ -42,8 +42,12 @@ const packages: readonly Package[] = [
     },
     dependencies: {
       external: {
+        "@types/n3": externalDependencyVersions["@types/n3"],
+        "@types/rdf-validate-shacl": "^0.4.7",
         "cmd-ts": "^0.13.0",
+        n3: externalDependencyVersions["n3"],
         pino: externalDependencyVersions["pino"],
+        "rdf-validate-shacl": "^0.5.6",
       },
       internal: ["compiler"],
     },
@@ -59,7 +63,6 @@ const packages: readonly Package[] = [
         "@sindresorhus/base62": "^0.1.0",
         "@tpluscode/rdf-ns-builders":
           externalDependencyVersions["@tpluscode/rdf-ns-builders"],
-        "@types/n3": externalDependencyVersions["@types/n3"],
         "@types/rdfjs__prefix-map": "^0.1.5",
         "@types/rdfjs__term-map":
           externalDependencyVersions["@types/rdfjs__term-map"],
@@ -67,7 +70,6 @@ const packages: readonly Package[] = [
           externalDependencyVersions["@types/rdfjs__term-set"],
         "@types/toposort": "2.0.7",
         "change-case": "^5.4.4",
-        n3: externalDependencyVersions["n3"],
         pino: externalDependencyVersions["pino"],
         "reserved-identifiers": "^1.0.0",
         toposort: "2.0.2",

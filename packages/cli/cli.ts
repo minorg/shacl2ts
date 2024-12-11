@@ -4,7 +4,6 @@ import PrefixMap from "@rdfjs/prefix-map/PrefixMap";
 import { Compiler } from "@shaclmate/compiler";
 import * as generators from "@shaclmate/compiler/generators";
 import type { Generator } from "@shaclmate/compiler/generators/Generator";
-import { dashDataset } from "@shaclmate/compiler/vocabularies/dashDataset.js";
 import {
   array,
   command,
@@ -18,7 +17,11 @@ import {
 } from "cmd-ts";
 import { ExistingPath } from "cmd-ts/dist/esm/batteries/fs.js";
 import { DataFactory, Parser, Store } from "n3";
+import * as N3 from "n3";
 import pino from "pino";
+import SHACLValidator from "rdf-validate-shacl";
+import { dashDataset } from "./dashDataset.js";
+import { shaclShaclDataset } from "./shaclShaclDataset.js";
 
 const inputFilePaths = restPositionals({
   displayName: "inputFilePaths",
@@ -96,6 +99,26 @@ function generate({
   }
 
   const iriPrefixMap = new PrefixMap(iriPrefixes, { factory: DataFactory });
+
+  const validationReport = new SHACLValidator(shaclShaclDataset).validate(
+    dataset,
+  );
+  if (!validationReport.conforms) {
+    process.stderr.write("input is not valid SHACL:\n");
+    const n3WriterPrefixes: Record<string, string> = {};
+    for (const prefixEntry of iriPrefixMap.entries()) {
+      n3WriterPrefixes[prefixEntry[0]] = prefixEntry[1].value;
+    }
+    const n3Writer = new N3.Writer({
+      format: "text/turtle",
+      prefixes: n3WriterPrefixes,
+    });
+    for (const quad of validationReport.dataset) {
+      n3Writer.addQuad(quad);
+    }
+    n3Writer.end((_error, result) => process.stderr.write(result));
+    return;
+  }
 
   const output = new Compiler({ generator, iriPrefixMap }).compile(dataset);
   output
