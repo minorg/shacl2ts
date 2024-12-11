@@ -1,6 +1,11 @@
 import type { DatasetCore } from "@rdfjs/types";
 import { Parser, Store } from "n3";
 
+/**
+ * A subset of DASH (https://datashapes.org/dash.html) that's added to command line inputs for convenience.
+ *
+ * Parts that don't validate with SHACL-SHACL have been excised.
+ */
 export const dashDataset: DatasetCore = new Store(
   new Parser({ format: "text/turtle" }).parse(`
 # baseURI: http://datashapes.org/dash
