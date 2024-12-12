@@ -18,11 +18,17 @@ export namespace UuidV4IriNodeShape {
     left: UuidV4IriNodeShape,
     right: UuidV4IriNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.stringProperty,
+          right.stringProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -112,11 +118,17 @@ export namespace Sha256IriNodeShape {
     left: Sha256IriNodeShape,
     right: Sha256IriNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.stringProperty,
+          right.stringProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -206,11 +218,17 @@ export namespace OrNodeShapeMember2 {
     left: OrNodeShapeMember2,
     right: OrNodeShapeMember2,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty2: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.stringProperty2,
+          right.stringProperty2,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -300,11 +318,17 @@ export namespace OrNodeShapeMember1 {
     left: OrNodeShapeMember1,
     right: OrNodeShapeMember1,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty1: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.stringProperty1,
+          right.stringProperty1,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -396,11 +420,29 @@ export namespace NodeShapeWithPropertyVisibilities {
     left: NodeShapeWithPropertyVisibilities,
     right: NodeShapeWithPropertyVisibilities,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      publicProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.privateProperty,
+          right.privateProperty,
+        ),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.protectedProperty,
+          right.protectedProperty,
+        ),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.publicProperty,
+          right.publicProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -555,18 +597,31 @@ export namespace NodeShapeWithPropertyCardinalities {
     left: NodeShapeWithPropertyCardinalities,
     right: NodeShapeWithPropertyCardinalities,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      optionalStringProperty: purifyHelpers.Equatable.booleanEquals,
-      requiredStringProperty: purifyHelpers.Equatable.strictEquals,
-      setStringProperty: (left, right) =>
-        purifyHelpers.Arrays.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.strictEquals,
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          left.optionalStringProperty,
+          right.optionalStringProperty,
         ),
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.requiredStringProperty,
+          right.requiredStringProperty,
+        ),
+      )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.strictEquals,
+          ))(left.setStringProperty, right.setStringProperty),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -746,88 +801,95 @@ export namespace NodeShapeWithOrProperties {
     left: NodeShapeWithOrProperties,
     right: NodeShapeWithOrProperties,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      orLiteralsProperty: (left, right) =>
-        purifyHelpers.Maybes.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.booleanEquals,
-        ),
-      orTermsProperty: (left, right) =>
-        purifyHelpers.Maybes.equals(
-          left,
-          right,
-          (
-            left: rdfjs.Literal | rdfjs.NamedNode,
-            right: rdfjs.Literal | rdfjs.NamedNode,
-          ) => {
-            if (left.termType === "Literal" && right.termType === "Literal") {
-              return purifyHelpers.Equatable.booleanEquals(left, right);
-            }
-            if (
-              left.termType === "NamedNode" &&
-              right.termType === "NamedNode"
-            ) {
-              return purifyHelpers.Equatable.booleanEquals(left, right);
-            }
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Maybes.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ))(left.orLiteralsProperty, right.orLiteralsProperty),
+      )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Maybes.equals(
+            left,
+            right,
+            (
+              left: rdfjs.Literal | rdfjs.NamedNode,
+              right: rdfjs.Literal | rdfjs.NamedNode,
+            ) => {
+              if (left.termType === "Literal" && right.termType === "Literal") {
+                return purifyHelpers.Equatable.booleanEquals(left, right);
+              }
+              if (
+                left.termType === "NamedNode" &&
+                right.termType === "NamedNode"
+              ) {
+                return purifyHelpers.Equatable.booleanEquals(left, right);
+              }
 
-            return purify.Left({
-              left,
-              right,
-              propertyName: "type",
-              propertyValuesUnequal: {
-                left: typeof left,
-                right: typeof right,
-                type: "BooleanEquals",
-              },
-              type: "Property",
-            });
-          },
-        ),
-      orUnrelatedProperty: (left, right) =>
-        purifyHelpers.Maybes.equals(
-          left,
-          right,
-          (
-            left:
-              | { type: "0-number"; value: number }
-              | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
-            right:
-              | { type: "0-number"; value: number }
-              | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
-          ) => {
-            if (left.type === "0-number" && right.type === "0-number") {
-              return purifyHelpers.Equatable.strictEquals(
-                left.value,
-                right.value,
-              );
-            }
-            if (
-              left.type === "1-rdfjs.NamedNode" &&
-              right.type === "1-rdfjs.NamedNode"
-            ) {
-              return purifyHelpers.Equatable.booleanEquals(
-                left.value,
-                right.value,
-              );
-            }
+              return purify.Left({
+                left,
+                right,
+                propertyName: "type",
+                propertyValuesUnequal: {
+                  left: typeof left,
+                  right: typeof right,
+                  type: "BooleanEquals",
+                },
+                type: "Property",
+              });
+            },
+          ))(left.orTermsProperty, right.orTermsProperty),
+      )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Maybes.equals(
+            left,
+            right,
+            (
+              left:
+                | { type: "0-number"; value: number }
+                | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
+              right:
+                | { type: "0-number"; value: number }
+                | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
+            ) => {
+              if (left.type === "0-number" && right.type === "0-number") {
+                return purifyHelpers.Equatable.strictEquals(
+                  left.value,
+                  right.value,
+                );
+              }
+              if (
+                left.type === "1-rdfjs.NamedNode" &&
+                right.type === "1-rdfjs.NamedNode"
+              ) {
+                return purifyHelpers.Equatable.booleanEquals(
+                  left.value,
+                  right.value,
+                );
+              }
 
-            return purify.Left({
-              left,
-              right,
-              propertyName: "type",
-              propertyValuesUnequal: {
-                left: typeof left,
-                right: typeof right,
-                type: "BooleanEquals",
-              },
-              type: "Property",
-            });
-          },
-        ),
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+              return purify.Left({
+                left,
+                right,
+                propertyName: "type",
+                propertyValuesUnequal: {
+                  left: typeof left,
+                  right: typeof right,
+                  type: "BooleanEquals",
+                },
+                type: "Property",
+              });
+            },
+          ))(left.orUnrelatedProperty, right.orUnrelatedProperty),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -1097,11 +1159,17 @@ export namespace NodeShapeWithImportedTypes {
     left: NodeShapeWithImportedTypes,
     right: NodeShapeWithImportedTypes,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      importedTypeProperty: ImportedType.equals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .chain(() =>
+        ImportedType.equals(
+          left.importedTypeProperty,
+          right.importedTypeProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -1206,16 +1274,19 @@ export namespace NodeShapeWithListProperty {
     left: NodeShapeWithListProperty,
     right: NodeShapeWithListProperty,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      listProperty: (left, right) =>
-        purifyHelpers.Arrays.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.strictEquals,
-        ),
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.strictEquals,
+          ))(left.listProperty, right.listProperty),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -1390,27 +1461,47 @@ export namespace NodeShapeWithInProperties {
     left: NodeShapeWithInProperties,
     right: NodeShapeWithInProperties,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      inBooleansProperty: purifyHelpers.Equatable.booleanEquals,
-      inDateTimesProperty: (left, right) =>
-        purifyHelpers.Maybes.equals(left, right, (left, right) =>
-          purifyHelpers.Equatable.EqualsResult.fromBooleanEqualsResult(
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          left.inBooleansProperty,
+          right.inBooleansProperty,
+        ),
+      )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Maybes.equals(left, right, (left, right) =>
+            purifyHelpers.Equatable.EqualsResult.fromBooleanEqualsResult(
+              left,
+              right,
+              left.getTime() === right.getTime(),
+            ),
+          ))(left.inDateTimesProperty, right.inDateTimesProperty),
+      )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Maybes.equals(
             left,
             right,
-            left.getTime() === right.getTime(),
-          ),
+            purifyHelpers.Equatable.booleanEquals,
+          ))(left.inIrisProperty, right.inIrisProperty),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          left.inNumbersProperty,
+          right.inNumbersProperty,
         ),
-      inIrisProperty: (left, right) =>
-        purifyHelpers.Maybes.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.booleanEquals,
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          left.inStringsProperty,
+          right.inStringsProperty,
         ),
-      inNumbersProperty: purifyHelpers.Equatable.booleanEquals,
-      inStringsProperty: purifyHelpers.Equatable.booleanEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -1445,22 +1536,20 @@ export namespace NodeShapeWithInProperties {
         )
         .head()
         .chain((_value) =>
-          _value
-            .toBoolean()
-            .chain((value) =>
-              value === true
-                ? purify.Either.of(value)
-                : purify.Left(
-                    new rdfjsResource.Resource.MistypedValueError({
-                      actualValue: rdfLiteral.toRdf(value),
-                      expectedValueType: "true",
-                      focusResource: _resource,
-                      predicate: dataFactory.namedNode(
-                        "http://example.com/inBooleansProperty",
-                      ),
-                    }),
-                  ),
-            ),
+          _value.toBoolean().chain((value) =>
+            value === true
+              ? purify.Either.of(value)
+              : purify.Left(
+                  new rdfjsResource.Resource.MistypedValueError({
+                    actualValue: rdfLiteral.toRdf(value),
+                    expectedValueType: "true",
+                    focusResource: _resource,
+                    predicate: dataFactory.namedNode(
+                      "http://example.com/inBooleansProperty",
+                    ),
+                  }),
+                ),
+          ),
         )
         .toMaybe(),
     );
@@ -1775,17 +1864,25 @@ export namespace NodeShapeWithHasValueProperties {
     left: NodeShapeWithHasValueProperties,
     right: NodeShapeWithHasValueProperties,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      hasIriProperty: (left, right) =>
-        purifyHelpers.Maybes.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.booleanEquals,
+    return ((left, right) =>
+      purifyHelpers.Maybes.equals(
+        left,
+        right,
+        purifyHelpers.Equatable.booleanEquals,
+      ))(left.hasIriProperty, right.hasIriProperty)
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          left.hasLiteralProperty,
+          right.hasLiteralProperty,
         ),
-      hasLiteralProperty: purifyHelpers.Equatable.booleanEquals,
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          left.identifier,
+          right.identifier,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -1939,20 +2036,43 @@ export namespace NodeShapeWithDefaultValueProperties {
     left: NodeShapeWithDefaultValueProperties,
     right: NodeShapeWithDefaultValueProperties,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      dateTimeProperty: (left, right) =>
-        purifyHelpers.Equatable.EqualsResult.fromBooleanEqualsResult(
-          left,
-          right,
-          left.getTime() === right.getTime(),
+    return ((left, right) =>
+      purifyHelpers.Equatable.EqualsResult.fromBooleanEqualsResult(
+        left,
+        right,
+        left.getTime() === right.getTime(),
+      ))(left.dateTimeProperty, right.dateTimeProperty)
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.falseBooleanProperty,
+          right.falseBooleanProperty,
         ),
-      falseBooleanProperty: purifyHelpers.Equatable.strictEquals,
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      numberProperty: purifyHelpers.Equatable.strictEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      trueBooleanProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          left.identifier,
+          right.identifier,
+        ),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.numberProperty,
+          right.numberProperty,
+        ),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.stringProperty,
+          right.stringProperty,
+        ),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.trueBooleanProperty,
+          right.trueBooleanProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -2260,11 +2380,17 @@ export namespace NonClassNodeShape {
     left: NonClassNodeShape,
     right: NonClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.stringProperty,
+          right.stringProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -2354,11 +2480,17 @@ export namespace IriNodeShape {
     left: IriNodeShape,
     right: IriNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.stringProperty,
+          right.stringProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -2448,11 +2580,17 @@ export namespace InlineNodeShape {
     left: InlineNodeShape,
     right: InlineNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.stringProperty,
+          right.stringProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -2542,11 +2680,17 @@ export namespace ExternNodeShape {
     left: ExternNodeShape,
     right: ExternNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.stringProperty,
+          right.stringProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -2637,12 +2781,20 @@ export namespace ExterningAndInliningNodeShape {
     left: ExterningAndInliningNodeShape,
     right: ExterningAndInliningNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      externProperty: purifyHelpers.Equatable.booleanEquals,
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      inlineProperty: InlineNodeShape.equals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      left.externProperty,
+      right.externProperty,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          left.identifier,
+          right.identifier,
+        ),
+      )
+      .chain(() =>
+        InlineNodeShape.equals(left.inlineProperty, right.inlineProperty),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -2782,11 +2934,17 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
     left: AbstractBaseClassWithPropertiesNodeShape,
     right: AbstractBaseClassWithPropertiesNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      abcStringProperty: purifyHelpers.Equatable.strictEquals,
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.strictEquals(
+      left.abcStringProperty,
+      right.abcStringProperty,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          left.identifier,
+          right.identifier,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(
@@ -2931,9 +3089,10 @@ export namespace ConcreteParentClassNodeShape {
   ): purifyHelpers.Equatable.EqualsResult {
     return AbstractBaseClassWithPropertiesNodeShape.equals(left, right).chain(
       () =>
-        purifyHelpers.Equatable.objectEquals(left, right, {
-          parentStringProperty: purifyHelpers.Equatable.strictEquals,
-        }),
+        purifyHelpers.Equatable.strictEquals(
+          left.parentStringProperty,
+          right.parentStringProperty,
+        ),
     );
   }
 
@@ -3085,9 +3244,10 @@ export namespace ConcreteChildClassNodeShape {
     right: ConcreteChildClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
     return ConcreteParentClassNodeShape.equals(left, right).chain(() =>
-      purifyHelpers.Equatable.objectEquals(left, right, {
-        childStringProperty: purifyHelpers.Equatable.strictEquals,
-      }),
+      purifyHelpers.Equatable.strictEquals(
+        left.childStringProperty,
+        right.childStringProperty,
+      ),
     );
   }
 
@@ -3239,11 +3399,17 @@ export namespace AbstractBaseClassForImportedType {
     left: AbstractBaseClassForImportedType,
     right: AbstractBaseClassForImportedType,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      abcStringProperty: purifyHelpers.Equatable.strictEquals,
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.strictEquals(
+      left.abcStringProperty,
+      right.abcStringProperty,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          left.identifier,
+          right.identifier,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
   }
 
   export function fromRdf(

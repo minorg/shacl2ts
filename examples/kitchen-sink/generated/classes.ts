@@ -32,11 +32,17 @@ export class UuidV4IriNodeShape {
   }
 
   equals(other: UuidV4IriNodeShape): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.stringProperty,
+          other.stringProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -131,11 +137,17 @@ export class Sha256IriNodeShape {
   }
 
   equals(other: Sha256IriNodeShape): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.stringProperty,
+          other.stringProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -230,11 +242,17 @@ export class OrNodeShapeMember2 {
   }
 
   equals(other: OrNodeShapeMember2): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty2: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.stringProperty2,
+          other.stringProperty2,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -329,11 +347,17 @@ export class OrNodeShapeMember1 {
   }
 
   equals(other: OrNodeShapeMember1): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty1: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.stringProperty1,
+          other.stringProperty1,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -436,11 +460,29 @@ export class NodeShapeWithPropertyVisibilities {
   equals(
     other: NodeShapeWithPropertyVisibilities,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      publicProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.privateProperty,
+          other.privateProperty,
+        ),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.protectedProperty,
+          other.protectedProperty,
+        ),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.publicProperty,
+          other.publicProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -620,18 +662,31 @@ export class NodeShapeWithPropertyCardinalities {
   equals(
     other: NodeShapeWithPropertyCardinalities,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      optionalStringProperty: purifyHelpers.Equatable.booleanEquals,
-      requiredStringProperty: purifyHelpers.Equatable.strictEquals,
-      setStringProperty: (left, right) =>
-        purifyHelpers.Arrays.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.strictEquals,
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          this.optionalStringProperty,
+          other.optionalStringProperty,
         ),
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.requiredStringProperty,
+          other.requiredStringProperty,
+        ),
+      )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.strictEquals,
+          ))(this.setStringProperty, other.setStringProperty),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -880,88 +935,95 @@ export class NodeShapeWithOrProperties {
   equals(
     other: NodeShapeWithOrProperties,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      orLiteralsProperty: (left, right) =>
-        purifyHelpers.Maybes.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.booleanEquals,
-        ),
-      orTermsProperty: (left, right) =>
-        purifyHelpers.Maybes.equals(
-          left,
-          right,
-          (
-            left: rdfjs.Literal | rdfjs.NamedNode,
-            right: rdfjs.Literal | rdfjs.NamedNode,
-          ) => {
-            if (left.termType === "Literal" && right.termType === "Literal") {
-              return purifyHelpers.Equatable.booleanEquals(left, right);
-            }
-            if (
-              left.termType === "NamedNode" &&
-              right.termType === "NamedNode"
-            ) {
-              return purifyHelpers.Equatable.booleanEquals(left, right);
-            }
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Maybes.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ))(this.orLiteralsProperty, other.orLiteralsProperty),
+      )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Maybes.equals(
+            left,
+            right,
+            (
+              left: rdfjs.Literal | rdfjs.NamedNode,
+              right: rdfjs.Literal | rdfjs.NamedNode,
+            ) => {
+              if (left.termType === "Literal" && right.termType === "Literal") {
+                return purifyHelpers.Equatable.booleanEquals(left, right);
+              }
+              if (
+                left.termType === "NamedNode" &&
+                right.termType === "NamedNode"
+              ) {
+                return purifyHelpers.Equatable.booleanEquals(left, right);
+              }
 
-            return purify.Left({
-              left,
-              right,
-              propertyName: "type",
-              propertyValuesUnequal: {
-                left: typeof left,
-                right: typeof right,
-                type: "BooleanEquals",
-              },
-              type: "Property",
-            });
-          },
-        ),
-      orUnrelatedProperty: (left, right) =>
-        purifyHelpers.Maybes.equals(
-          left,
-          right,
-          (
-            left:
-              | { type: "0-number"; value: number }
-              | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
-            right:
-              | { type: "0-number"; value: number }
-              | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
-          ) => {
-            if (left.type === "0-number" && right.type === "0-number") {
-              return purifyHelpers.Equatable.strictEquals(
-                left.value,
-                right.value,
-              );
-            }
-            if (
-              left.type === "1-rdfjs.NamedNode" &&
-              right.type === "1-rdfjs.NamedNode"
-            ) {
-              return purifyHelpers.Equatable.booleanEquals(
-                left.value,
-                right.value,
-              );
-            }
+              return purify.Left({
+                left,
+                right,
+                propertyName: "type",
+                propertyValuesUnequal: {
+                  left: typeof left,
+                  right: typeof right,
+                  type: "BooleanEquals",
+                },
+                type: "Property",
+              });
+            },
+          ))(this.orTermsProperty, other.orTermsProperty),
+      )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Maybes.equals(
+            left,
+            right,
+            (
+              left:
+                | { type: "0-number"; value: number }
+                | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
+              right:
+                | { type: "0-number"; value: number }
+                | { type: "1-rdfjs.NamedNode"; value: rdfjs.NamedNode },
+            ) => {
+              if (left.type === "0-number" && right.type === "0-number") {
+                return purifyHelpers.Equatable.strictEquals(
+                  left.value,
+                  right.value,
+                );
+              }
+              if (
+                left.type === "1-rdfjs.NamedNode" &&
+                right.type === "1-rdfjs.NamedNode"
+              ) {
+                return purifyHelpers.Equatable.booleanEquals(
+                  left.value,
+                  right.value,
+                );
+              }
 
-            return purify.Left({
-              left,
-              right,
-              propertyName: "type",
-              propertyValuesUnequal: {
-                left: typeof left,
-                right: typeof right,
-                type: "BooleanEquals",
-              },
-              type: "Property",
-            });
-          },
-        ),
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+              return purify.Left({
+                left,
+                right,
+                propertyName: "type",
+                propertyValuesUnequal: {
+                  left: typeof left,
+                  right: typeof right,
+                  type: "BooleanEquals",
+                },
+                type: "Property",
+              });
+            },
+          ))(this.orUnrelatedProperty, other.orUnrelatedProperty),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -1232,11 +1294,17 @@ export class NodeShapeWithImportedTypes {
   equals(
     other: NodeShapeWithImportedTypes,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      importedTypeProperty: purifyHelpers.Equatable.equals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.equals(
+          this.importedTypeProperty,
+          other.importedTypeProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -1345,16 +1413,19 @@ export class NodeShapeWithListProperty {
   equals(
     other: NodeShapeWithListProperty,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      listProperty: (left, right) =>
-        purifyHelpers.Arrays.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.strictEquals,
-        ),
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Arrays.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.strictEquals,
+          ))(this.listProperty, other.listProperty),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -1606,27 +1677,47 @@ export class NodeShapeWithInProperties {
   equals(
     other: NodeShapeWithInProperties,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      inBooleansProperty: purifyHelpers.Equatable.booleanEquals,
-      inDateTimesProperty: (left, right) =>
-        purifyHelpers.Maybes.equals(left, right, (left, right) =>
-          purifyHelpers.Equatable.EqualsResult.fromBooleanEqualsResult(
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          this.inBooleansProperty,
+          other.inBooleansProperty,
+        ),
+      )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Maybes.equals(left, right, (left, right) =>
+            purifyHelpers.Equatable.EqualsResult.fromBooleanEqualsResult(
+              left,
+              right,
+              left.getTime() === right.getTime(),
+            ),
+          ))(this.inDateTimesProperty, other.inDateTimesProperty),
+      )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Maybes.equals(
             left,
             right,
-            left.getTime() === right.getTime(),
-          ),
+            purifyHelpers.Equatable.booleanEquals,
+          ))(this.inIrisProperty, other.inIrisProperty),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          this.inNumbersProperty,
+          other.inNumbersProperty,
         ),
-      inIrisProperty: (left, right) =>
-        purifyHelpers.Maybes.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.booleanEquals,
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          this.inStringsProperty,
+          other.inStringsProperty,
         ),
-      inNumbersProperty: purifyHelpers.Equatable.booleanEquals,
-      inStringsProperty: purifyHelpers.Equatable.booleanEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -1707,22 +1798,20 @@ export namespace NodeShapeWithInProperties {
         )
         .head()
         .chain((_value) =>
-          _value
-            .toBoolean()
-            .chain((value) =>
-              value === true
-                ? purify.Either.of(value)
-                : purify.Left(
-                    new rdfjsResource.Resource.MistypedValueError({
-                      actualValue: rdfLiteral.toRdf(value),
-                      expectedValueType: "true",
-                      focusResource: _resource,
-                      predicate: dataFactory.namedNode(
-                        "http://example.com/inBooleansProperty",
-                      ),
-                    }),
-                  ),
-            ),
+          _value.toBoolean().chain((value) =>
+            value === true
+              ? purify.Either.of(value)
+              : purify.Left(
+                  new rdfjsResource.Resource.MistypedValueError({
+                    actualValue: rdfLiteral.toRdf(value),
+                    expectedValueType: "true",
+                    focusResource: _resource,
+                    predicate: dataFactory.namedNode(
+                      "http://example.com/inBooleansProperty",
+                    ),
+                  }),
+                ),
+          ),
         )
         .toMaybe(),
     );
@@ -2008,17 +2097,25 @@ export class NodeShapeWithHasValueProperties {
   equals(
     other: NodeShapeWithHasValueProperties,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      hasIriProperty: (left, right) =>
-        purifyHelpers.Maybes.equals(
-          left,
-          right,
-          purifyHelpers.Equatable.booleanEquals,
+    return ((left, right) =>
+      purifyHelpers.Maybes.equals(
+        left,
+        right,
+        purifyHelpers.Equatable.booleanEquals,
+      ))(this.hasIriProperty, other.hasIriProperty)
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          this.hasLiteralProperty,
+          other.hasLiteralProperty,
         ),
-      hasLiteralProperty: purifyHelpers.Equatable.booleanEquals,
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          this.identifier,
+          other.identifier,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -2222,20 +2319,43 @@ export class NodeShapeWithDefaultValueProperties {
   equals(
     other: NodeShapeWithDefaultValueProperties,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      dateTimeProperty: (left, right) =>
-        purifyHelpers.Equatable.EqualsResult.fromBooleanEqualsResult(
-          left,
-          right,
-          left.getTime() === right.getTime(),
+    return ((left, right) =>
+      purifyHelpers.Equatable.EqualsResult.fromBooleanEqualsResult(
+        left,
+        right,
+        left.getTime() === right.getTime(),
+      ))(this.dateTimeProperty, other.dateTimeProperty)
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.falseBooleanProperty,
+          other.falseBooleanProperty,
         ),
-      falseBooleanProperty: purifyHelpers.Equatable.strictEquals,
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      numberProperty: purifyHelpers.Equatable.strictEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      trueBooleanProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          this.identifier,
+          other.identifier,
+        ),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.numberProperty,
+          other.numberProperty,
+        ),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.stringProperty,
+          other.stringProperty,
+        ),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.trueBooleanProperty,
+          other.trueBooleanProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -2526,11 +2646,17 @@ export class NonClassNodeShape {
   }
 
   equals(other: NonClassNodeShape): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.stringProperty,
+          other.stringProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -2625,11 +2751,17 @@ export class IriNodeShape {
   }
 
   equals(other: IriNodeShape): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.stringProperty,
+          other.stringProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -2722,11 +2854,17 @@ export class InlineNodeShape {
   }
 
   equals(other: InlineNodeShape): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.stringProperty,
+          other.stringProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -2821,11 +2959,17 @@ export class ExternNodeShape {
   }
 
   equals(other: ExternNodeShape): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      stringProperty: purifyHelpers.Equatable.strictEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.stringProperty,
+          other.stringProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -2925,12 +3069,23 @@ export class ExterningAndInliningNodeShape {
   equals(
     other: ExterningAndInliningNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      externProperty: purifyHelpers.Equatable.booleanEquals,
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      inlineProperty: purifyHelpers.Equatable.equals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.booleanEquals(
+      this.externProperty,
+      other.externProperty,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          this.identifier,
+          other.identifier,
+        ),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.equals(
+          this.inlineProperty,
+          other.inlineProperty,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -3059,11 +3214,17 @@ abstract class AbstractBaseClassWithPropertiesNodeShape {
   equals(
     other: AbstractBaseClassWithPropertiesNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      abcStringProperty: purifyHelpers.Equatable.strictEquals,
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.strictEquals(
+      this.abcStringProperty,
+      other.abcStringProperty,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          this.identifier,
+          other.identifier,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<
@@ -3205,9 +3366,10 @@ export class ConcreteParentClassNodeShape extends AbstractBaseClassWithoutProper
     return super
       .equals(other)
       .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          parentStringProperty: purifyHelpers.Equatable.strictEquals,
-        }),
+        purifyHelpers.Equatable.strictEquals(
+          this.parentStringProperty,
+          other.parentStringProperty,
+        ),
       );
   }
 
@@ -3360,9 +3522,10 @@ export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
     return super
       .equals(other)
       .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          childStringProperty: purifyHelpers.Equatable.strictEquals,
-        }),
+        purifyHelpers.Equatable.strictEquals(
+          this.childStringProperty,
+          other.childStringProperty,
+        ),
       );
   }
 
@@ -3503,11 +3666,17 @@ export abstract class AbstractBaseClassForImportedType {
   equals(
     other: AbstractBaseClassForImportedType,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(this, other, {
-      abcStringProperty: purifyHelpers.Equatable.strictEquals,
-      identifier: purifyHelpers.Equatable.booleanEquals,
-      type: purifyHelpers.Equatable.strictEquals,
-    });
+    return purifyHelpers.Equatable.strictEquals(
+      this.abcStringProperty,
+      other.abcStringProperty,
+    )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          this.identifier,
+          other.identifier,
+        ),
+      )
+      .chain(() => purifyHelpers.Equatable.strictEquals(this.type, other.type));
   }
 
   hash<

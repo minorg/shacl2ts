@@ -28,21 +28,28 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
         !(property instanceof TypeDiscriminatorProperty),
     );
   }
-  properties = properties.filter(
-    (property) => property.visibility === PropertyVisibility.PUBLIC,
-  );
 
   if (properties.length === 0) {
     return Maybe.empty();
   }
 
-  let expression: string;
+  let leftVariable: string;
+  let rightVariable: string;
+  switch (this.configuration.objectTypeDeclarationType) {
+    case "class":
+      leftVariable = "this";
+      rightVariable = "other";
+      break;
+    case "interface":
+      leftVariable = "left";
+      rightVariable = "right";
+  }
+
+  const chain: string[] = [];
+
   let hasOverrideKeyword = false;
   switch (this.configuration.objectTypeDeclarationType) {
     case "class": {
-      expression = `purifyHelpers.Equatable.objectEquals(this, other, { ${properties
-        .map((property) => `${property.name}: ${property.equalsFunction}`)
-        .join()} })`;
       // If there's an ancestor with an equals implementation then delegate to super.
       for (const ancestorObjectType of this.ancestorObjectTypes) {
         const ancestorClassDeclaration = ancestorObjectType
@@ -54,7 +61,7 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
             (method) => method.name === "equals",
           )
         ) {
-          expression = `super.equals(other).chain(() => ${expression})`;
+          chain.push("super.equals(other)");
           hasOverrideKeyword = true;
           break;
         }
@@ -62,17 +69,14 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
       break;
     }
     case "interface": {
-      expression = `purifyHelpers.Equatable.objectEquals(left, right, { ${properties
-        .map((property) => `${property.name}: ${property.equalsFunction}`)
-        .join()} })`;
       // For every parent, find the nearest equals implementation
       for (const parentObjectType of this.parentObjectTypes) {
         if (parentObjectType.equalsFunctionDeclaration().isJust()) {
-          expression = `${parentObjectType.name}.equals(left, right).chain(() => ${expression})`;
+          chain.push(`${parentObjectType.name}.equals(left, right)`);
         } else {
           for (const ancestorObjectType of parentObjectType.ancestorObjectTypes) {
             if (ancestorObjectType.equalsFunctionDeclaration().isJust()) {
-              expression = `${ancestorObjectType.name}.equals(left, right).chain(() => ${expression})`;
+              chain.push(`${ancestorObjectType.name}.equals(left, right)`);
               break;
             }
           }
@@ -81,6 +85,15 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
       break;
     }
   }
+
+  for (const property of properties) {
+    let propertyEqualsCall = `(${property.equalsFunction})(${leftVariable}.${property.name}, ${rightVariable}.${property.name})`;
+    if (chain.length > 0) {
+      propertyEqualsCall = `chain(() => ${propertyEqualsCall})`;
+    }
+    chain.push(propertyEqualsCall);
+  }
+  const expression = chain.join(".");
 
   return Maybe.of({
     hasOverrideKeyword,
