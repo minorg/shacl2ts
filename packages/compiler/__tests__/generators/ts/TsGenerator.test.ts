@@ -471,7 +471,9 @@ describe("TsGenerator", () => {
 
   it("should handle imported types", ({ expect }) => {
     const instance = new kitchenSinkClasses.NodeShapeWithImportedTypes({
-      importedTypeProperty: new KitchenSinkImportedType(),
+      importedTypeProperty: new KitchenSinkImportedType(
+        dataFactory.blankNode(),
+      ),
     });
     testFromRdf({
       expect,

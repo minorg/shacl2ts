@@ -1446,20 +1446,22 @@ export namespace NodeShapeWithInProperties {
         )
         .head()
         .chain((_value) =>
-          _value.toBoolean().chain((value) =>
-            value === true
-              ? purify.Either.of(value)
-              : purify.Left(
-                  new rdfjsResource.Resource.MistypedValueError({
-                    actualValue: rdfLiteral.toRdf(value),
-                    expectedValueType: "true",
-                    focusResource: _resource,
-                    predicate: dataFactory.namedNode(
-                      "http://example.com/inBooleansProperty",
-                    ),
-                  }),
-                ),
-          ),
+          _value
+            .toBoolean()
+            .chain((value) =>
+              value === true
+                ? purify.Either.of(value)
+                : purify.Left(
+                    new rdfjsResource.Resource.MistypedValueError({
+                      actualValue: rdfLiteral.toRdf(value),
+                      expectedValueType: "true",
+                      focusResource: _resource,
+                      predicate: dataFactory.namedNode(
+                        "http://example.com/inBooleansProperty",
+                      ),
+                    }),
+                  ),
+            ),
         )
         .toMaybe(),
     );
@@ -3221,6 +3223,94 @@ export namespace ConcreteChildClassNodeShape {
     _resource.add(
       dataFactory.namedNode("http://example.com/childStringProperty"),
       concreteChildClassNodeShape.childStringProperty,
+    );
+    return _resource;
+  }
+}
+export interface AbstractBaseClassForImportedType {
+  readonly abcStringProperty: string;
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly type: "KitchenSinkImportedType";
+}
+
+export namespace AbstractBaseClassForImportedType {
+  export function equals(
+    left: AbstractBaseClassForImportedType,
+    right: AbstractBaseClassForImportedType,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      abcStringProperty: purifyHelpers.Equatable.strictEquals,
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    { abcStringProperty: string; identifier: rdfjs.BlankNode | rdfjs.NamedNode }
+  > {
+    const _abcStringPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/abcStringProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
+    if (_abcStringPropertyEither.isLeft()) {
+      return _abcStringPropertyEither;
+    }
+
+    const abcStringProperty = _abcStringPropertyEither.unsafeCoerce();
+    const identifier = _resource.identifier;
+    return purify.Either.of({ abcStringProperty, identifier });
+  }
+
+  export function hashAbstractBaseClassForImportedType<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _abstractBaseClassForImportedType: AbstractBaseClassForImportedType,
+    _hasher: HasherT,
+  ): HasherT {
+    _hasher.update(_abstractBaseClassForImportedType.abcStringProperty);
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/abcStringProperty"),
+          this.variable("AbcStringProperty"),
+        ),
+      );
+    }
+  }
+
+  export function toRdf(
+    abstractBaseClassForImportedType: AbstractBaseClassForImportedType,
+    {
+      mutateGraph,
+      resourceSet,
+    }: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    },
+  ): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: abstractBaseClassForImportedType.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/abcStringProperty"),
+      abstractBaseClassForImportedType.abcStringProperty,
     );
     return _resource;
   }

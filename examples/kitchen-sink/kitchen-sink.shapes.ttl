@@ -21,6 +21,15 @@
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "abcStringProperty" ; sh:path :abcStringProperty ] ;
 .
 
+# An abstract base class that will be inherited by the imported type, showing how to mix generated and hand-written code
+:AbstractBaseClassForImportedType
+  a owl:Class ;
+  a sh:NodeShape ;
+  shaclmate:abstract true;
+  sh:name "AbstractBaseClassForImportedType" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "abcStringProperty" ; sh:path :abcStringProperty ] ;
+.
+
 :AbstractBaseClassWithoutPropertiesNodeShape
   a owl:Class ;
   a sh:NodeShape ;
@@ -91,10 +100,11 @@
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
 .
 
-# A native type in TypeScript
-:KitchenSinkImportedType
+# An imported type in TypeScript
+:ImportedType
   a sh:NodeShape ;
   sh:name "KitchenSinkImportedType" ;
+  rdfs:subClassOf :AbstractBaseClassForImportedType ;
   shaclmate:tsImport "import { KitchenSinkImportedType } from \"../KitchenSinkImportedType.js\";"
 .
 
@@ -178,7 +188,7 @@
 :NodeShapeWithImportedTypes
   a sh:NodeShape ;
   sh:name "NodeShapeWithImportedTypes" ;
-  sh:property [ shaclmate:inline true ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "importedTypeProperty" ; sh:node :KitchenSinkImportedType ; sh:path :importedTypeProperty ] ;
+  sh:property [ shaclmate:inline true ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "importedTypeProperty" ; sh:node :ImportedType ; sh:path :importedTypeProperty ] ;
 .
 
 # Shape with sh:or properties
