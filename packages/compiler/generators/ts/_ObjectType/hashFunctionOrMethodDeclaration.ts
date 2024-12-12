@@ -67,8 +67,12 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     case "class": {
       // If there's an ancestor with a hash implementation then delegate to super.
       for (const ancestorObjectType of this.ancestorObjectTypes) {
+        const ancestorClassDeclaration = ancestorObjectType
+          .classDeclaration()
+          .extract();
         if (
-          (ancestorObjectType.classDeclaration().extract()?.methods ?? []).some(
+          !ancestorClassDeclaration || // Probably an imported type, assume it has a hash
+          (ancestorClassDeclaration.methods ?? []).some(
             (method) => method.name === "hash",
           )
         ) {

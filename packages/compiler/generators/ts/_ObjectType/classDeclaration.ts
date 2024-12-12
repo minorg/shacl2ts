@@ -32,10 +32,15 @@ function constructorDeclaration(
   const statements: (string | StatementStructures)[] = [];
 
   if (
-    this.ancestorObjectTypes.some(
-      (ancestorObjectType) =>
-        ancestorObjectType.classDeclaration().extract()?.ctors?.length,
-    )
+    this.ancestorObjectTypes.some((ancestorObjectType) => {
+      const ancestorClassDeclaration = ancestorObjectType
+        .classDeclaration()
+        .extract();
+      if (!ancestorClassDeclaration) {
+        return true; // Probably imported, assume it has a constructor that takes parameters
+      }
+      return ancestorClassDeclaration.ctors?.length;
+    })
   ) {
     // If some ancestor type has a constructor then pass up parameters
     statements.push("super(parameters);");
@@ -60,12 +65,7 @@ function constructorDeclaration(
   let constructorParametersType = `{ ${constructorParameterPropertySignatures.join(
     ", ",
   )} }`;
-  if (
-    this.ancestorObjectTypes.some(
-      (ancestorObjectType) =>
-        ancestorObjectType.classDeclaration().extract()?.ctors?.length,
-    )
-  ) {
+  if (statements[0] === "super(parameters);") {
     // If some ancestor type has a constructor then pass up parameters
     constructorParametersType = `${constructorParametersType} & ConstructorParameters<typeof ${this.parentObjectTypes[0].name}>[0]`;
   }
