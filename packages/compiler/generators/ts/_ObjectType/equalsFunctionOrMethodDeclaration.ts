@@ -71,7 +71,7 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
 
   for (const property of properties) {
     chain.push(
-      `(${property.equalsFunction})(${leftVariable}.${property.name}, ${rightVariable}.${property.name})`,
+      `(${property.equalsFunction})(${leftVariable}.${property.name}, ${rightVariable}.${property.name}).mapLeft(propertyValuesUnequal => ({ left: ${leftVariable}, right: ${rightVariable}, propertyName: "${property.name}", propertyValuesUnequal, type: "Property" as const }))`,
     );
   }
 

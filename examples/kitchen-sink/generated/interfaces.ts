@@ -22,13 +22,36 @@ export namespace UuidV4IriNodeShape {
       left.identifier,
       right.identifier,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.stringProperty,
           right.stringProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "stringProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -123,13 +146,36 @@ export namespace Sha256IriNodeShape {
       left.identifier,
       right.identifier,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.stringProperty,
           right.stringProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "stringProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -224,13 +270,36 @@ export namespace OrNodeShapeMember2 {
       left.identifier,
       right.identifier,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.stringProperty2,
           right.stringProperty2,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "stringProperty2",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -325,13 +394,36 @@ export namespace OrNodeShapeMember1 {
       left.identifier,
       right.identifier,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.stringProperty1,
           right.stringProperty1,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "stringProperty1",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -428,25 +520,60 @@ export namespace NodeShapeWithPropertyVisibilities {
       left.identifier,
       right.identifier,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.privateProperty,
           right.privateProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "privateProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.protectedProperty,
           right.protectedProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "protectedProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.publicProperty,
           right.publicProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "publicProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -606,17 +733,36 @@ export namespace NodeShapeWithPropertyCardinalities {
       left.identifier,
       right.identifier,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.booleanEquals(
           left.optionalStringProperty,
           right.optionalStringProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "optionalStringProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.requiredStringProperty,
           right.requiredStringProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "requiredStringProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
       .chain(() =>
         ((left, right) =>
@@ -624,9 +770,27 @@ export namespace NodeShapeWithPropertyCardinalities {
             left,
             right,
             purifyHelpers.Equatable.strictEquals,
-          ))(left.setStringProperty, right.setStringProperty),
+          ))(left.setStringProperty, right.setStringProperty).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "setStringProperty",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -811,13 +975,28 @@ export namespace NodeShapeWithOrProperties {
       left.identifier,
       right.identifier,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         ((left, right) =>
           purifyHelpers.Maybes.equals(
             left,
             right,
             purifyHelpers.Equatable.booleanEquals,
-          ))(left.orLiteralsProperty, right.orLiteralsProperty),
+          ))(left.orLiteralsProperty, right.orLiteralsProperty).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "orLiteralsProperty",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
       )
       .chain(() =>
         ((left, right) =>
@@ -850,7 +1029,15 @@ export namespace NodeShapeWithOrProperties {
                 type: "Property",
               });
             },
-          ))(left.orTermsProperty, right.orTermsProperty),
+          ))(left.orTermsProperty, right.orTermsProperty).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "orTermsProperty",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
       )
       .chain(() =>
         ((left, right) =>
@@ -893,9 +1080,27 @@ export namespace NodeShapeWithOrProperties {
                 type: "Property",
               });
             },
-          ))(left.orUnrelatedProperty, right.orUnrelatedProperty),
+          ))(left.orUnrelatedProperty, right.orUnrelatedProperty).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "orUnrelatedProperty",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -1170,13 +1375,36 @@ export namespace NodeShapeWithImportedTypes {
       left.identifier,
       right.identifier,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         ImportedType.equals(
           left.importedTypeProperty,
           right.importedTypeProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "importedTypeProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -1291,15 +1519,40 @@ export namespace NodeShapeWithListProperty {
       left.identifier,
       right.identifier,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         ((left, right) =>
           purifyHelpers.Arrays.equals(
             left,
             right,
             purifyHelpers.Equatable.strictEquals,
-          ))(left.listProperty, right.listProperty),
+          ))(left.listProperty, right.listProperty).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "listProperty",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -1479,11 +1732,24 @@ export namespace NodeShapeWithInProperties {
       left.identifier,
       right.identifier,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.booleanEquals(
           left.inBooleansProperty,
           right.inBooleansProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "inBooleansProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
       .chain(() =>
         ((left, right) =>
@@ -1493,7 +1759,15 @@ export namespace NodeShapeWithInProperties {
               right,
               left.getTime() === right.getTime(),
             ),
-          ))(left.inDateTimesProperty, right.inDateTimesProperty),
+          ))(left.inDateTimesProperty, right.inDateTimesProperty).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "inDateTimesProperty",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
       )
       .chain(() =>
         ((left, right) =>
@@ -1501,21 +1775,51 @@ export namespace NodeShapeWithInProperties {
             left,
             right,
             purifyHelpers.Equatable.booleanEquals,
-          ))(left.inIrisProperty, right.inIrisProperty),
+          ))(left.inIrisProperty, right.inIrisProperty).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "inIrisProperty",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
       )
       .chain(() =>
         purifyHelpers.Equatable.booleanEquals(
           left.inNumbersProperty,
           right.inNumbersProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "inNumbersProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
       .chain(() =>
         purifyHelpers.Equatable.booleanEquals(
           left.inStringsProperty,
           right.inStringsProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "inStringsProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -1885,19 +2189,48 @@ export namespace NodeShapeWithHasValueProperties {
         right,
         purifyHelpers.Equatable.booleanEquals,
       ))(left.hasIriProperty, right.hasIriProperty)
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "hasIriProperty",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.booleanEquals(
           left.hasLiteralProperty,
           right.hasLiteralProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "hasLiteralProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
       .chain(() =>
         purifyHelpers.Equatable.booleanEquals(
           left.identifier,
           right.identifier,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "identifier",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -2058,37 +2391,84 @@ export namespace NodeShapeWithDefaultValueProperties {
         right,
         left.getTime() === right.getTime(),
       ))(left.dateTimeProperty, right.dateTimeProperty)
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "dateTimeProperty",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.falseBooleanProperty,
           right.falseBooleanProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "falseBooleanProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
       .chain(() =>
         purifyHelpers.Equatable.booleanEquals(
           left.identifier,
           right.identifier,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "identifier",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.numberProperty,
           right.numberProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "numberProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.stringProperty,
           right.stringProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "stringProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.trueBooleanProperty,
           right.trueBooleanProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "trueBooleanProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -2401,13 +2781,36 @@ export namespace NonClassNodeShape {
       left.identifier,
       right.identifier,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.stringProperty,
           right.stringProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "stringProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -2502,13 +2905,36 @@ export namespace IriNodeShape {
       left.identifier,
       right.identifier,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.stringProperty,
           right.stringProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "stringProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -2603,13 +3029,36 @@ export namespace InlineNodeShape {
       left.identifier,
       right.identifier,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.stringProperty,
           right.stringProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "stringProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -2704,13 +3153,36 @@ export namespace ExternNodeShape {
       left.identifier,
       right.identifier,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.strictEquals(
           left.stringProperty,
           right.stringProperty,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "stringProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -2806,16 +3278,48 @@ export namespace ExterningAndInliningNodeShape {
       left.externProperty,
       right.externProperty,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "externProperty",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.booleanEquals(
           left.identifier,
           right.identifier,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "identifier",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
       .chain(() =>
-        InlineNodeShape.equals(left.inlineProperty, right.inlineProperty),
+        InlineNodeShape.equals(
+          left.inlineProperty,
+          right.inlineProperty,
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "inlineProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -2965,13 +3469,36 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
       left.abcStringProperty,
       right.abcStringProperty,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "abcStringProperty",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.booleanEquals(
           left.identifier,
           right.identifier,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "identifier",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
@@ -3144,7 +3671,13 @@ export namespace ConcreteParentClassNodeShape {
       purifyHelpers.Equatable.strictEquals(
         left.parentStringProperty,
         right.parentStringProperty,
-      ),
+      ).mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "parentStringProperty",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      })),
     );
   }
 
@@ -3302,7 +3835,13 @@ export namespace ConcreteChildClassNodeShape {
       purifyHelpers.Equatable.strictEquals(
         left.childStringProperty,
         right.childStringProperty,
-      ),
+      ).mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "childStringProperty",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      })),
     );
   }
 
@@ -3461,13 +4000,36 @@ export namespace AbstractBaseClassForImportedType {
       left.abcStringProperty,
       right.abcStringProperty,
     )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "abcStringProperty",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
       .chain(() =>
         purifyHelpers.Equatable.booleanEquals(
           left.identifier,
           right.identifier,
-        ),
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "identifier",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
       )
-      .chain(() => purifyHelpers.Equatable.strictEquals(left.type, right.type));
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
   }
 
   export function fromRdf<ContextT = null>(_parameters: {
