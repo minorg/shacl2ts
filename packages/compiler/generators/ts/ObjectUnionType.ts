@@ -94,15 +94,13 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
   }
 
   get fromRdfFunctionDeclaration(): FunctionDeclarationStructure {
-    const variables = {
-      ignoreRdfType: "ignoreRdfType",
-      options: "_options",
-      resource: "_resource",
-    };
+    const parameters = this.memberTypes[0]
+      .fromRdfFunctionDeclaration()
+      .unsafeCoerce().parameters!;
 
     let expression = "";
     for (const memberType of this.memberTypes) {
-      const typeExpression = `(${memberType.name}.fromRdf(${variables.resource}, ${variables.options}) as purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>)`;
+      const typeExpression = `(${memberType.name}.fromRdf(${parameters.map((parameter) => parameter.name).join(", ")}) as purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>)`;
       expression =
         expression.length > 0
           ? `${expression}.altLazy(() => ${typeExpression})`
@@ -113,19 +111,15 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
       isExported: true,
       kind: StructureKind.Function,
       name: "fromRdf",
-      parameters: [
-        {
-          name: variables.resource,
-          type: this.rdfjsResourceType().name,
-        },
-        {
-          hasQuestionToken: true,
-          name: variables.options,
-          type: `{ ${variables.ignoreRdfType}?: boolean }`,
-        },
-      ],
+      parameters,
       returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>`,
       statements: [`return ${expression};`],
+      typeParameters: [
+        {
+          default: "null",
+          name: "ContextT",
+        },
+      ],
     };
   }
 

@@ -4,7 +4,6 @@ import type * as purify from "purify-ts";
 import { Either } from "purify-ts";
 import { Equatable } from "purify-ts-helpers";
 import type * as rdfjsResource from "rdfjs-resource";
-import type { Resource } from "rdfjs-resource";
 import { AbstractBaseClassForImportedType } from "./generated/classes.js";
 
 /**
@@ -30,10 +29,11 @@ export class ImportedType extends AbstractBaseClassForImportedType {
     return left.equals(right);
   }
 
-  static override fromRdf(
-    resource: Resource,
-    _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, ImportedType> {
+  static override fromRdf({
+    resource,
+  }: Parameters<
+    typeof AbstractBaseClassForImportedType.fromRdf
+  >[0]): purify.Either<rdfjsResource.Resource.ValueError, ImportedType> {
     return Either.of(new ImportedType(resource.identifier));
   }
 

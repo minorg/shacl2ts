@@ -69,6 +69,7 @@ export abstract class Property<TypeT extends { readonly name: string }> {
 
   abstract fromRdfStatements(parameters: {
     variables: {
+      context: string;
       resource: string;
     };
   }): readonly string[];

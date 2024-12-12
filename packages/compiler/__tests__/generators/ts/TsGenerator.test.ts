@@ -27,18 +27,22 @@ function testFromRdf<
   model,
 }: {
   expect: ExpectStatic;
-  modelFromRdf: (resource: Resource) => Either<Resource.ValueError, ModelT>;
+  modelFromRdf: (parameters: { context: null; resource: Resource }) => Either<
+    Resource.ValueError,
+    ModelT
+  >;
   model: ModelT;
 }) {
-  const fromRdfModel = modelFromRdf(
-    model.toRdf({
+  const fromRdfModel = modelFromRdf({
+    context: null,
+    resource: model.toRdf({
       mutateGraph: dataFactory.defaultGraph(),
       resourceSet: new MutableResourceSet({
         dataFactory,
         dataset: new N3.Store(),
       }),
     }),
-  ).unsafeCoerce();
+  }).unsafeCoerce();
   expect(fromRdfModel.equals(model).extract()).toStrictEqual(true);
 }
 
@@ -247,15 +251,16 @@ describe("TsGenerator", () => {
       }),
     });
     const instanceFromRdf =
-      kitchenSinkClasses.ExterningAndInliningNodeShape.fromRdf(
-        instance.toRdf({
+      kitchenSinkClasses.ExterningAndInliningNodeShape.fromRdf({
+        context: null,
+        resource: instance.toRdf({
           mutateGraph: dataFactory.defaultGraph(),
           resourceSet: new MutableResourceSet({
             dataFactory,
             dataset: new N3.Store(),
           }),
         }),
-      ).unsafeCoerce();
+      }).unsafeCoerce();
     expect(instance.equals(instanceFromRdf).extract()).toStrictEqual(true);
   });
 
@@ -336,9 +341,13 @@ describe("TsGenerator", () => {
       ),
     );
     const instance = kitchenSinkClasses.NodeShapeWithHasValueProperties.fromRdf(
-      new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
-        identifier,
-      ),
+      {
+        context: null,
+        resource: new MutableResourceSet({
+          dataFactory,
+          dataset: dataset,
+        }).resource(identifier),
+      },
     ).unsafeCoerce();
     expect(instance.hasIriProperty.unsafeCoerce().equals(object));
   });
@@ -354,9 +363,13 @@ describe("TsGenerator", () => {
       ),
     );
     const instance = kitchenSinkClasses.NodeShapeWithHasValueProperties.fromRdf(
-      new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
-        identifier,
-      ),
+      {
+        context: null,
+        resource: new MutableResourceSet({
+          dataFactory,
+          dataset: dataset,
+        }).resource(identifier),
+      },
     ).unsafeCoerce();
     expect(instance.hasLiteralProperty.isNothing()).toStrictEqual(true);
   });
@@ -385,11 +398,13 @@ describe("TsGenerator", () => {
         object,
       ),
     );
-    const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf(
-      new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
-        identifier,
-      ),
-    ).unsafeCoerce();
+    const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf({
+      context: null,
+      resource: new MutableResourceSet({
+        dataFactory,
+        dataset: dataset,
+      }).resource(identifier),
+    }).unsafeCoerce();
     expect(instance.inIrisProperty.unsafeCoerce().equals(object));
   });
 
@@ -405,11 +420,13 @@ describe("TsGenerator", () => {
         ),
       ),
     );
-    const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf(
-      new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
-        identifier,
-      ),
-    ).unsafeCoerce();
+    const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf({
+      context: null,
+      resource: new MutableResourceSet({
+        dataFactory,
+        dataset: dataset,
+      }).resource(identifier),
+    }).unsafeCoerce();
     expect(instance.inIrisProperty.isNothing()).toStrictEqual(true);
   });
 
@@ -432,11 +449,13 @@ describe("TsGenerator", () => {
         dataFactory.literal("text"),
       ),
     );
-    const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf(
-      new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
-        identifier,
-      ),
-    ).unsafeCoerce();
+    const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf({
+      context: null,
+      resource: new MutableResourceSet({
+        dataFactory,
+        dataset: dataset,
+      }).resource(identifier),
+    }).unsafeCoerce();
     expect(instance.inStringsProperty.unsafeCoerce()).toStrictEqual("text");
   });
 
@@ -448,11 +467,13 @@ describe("TsGenerator", () => {
     );
     const object = dataFactory.literal("somethingelse");
     dataset.add(dataFactory.quad(identifier, predicate, object));
-    const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf(
-      new MutableResourceSet({ dataFactory, dataset: dataset }).resource(
-        identifier,
-      ),
-    ).unsafeCoerce();
+    const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf({
+      context: null,
+      resource: new MutableResourceSet({
+        dataFactory,
+        dataset: dataset,
+      }).resource(identifier),
+    }).unsafeCoerce();
     expect(instance.inStringsProperty.isNothing()).toStrictEqual(true);
   });
 
@@ -547,9 +568,10 @@ describe("TsGenerator", () => {
     expect(ttl).not.toHaveLength(0);
 
     const instanceFromRdf =
-      kitchenSinkClasses.NodeShapeWithListProperty.fromRdf(
+      kitchenSinkClasses.NodeShapeWithListProperty.fromRdf({
+        context: null,
         resource,
-      ).unsafeCoerce();
+      }).unsafeCoerce();
     expect(instance.equals(instanceFromRdf).extract()).toStrictEqual(true);
   });
 

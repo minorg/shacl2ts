@@ -1,17 +1,13 @@
 import { Maybe } from "purify-ts";
-import {
-  type FunctionDeclarationStructure,
-  type OptionalKind,
-  type ParameterDeclarationStructure,
-  StructureKind,
-} from "ts-morph";
+import { type FunctionDeclarationStructure, StructureKind } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
 import { rdfjsTermExpression } from "../rdfjsTermExpression.js";
 
 const variables = {
+  context: "context",
   ignoreRdfType: "ignoreRdfType",
-  options: "_options",
-  resource: "_resource",
+  parameters: "_parameters",
+  resource: "resource",
 };
 
 export function fromRdfFunctionDeclaration(
@@ -27,20 +23,6 @@ export function fromRdfFunctionDeclaration(
 
   this.ensureAtMostOneSuperObjectType();
 
-  const parameters: OptionalKind<ParameterDeclarationStructure>[] = [
-    {
-      name: variables.resource,
-      type: this.rdfjsResourceType().name,
-    },
-    {
-      hasQuestionToken: true,
-      name: variables.options,
-      type: this.abstract
-        ? "object"
-        : `{ ${variables.ignoreRdfType}?: boolean }`,
-    },
-  ];
-
   const propertiesByName: Record<
     string,
     {
@@ -53,7 +35,7 @@ export function fromRdfFunctionDeclaration(
   if (!this.abstract) {
     this.rdfType.ifJust((rdfType) => {
       statements.push(
-        `if (!${variables.options}?.${variables.ignoreRdfType} && !${variables.resource}.isInstanceOf(${rdfjsTermExpression(rdfType, this.configuration)})) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${variables.resource}, message: \`\${rdfjsResource.Resource.Identifier.toString(${variables.resource}.identifier)} has unexpected RDF type\`, predicate: ${rdfjsTermExpression(rdfType, this.configuration)} })); }`,
+        `if (!${variables.parameters}.${variables.ignoreRdfType} && !${variables.parameters}.${variables.resource}.isInstanceOf(${rdfjsTermExpression(rdfType, this.configuration)})) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${variables.parameters}.${variables.resource}, message: \`\${rdfjsResource.Resource.Identifier.toString(${variables.parameters}.${variables.resource}.identifier)} has unexpected RDF type\`, predicate: ${rdfjsTermExpression(rdfType, this.configuration)} })); }`,
       );
     });
   }
@@ -69,9 +51,13 @@ export function fromRdfFunctionDeclaration(
     }
   }
 
+  const propertyFromRdfVariables = {
+    context: `${variables.parameters}.${variables.context}`,
+    resource: `${variables.parameters}.${variables.resource}`,
+  };
   for (const property of this.properties) {
     const propertyFromRdfStatements = property.fromRdfStatements({
-      variables,
+      variables: propertyFromRdfVariables,
     });
     if (propertyFromRdfStatements.length > 0) {
       propertiesByName[property.name] = {
@@ -101,7 +87,7 @@ export function fromRdfFunctionDeclaration(
 
   if (this.parentObjectTypes.length > 0) {
     statements = [
-      `return ${this.parentObjectTypes[0].name}.fromRdf(${variables.resource}, { ${variables.ignoreRdfType}: true }).chain(_super => { ${statements.join("\n")} })`,
+      `return ${this.parentObjectTypes[0].name}.fromRdf({ ${variables.context}: ${variables.parameters}.${variables.context}, ${variables.ignoreRdfType}: true, ${variables.resource}: ${variables.parameters}.${variables.resource} }).chain(_super => { ${statements.join("\n")} })`,
     ];
   }
 
@@ -109,8 +95,19 @@ export function fromRdfFunctionDeclaration(
     isExported: true,
     kind: StructureKind.Function,
     name: "fromRdf",
-    parameters,
+    parameters: [
+      {
+        name: variables.parameters,
+        type: `{ ${variables.context}: ContextT; ${variables.ignoreRdfType}?: boolean; ${variables.resource}: ${this.rdfjsResourceType().name}; }`,
+      },
+    ],
     returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${returnType}>`,
     statements,
+    typeParameters: [
+      {
+        default: "null",
+        name: "ContextT",
+      },
+    ],
   });
 }
