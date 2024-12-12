@@ -85,9 +85,7 @@ export class ObjectUnionType extends Type {
       ],
       returnType: "purifyHelpers.Equatable.EqualsResult",
       statements: `\
-return purifyHelpers.Equatable.objectEquals(left, right, {
-  type: purifyHelpers.Equatable.strictEquals,
-}).chain(() => {
+return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
   switch (left.${this.configuration.objectTypeDiscriminatorPropertyName}) {
    ${caseBlocks.join(" ")}
   }

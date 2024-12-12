@@ -3494,24 +3494,24 @@ export namespace OrNodeShape {
     left: OrNodeShape,
     right: OrNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.objectEquals(left, right, {
-      type: purifyHelpers.Equatable.strictEquals,
-    }).chain(() => {
-      switch (left.type) {
-        case "OrNodeShapeMember1":
-          return OrNodeShapeMember1.equals(
-            left,
-            right as unknown as OrNodeShapeMember1,
-          );
-        case "OrNodeShapeMember2":
-          return OrNodeShapeMember2.equals(
-            left,
-            right as unknown as OrNodeShapeMember2,
-          );
-        case "ImportedType":
-          return ImportedType.equals(left, right as unknown as ImportedType);
-      }
-    });
+    return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(
+      () => {
+        switch (left.type) {
+          case "OrNodeShapeMember1":
+            return OrNodeShapeMember1.equals(
+              left,
+              right as unknown as OrNodeShapeMember1,
+            );
+          case "OrNodeShapeMember2":
+            return OrNodeShapeMember2.equals(
+              left,
+              right as unknown as OrNodeShapeMember2,
+            );
+          case "ImportedType":
+            return ImportedType.equals(left, right as unknown as ImportedType);
+        }
+      },
+    );
   }
 
   export function fromRdf(

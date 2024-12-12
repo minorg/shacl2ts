@@ -1,6 +1,5 @@
 import { Maybe } from "purify-ts";
 import type { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
-import { PropertyVisibility } from "../../../PropertyVisibility.js";
 import type { ObjectType } from "../ObjectType.js";
 import { IdentifierProperty } from "./IdentifierProperty.js";
 import { TypeDiscriminatorProperty } from "./TypeDiscriminatorProperty.js";
