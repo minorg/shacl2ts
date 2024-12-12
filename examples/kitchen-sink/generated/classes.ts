@@ -8,6 +8,7 @@ import * as purifyHelpers from "purify-ts-helpers";
 import * as rdfLiteral from "rdf-literal";
 import * as rdfjsResource from "rdfjs-resource";
 import * as uuid from "uuid";
+import { KitchenSinkNativeType } from "../KitchenSinkNativeType.js";
 
 export class UuidV4IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
@@ -1214,6 +1215,114 @@ export namespace NodeShapeWithOrProperties {
   }
 }
 
+export class NodeShapeWithNativeProperties {
+  private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
+  readonly nativeTypeProperty: KitchenSinkNativeType;
+  readonly type = "NodeShapeWithNativeProperties";
+
+  constructor(parameters: {
+    readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
+    readonly nativeTypeProperty: KitchenSinkNativeType;
+  }) {
+    this._identifier = parameters.identifier;
+    this.nativeTypeProperty = parameters.nativeTypeProperty;
+  }
+
+  get identifier(): rdfjs.BlankNode | rdfjs.NamedNode {
+    if (typeof this._identifier === "undefined") {
+      this._identifier = dataFactory.namedNode(
+        `urn:shaclmate:object:${this.type}:${this.hash(sha256.create())}`,
+      );
+    }
+    return this._identifier;
+  }
+
+  equals(
+    other: NodeShapeWithNativeProperties,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(this, other, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      nativeTypeProperty: KitchenSinkNativeType.equals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(_hasher: HasherT): HasherT {
+    KitchenSinkNativeType.hash(this.nativeTypeProperty, _hasher);
+    return _hasher;
+  }
+
+  toRdf({
+    mutateGraph,
+    resourceSet,
+  }: {
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: this.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/nativeTypeProperty"),
+      KitchenSinkNativeType.toRdf(this.nativeTypeProperty, {
+        mutateGraph: mutateGraph,
+        resourceSet: resourceSet,
+      }),
+    );
+    return _resource;
+  }
+}
+
+export namespace NodeShapeWithNativeProperties {
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    NodeShapeWithNativeProperties
+  > {
+    const identifier = _resource.identifier;
+    const _nativeTypePropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      KitchenSinkNativeType
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/nativeTypeProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => KitchenSinkNativeType.fromRdf(_value));
+    if (_nativeTypePropertyEither.isLeft()) {
+      return _nativeTypePropertyEither;
+    }
+
+    const nativeTypeProperty = _nativeTypePropertyEither.unsafeCoerce();
+    return purify.Either.of(
+      new NodeShapeWithNativeProperties({ identifier, nativeTypeProperty }),
+    );
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/nativeTypeProperty"),
+          this.variable("NativeTypeProperty"),
+        ),
+      );
+    }
+  }
+}
+
 export class NodeShapeWithListProperty {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly listProperty: readonly string[];
@@ -1602,22 +1711,20 @@ export namespace NodeShapeWithInProperties {
         )
         .head()
         .chain((_value) =>
-          _value
-            .toBoolean()
-            .chain((value) =>
-              value === true
-                ? purify.Either.of(value)
-                : purify.Left(
-                    new rdfjsResource.Resource.MistypedValueError({
-                      actualValue: rdfLiteral.toRdf(value),
-                      expectedValueType: "true",
-                      focusResource: _resource,
-                      predicate: dataFactory.namedNode(
-                        "http://example.com/inBooleansProperty",
-                      ),
-                    }),
-                  ),
-            ),
+          _value.toBoolean().chain((value) =>
+            value === true
+              ? purify.Either.of(value)
+              : purify.Left(
+                  new rdfjsResource.Resource.MistypedValueError({
+                    actualValue: rdfLiteral.toRdf(value),
+                    expectedValueType: "true",
+                    focusResource: _resource,
+                    predicate: dataFactory.namedNode(
+                      "http://example.com/inBooleansProperty",
+                    ),
+                  }),
+                ),
+          ),
         )
         .toMaybe(),
     );
@@ -2867,7 +2974,7 @@ export class ExterningAndInliningNodeShape {
       this.inlineProperty.toRdf({
         mutateGraph: mutateGraph,
         resourceSet: resourceSet,
-      }).identifier,
+      }),
     );
     return _resource;
   }
@@ -3105,13 +3212,11 @@ export class ConcreteParentClassNodeShape extends AbstractBaseClassWithoutProper
   override equals(
     other: ConcreteParentClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          parentStringProperty: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        parentStringProperty: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<
@@ -3261,13 +3366,11 @@ export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
   override equals(
     other: ConcreteChildClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return super
-      .equals(other)
-      .chain(() =>
-        purifyHelpers.Equatable.objectEquals(this, other, {
-          childStringProperty: purifyHelpers.Equatable.strictEquals,
-        }),
-      );
+    return super.equals(other).chain(() =>
+      purifyHelpers.Equatable.objectEquals(this, other, {
+        childStringProperty: purifyHelpers.Equatable.strictEquals,
+      }),
+    );
   }
 
   override hash<

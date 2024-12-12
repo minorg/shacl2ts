@@ -281,9 +281,9 @@ return purifyHelpers.Equatable.objectEquals(left, right, {
     const options = `{ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }`;
     switch (this.configuration.objectTypeDeclarationType) {
       case "class":
-        return `${variables.value}.toRdf(${options}).identifier`;
+        return `${variables.value}.toRdf(${options})`;
       case "interface":
-        return `${this.name}.toRdf(${variables.value}, ${options}).identifier`;
+        return `${this.name}.toRdf(${variables.value}, ${options})`;
     }
   }
 

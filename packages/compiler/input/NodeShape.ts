@@ -134,6 +134,13 @@ export class NodeShape
     );
   }
 
+  get native(): Maybe<boolean> {
+    return this.resource
+      .value(shaclmate.native)
+      .chain((value) => value.toBoolean())
+      .toMaybe();
+  }
+
   get nodeKinds(): Set<NodeKind.BLANK_NODE | NodeKind.IRI> {
     const thisNodeKinds = new Set<NodeKind.BLANK_NODE | NodeKind.IRI>(
       [...this.constraints.nodeKinds].filter(
@@ -184,6 +191,48 @@ export class NodeShape
 
   get shaclmateName(): Maybe<string> {
     return shaclmateName.bind(this)();
+  }
+
+  get tsEqualsFunction(): Maybe<string> {
+    return this.resource
+      .value(shaclmate.tsEqualsFunction)
+      .chain((value) => value.toString())
+      .toMaybe();
+  }
+
+  get tsFromRdfFunction(): Maybe<string> {
+    return this.resource
+      .value(shaclmate.tsFromRdfFunction)
+      .chain((value) => value.toString())
+      .toMaybe();
+  }
+
+  get tsHashFunction(): Maybe<string> {
+    return this.resource
+      .value(shaclmate.tsHashFunction)
+      .chain((value) => value.toString())
+      .toMaybe();
+  }
+
+  get tsImport(): Maybe<string> {
+    return this.resource
+      .value(shaclmate.tsImport)
+      .chain((value) => value.toString())
+      .toMaybe();
+  }
+
+  get tsName(): Maybe<string> {
+    return this.resource
+      .value(shaclmate.tsName)
+      .chain((value) => value.toString())
+      .toMaybe();
+  }
+
+  get tsToRdfFunction(): Maybe<string> {
+    return this.resource
+      .value(shaclmate.tsToRdfFunction)
+      .chain((value) => value.toString())
+      .toMaybe();
   }
 
   private get _mintingStrategy(): Either<Error, IriMintingStrategy> {

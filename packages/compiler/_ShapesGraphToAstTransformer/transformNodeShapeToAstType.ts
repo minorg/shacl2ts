@@ -3,9 +3,11 @@ import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
 import type { ShapesGraphToAstTransformer } from "../ShapesGraphToAstTransformer.js";
 import type * as ast from "../ast/index.js";
+import { tsName } from "../generators/ts/tsName.js";
 import * as input from "../input/index.js";
 import { logger } from "../logger.js";
 import type { NodeShapeAstType } from "./NodeShapeAstType.js";
+import { shapeAstName } from "./shapeAstName.js";
 
 /**
  * Is an ast.ObjectType actually the shape of an RDF list?
@@ -88,6 +90,25 @@ export function transformNodeShapeToAstType(
     if (type) {
       return Either.of(type);
     }
+  }
+
+  if (nodeShape.native.orDefault(false)) {
+    const nativeType: ast.NativeType = {
+      kind: "NativeType",
+      tsEqualsFunction: nodeShape.tsEqualsFunction,
+      tsFromRdfFunction: nodeShape.tsFromRdfFunction,
+      tsHashFunction: nodeShape.tsHashFunction,
+      tsImport: nodeShape.tsImport,
+      tsName: nodeShape.tsName.orDefaultLazy(() =>
+        tsName(shapeAstName.bind(this)(nodeShape)),
+      ),
+      tsToRdfFunction: nodeShape.tsToRdfFunction,
+    };
+    this.nodeShapeAstTypesByIdentifier.set(
+      nodeShape.resource.identifier,
+      nativeType,
+    );
+    return Either.of(nativeType);
   }
 
   const export_ = nodeShape.export.orDefault(true);

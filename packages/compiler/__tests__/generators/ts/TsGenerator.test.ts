@@ -9,6 +9,7 @@ import {
   type Resource,
 } from "rdfjs-resource";
 import { type ExpectStatic, describe, it } from "vitest";
+import { KitchenSinkNativeType } from "../../../../../examples/kitchen-sink/KitchenSinkNativeType.js";
 import * as kitchenSinkClasses from "../../../../../examples/kitchen-sink/generated/classes.js";
 import * as kitchenSinkInterfaces from "../../../../../examples/kitchen-sink/generated/interfaces.js";
 
@@ -466,6 +467,18 @@ describe("TsGenerator", () => {
     ).toStrictEqual(
       "532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25",
     );
+  });
+
+  it("should handle native types", ({ expect }) => {
+    const instance = new kitchenSinkClasses.NodeShapeWithNativeProperties({
+      nativeTypeProperty: new KitchenSinkNativeType(),
+    });
+    testFromRdf({
+      expect,
+      model: instance,
+      modelFromRdf: kitchenSinkClasses.NodeShapeWithNativeProperties.fromRdf,
+    });
+    instance.hash(sha256.create());
   });
 
   it("toRdf: should populate a dataset", ({ expect }) => {

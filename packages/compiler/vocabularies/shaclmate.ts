@@ -17,6 +17,13 @@ export interface Shaclmate {
   inline: NamedNode<"http://minorg.github.io/shaclmate/ns#inline">;
   mintingStrategy: NamedNode<"http://minorg.github.io/shaclmate/ns#mintingStrategy">;
   name: NamedNode<"http://minorg.github.io/shaclmate/ns#name">;
+  native: NamedNode<"http://minorg.github.io/shaclmate/ns#native">;
+  tsEqualsFunction: NamedNode<"http://minorg.github.io/shaclmate/ns#tsEqualsFunction">;
+  tsFromRdfFunction: NamedNode<"http://minorg.github.io/shaclmate/ns#tsFromRdfFunction">;
+  tsHashFunction: NamedNode<"http://minorg.github.io/shaclmate/ns#tsHashFunction">;
+  tsImport: NamedNode<"http://minorg.github.io/shaclmate/ns#tsImport">;
+  tsName: NamedNode<"http://minorg.github.io/shaclmate/ns#tsName">;
+  tsToRdfFunction: NamedNode<"http://minorg.github.io/shaclmate/ns#tsToRdfFunction">;
   visibility: NamedNode<"http://minorg.github.io/shaclmate/ns#visibility">;
 }
 

@@ -40,7 +40,7 @@ export function transformPropertyShapeToAstCompositeType(
     }
     const astType = astTypeEither.unsafeCoerce();
 
-    if (inline.orDefault(false)) {
+    if (astType.kind === "NativeType" || inline.orDefault(false)) {
       return Either.of(astType);
     }
 

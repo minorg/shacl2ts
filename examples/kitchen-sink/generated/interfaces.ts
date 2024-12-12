@@ -6,6 +6,7 @@ import * as purifyHelpers from "purify-ts-helpers";
 // @ts-ignore
 import * as rdfLiteral from "rdf-literal";
 import * as rdfjsResource from "rdfjs-resource";
+import { KitchenSinkNativeType } from "../KitchenSinkNativeType.js";
 
 export interface UuidV4IriNodeShape {
   readonly identifier: rdfjs.NamedNode;
@@ -1093,6 +1094,110 @@ export namespace NodeShapeWithOrProperties {
   }
 }
 
+export interface NodeShapeWithNativeProperties {
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly nativeTypeProperty: KitchenSinkNativeType;
+  readonly type: "NodeShapeWithNativeProperties";
+}
+
+export namespace NodeShapeWithNativeProperties {
+  export function equals(
+    left: NodeShapeWithNativeProperties,
+    right: NodeShapeWithNativeProperties,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.objectEquals(left, right, {
+      identifier: purifyHelpers.Equatable.booleanEquals,
+      nativeTypeProperty: KitchenSinkNativeType.equals,
+      type: purifyHelpers.Equatable.strictEquals,
+    });
+  }
+
+  export function fromRdf(
+    _resource: rdfjsResource.Resource,
+    _options?: { ignoreRdfType?: boolean },
+  ): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+      nativeTypeProperty: KitchenSinkNativeType;
+      type: "NodeShapeWithNativeProperties";
+    }
+  > {
+    const identifier = _resource.identifier;
+    const _nativeTypePropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      KitchenSinkNativeType
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/nativeTypeProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => KitchenSinkNativeType.fromRdf(_value));
+    if (_nativeTypePropertyEither.isLeft()) {
+      return _nativeTypePropertyEither;
+    }
+
+    const nativeTypeProperty = _nativeTypePropertyEither.unsafeCoerce();
+    const type = "NodeShapeWithNativeProperties" as const;
+    return purify.Either.of({ identifier, nativeTypeProperty, type });
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _nodeShapeWithNativeProperties: NodeShapeWithNativeProperties,
+    _hasher: HasherT,
+  ): HasherT {
+    KitchenSinkNativeType.hash(
+      _nodeShapeWithNativeProperties.nativeTypeProperty,
+      _hasher,
+    );
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/nativeTypeProperty"),
+          this.variable("NativeTypeProperty"),
+        ),
+      );
+    }
+  }
+
+  export function toRdf(
+    nodeShapeWithNativeProperties: NodeShapeWithNativeProperties,
+    {
+      mutateGraph,
+      resourceSet,
+    }: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    },
+  ): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: nodeShapeWithNativeProperties.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/nativeTypeProperty"),
+      KitchenSinkNativeType.toRdf(
+        nodeShapeWithNativeProperties.nativeTypeProperty,
+        { mutateGraph: mutateGraph, resourceSet: resourceSet },
+      ),
+    );
+    return _resource;
+  }
+}
+
 export interface NodeShapeWithListProperty {
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   readonly listProperty: readonly string[];
@@ -1344,22 +1449,20 @@ export namespace NodeShapeWithInProperties {
         )
         .head()
         .chain((_value) =>
-          _value
-            .toBoolean()
-            .chain((value) =>
-              value === true
-                ? purify.Either.of(value)
-                : purify.Left(
-                    new rdfjsResource.Resource.MistypedValueError({
-                      actualValue: rdfLiteral.toRdf(value),
-                      expectedValueType: "true",
-                      focusResource: _resource,
-                      predicate: dataFactory.namedNode(
-                        "http://example.com/inBooleansProperty",
-                      ),
-                    }),
-                  ),
-            ),
+          _value.toBoolean().chain((value) =>
+            value === true
+              ? purify.Either.of(value)
+              : purify.Left(
+                  new rdfjsResource.Resource.MistypedValueError({
+                    actualValue: rdfLiteral.toRdf(value),
+                    expectedValueType: "true",
+                    focusResource: _resource,
+                    predicate: dataFactory.namedNode(
+                      "http://example.com/inBooleansProperty",
+                    ),
+                  }),
+                ),
+          ),
         )
         .toMaybe(),
     );
@@ -2672,7 +2775,7 @@ export namespace ExterningAndInliningNodeShape {
       InlineNodeShape.toRdf(externingAndInliningNodeShape.inlineProperty, {
         mutateGraph: mutateGraph,
         resourceSet: resourceSet,
-      }).identifier,
+      }),
     );
     return _resource;
   }

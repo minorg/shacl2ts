@@ -14,6 +14,7 @@ import { DateTimeType } from "./DateTimeType.js";
 import { IdentifierType } from "./IdentifierType.js";
 import { ListType } from "./ListType.js";
 import { LiteralType } from "./LiteralType.js";
+import { NativeType } from "./NativeType.js";
 import { NumberType } from "./NumberType.js";
 import { ObjectType } from "./ObjectType.js";
 import { ObjectUnionType } from "./ObjectUnionType.js";
@@ -181,6 +182,17 @@ export class TypeFactory {
           defaultValue: astType.defaultValue,
           in_: astType.in_,
           hasValue: astType.hasValue,
+        });
+      }
+      case "NativeType": {
+        return new NativeType({
+          configuration: this.configuration,
+          equalsFunction: astType.tsEqualsFunction,
+          fromRdfFunction: astType.tsFromRdfFunction,
+          hashFunction: astType.tsHashFunction,
+          import_: astType.tsImport,
+          name: astType.tsName,
+          toRdfFunction: astType.tsToRdfFunction,
         });
       }
       case "ObjectIntersectionType":

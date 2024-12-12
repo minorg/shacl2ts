@@ -644,6 +644,32 @@
     {
       "kind": "ObjectType",
       "name": {
+        "curie": ":NodeShapeWithNativeProperties",
+        "identifier": {
+          "termType": "NamedNode",
+          "value": "http://example.com/NodeShapeWithNativeProperties"
+        },
+        "shName": "NodeShapeWithNativeProperties"
+      },
+      "properties": [
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-173"
+            },
+            "shName": "nativeTypeProperty"
+          },
+          "path": "http://example.com/nativeTypeProperty",
+          "type": {
+            "kind": "NativeType"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "ObjectType",
+      "name": {
         "curie": ":NodeShapeWithOrProperties",
         "identifier": {
           "termType": "NamedNode",
@@ -656,7 +682,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-173"
+              "value": "n3-174"
             },
             "shName": "orLiteralsProperty"
           },
@@ -672,7 +698,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-178"
+              "value": "n3-179"
             },
             "shName": "orTermsProperty"
           },
@@ -699,7 +725,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-183"
+              "value": "n3-184"
             },
             "shName": "orUnrelatedProperty"
           },
@@ -743,7 +769,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-188"
+              "value": "n3-189"
             },
             "shName": "requiredStringProperty"
           },
@@ -760,7 +786,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-189"
+              "value": "n3-190"
             },
             "shName": "optionalStringProperty"
           },
@@ -780,7 +806,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-190"
+              "value": "n3-191"
             },
             "shName": "setStringProperty"
           },
@@ -813,7 +839,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-191"
+              "value": "n3-192"
             },
             "shName": "protectedProperty"
           },
@@ -830,7 +856,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-192"
+              "value": "n3-193"
             },
             "shName": "privateProperty"
           },
@@ -847,7 +873,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-193"
+              "value": "n3-194"
             },
             "shName": "publicProperty"
           },
@@ -877,7 +903,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-196"
+              "value": "n3-197"
             },
             "shName": "stringProperty1"
           },
@@ -907,7 +933,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-197"
+              "value": "n3-198"
             },
             "shName": "stringProperty2"
           },
@@ -937,7 +963,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-198"
+              "value": "n3-199"
             },
             "shName": "stringProperty"
           },
@@ -967,7 +993,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-199"
+              "value": "n3-200"
             },
             "shName": "stringProperty"
           },
