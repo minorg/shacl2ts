@@ -14,7 +14,6 @@ import { DateTimeType } from "./DateTimeType.js";
 import { IdentifierType } from "./IdentifierType.js";
 import { ListType } from "./ListType.js";
 import { LiteralType } from "./LiteralType.js";
-import { NativeType } from "./NativeType.js";
 import { NumberType } from "./NumberType.js";
 import { ObjectType } from "./ObjectType.js";
 import { ObjectUnionType } from "./ObjectUnionType.js";
@@ -184,17 +183,6 @@ export class TypeFactory {
           hasValue: astType.hasValue,
         });
       }
-      case "NativeType": {
-        return new NativeType({
-          configuration: this.configuration,
-          equalsFunction: astType.tsEqualsFunction,
-          fromRdfFunction: astType.tsFromRdfFunction,
-          hashFunction: astType.tsHashFunction,
-          import_: astType.tsImport,
-          name: astType.tsName,
-          toRdfFunction: astType.tsToRdfFunction,
-        });
-      }
       case "ObjectIntersectionType":
         throw new Error("not implemented");
       case "ObjectType": {
@@ -268,6 +256,7 @@ export class TypeFactory {
       abstract: astType.abstract,
       configuration: this.configuration,
       export_: astType.export,
+      import_: astType.tsImport,
       lazyAncestorObjectTypes: () =>
         astType.ancestorObjectTypes.map((astType) =>
           this.createObjectTypeFromAstType(astType),

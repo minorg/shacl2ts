@@ -3,7 +3,6 @@ export * from "./IdentifierType.js";
 export * from "./IntersectionType.js";
 export * from "./LiteralType.js";
 export * from "./Name.js";
-export * from "./NativeType.js";
 export * from "./ObjectIntersectionType.js";
 export * from "./ObjectType.js";
 export * from "./ObjectUnionType.js";

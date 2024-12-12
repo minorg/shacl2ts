@@ -21,6 +21,10 @@ export function fromRdfFunctionDeclaration(
     return Maybe.empty();
   }
 
+  if (this.import_.isJust()) {
+    return Maybe.empty();
+  }
+
   this.ensureAtMostOneSuperObjectType();
 
   const parameters: OptionalKind<ParameterDeclarationStructure>[] = [

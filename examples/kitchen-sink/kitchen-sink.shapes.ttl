@@ -92,12 +92,10 @@
 .
 
 # A native type in TypeScript
-# Should be referenced from properties with sh:node, although it doesn't have to be an object
-:KitchenSinkNativeType
+:KitchenSinkImportedType
   a sh:NodeShape ;
-  shaclmate:native true ;
-  sh:name "KitchenSinkNativeType" ;
-  shaclmate:tsImport "import { KitchenSinkNativeType } from \"../KitchenSinkNativeType.js\";"
+  sh:name "KitchenSinkImportedType" ;
+  shaclmate:tsImport "import { KitchenSinkImportedType } from \"../KitchenSinkImportedType.js\";"
 .
 
 # A node shape that models an RDF list. Should be transformed into a list data structure when used as a property
@@ -177,10 +175,10 @@
 .
 
 # Shape with native properties
-:NodeShapeWithNativeProperties
+:NodeShapeWithImportedTypes
   a sh:NodeShape ;
-  sh:name "NodeShapeWithNativeProperties" ;
-  sh:property [ sh:maxCount 1 ; sh:minCount 1 ; sh:name "nativeTypeProperty" ; sh:node :KitchenSinkNativeType ; sh:path :nativeTypeProperty ] ;
+  sh:name "NodeShapeWithImportedTypes" ;
+  sh:property [ shaclmate:inline true ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "importedTypeProperty" ; sh:node :KitchenSinkImportedType ; sh:path :importedTypeProperty ] ;
 .
 
 # Shape with sh:or properties

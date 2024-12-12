@@ -250,6 +250,18 @@
     {
       "kind": "ObjectType",
       "name": {
+        "curie": ":KitchenSinkImportedType",
+        "identifier": {
+          "termType": "NamedNode",
+          "value": "http://example.com/KitchenSinkImportedType"
+        },
+        "shName": "KitchenSinkImportedType"
+      },
+      "properties": []
+    },
+    {
+      "kind": "ObjectType",
+      "name": {
         "curie": ":ListShape",
         "identifier": {
           "termType": "NamedNode",
@@ -644,12 +656,12 @@
     {
       "kind": "ObjectType",
       "name": {
-        "curie": ":NodeShapeWithNativeProperties",
+        "curie": ":NodeShapeWithImportedTypes",
         "identifier": {
           "termType": "NamedNode",
-          "value": "http://example.com/NodeShapeWithNativeProperties"
+          "value": "http://example.com/NodeShapeWithImportedTypes"
         },
-        "shName": "NodeShapeWithNativeProperties"
+        "shName": "NodeShapeWithImportedTypes"
       },
       "properties": [
         {
@@ -658,11 +670,23 @@
               "termType": "BlankNode",
               "value": "n3-173"
             },
-            "shName": "nativeTypeProperty"
+            "shName": "importedTypeProperty"
           },
-          "path": "http://example.com/nativeTypeProperty",
+          "path": "http://example.com/importedTypeProperty",
           "type": {
-            "kind": "NativeType"
+            "kind": "ObjectType",
+            "name": {
+              "curie": ":KitchenSinkImportedType",
+              "identifier": {
+                "termType": "NamedNode",
+                "value": "http://example.com/KitchenSinkImportedType"
+              },
+              "shName": "KitchenSinkImportedType"
+            },
+            "nodeKinds": [
+              "BlankNode",
+              "NamedNode"
+            ]
           }
         }
       ]

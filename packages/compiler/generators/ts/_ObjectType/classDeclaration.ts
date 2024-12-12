@@ -34,7 +34,7 @@ function constructorDeclaration(
   if (
     this.ancestorObjectTypes.some(
       (ancestorObjectType) =>
-        ancestorObjectType.classDeclaration().ctors?.length,
+        ancestorObjectType.classDeclaration().extract()?.ctors?.length,
     )
   ) {
     // If some ancestor type has a constructor then pass up parameters
@@ -63,7 +63,7 @@ function constructorDeclaration(
   if (
     this.ancestorObjectTypes.some(
       (ancestorObjectType) =>
-        ancestorObjectType.classDeclaration().ctors?.length,
+        ancestorObjectType.classDeclaration().extract()?.ctors?.length,
     )
   ) {
     // If some ancestor type has a constructor then pass up parameters
@@ -81,7 +81,17 @@ function constructorDeclaration(
   });
 }
 
-export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
+export function classDeclaration(
+  this: ObjectType,
+): Maybe<ClassDeclarationStructure> {
+  if (this.configuration.objectTypeDeclarationType !== "class") {
+    return Maybe.empty();
+  }
+
+  if (this.import_.isJust()) {
+    return Maybe.empty();
+  }
+
   this.ensureAtMostOneSuperObjectType();
 
   const constructorDeclaration_ = constructorDeclaration.bind(this)();
@@ -97,7 +107,7 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
     );
   }
 
-  return {
+  return Maybe.of({
     ctors: constructorDeclaration_.toList(),
     extends:
       this.parentObjectTypes.length > 0
@@ -114,7 +124,7 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
     ],
     name: this.name,
     properties,
-  };
+  });
 }
 
 function equalsMethodDeclaration(

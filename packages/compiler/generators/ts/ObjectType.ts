@@ -14,6 +14,7 @@ export class ObjectType extends Type {
   readonly export_: boolean;
   fromRdfFunctionDeclaration = _ObjectType.fromRdfFunctionDeclaration;
   hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
+  import_: Maybe<string>;
   interfaceDeclaration = _ObjectType.interfaceDeclaration;
   readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
   readonly kind = "ObjectType";
@@ -34,6 +35,7 @@ export class ObjectType extends Type {
     lazyDescendantObjectTypes,
     lazyParentObjectTypes,
     lazyProperties,
+    import_,
     iriMintingStrategy,
     name,
     rdfType,
@@ -41,6 +43,7 @@ export class ObjectType extends Type {
   }: {
     abstract: boolean;
     export_: boolean;
+    import_: Maybe<string>;
     lazyAncestorObjectTypes: () => readonly ObjectType[];
     lazyDescendantObjectTypes: () => readonly ObjectType[];
     lazyParentObjectTypes: () => readonly ObjectType[];
@@ -52,6 +55,7 @@ export class ObjectType extends Type {
     super(superParameters);
     this.abstract = abstract;
     this.export_ = export_;
+    this.import_ = import_;
     // Lazily initialize some members in getters to avoid recursive construction
     this.lazyAncestorObjectTypes = lazyAncestorObjectTypes;
     this.lazyDescendantObjectTypes = lazyDescendantObjectTypes;
@@ -121,6 +125,10 @@ export class ObjectType extends Type {
   }
 
   override get importStatements(): readonly string[] {
+    if (this.import_.isJust()) {
+      return this.import_.toList();
+    }
+
     const importStatements = this.properties.flatMap(
       (property) => property.importStatements,
     );

@@ -46,7 +46,7 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
       // If there's an ancestor with an equals implementation then delegate to super.
       for (const ancestorObjectType of this.ancestorObjectTypes) {
         if (
-          (ancestorObjectType.classDeclaration().methods ?? []).some(
+          (ancestorObjectType.classDeclaration().extract()?.methods ?? []).some(
             (method) => method.name === "equals",
           )
         ) {

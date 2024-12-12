@@ -10,6 +10,10 @@ export function equalsFunctionDeclaration(
     return Maybe.empty();
   }
 
+  if (this.import_.isJust()) {
+    return Maybe.empty();
+  }
+
   return equalsFunctionOrMethodDeclaration
     .bind(this)()
     .map((equalsFunctionOrMethodDeclaration) => ({

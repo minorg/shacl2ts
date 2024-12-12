@@ -44,11 +44,14 @@ export interface ObjectType {
    * Defaults to true.
    */
   readonly export: boolean;
+
   /**
    * Strategy for minting new object identifiers. If not specified, require an identifier on construction.
    */
   readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
+
   readonly kind: "ObjectType";
+
   /**
    * If the ObjectType is an RDF list, this is the type of rdf:first.
    * https://www.w3.org/TR/rdf-schema/#ch_collectionvocab
@@ -89,6 +92,15 @@ export interface ObjectType {
    * class targets).
    */
   readonly rdfType: Maybe<NamedNode>;
+
+  /**
+   * A TypeScript import to use for this type in lieu of generating code for the type.
+   *
+   * The import should have the same name as the type. For example, if the type is MyType, the import should resemble
+   *
+   * import { MyType } from "./MyType.js"
+   */
+  readonly tsImport: Maybe<string>;
 }
 
 export namespace ObjectType {

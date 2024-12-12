@@ -20,6 +20,10 @@ export function sparqlGraphPatternsClassDeclaration(
     return Maybe.empty();
   }
 
+  if (this.import_.isJust()) {
+    return Maybe.empty();
+  }
+
   if (this.parentObjectTypes.length > 1) {
     logger.warn(
       "object type %s has multiple super object types, can't use with SPARQL graph patterns",

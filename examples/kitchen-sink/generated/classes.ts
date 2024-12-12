@@ -8,8 +8,7 @@ import * as purifyHelpers from "purify-ts-helpers";
 import * as rdfLiteral from "rdf-literal";
 import * as rdfjsResource from "rdfjs-resource";
 import * as uuid from "uuid";
-import { KitchenSinkNativeType } from "../KitchenSinkNativeType.js";
-
+import { KitchenSinkImportedType } from "../KitchenSinkImportedType.js";
 export class UuidV4IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
   readonly stringProperty: string;
@@ -109,7 +108,6 @@ export namespace UuidV4IriNodeShape {
     }
   }
 }
-
 export class Sha256IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
   readonly stringProperty: string;
@@ -209,7 +207,6 @@ export namespace Sha256IriNodeShape {
     }
   }
 }
-
 export class OrNodeShapeMember2 {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly stringProperty2: string;
@@ -309,7 +306,6 @@ export namespace OrNodeShapeMember2 {
     }
   }
 }
-
 export class OrNodeShapeMember1 {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly stringProperty1: string;
@@ -409,7 +405,6 @@ export namespace OrNodeShapeMember1 {
     }
   }
 }
-
 export class NodeShapeWithPropertyVisibilities {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   private readonly privateProperty: string;
@@ -577,7 +572,6 @@ export namespace NodeShapeWithPropertyVisibilities {
     }
   }
 }
-
 export class NodeShapeWithPropertyCardinalities {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly optionalStringProperty: purify.Maybe<string>;
@@ -789,7 +783,6 @@ export namespace NodeShapeWithPropertyCardinalities {
     }
   }
 }
-
 export class NodeShapeWithOrProperties {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly orLiteralsProperty: purify.Maybe<rdfjs.Literal>;
@@ -1214,18 +1207,17 @@ export namespace NodeShapeWithOrProperties {
     }
   }
 }
-
-export class NodeShapeWithNativeProperties {
+export class NodeShapeWithImportedTypes {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  readonly nativeTypeProperty: KitchenSinkNativeType;
-  readonly type = "NodeShapeWithNativeProperties";
+  readonly importedTypeProperty: KitchenSinkImportedType;
+  readonly type = "NodeShapeWithImportedTypes";
 
   constructor(parameters: {
     readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
-    readonly nativeTypeProperty: KitchenSinkNativeType;
+    readonly importedTypeProperty: KitchenSinkImportedType;
   }) {
     this._identifier = parameters.identifier;
-    this.nativeTypeProperty = parameters.nativeTypeProperty;
+    this.importedTypeProperty = parameters.importedTypeProperty;
   }
 
   get identifier(): rdfjs.BlankNode | rdfjs.NamedNode {
@@ -1238,11 +1230,11 @@ export class NodeShapeWithNativeProperties {
   }
 
   equals(
-    other: NodeShapeWithNativeProperties,
+    other: NodeShapeWithImportedTypes,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(this, other, {
       identifier: purifyHelpers.Equatable.booleanEquals,
-      nativeTypeProperty: KitchenSinkNativeType.equals,
+      importedTypeProperty: purifyHelpers.Equatable.equals,
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -1252,7 +1244,7 @@ export class NodeShapeWithNativeProperties {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(_hasher: HasherT): HasherT {
-    KitchenSinkNativeType.hash(this.nativeTypeProperty, _hasher);
+    this.importedTypeProperty.hash(_hasher);
     return _hasher;
   }
 
@@ -1268,8 +1260,8 @@ export class NodeShapeWithNativeProperties {
       mutateGraph,
     });
     _resource.add(
-      dataFactory.namedNode("http://example.com/nativeTypeProperty"),
-      KitchenSinkNativeType.toRdf(this.nativeTypeProperty, {
+      dataFactory.namedNode("http://example.com/importedTypeProperty"),
+      this.importedTypeProperty.toRdf({
         mutateGraph: mutateGraph,
         resourceSet: resourceSet,
       }),
@@ -1278,31 +1270,33 @@ export class NodeShapeWithNativeProperties {
   }
 }
 
-export namespace NodeShapeWithNativeProperties {
+export namespace NodeShapeWithImportedTypes {
   export function fromRdf(
     _resource: rdfjsResource.Resource,
     _options?: { ignoreRdfType?: boolean },
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
-    NodeShapeWithNativeProperties
+    NodeShapeWithImportedTypes
   > {
     const identifier = _resource.identifier;
-    const _nativeTypePropertyEither: purify.Either<
+    const _importedTypePropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
-      KitchenSinkNativeType
+      KitchenSinkImportedType
     > = _resource
-      .values(dataFactory.namedNode("http://example.com/nativeTypeProperty"), {
-        unique: true,
-      })
+      .values(
+        dataFactory.namedNode("http://example.com/importedTypeProperty"),
+        { unique: true },
+      )
       .head()
-      .chain((_value) => KitchenSinkNativeType.fromRdf(_value));
-    if (_nativeTypePropertyEither.isLeft()) {
-      return _nativeTypePropertyEither;
+      .chain((value) => value.toResource())
+      .chain((_resource) => KitchenSinkImportedType.fromRdf(_resource));
+    if (_importedTypePropertyEither.isLeft()) {
+      return _importedTypePropertyEither;
     }
 
-    const nativeTypeProperty = _nativeTypePropertyEither.unsafeCoerce();
+    const importedTypeProperty = _importedTypePropertyEither.unsafeCoerce();
     return purify.Either.of(
-      new NodeShapeWithNativeProperties({ identifier, nativeTypeProperty }),
+      new NodeShapeWithImportedTypes({ identifier, importedTypeProperty }),
     );
   }
 
@@ -1313,16 +1307,20 @@ export namespace NodeShapeWithNativeProperties {
     ) {
       super(subject);
       this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://example.com/nativeTypeProperty"),
-          this.variable("NativeTypeProperty"),
+        sparqlBuilder.GraphPattern.group(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/importedTypeProperty"),
+            this.variable("ImportedTypeProperty"),
+          ).chainObject(
+            (_object) =>
+              new KitchenSinkImportedType.SparqlGraphPatterns(_object),
+          ),
         ),
       );
     }
   }
 }
-
 export class NodeShapeWithListProperty {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly listProperty: readonly string[];
@@ -1505,7 +1503,6 @@ export namespace NodeShapeWithListProperty {
     }
   }
 }
-
 export class NodeShapeWithInProperties {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly inBooleansProperty: purify.Maybe<true>;
@@ -1964,7 +1961,6 @@ export namespace NodeShapeWithInProperties {
     }
   }
 }
-
 export class NodeShapeWithHasValueProperties {
   readonly hasIriProperty: purify.Maybe<rdfjs.NamedNode>;
   readonly hasLiteralProperty: purify.Maybe<string>;
@@ -2151,7 +2147,6 @@ export namespace NodeShapeWithHasValueProperties {
     }
   }
 }
-
 export class NodeShapeWithDefaultValueProperties {
   readonly dateTimeProperty: Date;
   readonly falseBooleanProperty: boolean;
@@ -2507,7 +2502,6 @@ export namespace NodeShapeWithDefaultValueProperties {
     }
   }
 }
-
 export class NonClassNodeShape {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly stringProperty: string;
@@ -2607,7 +2601,6 @@ export namespace NonClassNodeShape {
     }
   }
 }
-
 export class IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
   readonly stringProperty: string;
@@ -2705,7 +2698,6 @@ export namespace IriNodeShape {
     }
   }
 }
-
 export class InlineNodeShape {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly stringProperty: string;
@@ -2805,7 +2797,6 @@ export namespace InlineNodeShape {
     }
   }
 }
-
 export class ExternNodeShape {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly stringProperty: string;
@@ -2905,7 +2896,6 @@ export namespace ExternNodeShape {
     }
   }
 }
-
 export class ExterningAndInliningNodeShape {
   readonly externProperty: rdfjs.BlankNode | rdfjs.NamedNode;
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
@@ -3054,7 +3044,6 @@ export namespace ExterningAndInliningNodeShape {
     }
   }
 }
-
 abstract class AbstractBaseClassWithPropertiesNodeShape {
   readonly abcStringProperty: string;
   abstract readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
@@ -3142,7 +3131,6 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
     }
   }
 }
-
 abstract class AbstractBaseClassWithoutPropertiesNodeShape extends AbstractBaseClassWithPropertiesNodeShape {
   abstract override readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   abstract override readonly type:
@@ -3179,7 +3167,6 @@ namespace AbstractBaseClassWithoutPropertiesNodeShape {
     );
   }
 }
-
 export class ConcreteParentClassNodeShape extends AbstractBaseClassWithoutPropertiesNodeShape {
   protected _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly parentStringProperty: string;
@@ -3339,7 +3326,6 @@ export namespace ConcreteParentClassNodeShape {
     }
   }
 }
-
 export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
   readonly childStringProperty: string;
   override readonly type = "ConcreteChildClassNodeShape";

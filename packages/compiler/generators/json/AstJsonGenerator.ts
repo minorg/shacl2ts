@@ -87,11 +87,6 @@ function typeToJson(type: ast.Type): AstJson.Type {
         minInclusive: type.minInclusive.map(termToJson).extract(),
       } satisfies AstJson.Type;
     }
-    case "NativeType": {
-      return {
-        kind: type.kind,
-      } satisfies AstJson.Type;
-    }
     case "ObjectIntersectionType":
     case "ObjectUnionType":
       return {
