@@ -1,10 +1,5 @@
 import { Maybe } from "purify-ts";
-import {
-  type ClassDeclarationStructure,
-  type OptionalKind,
-  type ParameterDeclarationStructure,
-  StructureKind,
-} from "ts-morph";
+import { type ClassDeclarationStructure, StructureKind } from "ts-morph";
 import { logger } from "../../../logger.js";
 import type { ObjectType } from "../ObjectType.js";
 import { rdfjsTermExpression } from "../rdfjsTermExpression.js";
@@ -32,10 +27,20 @@ export function sparqlGraphPatternsClassDeclaration(
     return Maybe.empty();
   }
 
-  const addStatements: string[] = [];
+  const constructorStatements: string[] = [];
+  let extends_ = "sparqlBuilder.ResourceGraphPatterns";
+  if (this.parentObjectTypes.length > 0) {
+    constructorStatements.push(
+      `super(${subjectVariable}, { ignoreRdfType: true });`,
+    );
+    extends_ = `${this.parentObjectTypes[0].name}.SparqlGraphPatterns`;
+  } else {
+    constructorStatements.push(`super(${subjectVariable});`);
+  }
+
   if (!this.abstract) {
     this.rdfType.ifJust((rdfType) =>
-      addStatements.push(
+      constructorStatements.push(
         `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${rdfjsTermExpression(rdfType, this.configuration)})); }`,
       ),
     );
@@ -44,49 +49,24 @@ export function sparqlGraphPatternsClassDeclaration(
     property
       .sparqlGraphPatternExpression()
       .ifJust((sparqlGraphPattern) =>
-        addStatements.push(`this.add(${sparqlGraphPattern});`),
+        constructorStatements.push(`this.add(${sparqlGraphPattern});`),
       );
   }
-  if (addStatements.length === 0) {
-    return Maybe.empty();
-  }
-
-  const constructorParameters: OptionalKind<ParameterDeclarationStructure>[] = [
-    {
-      name: subjectVariable,
-      type: "sparqlBuilder.ResourceGraphPatterns.SubjectParameter",
-    },
-  ];
-  if (!this.abstract) {
-    constructorParameters.push({
-      hasQuestionToken: true,
-      name: optionsVariable,
-      type: `{ ${ignoreRdfTypeVariable}?: boolean }`,
-    });
-  }
-
-  const constructorStatements: string[] = [];
-  let extends_ = "sparqlBuilder.ResourceGraphPatterns";
-  for (const ancestorObjectType of this.ancestorObjectTypes) {
-    if (ancestorObjectType.sparqlGraphPatternsClassDeclaration().isJust()) {
-      if (!ancestorObjectType.abstract) {
-        constructorStatements.push(
-          `super(${subjectVariable}, { ignoreRdfType: true });`,
-        );
-      }
-      extends_ = `${ancestorObjectType.name}.SparqlGraphPatterns`;
-      break;
-    }
-  }
-  if (constructorStatements.length === 0) {
-    constructorStatements.push(`super(${subjectVariable});`);
-  }
-  constructorStatements.push(...addStatements);
 
   return Maybe.of({
     ctors: [
       {
-        parameters: constructorParameters,
+        parameters: [
+          {
+            name: subjectVariable,
+            type: "sparqlBuilder.ResourceGraphPatterns.SubjectParameter",
+          },
+          {
+            hasQuestionToken: true,
+            name: optionsVariable,
+            type: `{ ${ignoreRdfTypeVariable}?: boolean }`,
+          },
+        ],
         statements: constructorStatements,
       },
     ],

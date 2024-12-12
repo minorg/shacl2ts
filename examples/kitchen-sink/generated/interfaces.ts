@@ -2985,7 +2985,10 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
-    constructor(subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter) {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
       super(subject);
       this.add(
         sparqlBuilder.GraphPattern.basic(
@@ -3063,6 +3066,15 @@ namespace AbstractBaseClassWithoutPropertiesNodeShape {
       _hasher,
     );
     return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends AbstractBaseClassWithPropertiesNodeShape.SparqlGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject, { ignoreRdfType: true });
+    }
   }
 
   export function toRdf(
@@ -3179,12 +3191,12 @@ export namespace ConcreteParentClassNodeShape {
     return _hasher;
   }
 
-  export class SparqlGraphPatterns extends AbstractBaseClassWithPropertiesNodeShape.SparqlGraphPatterns {
+  export class SparqlGraphPatterns extends AbstractBaseClassWithoutPropertiesNodeShape.SparqlGraphPatterns {
     constructor(
       subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
       _options?: { ignoreRdfType?: boolean },
     ) {
-      super(subject);
+      super(subject, { ignoreRdfType: true });
       if (!_options?.ignoreRdfType) {
         this.add(
           ...new sparqlBuilder.RdfTypeGraphPatterns(
@@ -3459,7 +3471,10 @@ export namespace AbstractBaseClassForImportedType {
   }
 
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
-    constructor(subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter) {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
       super(subject);
       this.add(
         sparqlBuilder.GraphPattern.basic(
