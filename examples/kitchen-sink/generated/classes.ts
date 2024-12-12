@@ -3098,6 +3098,7 @@ abstract class AbstractBaseClassWithPropertiesNodeShape {
 namespace AbstractBaseClassWithPropertiesNodeShape {
   export function fromRdf(
     _resource: rdfjsResource.Resource,
+    _options?: object,
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
     { abcStringProperty: string; identifier: rdfjs.BlankNode | rdfjs.NamedNode }
@@ -3154,19 +3155,20 @@ abstract class AbstractBaseClassWithoutPropertiesNodeShape extends AbstractBaseC
 namespace AbstractBaseClassWithoutPropertiesNodeShape {
   export function fromRdf(
     _resource: rdfjsResource.Resource,
+    _options?: object,
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
     { abcStringProperty: string; identifier: rdfjs.BlankNode | rdfjs.NamedNode }
   > {
-    return AbstractBaseClassWithPropertiesNodeShape.fromRdf(_resource).chain(
-      (_super) => {
-        const identifier = _resource.identifier;
-        return purify.Either.of({
-          abcStringProperty: _super.abcStringProperty,
-          identifier,
-        });
-      },
-    );
+    return AbstractBaseClassWithPropertiesNodeShape.fromRdf(_resource, {
+      ignoreRdfType: true,
+    }).chain((_super) => {
+      const identifier = _resource.identifier;
+      return purify.Either.of({
+        abcStringProperty: _super.abcStringProperty,
+        identifier,
+      });
+    });
   }
 }
 export class ConcreteParentClassNodeShape extends AbstractBaseClassWithoutPropertiesNodeShape {
@@ -3257,50 +3259,50 @@ export namespace ConcreteParentClassNodeShape {
     rdfjsResource.Resource.ValueError,
     ConcreteParentClassNodeShape
   > {
-    return AbstractBaseClassWithoutPropertiesNodeShape.fromRdf(_resource).chain(
-      (_super) => {
-        if (
-          !_options?.ignoreRdfType &&
-          !_resource.isInstanceOf(
-            dataFactory.namedNode(
+    return AbstractBaseClassWithoutPropertiesNodeShape.fromRdf(_resource, {
+      ignoreRdfType: true,
+    }).chain((_super) => {
+      if (
+        !_options?.ignoreRdfType &&
+        !_resource.isInstanceOf(
+          dataFactory.namedNode(
+            "http://example.com/ConcreteParentClassNodeShape",
+          ),
+        )
+      ) {
+        return purify.Left(
+          new rdfjsResource.Resource.ValueError({
+            focusResource: _resource,
+            message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
+            predicate: dataFactory.namedNode(
               "http://example.com/ConcreteParentClassNodeShape",
             ),
-          )
-        ) {
-          return purify.Left(
-            new rdfjsResource.Resource.ValueError({
-              focusResource: _resource,
-              message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
-              predicate: dataFactory.namedNode(
-                "http://example.com/ConcreteParentClassNodeShape",
-              ),
-            }),
-          );
-        }
-        const identifier = _resource.identifier;
-        const _parentStringPropertyEither: purify.Either<
-          rdfjsResource.Resource.ValueError,
-          string
-        > = _resource
-          .values(
-            dataFactory.namedNode("http://example.com/parentStringProperty"),
-            { unique: true },
-          )
-          .head()
-          .chain((_value) => _value.toString());
-        if (_parentStringPropertyEither.isLeft()) {
-          return _parentStringPropertyEither;
-        }
-        const parentStringProperty = _parentStringPropertyEither.unsafeCoerce();
-        return purify.Either.of(
-          new ConcreteParentClassNodeShape({
-            identifier,
-            abcStringProperty: _super.abcStringProperty,
-            parentStringProperty,
           }),
         );
-      },
-    );
+      }
+      const identifier = _resource.identifier;
+      const _parentStringPropertyEither: purify.Either<
+        rdfjsResource.Resource.ValueError,
+        string
+      > = _resource
+        .values(
+          dataFactory.namedNode("http://example.com/parentStringProperty"),
+          { unique: true },
+        )
+        .head()
+        .chain((_value) => _value.toString());
+      if (_parentStringPropertyEither.isLeft()) {
+        return _parentStringPropertyEither;
+      }
+      const parentStringProperty = _parentStringPropertyEither.unsafeCoerce();
+      return purify.Either.of(
+        new ConcreteParentClassNodeShape({
+          identifier,
+          abcStringProperty: _super.abcStringProperty,
+          parentStringProperty,
+        }),
+      );
+    });
   }
 
   export class SparqlGraphPatterns extends AbstractBaseClassWithPropertiesNodeShape.SparqlGraphPatterns {
@@ -3540,6 +3542,7 @@ export abstract class AbstractBaseClassForImportedType {
 export namespace AbstractBaseClassForImportedType {
   export function fromRdf(
     _resource: rdfjsResource.Resource,
+    _options?: object,
   ): purify.Either<
     rdfjsResource.Resource.ValueError,
     { abcStringProperty: string; identifier: rdfjs.BlankNode | rdfjs.NamedNode }
@@ -3576,7 +3579,10 @@ export namespace AbstractBaseClassForImportedType {
   }
 }
 
-export type OrNodeShape = OrNodeShapeMember1 | OrNodeShapeMember2;
+export type OrNodeShape =
+  | OrNodeShapeMember1
+  | OrNodeShapeMember2
+  | KitchenSinkImportedType;
 
 export namespace OrNodeShape {
   export function equals(
@@ -3591,6 +3597,8 @@ export namespace OrNodeShape {
           return left.equals(right as unknown as OrNodeShapeMember1);
         case "OrNodeShapeMember2":
           return left.equals(right as unknown as OrNodeShapeMember2);
+        case "KitchenSinkImportedType":
+          return left.equals(right as unknown as KitchenSinkImportedType);
       }
     });
   }
@@ -3604,13 +3612,21 @@ export namespace OrNodeShape {
         rdfjsResource.Resource.ValueError,
         OrNodeShape
       >
-    ).altLazy(
-      () =>
-        OrNodeShapeMember2.fromRdf(_resource, _options) as purify.Either<
-          rdfjsResource.Resource.ValueError,
-          OrNodeShape
-        >,
-    );
+    )
+      .altLazy(
+        () =>
+          OrNodeShapeMember2.fromRdf(_resource, _options) as purify.Either<
+            rdfjsResource.Resource.ValueError,
+            OrNodeShape
+          >,
+      )
+      .altLazy(
+        () =>
+          KitchenSinkImportedType.fromRdf(_resource, _options) as purify.Either<
+            rdfjsResource.Resource.ValueError,
+            OrNodeShape
+          >,
+      );
   }
 
   export function hash<
@@ -3622,6 +3638,8 @@ export namespace OrNodeShape {
       case "OrNodeShapeMember1":
         return orNodeShape.hash(_hasher);
       case "OrNodeShapeMember2":
+        return orNodeShape.hash(_hasher);
+      case "KitchenSinkImportedType":
         return orNodeShape.hash(_hasher);
     }
   }
@@ -3635,6 +3653,9 @@ export namespace OrNodeShape {
             this.subject,
           ).toGroupGraphPattern(),
           new OrNodeShapeMember2.SparqlGraphPatterns(
+            this.subject,
+          ).toGroupGraphPattern(),
+          new KitchenSinkImportedType.SparqlGraphPatterns(
             this.subject,
           ).toGroupGraphPattern(),
         ),
@@ -3653,6 +3674,8 @@ export namespace OrNodeShape {
       case "OrNodeShapeMember1":
         return orNodeShape.toRdf(_parameters);
       case "OrNodeShapeMember2":
+        return orNodeShape.toRdf(_parameters);
+      case "KitchenSinkImportedType":
         return orNodeShape.toRdf(_parameters);
     }
   }

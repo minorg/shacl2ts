@@ -225,7 +225,7 @@
 :OrNodeShape
   a sh:NodeShape ;
   sh:name "OrNodeShape" ;
-  sh:or ( :OrNodeShapeMember1 :OrNodeShapeMember2 ) ;
+  sh:or ( :OrNodeShapeMember1 :OrNodeShapeMember2 :ImportedType ) ;
 .
 
 :OrNodeShapeMember1

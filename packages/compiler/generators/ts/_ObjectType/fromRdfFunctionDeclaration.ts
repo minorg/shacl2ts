@@ -32,14 +32,14 @@ export function fromRdfFunctionDeclaration(
       name: variables.resource,
       type: this.rdfjsResourceType().name,
     },
-  ];
-  if (!this.abstract) {
-    parameters.push({
+    {
       hasQuestionToken: true,
       name: variables.options,
-      type: `{ ${variables.ignoreRdfType}?: boolean }`,
-    });
-  }
+      type: this.abstract
+        ? "object"
+        : `{ ${variables.ignoreRdfType}?: boolean }`,
+    },
+  ];
 
   const propertiesByName: Record<
     string,
@@ -101,7 +101,7 @@ export function fromRdfFunctionDeclaration(
 
   if (this.parentObjectTypes.length > 0) {
     statements = [
-      `return ${this.parentObjectTypes[0].name}.fromRdf(${variables.resource}${!this.parentObjectTypes[0].abstract ? `, { ${variables.ignoreRdfType}: true }` : ""}).chain(_super => { ${statements.join("\n")} })`,
+      `return ${this.parentObjectTypes[0].name}.fromRdf(${variables.resource}, { ${variables.ignoreRdfType}: true }).chain(_super => { ${statements.join("\n")} })`,
     ];
   }
 

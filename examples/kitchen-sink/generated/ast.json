@@ -957,7 +957,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-198"
+              "value": "n3-199"
             },
             "shName": "stringProperty1"
           },
@@ -987,7 +987,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-199"
+              "value": "n3-200"
             },
             "shName": "stringProperty2"
           },
@@ -1017,7 +1017,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-200"
+              "value": "n3-201"
             },
             "shName": "stringProperty"
           },
@@ -1047,7 +1047,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-201"
+              "value": "n3-202"
             },
             "shName": "stringProperty"
           },

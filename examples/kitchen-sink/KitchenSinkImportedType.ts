@@ -32,6 +32,7 @@ export class KitchenSinkImportedType extends AbstractBaseClassForImportedType {
 
   static override fromRdf(
     resource: Resource,
+    _options?: { ignoreRdfType?: boolean },
   ): purify.Either<rdfjsResource.Resource.ValueError, KitchenSinkImportedType> {
     return Either.of(new KitchenSinkImportedType(resource.identifier));
   }
@@ -41,8 +42,9 @@ export class KitchenSinkImportedType extends AbstractBaseClassForImportedType {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(instance: KitchenSinkImportedType, hasher: HasherT): void {
+  >(instance: KitchenSinkImportedType, hasher: HasherT): HasherT {
     instance.hash(hasher);
+    return hasher;
   }
 
   // Called by interface functions
