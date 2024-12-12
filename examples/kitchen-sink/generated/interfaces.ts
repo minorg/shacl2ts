@@ -3025,6 +3025,13 @@ export interface AbstractBaseClassWithoutPropertiesNodeShape
 }
 
 namespace AbstractBaseClassWithoutPropertiesNodeShape {
+  export function equals(
+    left: AbstractBaseClassWithoutPropertiesNodeShape,
+    right: AbstractBaseClassWithoutPropertiesNodeShape,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return AbstractBaseClassWithPropertiesNodeShape.equals(left, right);
+  }
+
   export function fromRdf(
     _resource: rdfjsResource.Resource,
     _options?: object,
@@ -3087,12 +3094,14 @@ export namespace ConcreteParentClassNodeShape {
     left: ConcreteParentClassNodeShape,
     right: ConcreteParentClassNodeShape,
   ): purifyHelpers.Equatable.EqualsResult {
-    return AbstractBaseClassWithPropertiesNodeShape.equals(left, right).chain(
-      () =>
-        purifyHelpers.Equatable.strictEquals(
-          left.parentStringProperty,
-          right.parentStringProperty,
-        ),
+    return AbstractBaseClassWithoutPropertiesNodeShape.equals(
+      left,
+      right,
+    ).chain(() =>
+      purifyHelpers.Equatable.strictEquals(
+        left.parentStringProperty,
+        right.parentStringProperty,
+      ),
     );
   }
 

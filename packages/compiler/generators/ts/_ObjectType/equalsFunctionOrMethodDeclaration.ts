@@ -1,4 +1,5 @@
 import { Maybe } from "purify-ts";
+import { invariant } from "ts-invariant";
 import type { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
 import { IdentifierProperty } from "./IdentifierProperty.js";
@@ -20,16 +21,20 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     // Consider that a root of the object type hierarchy "owns" the identifier and type discriminator properties
     // for all of its subtypes in the hierarchy.
     properties = this.properties;
+    invariant(properties.length >= 2);
   } else {
     properties = this.properties.filter(
       (property) =>
         !(property instanceof IdentifierProperty) &&
         !(property instanceof TypeDiscriminatorProperty),
     );
-  }
-
-  if (properties.length === 0) {
-    return Maybe.empty();
+    if (
+      this.configuration.objectTypeDeclarationType === "class" &&
+      properties.length === 0
+    ) {
+      // If there's a parent class and no properties in this class, can skip overriding equals
+      return Maybe.empty();
+    }
   }
 
   let leftVariable: string;
@@ -47,52 +52,28 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   const chain: string[] = [];
 
   let hasOverrideKeyword = false;
-  switch (this.configuration.objectTypeDeclarationType) {
-    case "class": {
-      // If there's an ancestor with an equals implementation then delegate to super.
-      for (const ancestorObjectType of this.ancestorObjectTypes) {
-        const ancestorClassDeclaration = ancestorObjectType
-          .classDeclaration()
-          .extract();
-        if (
-          !ancestorClassDeclaration || // Probably an imported type, assume it has an equals
-          (ancestorClassDeclaration.methods ?? []).some(
-            (method) => method.name === "equals",
-          )
-        ) {
-          chain.push("super.equals(other)");
-          hasOverrideKeyword = true;
-          break;
-        }
+  if (this.parentObjectTypes.length > 0) {
+    switch (this.configuration.objectTypeDeclarationType) {
+      case "class": {
+        chain.push("super.equals(other)");
+        hasOverrideKeyword = true;
+        break;
       }
-      break;
-    }
-    case "interface": {
-      // For every parent, find the nearest equals implementation
-      for (const parentObjectType of this.parentObjectTypes) {
-        if (parentObjectType.equalsFunctionDeclaration().isJust()) {
+      case "interface": {
+        // For every parent, find the nearest equals implementation
+        for (const parentObjectType of this.parentObjectTypes) {
           chain.push(`${parentObjectType.name}.equals(left, right)`);
-        } else {
-          for (const ancestorObjectType of parentObjectType.ancestorObjectTypes) {
-            if (ancestorObjectType.equalsFunctionDeclaration().isJust()) {
-              chain.push(`${ancestorObjectType.name}.equals(left, right)`);
-              break;
-            }
-          }
         }
+        break;
       }
-      break;
     }
   }
 
   for (const property of properties) {
-    let propertyEqualsCall = `(${property.equalsFunction})(${leftVariable}.${property.name}, ${rightVariable}.${property.name})`;
-    if (chain.length > 0) {
-      propertyEqualsCall = `chain(() => ${propertyEqualsCall})`;
-    }
-    chain.push(propertyEqualsCall);
+    chain.push(
+      `(${property.equalsFunction})(${leftVariable}.${property.name}, ${rightVariable}.${property.name})`,
+    );
   }
-  const expression = chain.join(".");
 
   return Maybe.of({
     hasOverrideKeyword,
@@ -116,6 +97,12 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
             },
           ],
     returnType: "purifyHelpers.Equatable.EqualsResult",
-    statements: [`return ${expression};`],
+    statements: [
+      `return ${chain
+        .map((chainPart, chainPartI) =>
+          chainPartI === 0 ? chainPart : `chain(() => ${chainPart})`,
+        )
+        .join(".")};`,
+    ],
   });
 }
