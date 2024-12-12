@@ -15,8 +15,8 @@ import { AbstractBaseClassForImportedType } from "./generated/classes.js";
  *
  * Normally you would only need one or the other.
  */
-export class KitchenSinkImportedType extends AbstractBaseClassForImportedType {
-  readonly type = "KitchenSinkImportedType";
+export class ImportedType extends AbstractBaseClassForImportedType {
+  readonly type = "ImportedType";
 
   constructor(readonly identifier: BlankNode | NamedNode<string>) {
     super({ abcStringProperty: "test" });
@@ -24,8 +24,8 @@ export class KitchenSinkImportedType extends AbstractBaseClassForImportedType {
 
   // Called by interface functions
   static equals(
-    left: KitchenSinkImportedType,
-    right: KitchenSinkImportedType,
+    left: ImportedType,
+    right: ImportedType,
   ): Equatable.EqualsResult {
     return left.equals(right);
   }
@@ -33,8 +33,8 @@ export class KitchenSinkImportedType extends AbstractBaseClassForImportedType {
   static override fromRdf(
     resource: Resource,
     _options?: { ignoreRdfType?: boolean },
-  ): purify.Either<rdfjsResource.Resource.ValueError, KitchenSinkImportedType> {
-    return Either.of(new KitchenSinkImportedType(resource.identifier));
+  ): purify.Either<rdfjsResource.Resource.ValueError, ImportedType> {
+    return Either.of(new ImportedType(resource.identifier));
   }
 
   // Called by interface functions
@@ -42,14 +42,14 @@ export class KitchenSinkImportedType extends AbstractBaseClassForImportedType {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(instance: KitchenSinkImportedType, hasher: HasherT): HasherT {
+  >(instance: ImportedType, hasher: HasherT): HasherT {
     instance.hash(hasher);
     return hasher;
   }
 
   // Called by interface functions
   static toRdf(
-    instance: KitchenSinkImportedType,
+    instance: ImportedType,
     parameters: {
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
@@ -59,7 +59,7 @@ export class KitchenSinkImportedType extends AbstractBaseClassForImportedType {
   }
 
   // Called by class methods
-  override equals(_other: KitchenSinkImportedType): Equatable.EqualsResult {
+  override equals(_other: ImportedType): Equatable.EqualsResult {
     return Equatable.EqualsResult.Equal;
   }
 
@@ -82,13 +82,13 @@ export class KitchenSinkImportedType extends AbstractBaseClassForImportedType {
   }) {
     const resource = super.toRdf({ mutateGraph, resourceSet });
     resource.add(
-      resourceSet.dataFactory.namedNode("http://example.com/extrapropert"),
+      resourceSet.dataFactory.namedNode("http://example.com/extraproperty"),
       resourceSet.dataFactory.literal("example"),
     );
     return resource;
   }
 }
 
-export namespace KitchenSinkImportedType {
+export namespace ImportedType {
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {}
 }

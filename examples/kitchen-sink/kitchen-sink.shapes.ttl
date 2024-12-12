@@ -103,9 +103,9 @@
 # An imported type in TypeScript
 :ImportedType
   a sh:NodeShape ;
-  sh:name "KitchenSinkImportedType" ;
+  sh:name "ImportedType" ;
   rdfs:subClassOf :AbstractBaseClassForImportedType ;
-  shaclmate:tsImport "import { KitchenSinkImportedType } from \"../KitchenSinkImportedType.js\";"
+  shaclmate:tsImport "import { ImportedType } from \"../ImportedType.js\";"
 .
 
 # A node shape that models an RDF list. Should be transformed into a list data structure when used as a property

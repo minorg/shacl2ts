@@ -6,7 +6,7 @@ import * as purifyHelpers from "purify-ts-helpers";
 // @ts-ignore
 import * as rdfLiteral from "rdf-literal";
 import * as rdfjsResource from "rdfjs-resource";
-import { KitchenSinkImportedType } from "../KitchenSinkImportedType.js";
+import { ImportedType } from "../ImportedType.js";
 export interface UuidV4IriNodeShape {
   readonly identifier: rdfjs.NamedNode;
   readonly stringProperty: string;
@@ -1088,7 +1088,7 @@ export namespace NodeShapeWithOrProperties {
 }
 export interface NodeShapeWithImportedTypes {
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly importedTypeProperty: KitchenSinkImportedType;
+  readonly importedTypeProperty: ImportedType;
   readonly type: "NodeShapeWithImportedTypes";
 }
 
@@ -1099,7 +1099,7 @@ export namespace NodeShapeWithImportedTypes {
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.objectEquals(left, right, {
       identifier: purifyHelpers.Equatable.booleanEquals,
-      importedTypeProperty: KitchenSinkImportedType.equals,
+      importedTypeProperty: ImportedType.equals,
       type: purifyHelpers.Equatable.strictEquals,
     });
   }
@@ -1111,14 +1111,14 @@ export namespace NodeShapeWithImportedTypes {
     rdfjsResource.Resource.ValueError,
     {
       identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-      importedTypeProperty: KitchenSinkImportedType;
+      importedTypeProperty: ImportedType;
       type: "NodeShapeWithImportedTypes";
     }
   > {
     const identifier = _resource.identifier;
     const _importedTypePropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
-      KitchenSinkImportedType
+      ImportedType
     > = _resource
       .values(
         dataFactory.namedNode("http://example.com/importedTypeProperty"),
@@ -1126,7 +1126,7 @@ export namespace NodeShapeWithImportedTypes {
       )
       .head()
       .chain((value) => value.toResource())
-      .chain((_resource) => KitchenSinkImportedType.fromRdf(_resource));
+      .chain((_resource) => ImportedType.fromRdf(_resource));
     if (_importedTypePropertyEither.isLeft()) {
       return _importedTypePropertyEither;
     }
@@ -1144,7 +1144,7 @@ export namespace NodeShapeWithImportedTypes {
     _nodeShapeWithImportedTypes: NodeShapeWithImportedTypes,
     _hasher: HasherT,
   ): HasherT {
-    KitchenSinkImportedType.hash(
+    ImportedType.hash(
       _nodeShapeWithImportedTypes.importedTypeProperty,
       _hasher,
     );
@@ -1164,8 +1164,7 @@ export namespace NodeShapeWithImportedTypes {
             dataFactory.namedNode("http://example.com/importedTypeProperty"),
             this.variable("ImportedTypeProperty"),
           ).chainObject(
-            (_object) =>
-              new KitchenSinkImportedType.SparqlGraphPatterns(_object),
+            (_object) => new ImportedType.SparqlGraphPatterns(_object),
           ),
         ),
       );
@@ -1188,10 +1187,10 @@ export namespace NodeShapeWithImportedTypes {
     });
     _resource.add(
       dataFactory.namedNode("http://example.com/importedTypeProperty"),
-      KitchenSinkImportedType.toRdf(
-        nodeShapeWithImportedTypes.importedTypeProperty,
-        { mutateGraph: mutateGraph, resourceSet: resourceSet },
-      ),
+      ImportedType.toRdf(nodeShapeWithImportedTypes.importedTypeProperty, {
+        mutateGraph: mutateGraph,
+        resourceSet: resourceSet,
+      }),
     );
     return _resource;
   }
@@ -3232,7 +3231,7 @@ export namespace ConcreteChildClassNodeShape {
 export interface AbstractBaseClassForImportedType {
   readonly abcStringProperty: string;
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly type: "KitchenSinkImportedType";
+  readonly type: "ImportedType";
 }
 
 export namespace AbstractBaseClassForImportedType {
@@ -3322,7 +3321,7 @@ export namespace AbstractBaseClassForImportedType {
 export type OrNodeShape =
   | OrNodeShapeMember1
   | OrNodeShapeMember2
-  | KitchenSinkImportedType;
+  | ImportedType;
 
 export namespace OrNodeShape {
   export function equals(
@@ -3343,11 +3342,8 @@ export namespace OrNodeShape {
             left,
             right as unknown as OrNodeShapeMember2,
           );
-        case "KitchenSinkImportedType":
-          return KitchenSinkImportedType.equals(
-            left,
-            right as unknown as KitchenSinkImportedType,
-          );
+        case "ImportedType":
+          return ImportedType.equals(left, right as unknown as ImportedType);
       }
     });
   }
@@ -3371,7 +3367,7 @@ export namespace OrNodeShape {
       )
       .altLazy(
         () =>
-          KitchenSinkImportedType.fromRdf(_resource, _options) as purify.Either<
+          ImportedType.fromRdf(_resource, _options) as purify.Either<
             rdfjsResource.Resource.ValueError,
             OrNodeShape
           >,
@@ -3388,8 +3384,8 @@ export namespace OrNodeShape {
         return OrNodeShapeMember1.hash(orNodeShape, _hasher);
       case "OrNodeShapeMember2":
         return OrNodeShapeMember2.hash(orNodeShape, _hasher);
-      case "KitchenSinkImportedType":
-        return KitchenSinkImportedType.hash(orNodeShape, _hasher);
+      case "ImportedType":
+        return ImportedType.hash(orNodeShape, _hasher);
     }
   }
 
@@ -3404,7 +3400,7 @@ export namespace OrNodeShape {
           new OrNodeShapeMember2.SparqlGraphPatterns(
             this.subject,
           ).toGroupGraphPattern(),
-          new KitchenSinkImportedType.SparqlGraphPatterns(
+          new ImportedType.SparqlGraphPatterns(
             this.subject,
           ).toGroupGraphPattern(),
         ),
@@ -3424,7 +3420,7 @@ export namespace OrNodeShape {
         return OrNodeShape.toRdf(orNodeShape, _parameters);
       case "OrNodeShapeMember2":
         return OrNodeShape.toRdf(orNodeShape, _parameters);
-      case "KitchenSinkImportedType":
+      case "ImportedType":
         return OrNodeShape.toRdf(orNodeShape, _parameters);
     }
   }

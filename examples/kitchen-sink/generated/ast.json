@@ -285,7 +285,7 @@
           "termType": "NamedNode",
           "value": "http://example.com/ImportedType"
         },
-        "shName": "KitchenSinkImportedType"
+        "shName": "ImportedType"
       },
       "properties": []
     },
@@ -711,7 +711,7 @@
                 "termType": "NamedNode",
                 "value": "http://example.com/ImportedType"
               },
-              "shName": "KitchenSinkImportedType"
+              "shName": "ImportedType"
             },
             "nodeKinds": [
               "BlankNode",

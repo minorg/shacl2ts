@@ -9,7 +9,7 @@ import {
   type Resource,
 } from "rdfjs-resource";
 import { type ExpectStatic, describe, it } from "vitest";
-import { KitchenSinkImportedType } from "../../../../../examples/kitchen-sink/KitchenSinkImportedType.js";
+import { ImportedType } from "../../../../../examples/kitchen-sink/ImportedType.js";
 import * as kitchenSinkClasses from "../../../../../examples/kitchen-sink/generated/classes.js";
 import * as kitchenSinkInterfaces from "../../../../../examples/kitchen-sink/generated/interfaces.js";
 
@@ -471,9 +471,7 @@ describe("TsGenerator", () => {
 
   it("should handle imported types", ({ expect }) => {
     const instance = new kitchenSinkClasses.NodeShapeWithImportedTypes({
-      importedTypeProperty: new KitchenSinkImportedType(
-        dataFactory.blankNode(),
-      ),
+      importedTypeProperty: new ImportedType(dataFactory.blankNode()),
     });
     testFromRdf({
       expect,
