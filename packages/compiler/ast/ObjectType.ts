@@ -105,7 +105,6 @@ export interface ObjectType {
 
 export namespace ObjectType {
   export interface Property {
-    readonly inline: boolean;
     readonly name: Name;
     readonly path: PredicatePath;
     readonly type: Type;

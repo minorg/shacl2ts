@@ -4,15 +4,15 @@ import { PropertyVisibility } from "../PropertyVisibility.js";
 import { shaclmate } from "../vocabularies/index.js";
 import type { NodeShape } from "./NodeShape.js";
 import type { Shape } from "./Shape.js";
-import { inline } from "./inline.js";
+import { extern } from "./extern.js";
 import { shaclmateName } from "./shaclmateName.js";
 
 export class PropertyShape
   extends RdfjsPropertyShape<NodeShape, any, Shape>
   implements Shape
 {
-  get inline(): Maybe<boolean> {
-    return inline.bind(this)();
+  get extern(): Maybe<boolean> {
+    return extern.bind(this)();
   }
 
   get shaclmateName(): Maybe<string> {

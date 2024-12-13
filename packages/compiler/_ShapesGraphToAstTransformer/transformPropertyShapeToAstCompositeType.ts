@@ -16,7 +16,7 @@ export function transformPropertyShapeToAstCompositeType(
   shape: input.Shape,
   inherited: {
     defaultValue: Maybe<BlankNode | Literal | NamedNode>;
-    inline: Maybe<boolean>;
+    extern: Maybe<boolean>;
   } | null,
 ): Either<Error, ast.Type> {
   const defaultValue = (
@@ -24,8 +24,8 @@ export function transformPropertyShapeToAstCompositeType(
   ).alt(inherited !== null ? inherited.defaultValue : Maybe.empty());
 
   const hasValue = shape.constraints.hasValue;
-  const inline = shape.inline.alt(
-    inherited !== null ? inherited.inline : Maybe.empty(),
+  const extern = shape.extern.alt(
+    inherited !== null ? inherited.extern : Maybe.empty(),
   );
 
   let memberTypeEithers: readonly Either<Error, ast.Type>[];
@@ -40,40 +40,40 @@ export function transformPropertyShapeToAstCompositeType(
     }
     const astType = astTypeEither.unsafeCoerce();
 
-    if (inline.orDefault(false)) {
-      return Either.of(astType);
-    }
-
-    // Not inline
-    // Use the identifier type instead
-    let nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
-    if (astType.kind === "ObjectType") {
-      nodeKinds = astType.nodeKinds;
-    } else {
-      nodeKinds = new Set();
-      for (const memberType of astType.memberTypes) {
-        for (const nodeKind of memberType.nodeKinds) {
-          nodeKinds.add(nodeKind);
+    if (extern.orDefault(false)) {
+      // Use the identifier type instead
+      let nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
+      if (astType.kind === "ObjectType") {
+        nodeKinds = astType.nodeKinds;
+      } else {
+        nodeKinds = new Set();
+        for (const memberType of astType.memberTypes) {
+          for (const nodeKind of memberType.nodeKinds) {
+            nodeKinds.add(nodeKind);
+          }
         }
       }
+
+      return Either.of({
+        defaultValue: defaultValue.filter(
+          (term) => term.termType === "NamedNode",
+        ),
+        hasValue: Maybe.empty(),
+        in_: Maybe.empty(),
+        kind: "IdentifierType",
+        nodeKinds,
+      });
     }
 
-    return Either.of({
-      defaultValue: defaultValue.filter(
-        (term) => term.termType === "NamedNode",
-      ),
-      hasValue: Maybe.empty(),
-      in_: Maybe.empty(),
-      kind: "IdentifierType",
-      nodeKinds,
-    });
+    // Not extern, use the type
+    return Either.of(astType);
   };
 
   if (shape.constraints.and.length > 0) {
     memberTypeEithers = shape.constraints.and.map((memberShape) =>
       this.transformPropertyShapeToAstType(memberShape, {
         defaultValue,
-        inline,
+        extern: extern,
       }),
     );
     compositeTypeKind = "IntersectionType";
@@ -117,7 +117,7 @@ export function transformPropertyShapeToAstCompositeType(
     memberTypeEithers = shape.constraints.or.map((memberShape) =>
       this.transformPropertyShapeToAstType(memberShape, {
         defaultValue,
-        inline,
+        extern: extern,
       }),
     );
     compositeTypeKind = "UnionType";

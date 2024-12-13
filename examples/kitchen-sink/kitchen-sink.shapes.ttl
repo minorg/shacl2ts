@@ -63,7 +63,7 @@
   a sh:NodeShape ;
   sh:name "ExterningAndInliningNodeShape" ;
   sh:property [
-    shaclmate:inline false ;
+    shaclmate:extern true ;
     sh:maxCount 1 ;
     sh:minCount 1 ;
     sh:node :ExterningAndInliningNodeShape-ExternNodeShape ;
@@ -71,7 +71,7 @@
     sh:path :externProperty
   ] ;
   sh:property [
-    shaclmate:inline true ;
+    shaclmate:extern false ;
     sh:maxCount 1 ;
     sh:minCount 1 ;
     sh:node :ExterningAndInliningNodeShape-InlineNodeShape ;
@@ -126,7 +126,6 @@
     sh:path rdf:first .
 
 :ListShape-rest
-    shaclmate:inline true ;
     a sh:PropertyShape ;
     sh:maxCount 1 ;
     sh:minCount 1 ;
@@ -181,14 +180,14 @@
 :NodeShapeWithListProperty
   a sh:NodeShape ;
   sh:name "NodeShapeWithListProperty" ;
-  sh:property [ shaclmate:inline true ; sh:maxCount 1 ; sh:minCount 1 ; sh:node :ListShape ; sh:name "listProperty" ; sh:path :listProperty ]
+  sh:property [ sh:maxCount 1 ; sh:minCount 1 ; sh:node :ListShape ; sh:name "listProperty" ; sh:path :listProperty ]
 .
 
 # Shape with native properties
 :NodeShapeWithImportedTypes
   a sh:NodeShape ;
   sh:name "NodeShapeWithImportedTypes" ;
-  sh:property [ shaclmate:inline true ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "importedTypeProperty" ; sh:node :ImportedType ; sh:path :importedTypeProperty ] ;
+  sh:property [ sh:maxCount 1 ; sh:minCount 1 ; sh:name "importedTypeProperty" ; sh:node :ImportedType ; sh:path :importedTypeProperty ] ;
 .
 
 # Shape with sh:or properties

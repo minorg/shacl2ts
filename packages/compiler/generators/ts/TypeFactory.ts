@@ -370,28 +370,11 @@ export class TypeFactory {
       }
     }
 
-    let type: Type;
-    if (
-      astObjectTypeProperty.type.kind === "ObjectType" &&
-      !astObjectTypeProperty.inline
-    ) {
-      // Non-inlined object type = its identifier
-      type = new IdentifierType({
-        configuration: this.configuration,
-        defaultValue: Maybe.empty(),
-        hasValue: Maybe.empty(),
-        in_: Maybe.empty(),
-        nodeKinds: astObjectTypeProperty.type.nodeKinds,
-      });
-    } else {
-      type = this.createTypeFromAstType(astObjectTypeProperty.type);
-    }
-
     const property = new ObjectType.ShaclProperty({
       configuration: this.configuration,
       name: tsName(astObjectTypeProperty.name),
       path: astObjectTypeProperty.path.iri,
-      type,
+      type: this.createTypeFromAstType(astObjectTypeProperty.type),
       visibility: astObjectTypeProperty.visibility,
     });
     this.cachedObjectTypePropertiesByIdentifier.set(

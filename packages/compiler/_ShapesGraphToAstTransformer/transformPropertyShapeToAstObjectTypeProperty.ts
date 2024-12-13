@@ -29,7 +29,6 @@ export function transformPropertyShapeToAstObjectTypeProperty(
   }
 
   const property: ast.ObjectType.Property = {
-    inline: propertyShape.inline.orDefault(false),
     name: this.shapeAstName(propertyShape),
     path,
     type: type.extract() as ast.Type,

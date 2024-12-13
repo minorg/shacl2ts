@@ -14,9 +14,10 @@ export interface Shaclmate {
   // Properties
   abstract: NamedNode<"http://minorg.github.io/shaclmate/ns#abstract">;
   export: NamedNode<"http://minorg.github.io/shaclmate/ns#export">;
-  inline: NamedNode<"http://minorg.github.io/shaclmate/ns#inline">;
+  extern: NamedNode<"http://minorg.github.io/shaclmate/ns#extern">;
   mintingStrategy: NamedNode<"http://minorg.github.io/shaclmate/ns#mintingStrategy">;
   name: NamedNode<"http://minorg.github.io/shaclmate/ns#name">;
+  tsFromRdfParameter: NamedNode<"http://minorg.github.io/shaclmate/ns#tsFromRdfParameter">;
   tsImport: NamedNode<"http://minorg.github.io/shaclmate/ns#tsImport">;
   visibility: NamedNode<"http://minorg.github.io/shaclmate/ns#visibility">;
 }
