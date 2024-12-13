@@ -6,7 +6,7 @@ import * as purifyHelpers from "purify-ts-helpers";
 // @ts-ignore
 import * as rdfLiteral from "rdf-literal";
 import * as rdfjsResource from "rdfjs-resource";
-import { ImportedType } from "../ImportedType.js";
+import { ExternObjectType } from "../ExternObjectType.js";
 export interface UuidV4IriNodeShape {
   readonly identifier: rdfjs.NamedNode;
   readonly stringProperty: string;
@@ -1395,152 +1395,6 @@ export namespace NodeShapeWithOrProperties {
     return _resource;
   }
 }
-export interface NodeShapeWithImportedTypes {
-  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly importedTypeProperty: ImportedType;
-  readonly type: "NodeShapeWithImportedTypes";
-}
-
-export namespace NodeShapeWithImportedTypes {
-  export function equals(
-    left: NodeShapeWithImportedTypes,
-    right: NodeShapeWithImportedTypes,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.booleanEquals(
-      left.identifier,
-      right.identifier,
-    )
-      .mapLeft((propertyValuesUnequal) => ({
-        left: left,
-        right: right,
-        propertyName: "identifier",
-        propertyValuesUnequal,
-        type: "Property" as const,
-      }))
-      .chain(() =>
-        ImportedType.equals(
-          left.importedTypeProperty,
-          right.importedTypeProperty,
-        ).mapLeft((propertyValuesUnequal) => ({
-          left: left,
-          right: right,
-          propertyName: "importedTypeProperty",
-          propertyValuesUnequal,
-          type: "Property" as const,
-        })),
-      )
-      .chain(() =>
-        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
-          (propertyValuesUnequal) => ({
-            left: left,
-            right: right,
-            propertyName: "type",
-            propertyValuesUnequal,
-            type: "Property" as const,
-          }),
-        ),
-      );
-  }
-
-  export function fromRdf({
-    ignoreRdfType: _ignoreRdfType,
-    resource: _resource,
-    // @ts-ignore
-    ..._context
-  }: {
-    [_index: string]: any;
-    ignoreRdfType?: boolean;
-    resource: rdfjsResource.Resource;
-  }): purify.Either<
-    rdfjsResource.Resource.ValueError,
-    {
-      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-      importedTypeProperty: ImportedType;
-      type: "NodeShapeWithImportedTypes";
-    }
-  > {
-    const identifier = _resource.identifier;
-    const _importedTypePropertyEither: purify.Either<
-      rdfjsResource.Resource.ValueError,
-      ImportedType
-    > = _resource
-      .values(
-        dataFactory.namedNode("http://example.com/importedTypeProperty"),
-        { unique: true },
-      )
-      .head()
-      .chain((value) => value.toResource())
-      .chain((_resource) =>
-        ImportedType.fromRdf({ ..._context, resource: _resource }),
-      );
-    if (_importedTypePropertyEither.isLeft()) {
-      return _importedTypePropertyEither;
-    }
-
-    const importedTypeProperty = _importedTypePropertyEither.unsafeCoerce();
-    const type = "NodeShapeWithImportedTypes" as const;
-    return purify.Either.of({ identifier, importedTypeProperty, type });
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _nodeShapeWithImportedTypes: NodeShapeWithImportedTypes,
-    _hasher: HasherT,
-  ): HasherT {
-    ImportedType.hash(
-      _nodeShapeWithImportedTypes.importedTypeProperty,
-      _hasher,
-    );
-    return _hasher;
-  }
-
-  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
-    constructor(
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
-    ) {
-      super(subject);
-      this.add(
-        sparqlBuilder.GraphPattern.group(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/importedTypeProperty"),
-            this.variable("ImportedTypeProperty"),
-          ).chainObject(
-            (_object) => new ImportedType.SparqlGraphPatterns(_object),
-          ),
-        ),
-      );
-    }
-  }
-
-  export function toRdf(
-    nodeShapeWithImportedTypes: NodeShapeWithImportedTypes,
-    {
-      mutateGraph,
-      resourceSet,
-    }: {
-      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-      resourceSet: rdfjsResource.MutableResourceSet;
-    },
-  ): rdfjsResource.MutableResource {
-    const _resource = resourceSet.mutableResource({
-      identifier: nodeShapeWithImportedTypes.identifier,
-      mutateGraph,
-    });
-    _resource.add(
-      dataFactory.namedNode("http://example.com/importedTypeProperty"),
-      ImportedType.toRdf(nodeShapeWithImportedTypes.importedTypeProperty, {
-        mutateGraph: mutateGraph,
-        resourceSet: resourceSet,
-      }),
-    );
-    return _resource;
-  }
-}
 export interface NodeShapeWithListProperty {
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
   readonly listProperty: readonly string[];
@@ -1902,22 +1756,20 @@ export namespace NodeShapeWithInProperties {
         )
         .head()
         .chain((_value) =>
-          _value
-            .toBoolean()
-            .chain((value) =>
-              value === true
-                ? purify.Either.of(value)
-                : purify.Left(
-                    new rdfjsResource.Resource.MistypedValueError({
-                      actualValue: rdfLiteral.toRdf(value),
-                      expectedValueType: "true",
-                      focusResource: _resource,
-                      predicate: dataFactory.namedNode(
-                        "http://example.com/inBooleansProperty",
-                      ),
-                    }),
-                  ),
-            ),
+          _value.toBoolean().chain((value) =>
+            value === true
+              ? purify.Either.of(value)
+              : purify.Left(
+                  new rdfjsResource.Resource.MistypedValueError({
+                    actualValue: rdfLiteral.toRdf(value),
+                    expectedValueType: "true",
+                    focusResource: _resource,
+                    predicate: dataFactory.namedNode(
+                      "http://example.com/inBooleansProperty",
+                    ),
+                  }),
+                ),
+          ),
         )
         .toMaybe(),
     );
@@ -2420,6 +2272,539 @@ export namespace NodeShapeWithHasValueProperties {
     _resource.add(
       dataFactory.namedNode("http://example.com/hasLiteralProperty"),
       nodeShapeWithHasValueProperties.hasLiteralProperty,
+    );
+    return _resource;
+  }
+}
+export interface InlineNodeShape {
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly stringProperty: string;
+  readonly type: "InlineNodeShape";
+}
+
+export namespace InlineNodeShape {
+  export function equals(
+    left: InlineNodeShape,
+    right: InlineNodeShape,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.stringProperty,
+          right.stringProperty,
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "stringProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
+  }
+
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
+    ignoreRdfType?: boolean;
+    resource: rdfjsResource.Resource;
+  }): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+      stringProperty: string;
+      type: "InlineNodeShape";
+    }
+  > {
+    const identifier = _resource.identifier;
+    const _stringPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/stringProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
+    if (_stringPropertyEither.isLeft()) {
+      return _stringPropertyEither;
+    }
+
+    const stringProperty = _stringPropertyEither.unsafeCoerce();
+    const type = "InlineNodeShape" as const;
+    return purify.Either.of({ identifier, stringProperty, type });
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(_inlineNodeShape: InlineNodeShape, _hasher: HasherT): HasherT {
+    _hasher.update(_inlineNodeShape.stringProperty);
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/stringProperty"),
+          this.variable("StringProperty"),
+        ),
+      );
+    }
+  }
+
+  export function toRdf(
+    inlineNodeShape: InlineNodeShape,
+    {
+      mutateGraph,
+      resourceSet,
+    }: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    },
+  ): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: inlineNodeShape.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/stringProperty"),
+      inlineNodeShape.stringProperty,
+    );
+    return _resource;
+  }
+}
+export interface ExternNodeShape {
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly stringProperty: string;
+  readonly type: "ExternNodeShape";
+}
+
+export namespace ExternNodeShape {
+  export function equals(
+    left: ExternNodeShape,
+    right: ExternNodeShape,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.booleanEquals(
+      left.identifier,
+      right.identifier,
+    )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          left.stringProperty,
+          right.stringProperty,
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "stringProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
+  }
+
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
+    ignoreRdfType?: boolean;
+    resource: rdfjsResource.Resource;
+  }): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+      stringProperty: string;
+      type: "ExternNodeShape";
+    }
+  > {
+    const identifier = _resource.identifier;
+    const _stringPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/stringProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
+    if (_stringPropertyEither.isLeft()) {
+      return _stringPropertyEither;
+    }
+
+    const stringProperty = _stringPropertyEither.unsafeCoerce();
+    const type = "ExternNodeShape" as const;
+    return purify.Either.of({ identifier, stringProperty, type });
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(_externNodeShape: ExternNodeShape, _hasher: HasherT): HasherT {
+    _hasher.update(_externNodeShape.stringProperty);
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/stringProperty"),
+          this.variable("StringProperty"),
+        ),
+      );
+    }
+  }
+
+  export function toRdf(
+    externNodeShape: ExternNodeShape,
+    {
+      mutateGraph,
+      resourceSet,
+    }: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    },
+  ): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: externNodeShape.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/stringProperty"),
+      externNodeShape.stringProperty,
+    );
+    return _resource;
+  }
+}
+export interface NodeShapeWithExternProperties {
+  readonly externObjectTypeProperty: purify.Maybe<ExternObjectType>;
+  readonly externProperty: purify.Maybe<rdfjs.BlankNode | rdfjs.NamedNode>;
+  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+  readonly inlineProperty: purify.Maybe<InlineNodeShape>;
+  readonly type: "NodeShapeWithExternProperties";
+}
+
+export namespace NodeShapeWithExternProperties {
+  export function equals(
+    left: NodeShapeWithExternProperties,
+    right: NodeShapeWithExternProperties,
+  ): purifyHelpers.Equatable.EqualsResult {
+    return ((left, right) =>
+      purifyHelpers.Maybes.equals(left, right, ExternObjectType.equals))(
+      left.externObjectTypeProperty,
+      right.externObjectTypeProperty,
+    )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: left,
+        right: right,
+        propertyName: "externObjectTypeProperty",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Maybes.equals(
+            left,
+            right,
+            purifyHelpers.Equatable.booleanEquals,
+          ))(left.externProperty, right.externProperty).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "externProperty",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.booleanEquals(
+          left.identifier,
+          right.identifier,
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "identifier",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
+      )
+      .chain(() =>
+        ((left, right) =>
+          purifyHelpers.Maybes.equals(left, right, InlineNodeShape.equals))(
+          left.inlineProperty,
+          right.inlineProperty,
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: left,
+          right: right,
+          propertyName: "inlineProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: left,
+            right: right,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
+  }
+
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
+    ignoreRdfType?: boolean;
+    resource: rdfjsResource.Resource;
+  }): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    {
+      externObjectTypeProperty: purify.Maybe<ExternObjectType>;
+      externProperty: purify.Maybe<rdfjs.BlankNode | rdfjs.NamedNode>;
+      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
+      inlineProperty: purify.Maybe<InlineNodeShape>;
+      type: "NodeShapeWithExternProperties";
+    }
+  > {
+    const _externObjectTypePropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<ExternObjectType>
+    > = purify.Either.of(
+      _resource
+        .values(
+          dataFactory.namedNode("http://example.com/externObjectTypeProperty"),
+          { unique: true },
+        )
+        .head()
+        .chain((value) => value.toResource())
+        .chain((_resource) =>
+          ExternObjectType.fromRdf({ ..._context, resource: _resource }),
+        )
+        .toMaybe(),
+    );
+    if (_externObjectTypePropertyEither.isLeft()) {
+      return _externObjectTypePropertyEither;
+    }
+
+    const externObjectTypeProperty =
+      _externObjectTypePropertyEither.unsafeCoerce();
+    const _externPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<rdfjs.BlankNode | rdfjs.NamedNode>
+    > = purify.Either.of(
+      _resource
+        .values(dataFactory.namedNode("http://example.com/externProperty"), {
+          unique: true,
+        })
+        .head()
+        .chain((_value) => _value.toIdentifier())
+        .toMaybe(),
+    );
+    if (_externPropertyEither.isLeft()) {
+      return _externPropertyEither;
+    }
+
+    const externProperty = _externPropertyEither.unsafeCoerce();
+    const identifier = _resource.identifier;
+    const _inlinePropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      purify.Maybe<InlineNodeShape>
+    > = purify.Either.of(
+      _resource
+        .values(dataFactory.namedNode("http://example.com/inlineProperty"), {
+          unique: true,
+        })
+        .head()
+        .chain((value) => value.toResource())
+        .chain((_resource) =>
+          InlineNodeShape.fromRdf({ ..._context, resource: _resource }),
+        )
+        .toMaybe(),
+    );
+    if (_inlinePropertyEither.isLeft()) {
+      return _inlinePropertyEither;
+    }
+
+    const inlineProperty = _inlinePropertyEither.unsafeCoerce();
+    const type = "NodeShapeWithExternProperties" as const;
+    return purify.Either.of({
+      externObjectTypeProperty,
+      externProperty,
+      identifier,
+      inlineProperty,
+      type,
+    });
+  }
+
+  export function hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(
+    _nodeShapeWithExternProperties: NodeShapeWithExternProperties,
+    _hasher: HasherT,
+  ): HasherT {
+    _nodeShapeWithExternProperties.externObjectTypeProperty.ifJust(
+      (_value0) => {
+        ExternObjectType.hash(_value0, _hasher);
+      },
+    );
+    _nodeShapeWithExternProperties.externProperty.ifJust((_value0) => {
+      _hasher.update(rdfjsResource.Resource.Identifier.toString(_value0));
+    });
+    _nodeShapeWithExternProperties.inlineProperty.ifJust((_value0) => {
+      InlineNodeShape.hash(_value0, _hasher);
+    });
+    return _hasher;
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.group(
+            sparqlBuilder.GraphPattern.basic(
+              this.subject,
+              dataFactory.namedNode(
+                "http://example.com/externObjectTypeProperty",
+              ),
+              this.variable("ExternObjectTypeProperty"),
+            ).chainObject(
+              (_object) => new ExternObjectType.SparqlGraphPatterns(_object),
+            ),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.basic(
+            this.subject,
+            dataFactory.namedNode("http://example.com/externProperty"),
+            this.variable("ExternProperty"),
+          ),
+        ),
+      );
+      this.add(
+        sparqlBuilder.GraphPattern.optional(
+          sparqlBuilder.GraphPattern.group(
+            sparqlBuilder.GraphPattern.basic(
+              this.subject,
+              dataFactory.namedNode("http://example.com/inlineProperty"),
+              this.variable("InlineProperty"),
+            ).chainObject(
+              (_object) => new InlineNodeShape.SparqlGraphPatterns(_object),
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  export function toRdf(
+    nodeShapeWithExternProperties: NodeShapeWithExternProperties,
+    {
+      mutateGraph,
+      resourceSet,
+    }: {
+      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+      resourceSet: rdfjsResource.MutableResourceSet;
+    },
+  ): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: nodeShapeWithExternProperties.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/externObjectTypeProperty"),
+      nodeShapeWithExternProperties.externObjectTypeProperty.map((_value) =>
+        ExternObjectType.toRdf(_value, {
+          mutateGraph: mutateGraph,
+          resourceSet: resourceSet,
+        }),
+      ),
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/externProperty"),
+      nodeShapeWithExternProperties.externProperty,
+    );
+    _resource.add(
+      dataFactory.namedNode("http://example.com/inlineProperty"),
+      nodeShapeWithExternProperties.inlineProperty.map((_value) =>
+        InlineNodeShape.toRdf(_value, {
+          mutateGraph: mutateGraph,
+          resourceSet: resourceSet,
+        }),
+      ),
     );
     return _resource;
   }
@@ -3083,458 +3468,6 @@ export namespace IriNodeShape {
     return _resource;
   }
 }
-export interface InlineNodeShape {
-  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly stringProperty: string;
-  readonly type: "InlineNodeShape";
-}
-
-export namespace InlineNodeShape {
-  export function equals(
-    left: InlineNodeShape,
-    right: InlineNodeShape,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.booleanEquals(
-      left.identifier,
-      right.identifier,
-    )
-      .mapLeft((propertyValuesUnequal) => ({
-        left: left,
-        right: right,
-        propertyName: "identifier",
-        propertyValuesUnequal,
-        type: "Property" as const,
-      }))
-      .chain(() =>
-        purifyHelpers.Equatable.strictEquals(
-          left.stringProperty,
-          right.stringProperty,
-        ).mapLeft((propertyValuesUnequal) => ({
-          left: left,
-          right: right,
-          propertyName: "stringProperty",
-          propertyValuesUnequal,
-          type: "Property" as const,
-        })),
-      )
-      .chain(() =>
-        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
-          (propertyValuesUnequal) => ({
-            left: left,
-            right: right,
-            propertyName: "type",
-            propertyValuesUnequal,
-            type: "Property" as const,
-          }),
-        ),
-      );
-  }
-
-  export function fromRdf({
-    ignoreRdfType: _ignoreRdfType,
-    resource: _resource,
-    // @ts-ignore
-    ..._context
-  }: {
-    [_index: string]: any;
-    ignoreRdfType?: boolean;
-    resource: rdfjsResource.Resource;
-  }): purify.Either<
-    rdfjsResource.Resource.ValueError,
-    {
-      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-      stringProperty: string;
-      type: "InlineNodeShape";
-    }
-  > {
-    const identifier = _resource.identifier;
-    const _stringPropertyEither: purify.Either<
-      rdfjsResource.Resource.ValueError,
-      string
-    > = _resource
-      .values(dataFactory.namedNode("http://example.com/stringProperty"), {
-        unique: true,
-      })
-      .head()
-      .chain((_value) => _value.toString());
-    if (_stringPropertyEither.isLeft()) {
-      return _stringPropertyEither;
-    }
-
-    const stringProperty = _stringPropertyEither.unsafeCoerce();
-    const type = "InlineNodeShape" as const;
-    return purify.Either.of({ identifier, stringProperty, type });
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(_inlineNodeShape: InlineNodeShape, _hasher: HasherT): HasherT {
-    _hasher.update(_inlineNodeShape.stringProperty);
-    return _hasher;
-  }
-
-  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
-    constructor(
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
-    ) {
-      super(subject);
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://example.com/stringProperty"),
-          this.variable("StringProperty"),
-        ),
-      );
-    }
-  }
-
-  export function toRdf(
-    inlineNodeShape: InlineNodeShape,
-    {
-      mutateGraph,
-      resourceSet,
-    }: {
-      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-      resourceSet: rdfjsResource.MutableResourceSet;
-    },
-  ): rdfjsResource.MutableResource {
-    const _resource = resourceSet.mutableResource({
-      identifier: inlineNodeShape.identifier,
-      mutateGraph,
-    });
-    _resource.add(
-      dataFactory.namedNode("http://example.com/stringProperty"),
-      inlineNodeShape.stringProperty,
-    );
-    return _resource;
-  }
-}
-export interface ExternNodeShape {
-  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly stringProperty: string;
-  readonly type: "ExternNodeShape";
-}
-
-export namespace ExternNodeShape {
-  export function equals(
-    left: ExternNodeShape,
-    right: ExternNodeShape,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.booleanEquals(
-      left.identifier,
-      right.identifier,
-    )
-      .mapLeft((propertyValuesUnequal) => ({
-        left: left,
-        right: right,
-        propertyName: "identifier",
-        propertyValuesUnequal,
-        type: "Property" as const,
-      }))
-      .chain(() =>
-        purifyHelpers.Equatable.strictEquals(
-          left.stringProperty,
-          right.stringProperty,
-        ).mapLeft((propertyValuesUnequal) => ({
-          left: left,
-          right: right,
-          propertyName: "stringProperty",
-          propertyValuesUnequal,
-          type: "Property" as const,
-        })),
-      )
-      .chain(() =>
-        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
-          (propertyValuesUnequal) => ({
-            left: left,
-            right: right,
-            propertyName: "type",
-            propertyValuesUnequal,
-            type: "Property" as const,
-          }),
-        ),
-      );
-  }
-
-  export function fromRdf({
-    ignoreRdfType: _ignoreRdfType,
-    resource: _resource,
-    // @ts-ignore
-    ..._context
-  }: {
-    [_index: string]: any;
-    ignoreRdfType?: boolean;
-    resource: rdfjsResource.Resource;
-  }): purify.Either<
-    rdfjsResource.Resource.ValueError,
-    {
-      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-      stringProperty: string;
-      type: "ExternNodeShape";
-    }
-  > {
-    const identifier = _resource.identifier;
-    const _stringPropertyEither: purify.Either<
-      rdfjsResource.Resource.ValueError,
-      string
-    > = _resource
-      .values(dataFactory.namedNode("http://example.com/stringProperty"), {
-        unique: true,
-      })
-      .head()
-      .chain((_value) => _value.toString());
-    if (_stringPropertyEither.isLeft()) {
-      return _stringPropertyEither;
-    }
-
-    const stringProperty = _stringPropertyEither.unsafeCoerce();
-    const type = "ExternNodeShape" as const;
-    return purify.Either.of({ identifier, stringProperty, type });
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(_externNodeShape: ExternNodeShape, _hasher: HasherT): HasherT {
-    _hasher.update(_externNodeShape.stringProperty);
-    return _hasher;
-  }
-
-  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
-    constructor(
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
-    ) {
-      super(subject);
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://example.com/stringProperty"),
-          this.variable("StringProperty"),
-        ),
-      );
-    }
-  }
-
-  export function toRdf(
-    externNodeShape: ExternNodeShape,
-    {
-      mutateGraph,
-      resourceSet,
-    }: {
-      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-      resourceSet: rdfjsResource.MutableResourceSet;
-    },
-  ): rdfjsResource.MutableResource {
-    const _resource = resourceSet.mutableResource({
-      identifier: externNodeShape.identifier,
-      mutateGraph,
-    });
-    _resource.add(
-      dataFactory.namedNode("http://example.com/stringProperty"),
-      externNodeShape.stringProperty,
-    );
-    return _resource;
-  }
-}
-export interface ExterningAndInliningNodeShape {
-  readonly externProperty: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly inlineProperty: InlineNodeShape;
-  readonly type: "ExterningAndInliningNodeShape";
-}
-
-export namespace ExterningAndInliningNodeShape {
-  export function equals(
-    left: ExterningAndInliningNodeShape,
-    right: ExterningAndInliningNodeShape,
-  ): purifyHelpers.Equatable.EqualsResult {
-    return purifyHelpers.Equatable.booleanEquals(
-      left.externProperty,
-      right.externProperty,
-    )
-      .mapLeft((propertyValuesUnequal) => ({
-        left: left,
-        right: right,
-        propertyName: "externProperty",
-        propertyValuesUnequal,
-        type: "Property" as const,
-      }))
-      .chain(() =>
-        purifyHelpers.Equatable.booleanEquals(
-          left.identifier,
-          right.identifier,
-        ).mapLeft((propertyValuesUnequal) => ({
-          left: left,
-          right: right,
-          propertyName: "identifier",
-          propertyValuesUnequal,
-          type: "Property" as const,
-        })),
-      )
-      .chain(() =>
-        InlineNodeShape.equals(
-          left.inlineProperty,
-          right.inlineProperty,
-        ).mapLeft((propertyValuesUnequal) => ({
-          left: left,
-          right: right,
-          propertyName: "inlineProperty",
-          propertyValuesUnequal,
-          type: "Property" as const,
-        })),
-      )
-      .chain(() =>
-        purifyHelpers.Equatable.strictEquals(left.type, right.type).mapLeft(
-          (propertyValuesUnequal) => ({
-            left: left,
-            right: right,
-            propertyName: "type",
-            propertyValuesUnequal,
-            type: "Property" as const,
-          }),
-        ),
-      );
-  }
-
-  export function fromRdf({
-    ignoreRdfType: _ignoreRdfType,
-    resource: _resource,
-    // @ts-ignore
-    ..._context
-  }: {
-    [_index: string]: any;
-    ignoreRdfType?: boolean;
-    resource: rdfjsResource.Resource;
-  }): purify.Either<
-    rdfjsResource.Resource.ValueError,
-    {
-      externProperty: rdfjs.BlankNode | rdfjs.NamedNode;
-      identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-      inlineProperty: InlineNodeShape;
-      type: "ExterningAndInliningNodeShape";
-    }
-  > {
-    const _externPropertyEither: purify.Either<
-      rdfjsResource.Resource.ValueError,
-      rdfjs.BlankNode | rdfjs.NamedNode
-    > = _resource
-      .values(dataFactory.namedNode("http://example.com/externProperty"), {
-        unique: true,
-      })
-      .head()
-      .chain((_value) => _value.toIdentifier());
-    if (_externPropertyEither.isLeft()) {
-      return _externPropertyEither;
-    }
-
-    const externProperty = _externPropertyEither.unsafeCoerce();
-    const identifier = _resource.identifier;
-    const _inlinePropertyEither: purify.Either<
-      rdfjsResource.Resource.ValueError,
-      InlineNodeShape
-    > = _resource
-      .values(dataFactory.namedNode("http://example.com/inlineProperty"), {
-        unique: true,
-      })
-      .head()
-      .chain((value) => value.toResource())
-      .chain((_resource) =>
-        InlineNodeShape.fromRdf({ ..._context, resource: _resource }),
-      );
-    if (_inlinePropertyEither.isLeft()) {
-      return _inlinePropertyEither;
-    }
-
-    const inlineProperty = _inlinePropertyEither.unsafeCoerce();
-    const type = "ExterningAndInliningNodeShape" as const;
-    return purify.Either.of({
-      externProperty,
-      identifier,
-      inlineProperty,
-      type,
-    });
-  }
-
-  export function hash<
-    HasherT extends {
-      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
-    },
-  >(
-    _externingAndInliningNodeShape: ExterningAndInliningNodeShape,
-    _hasher: HasherT,
-  ): HasherT {
-    _hasher.update(
-      rdfjsResource.Resource.Identifier.toString(
-        _externingAndInliningNodeShape.externProperty,
-      ),
-    );
-    InlineNodeShape.hash(
-      _externingAndInliningNodeShape.inlineProperty,
-      _hasher,
-    );
-    return _hasher;
-  }
-
-  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
-    constructor(
-      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
-      _options?: { ignoreRdfType?: boolean },
-    ) {
-      super(subject);
-      this.add(
-        sparqlBuilder.GraphPattern.basic(
-          this.subject,
-          dataFactory.namedNode("http://example.com/externProperty"),
-          this.variable("ExternProperty"),
-        ),
-      );
-      this.add(
-        sparqlBuilder.GraphPattern.group(
-          sparqlBuilder.GraphPattern.basic(
-            this.subject,
-            dataFactory.namedNode("http://example.com/inlineProperty"),
-            this.variable("InlineProperty"),
-          ).chainObject(
-            (_object) => new InlineNodeShape.SparqlGraphPatterns(_object),
-          ),
-        ),
-      );
-    }
-  }
-
-  export function toRdf(
-    externingAndInliningNodeShape: ExterningAndInliningNodeShape,
-    {
-      mutateGraph,
-      resourceSet,
-    }: {
-      mutateGraph: rdfjsResource.MutableResource.MutateGraph;
-      resourceSet: rdfjsResource.MutableResourceSet;
-    },
-  ): rdfjsResource.MutableResource {
-    const _resource = resourceSet.mutableResource({
-      identifier: externingAndInliningNodeShape.identifier,
-      mutateGraph,
-    });
-    _resource.add(
-      dataFactory.namedNode("http://example.com/externProperty"),
-      externingAndInliningNodeShape.externProperty,
-    );
-    _resource.add(
-      dataFactory.namedNode("http://example.com/inlineProperty"),
-      InlineNodeShape.toRdf(externingAndInliningNodeShape.inlineProperty, {
-        mutateGraph: mutateGraph,
-        resourceSet: resourceSet,
-      }),
-    );
-    return _resource;
-  }
-}
 export interface AbstractBaseClassWithPropertiesNodeShape {
   readonly abcStringProperty: string;
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
@@ -4086,16 +4019,16 @@ export namespace ConcreteChildClassNodeShape {
     return _resource;
   }
 }
-export interface AbstractBaseClassForImportedType {
+export interface AbstractBaseClassForExternObjectType {
   readonly abcStringProperty: string;
   readonly identifier: rdfjs.BlankNode | rdfjs.NamedNode;
-  readonly type: "ImportedType";
+  readonly type: "ExternObjectType";
 }
 
-export namespace AbstractBaseClassForImportedType {
+export namespace AbstractBaseClassForExternObjectType {
   export function equals(
-    left: AbstractBaseClassForImportedType,
-    right: AbstractBaseClassForImportedType,
+    left: AbstractBaseClassForExternObjectType,
+    right: AbstractBaseClassForExternObjectType,
   ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.strictEquals(
       left.abcStringProperty,
@@ -4164,15 +4097,15 @@ export namespace AbstractBaseClassForImportedType {
     return purify.Either.of({ abcStringProperty, identifier });
   }
 
-  export function hashAbstractBaseClassForImportedType<
+  export function hashAbstractBaseClassForExternObjectType<
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
   >(
-    _abstractBaseClassForImportedType: AbstractBaseClassForImportedType,
+    _abstractBaseClassForExternObjectType: AbstractBaseClassForExternObjectType,
     _hasher: HasherT,
   ): HasherT {
-    _hasher.update(_abstractBaseClassForImportedType.abcStringProperty);
+    _hasher.update(_abstractBaseClassForExternObjectType.abcStringProperty);
     return _hasher;
   }
 
@@ -4193,7 +4126,7 @@ export namespace AbstractBaseClassForImportedType {
   }
 
   export function toRdf(
-    abstractBaseClassForImportedType: AbstractBaseClassForImportedType,
+    abstractBaseClassForExternObjectType: AbstractBaseClassForExternObjectType,
     {
       mutateGraph,
       resourceSet,
@@ -4203,12 +4136,12 @@ export namespace AbstractBaseClassForImportedType {
     },
   ): rdfjsResource.MutableResource {
     const _resource = resourceSet.mutableResource({
-      identifier: abstractBaseClassForImportedType.identifier,
+      identifier: abstractBaseClassForExternObjectType.identifier,
       mutateGraph,
     });
     _resource.add(
       dataFactory.namedNode("http://example.com/abcStringProperty"),
-      abstractBaseClassForImportedType.abcStringProperty,
+      abstractBaseClassForExternObjectType.abcStringProperty,
     );
     return _resource;
   }
@@ -4217,7 +4150,7 @@ export namespace AbstractBaseClassForImportedType {
 export type OrNodeShape =
   | OrNodeShapeMember1
   | OrNodeShapeMember2
-  | ImportedType;
+  | ExternObjectType;
 
 export namespace OrNodeShape {
   export function equals(
@@ -4237,8 +4170,11 @@ export namespace OrNodeShape {
               left,
               right as unknown as OrNodeShapeMember2,
             );
-          case "ImportedType":
-            return ImportedType.equals(left, right as unknown as ImportedType);
+          case "ExternObjectType":
+            return ExternObjectType.equals(
+              left,
+              right as unknown as ExternObjectType,
+            );
         }
       },
     );
@@ -4273,7 +4209,7 @@ export namespace OrNodeShape {
       )
       .altLazy(
         () =>
-          ImportedType.fromRdf({
+          ExternObjectType.fromRdf({
             ignoreRdfType: _ignoreRdfType,
             resource: _resource,
             // @ts-ignore
@@ -4292,8 +4228,8 @@ export namespace OrNodeShape {
         return OrNodeShapeMember1.hash(orNodeShape, _hasher);
       case "OrNodeShapeMember2":
         return OrNodeShapeMember2.hash(orNodeShape, _hasher);
-      case "ImportedType":
-        return ImportedType.hash(orNodeShape, _hasher);
+      case "ExternObjectType":
+        return ExternObjectType.hash(orNodeShape, _hasher);
     }
   }
 
@@ -4308,7 +4244,7 @@ export namespace OrNodeShape {
           new OrNodeShapeMember2.SparqlGraphPatterns(
             this.subject,
           ).toGroupGraphPattern(),
-          new ImportedType.SparqlGraphPatterns(
+          new ExternObjectType.SparqlGraphPatterns(
             this.subject,
           ).toGroupGraphPattern(),
         ),
@@ -4328,7 +4264,7 @@ export namespace OrNodeShape {
         return OrNodeShape.toRdf(orNodeShape, _parameters);
       case "OrNodeShapeMember2":
         return OrNodeShape.toRdf(orNodeShape, _parameters);
-      case "ImportedType":
+      case "ExternObjectType":
         return OrNodeShape.toRdf(orNodeShape, _parameters);
     }
   }

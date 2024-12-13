@@ -4,7 +4,7 @@ import type * as purify from "purify-ts";
 import { Either } from "purify-ts";
 import { Equatable } from "purify-ts-helpers";
 import type * as rdfjsResource from "rdfjs-resource";
-import { AbstractBaseClassForImportedType } from "./generated/classes.js";
+import { AbstractBaseClassForExternObjectType } from "./generated/classes.js";
 
 /**
  * Example of an imported object type that fulfills the same contract as a generated object type.
@@ -14,8 +14,8 @@ import { AbstractBaseClassForImportedType } from "./generated/classes.js";
  *
  * Normally you would only need one or the other.
  */
-export class ImportedType extends AbstractBaseClassForImportedType {
-  readonly type = "ImportedType";
+export class ExternObjectType extends AbstractBaseClassForExternObjectType {
+  readonly type = "ExternObjectType";
 
   constructor(readonly identifier: BlankNode | NamedNode<string>) {
     super({ abcStringProperty: "test" });
@@ -23,8 +23,8 @@ export class ImportedType extends AbstractBaseClassForImportedType {
 
   // Called by interface functions
   static equals(
-    left: ImportedType,
-    right: ImportedType,
+    left: ExternObjectType,
+    right: ExternObjectType,
   ): Equatable.EqualsResult {
     return left.equals(right);
   }
@@ -36,11 +36,11 @@ export class ImportedType extends AbstractBaseClassForImportedType {
     extra?: number;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
-  }): purify.Either<rdfjsResource.Resource.ValueError, ImportedType> {
+  }): purify.Either<rdfjsResource.Resource.ValueError, ExternObjectType> {
     if (extra !== 1) {
       throw new Error("extra didn't come through");
     }
-    return Either.of(new ImportedType(resource.identifier));
+    return Either.of(new ExternObjectType(resource.identifier));
   }
 
   // Called by interface functions
@@ -48,14 +48,14 @@ export class ImportedType extends AbstractBaseClassForImportedType {
     HasherT extends {
       update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
     },
-  >(instance: ImportedType, hasher: HasherT): HasherT {
+  >(instance: ExternObjectType, hasher: HasherT): HasherT {
     instance.hash(hasher);
     return hasher;
   }
 
   // Called by interface functions
   static toRdf(
-    instance: ImportedType,
+    instance: ExternObjectType,
     parameters: {
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
@@ -65,7 +65,7 @@ export class ImportedType extends AbstractBaseClassForImportedType {
   }
 
   // Called by class methods
-  override equals(_other: ImportedType): Equatable.EqualsResult {
+  override equals(_other: ExternObjectType): Equatable.EqualsResult {
     return Equatable.EqualsResult.Equal;
   }
 

@@ -256,6 +256,7 @@ export class TypeFactory {
       abstract: astType.abstract,
       configuration: this.configuration,
       export_: astType.export,
+      extern: astType.extern,
       import_: astType.tsImport,
       lazyAncestorObjectTypes: () =>
         astType.ancestorObjectTypes.map((astType) =>

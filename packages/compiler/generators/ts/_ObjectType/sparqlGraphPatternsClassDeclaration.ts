@@ -15,7 +15,7 @@ export function sparqlGraphPatternsClassDeclaration(
     return Maybe.empty();
   }
 
-  if (this.import_.isJust()) {
+  if (this.extern) {
     return Maybe.empty();
   }
 

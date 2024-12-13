@@ -65,20 +65,15 @@ export class IdentifierProperty extends Property<IdentifierType> {
 
     let mintIdentifier: string;
     if (this.type.nodeKinds.has(NodeKind.IRI)) {
-      const sha256MintIdentifier =
-        "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${this.hash(sha256.create())}`)";
-      if (this.iriMintingStrategy.isJust()) {
-        switch (this.iriMintingStrategy.unsafeCoerce()) {
-          case IriMintingStrategy.SHA256:
-            mintIdentifier = sha256MintIdentifier;
-            break;
-          case IriMintingStrategy.UUIDv4:
-            mintIdentifier =
-              "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${uuid.v4()}`)";
-            break;
-        }
-      } else {
-        mintIdentifier = sha256MintIdentifier;
+      switch (this.iriMintingStrategy.orDefault(IriMintingStrategy.SHA256)) {
+        case IriMintingStrategy.SHA256:
+          mintIdentifier =
+            "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${this.hash(sha256.create())}`)";
+          break;
+        case IriMintingStrategy.UUIDv4:
+          mintIdentifier =
+            "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${uuid.v4()}`)";
+          break;
       }
     } else {
       invariant(this.type.nodeKinds.has(NodeKind.BLANK_NODE));
@@ -125,6 +120,24 @@ export class IdentifierProperty extends Property<IdentifierType> {
     }
 
     return Maybe.empty();
+  }
+
+  override get importStatements(): readonly string[] {
+    if (this.configuration.objectTypeDeclarationType !== "class") {
+      return [];
+    }
+    if (!this.type.nodeKinds.has(NodeKind.IRI)) {
+      return [];
+    }
+
+    switch (this.iriMintingStrategy.orDefault(IriMintingStrategy.SHA256)) {
+      case IriMintingStrategy.SHA256:
+        return ['import { sha256 } from "js-sha256";'];
+      case IriMintingStrategy.UUIDv4:
+        return ['import * as uuid from "uuid";'];
+      default:
+        throw new Error("not implemented");
+    }
   }
 
   override get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {

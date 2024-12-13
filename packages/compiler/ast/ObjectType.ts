@@ -46,6 +46,13 @@ export interface ObjectType {
   readonly export: boolean;
 
   /**
+   * If true, the code for this ObjectType is defined externally and should not be generated.
+   *
+   * Defaults to false.
+   */
+  readonly extern: boolean;
+
+  /**
    * Strategy for minting new object identifiers. If not specified, require an identifier on construction.
    */
   readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
@@ -94,9 +101,10 @@ export interface ObjectType {
   readonly rdfType: Maybe<NamedNode>;
 
   /**
-   * A TypeScript import to use for this type in lieu of generating code for the type.
+   * A TypeScript import to add to generated code.
    *
-   * The import should have the same name as the type. For example, if the type is MyType, the import should resemble
+   * This is often used in conjunction with extern=true to import the extern'd ObjectType code in order for generated
+   * code to reference it.
    *
    * import { MyType } from "./MyType.js"
    */

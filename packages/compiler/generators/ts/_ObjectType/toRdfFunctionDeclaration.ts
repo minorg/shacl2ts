@@ -10,7 +10,7 @@ export function toRdfFunctionDeclaration(
     return Maybe.empty();
   }
 
-  if (this.import_.isJust()) {
+  if (this.extern) {
     return Maybe.empty();
   }
 

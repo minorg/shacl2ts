@@ -2,7 +2,7 @@ import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
-import { IriMintingStrategy } from "../../IriMintingStrategy.js";
+import type { IriMintingStrategy } from "../../IriMintingStrategy.js";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
@@ -12,6 +12,7 @@ export class ObjectType extends Type {
   classDeclaration = _ObjectType.classDeclaration;
   equalsFunctionDeclaration = _ObjectType.equalsFunctionDeclaration;
   readonly export_: boolean;
+  readonly extern: boolean;
   fromRdfFunctionDeclaration = _ObjectType.fromRdfFunctionDeclaration;
   hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
   import_: Maybe<string>;
@@ -31,6 +32,7 @@ export class ObjectType extends Type {
   constructor({
     abstract,
     export_,
+    extern,
     lazyAncestorObjectTypes,
     lazyDescendantObjectTypes,
     lazyParentObjectTypes,
@@ -43,6 +45,7 @@ export class ObjectType extends Type {
   }: {
     abstract: boolean;
     export_: boolean;
+    extern: boolean;
     import_: Maybe<string>;
     lazyAncestorObjectTypes: () => readonly ObjectType[];
     lazyDescendantObjectTypes: () => readonly ObjectType[];
@@ -55,6 +58,7 @@ export class ObjectType extends Type {
     super(superParameters);
     this.abstract = abstract;
     this.export_ = export_;
+    this.extern = extern;
     this.import_ = import_;
     // Lazily initialize some members in getters to avoid recursive construction
     this.lazyAncestorObjectTypes = lazyAncestorObjectTypes;
@@ -125,26 +129,10 @@ export class ObjectType extends Type {
   }
 
   override get importStatements(): readonly string[] {
-    if (this.import_.isJust()) {
-      return this.import_.toList();
-    }
-
-    const importStatements = this.properties.flatMap(
-      (property) => property.importStatements,
-    );
-    if (this.configuration.objectTypeDeclarationType === "class") {
-      this.iriMintingStrategy.ifJust((iriMintingStrategy) => {
-        switch (iriMintingStrategy) {
-          case IriMintingStrategy.SHA256:
-            importStatements.push('import { sha256 } from "js-sha256";');
-            break;
-          case IriMintingStrategy.UUIDv4:
-            importStatements.push('import * as uuid from "uuid";');
-            break;
-        }
-      });
-    }
-    return importStatements;
+    return [
+      ...this.import_.toList(),
+      ...this.properties.flatMap((property) => property.importStatements),
+    ];
   }
 
   @Memoize()

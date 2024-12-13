@@ -158,6 +158,7 @@ export function transformNodeShapeToAstType(
     childObjectTypes: [],
     descendantObjectTypes: [],
     export: export_,
+    extern: nodeShape.extern.orDefault(false),
     kind: "ObjectType",
     listItemType: Maybe.empty(),
     iriMintingStrategy: nodeShape.iriMintingStrategy.toMaybe(),

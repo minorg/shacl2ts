@@ -21,12 +21,12 @@
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "abcStringProperty" ; sh:path :abcStringProperty ] ;
 .
 
-# An abstract base class that will be inherited by the imported type, showing how to mix generated and hand-written code
-:AbstractBaseClassForImportedType
+# An abstract base class that will be inherited by the extern object type, showing how to mix generated and hand-written code
+:AbstractBaseClassForExternObjectType
   a owl:Class ;
   a sh:NodeShape ;
   shaclmate:abstract true;
-  sh:name "AbstractBaseClassForImportedType" ;
+  sh:name "AbstractBaseClassForExternObjectType" ;
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "abcStringProperty" ; sh:path :abcStringProperty ] ;
 .
 
@@ -58,38 +58,13 @@
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "parentStringProperty" ; sh:path :parentStringProperty ] ;
 .
 
-# Node shape that inlines/nests another node shape and externs/references another.
-:ExterningAndInliningNodeShape
+# An extern object type in TypeScript
+:ExternObjectType
   a sh:NodeShape ;
-  sh:name "ExterningAndInliningNodeShape" ;
-  sh:property [
-    shaclmate:extern true ;
-    sh:maxCount 1 ;
-    sh:minCount 1 ;
-    sh:node :ExterningAndInliningNodeShape-ExternNodeShape ;
-    sh:name "externProperty" ;
-    sh:path :externProperty
-  ] ;
-  sh:property [
-    shaclmate:extern false ;
-    sh:maxCount 1 ;
-    sh:minCount 1 ;
-    sh:node :ExterningAndInliningNodeShape-InlineNodeShape ;
-    sh:name "inlineProperty" ;
-    sh:path :inlineProperty
-  ] ;
-.
-
-:ExterningAndInliningNodeShape-ExternNodeShape
-  a sh:NodeShape ;
-  sh:name "ExternNodeShape" ;
-  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ]
-.
-
-:ExterningAndInliningNodeShape-InlineNodeShape
-  a sh:NodeShape ;
-  sh:name "InlineNodeShape" ;
-  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ]
+  sh:name "ExternObjectType" ;
+  rdfs:subClassOf :AbstractBaseClassForExternObjectType ;
+  shaclmate:extern true ;
+  shaclmate:tsImport "import { ExternObjectType } from \"../ExternObjectType.js\";"
 .
 
 # A node shape that only allows IRI identifiers.
@@ -98,14 +73,6 @@
   sh:name "IriNodeShape" ;
   sh:nodeKind sh:IRI ;
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
-.
-
-# An imported type in TypeScript
-:ImportedType
-  a sh:NodeShape ;
-  sh:name "ImportedType" ;
-  rdfs:subClassOf :AbstractBaseClassForImportedType ;
-  shaclmate:tsImport "import { ImportedType } from \"../ImportedType.js\";"
 .
 
 # A node shape that models an RDF list. Should be transformed into a list data structure when used as a property
@@ -157,6 +124,41 @@
   sh:property [ sh:defaultValue true ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "trueBooleanProperty" ; sh:path :trueBooleanProperty ] ;
 .
 
+# Node shape that inlines/nests another node shape and externs/references another.
+:NodeShapeWithExternProperties
+  a sh:NodeShape ;
+  sh:name "NodeShapeWithExternProperties" ;
+  sh:property [ sh:maxCount 1 ; sh:minCount 0 ; sh:name "externObjectTypeProperty" ; sh:node :ExternObjectType ; sh:path :externObjectTypeProperty ] ;
+  sh:property [
+    shaclmate:extern true ;
+    sh:maxCount 1 ;
+    sh:minCount 0 ;
+    sh:node :NodeShapeWithExternProperties-ExternNodeShape ;
+    sh:name "externProperty" ;
+    sh:path :externProperty
+  ] ;
+  sh:property [
+    shaclmate:extern false ;
+    sh:maxCount 1 ;
+    sh:minCount 0 ;
+    sh:node :NodeShapeWithExternProperties-InlineNodeShape ;
+    sh:name "inlineProperty" ;
+    sh:path :inlineProperty
+  ] ;
+.
+
+:NodeShapeWithExternProperties-ExternNodeShape
+  a sh:NodeShape ;
+  sh:name "ExternNodeShape" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ]
+.
+
+:NodeShapeWithExternProperties-InlineNodeShape
+  a sh:NodeShape ;
+  sh:name "InlineNodeShape" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ]
+.
+
 # Shape with sh:hasValue properties
 :NodeShapeWithHasValueProperties
   a sh:NodeShape ;
@@ -181,13 +183,6 @@
   a sh:NodeShape ;
   sh:name "NodeShapeWithListProperty" ;
   sh:property [ sh:maxCount 1 ; sh:minCount 1 ; sh:node :ListShape ; sh:name "listProperty" ; sh:path :listProperty ]
-.
-
-# Shape with native properties
-:NodeShapeWithImportedTypes
-  a sh:NodeShape ;
-  sh:name "NodeShapeWithImportedTypes" ;
-  sh:property [ sh:maxCount 1 ; sh:minCount 1 ; sh:name "importedTypeProperty" ; sh:node :ImportedType ; sh:path :importedTypeProperty ] ;
 .
 
 # Shape with sh:or properties
@@ -224,7 +219,7 @@
 :OrNodeShape
   a sh:NodeShape ;
   sh:name "OrNodeShape" ;
-  sh:or ( :OrNodeShapeMember1 :OrNodeShapeMember2 :ImportedType ) ;
+  sh:or ( :OrNodeShapeMember1 :OrNodeShapeMember2 :ExternObjectType ) ;
 .
 
 :OrNodeShapeMember1

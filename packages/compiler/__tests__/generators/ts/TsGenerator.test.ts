@@ -9,7 +9,7 @@ import {
   type Resource,
 } from "rdfjs-resource";
 import { type ExpectStatic, describe, it } from "vitest";
-import { ImportedType } from "../../../../../examples/kitchen-sink/ImportedType.js";
+import { ExternObjectType } from "../../../../../examples/kitchen-sink/ExternObjectType.js";
 import * as kitchenSinkClasses from "../../../../../examples/kitchen-sink/generated/classes.js";
 import * as kitchenSinkInterfaces from "../../../../../examples/kitchen-sink/generated/interfaces.js";
 
@@ -240,8 +240,8 @@ describe("TsGenerator", () => {
     ).not.toStrictEqual(true);
   });
 
-  it("should extern and inline node shapes", ({ expect }) => {
-    const instance = new kitchenSinkClasses.ExterningAndInliningNodeShape({
+  it("should extern and inline properties", ({ expect }) => {
+    const instance = new kitchenSinkClasses.NodeShapeWithExternProperties({
       identifier: dataFactory.blankNode(),
       externProperty: dataFactory.blankNode(),
       inlineProperty: new kitchenSinkClasses.InlineNodeShape({
@@ -250,7 +250,7 @@ describe("TsGenerator", () => {
       }),
     });
     const instanceFromRdf =
-      kitchenSinkClasses.ExterningAndInliningNodeShape.fromRdf({
+      kitchenSinkClasses.NodeShapeWithExternProperties.fromRdf({
         resource: instance.toRdf({
           mutateGraph: dataFactory.defaultGraph(),
           resourceSet: new MutableResourceSet({
@@ -482,15 +482,15 @@ describe("TsGenerator", () => {
     );
   });
 
-  it("should handle imported types", ({ expect }) => {
-    const instance = new kitchenSinkClasses.NodeShapeWithImportedTypes({
-      importedTypeProperty: new ImportedType(dataFactory.blankNode()),
+  it("should handle extern object types", ({ expect }) => {
+    const instance = new kitchenSinkClasses.NodeShapeWithExternProperties({
+      externObjectTypeProperty: new ExternObjectType(dataFactory.blankNode()),
     });
     testFromRdf({
       expect,
       model: instance,
       modelFromRdf: ({ resource }) =>
-        kitchenSinkClasses.NodeShapeWithImportedTypes.fromRdf({
+        kitchenSinkClasses.NodeShapeWithExternProperties.fromRdf({
           extra: 1,
           resource,
         }),
