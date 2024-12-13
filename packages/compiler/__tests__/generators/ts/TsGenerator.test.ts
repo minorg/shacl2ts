@@ -27,14 +27,13 @@ function testFromRdf<
   model,
 }: {
   expect: ExpectStatic;
-  modelFromRdf: (parameters: { context: null; resource: Resource }) => Either<
+  modelFromRdf: (parameters: { resource: Resource }) => Either<
     Resource.ValueError,
     ModelT
   >;
   model: ModelT;
 }) {
   const fromRdfModel = modelFromRdf({
-    context: null,
     resource: model.toRdf({
       mutateGraph: dataFactory.defaultGraph(),
       resourceSet: new MutableResourceSet({
@@ -252,7 +251,6 @@ describe("TsGenerator", () => {
     });
     const instanceFromRdf =
       kitchenSinkClasses.ExterningAndInliningNodeShape.fromRdf({
-        context: null,
         resource: instance.toRdf({
           mutateGraph: dataFactory.defaultGraph(),
           resourceSet: new MutableResourceSet({
@@ -342,7 +340,6 @@ describe("TsGenerator", () => {
     );
     const instance = kitchenSinkClasses.NodeShapeWithHasValueProperties.fromRdf(
       {
-        context: null,
         resource: new MutableResourceSet({
           dataFactory,
           dataset: dataset,
@@ -364,7 +361,6 @@ describe("TsGenerator", () => {
     );
     const instance = kitchenSinkClasses.NodeShapeWithHasValueProperties.fromRdf(
       {
-        context: null,
         resource: new MutableResourceSet({
           dataFactory,
           dataset: dataset,
@@ -399,7 +395,6 @@ describe("TsGenerator", () => {
       ),
     );
     const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf({
-      context: null,
       resource: new MutableResourceSet({
         dataFactory,
         dataset: dataset,
@@ -421,7 +416,6 @@ describe("TsGenerator", () => {
       ),
     );
     const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf({
-      context: null,
       resource: new MutableResourceSet({
         dataFactory,
         dataset: dataset,
@@ -450,7 +444,6 @@ describe("TsGenerator", () => {
       ),
     );
     const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf({
-      context: null,
       resource: new MutableResourceSet({
         dataFactory,
         dataset: dataset,
@@ -468,7 +461,6 @@ describe("TsGenerator", () => {
     const object = dataFactory.literal("somethingelse");
     dataset.add(dataFactory.quad(identifier, predicate, object));
     const instance = kitchenSinkClasses.NodeShapeWithInProperties.fromRdf({
-      context: null,
       resource: new MutableResourceSet({
         dataFactory,
         dataset: dataset,
@@ -497,7 +489,11 @@ describe("TsGenerator", () => {
     testFromRdf({
       expect,
       model: instance,
-      modelFromRdf: kitchenSinkClasses.NodeShapeWithImportedTypes.fromRdf,
+      modelFromRdf: ({ resource }) =>
+        kitchenSinkClasses.NodeShapeWithImportedTypes.fromRdf({
+          extra: 1,
+          resource,
+        }),
     });
     instance.hash(sha256.create());
   });
@@ -569,7 +565,6 @@ describe("TsGenerator", () => {
 
     const instanceFromRdf =
       kitchenSinkClasses.NodeShapeWithListProperty.fromRdf({
-        context: null,
         resource,
       }).unsafeCoerce();
     expect(instance.equals(instanceFromRdf).extract()).toStrictEqual(true);

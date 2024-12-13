@@ -54,8 +54,13 @@ export namespace UuidV4IriNodeShape {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource<rdfjs.NamedNode>;
   }): purify.Either<
@@ -66,11 +71,11 @@ export namespace UuidV4IriNodeShape {
       type: "UuidV4IriNodeShape";
     }
   > {
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _stringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/stringProperty"), {
         unique: true,
       })
@@ -178,8 +183,13 @@ export namespace Sha256IriNodeShape {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource<rdfjs.NamedNode>;
   }): purify.Either<
@@ -190,11 +200,11 @@ export namespace Sha256IriNodeShape {
       type: "Sha256IriNodeShape";
     }
   > {
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _stringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/stringProperty"), {
         unique: true,
       })
@@ -302,8 +312,13 @@ export namespace OrNodeShapeMember2 {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -314,11 +329,11 @@ export namespace OrNodeShapeMember2 {
       type: "OrNodeShapeMember2";
     }
   > {
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _stringProperty2Either: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/stringProperty2"), {
         unique: true,
       })
@@ -426,8 +441,13 @@ export namespace OrNodeShapeMember1 {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -438,11 +458,11 @@ export namespace OrNodeShapeMember1 {
       type: "OrNodeShapeMember1";
     }
   > {
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _stringProperty1Either: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/stringProperty1"), {
         unique: true,
       })
@@ -576,8 +596,13 @@ export namespace NodeShapeWithPropertyVisibilities {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -590,11 +615,11 @@ export namespace NodeShapeWithPropertyVisibilities {
       type: "NodeShapeWithPropertyVisibilities";
     }
   > {
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _privatePropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/privateProperty"), {
         unique: true,
       })
@@ -608,7 +633,7 @@ export namespace NodeShapeWithPropertyVisibilities {
     const _protectedPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/publicProperty"), {
         unique: true,
       })
@@ -622,7 +647,7 @@ export namespace NodeShapeWithPropertyVisibilities {
     const _publicPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/publicProperty"), {
         unique: true,
       })
@@ -793,8 +818,13 @@ export namespace NodeShapeWithPropertyCardinalities {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -807,12 +837,12 @@ export namespace NodeShapeWithPropertyCardinalities {
       type: "NodeShapeWithPropertyCardinalities";
     }
   > {
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _optionalStringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       purify.Maybe<string>
     > = purify.Either.of(
-      _parameters.resource
+      _resource
         .values(
           dataFactory.namedNode("http://example.com/optionalStringProperty"),
           { unique: true },
@@ -829,7 +859,7 @@ export namespace NodeShapeWithPropertyCardinalities {
     const _requiredStringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(
         dataFactory.namedNode("http://example.com/requiredStringProperty"),
         { unique: true },
@@ -845,7 +875,7 @@ export namespace NodeShapeWithPropertyCardinalities {
       rdfjsResource.Resource.ValueError,
       readonly string[]
     > = purify.Either.of([
-      ..._parameters.resource
+      ..._resource
         .values(dataFactory.namedNode("http://example.com/setStringProperty"), {
           unique: true,
         })
@@ -1024,9 +1054,9 @@ export namespace NodeShapeWithOrProperties {
                 propertyValuesUnequal: {
                   left: typeof left,
                   right: typeof right,
-                  type: "BooleanEquals",
+                  type: "BooleanEquals" as const,
                 },
-                type: "Property",
+                type: "Property" as const,
               });
             },
           ))(left.orTermsProperty, right.orTermsProperty).mapLeft(
@@ -1075,9 +1105,9 @@ export namespace NodeShapeWithOrProperties {
                 propertyValuesUnequal: {
                   left: typeof left,
                   right: typeof right,
-                  type: "BooleanEquals",
+                  type: "BooleanEquals" as const,
                 },
-                type: "Property",
+                type: "Property" as const,
               });
             },
           ))(left.orUnrelatedProperty, right.orUnrelatedProperty).mapLeft(
@@ -1103,8 +1133,13 @@ export namespace NodeShapeWithOrProperties {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -1120,12 +1155,12 @@ export namespace NodeShapeWithOrProperties {
       type: "NodeShapeWithOrProperties";
     }
   > {
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _orLiteralsPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       purify.Maybe<rdfjs.Literal>
     > = purify.Either.of(
-      _parameters.resource
+      _resource
         .values(
           dataFactory.namedNode("http://example.com/orLiteralsProperty"),
           { unique: true },
@@ -1144,7 +1179,7 @@ export namespace NodeShapeWithOrProperties {
       purify.Maybe<rdfjs.Literal | rdfjs.NamedNode>
     > = purify.Either.of(
       (
-        _parameters.resource
+        _resource
           .values(dataFactory.namedNode("http://example.com/orTermsProperty"), {
             unique: true,
           })
@@ -1156,7 +1191,7 @@ export namespace NodeShapeWithOrProperties {
       )
         .altLazy(
           () =>
-            _parameters.resource
+            _resource
               .values(
                 dataFactory.namedNode("http://example.com/orTermsProperty"),
                 { unique: true },
@@ -1182,7 +1217,7 @@ export namespace NodeShapeWithOrProperties {
       >
     > = purify.Either.of(
       (
-        _parameters.resource
+        _resource
           .values(
             dataFactory.namedNode("http://example.com/orUnrelatedProperty"),
             { unique: true },
@@ -1202,7 +1237,7 @@ export namespace NodeShapeWithOrProperties {
       )
         .altLazy(
           () =>
-            _parameters.resource
+            _resource
               .values(
                 dataFactory.namedNode("http://example.com/orUnrelatedProperty"),
                 { unique: true },
@@ -1407,8 +1442,13 @@ export namespace NodeShapeWithImportedTypes {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -1419,11 +1459,11 @@ export namespace NodeShapeWithImportedTypes {
       type: "NodeShapeWithImportedTypes";
     }
   > {
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _importedTypePropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       ImportedType
-    > = _parameters.resource
+    > = _resource
       .values(
         dataFactory.namedNode("http://example.com/importedTypeProperty"),
         { unique: true },
@@ -1431,10 +1471,7 @@ export namespace NodeShapeWithImportedTypes {
       .head()
       .chain((value) => value.toResource())
       .chain((_resource) =>
-        ImportedType.fromRdf({
-          context: _parameters.context,
-          resource: _resource,
-        }),
+        ImportedType.fromRdf({ ..._context, resource: _resource }),
       );
     if (_importedTypePropertyEither.isLeft()) {
       return _importedTypePropertyEither;
@@ -1555,8 +1592,13 @@ export namespace NodeShapeWithListProperty {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -1567,11 +1609,11 @@ export namespace NodeShapeWithListProperty {
       type: "NodeShapeWithListProperty";
     }
   > {
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _listPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       readonly string[]
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/listProperty"), {
         unique: true,
       })
@@ -1822,8 +1864,13 @@ export namespace NodeShapeWithInProperties {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -1843,32 +1890,34 @@ export namespace NodeShapeWithInProperties {
       type: "NodeShapeWithInProperties";
     }
   > {
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _inBooleansPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       purify.Maybe<true>
     > = purify.Either.of(
-      _parameters.resource
+      _resource
         .values(
           dataFactory.namedNode("http://example.com/inBooleansProperty"),
           { unique: true },
         )
         .head()
         .chain((_value) =>
-          _value.toBoolean().chain((value) =>
-            value === true
-              ? purify.Either.of(value)
-              : purify.Left(
-                  new rdfjsResource.Resource.MistypedValueError({
-                    actualValue: rdfLiteral.toRdf(value),
-                    expectedValueType: "true",
-                    focusResource: _parameters.resource,
-                    predicate: dataFactory.namedNode(
-                      "http://example.com/inBooleansProperty",
-                    ),
-                  }),
-                ),
-          ),
+          _value
+            .toBoolean()
+            .chain((value) =>
+              value === true
+                ? purify.Either.of(value)
+                : purify.Left(
+                    new rdfjsResource.Resource.MistypedValueError({
+                      actualValue: rdfLiteral.toRdf(value),
+                      expectedValueType: "true",
+                      focusResource: _resource,
+                      predicate: dataFactory.namedNode(
+                        "http://example.com/inBooleansProperty",
+                      ),
+                    }),
+                  ),
+            ),
         )
         .toMaybe(),
     );
@@ -1881,7 +1930,7 @@ export namespace NodeShapeWithInProperties {
       rdfjsResource.Resource.ValueError,
       purify.Maybe<Date>
     > = purify.Either.of(
-      _parameters.resource
+      _resource
         .values(
           dataFactory.namedNode("http://example.com/inDateTimesProperty"),
           { unique: true },
@@ -1896,7 +1945,7 @@ export namespace NodeShapeWithInProperties {
               new rdfjsResource.Resource.MistypedValueError({
                 actualValue: rdfLiteral.toRdf(value),
                 expectedValueType: "Date",
-                focusResource: _parameters.resource,
+                focusResource: _resource,
                 predicate: dataFactory.namedNode(
                   "http://example.com/inDateTimesProperty",
                 ),
@@ -1920,7 +1969,7 @@ export namespace NodeShapeWithInProperties {
         >
       >
     > = purify.Either.of(
-      _parameters.resource
+      _resource
         .values(dataFactory.namedNode("http://example.com/inIrisProperty"), {
           unique: true,
         })
@@ -1954,7 +2003,7 @@ export namespace NodeShapeWithInProperties {
                     actualValue: iri,
                     expectedValueType:
                       'rdfjs.NamedNode<"http://example.com/NodeShapeWithInPropertiesIri1" | "http://example.com/NodeShapeWithInPropertiesIri2">',
-                    focusResource: _parameters.resource,
+                    focusResource: _resource,
                     predicate: dataFactory.namedNode(
                       "http://example.com/inIrisProperty",
                     ),
@@ -1974,7 +2023,7 @@ export namespace NodeShapeWithInProperties {
       rdfjsResource.Resource.ValueError,
       purify.Maybe<1 | 2>
     > = purify.Either.of(
-      _parameters.resource
+      _resource
         .values(dataFactory.namedNode("http://example.com/inNumbersProperty"), {
           unique: true,
         })
@@ -1990,7 +2039,7 @@ export namespace NodeShapeWithInProperties {
                   new rdfjsResource.Resource.MistypedValueError({
                     actualValue: rdfLiteral.toRdf(value),
                     expectedValueType: "1 | 2",
-                    focusResource: _parameters.resource,
+                    focusResource: _resource,
                     predicate: dataFactory.namedNode(
                       "http://example.com/inNumbersProperty",
                     ),
@@ -2010,7 +2059,7 @@ export namespace NodeShapeWithInProperties {
       rdfjsResource.Resource.ValueError,
       purify.Maybe<"text" | "html">
     > = purify.Either.of(
-      _parameters.resource
+      _resource
         .values(dataFactory.namedNode("http://example.com/inStringsProperty"), {
           unique: true,
         })
@@ -2026,7 +2075,7 @@ export namespace NodeShapeWithInProperties {
                   new rdfjsResource.Resource.MistypedValueError({
                     actualValue: rdfLiteral.toRdf(value),
                     expectedValueType: '"text" | "html"',
-                    focusResource: _parameters.resource,
+                    focusResource: _resource,
                     predicate: dataFactory.namedNode(
                       "http://example.com/inStringsProperty",
                     ),
@@ -2233,8 +2282,13 @@ export namespace NodeShapeWithHasValueProperties {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -2250,7 +2304,7 @@ export namespace NodeShapeWithHasValueProperties {
       rdfjsResource.Resource.ValueError,
       purify.Maybe<rdfjs.NamedNode>
     > = purify.Either.of(
-      _parameters.resource
+      _resource
         .values(dataFactory.namedNode("http://example.com/hasIriProperty"), {
           unique: true,
         })
@@ -2275,7 +2329,7 @@ export namespace NodeShapeWithHasValueProperties {
       rdfjsResource.Resource.ValueError,
       purify.Maybe<string>
     > = purify.Either.of(
-      _parameters.resource
+      _resource
         .values(
           dataFactory.namedNode("http://example.com/hasLiteralProperty"),
           { unique: true },
@@ -2291,7 +2345,7 @@ export namespace NodeShapeWithHasValueProperties {
     }
 
     const hasLiteralProperty = _hasLiteralPropertyEither.unsafeCoerce();
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const type = "NodeShapeWithHasValueProperties" as const;
     return purify.Either.of({
       hasIriProperty,
@@ -2471,8 +2525,13 @@ export namespace NodeShapeWithDefaultValueProperties {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -2490,7 +2549,7 @@ export namespace NodeShapeWithDefaultValueProperties {
     const _dateTimePropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       Date
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/dateTimeProperty"), {
         unique: true,
       })
@@ -2498,7 +2557,7 @@ export namespace NodeShapeWithDefaultValueProperties {
       .alt(
         purify.Either.of(
           new rdfjsResource.Resource.Value({
-            subject: _parameters.resource,
+            subject: _resource,
             predicate: dataFactory.namedNode(
               "http://example.com/dateTimeProperty",
             ),
@@ -2520,7 +2579,7 @@ export namespace NodeShapeWithDefaultValueProperties {
     const _falseBooleanPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       boolean
-    > = _parameters.resource
+    > = _resource
       .values(
         dataFactory.namedNode("http://example.com/falseBooleanProperty"),
         { unique: true },
@@ -2529,7 +2588,7 @@ export namespace NodeShapeWithDefaultValueProperties {
       .alt(
         purify.Either.of(
           new rdfjsResource.Resource.Value({
-            subject: _parameters.resource,
+            subject: _resource,
             predicate: dataFactory.namedNode(
               "http://example.com/falseBooleanProperty",
             ),
@@ -2546,11 +2605,11 @@ export namespace NodeShapeWithDefaultValueProperties {
     }
 
     const falseBooleanProperty = _falseBooleanPropertyEither.unsafeCoerce();
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _numberPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       number
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/numberProperty"), {
         unique: true,
       })
@@ -2558,7 +2617,7 @@ export namespace NodeShapeWithDefaultValueProperties {
       .alt(
         purify.Either.of(
           new rdfjsResource.Resource.Value({
-            subject: _parameters.resource,
+            subject: _resource,
             predicate: dataFactory.namedNode(
               "http://example.com/numberProperty",
             ),
@@ -2578,7 +2637,7 @@ export namespace NodeShapeWithDefaultValueProperties {
     const _stringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/stringProperty"), {
         unique: true,
       })
@@ -2586,7 +2645,7 @@ export namespace NodeShapeWithDefaultValueProperties {
       .alt(
         purify.Either.of(
           new rdfjsResource.Resource.Value({
-            subject: _parameters.resource,
+            subject: _resource,
             predicate: dataFactory.namedNode(
               "http://example.com/stringProperty",
             ),
@@ -2603,7 +2662,7 @@ export namespace NodeShapeWithDefaultValueProperties {
     const _trueBooleanPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       boolean
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/trueBooleanProperty"), {
         unique: true,
       })
@@ -2611,7 +2670,7 @@ export namespace NodeShapeWithDefaultValueProperties {
       .alt(
         purify.Either.of(
           new rdfjsResource.Resource.Value({
-            subject: _parameters.resource,
+            subject: _resource,
             predicate: dataFactory.namedNode(
               "http://example.com/trueBooleanProperty",
             ),
@@ -2813,8 +2872,13 @@ export namespace NonClassNodeShape {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -2825,11 +2889,11 @@ export namespace NonClassNodeShape {
       type: "NonClassNodeShape";
     }
   > {
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _stringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/stringProperty"), {
         unique: true,
       })
@@ -2937,8 +3001,13 @@ export namespace IriNodeShape {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource<rdfjs.NamedNode>;
   }): purify.Either<
@@ -2949,11 +3018,11 @@ export namespace IriNodeShape {
       type: "IriNodeShape";
     }
   > {
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _stringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/stringProperty"), {
         unique: true,
       })
@@ -3061,8 +3130,13 @@ export namespace InlineNodeShape {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -3073,11 +3147,11 @@ export namespace InlineNodeShape {
       type: "InlineNodeShape";
     }
   > {
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _stringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/stringProperty"), {
         unique: true,
       })
@@ -3185,8 +3259,13 @@ export namespace ExternNodeShape {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -3197,11 +3276,11 @@ export namespace ExternNodeShape {
       type: "ExternNodeShape";
     }
   > {
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _stringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/stringProperty"), {
         unique: true,
       })
@@ -3322,8 +3401,13 @@ export namespace ExterningAndInliningNodeShape {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -3338,7 +3422,7 @@ export namespace ExterningAndInliningNodeShape {
     const _externPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       rdfjs.BlankNode | rdfjs.NamedNode
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/externProperty"), {
         unique: true,
       })
@@ -3349,21 +3433,18 @@ export namespace ExterningAndInliningNodeShape {
     }
 
     const externProperty = _externPropertyEither.unsafeCoerce();
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     const _inlinePropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       InlineNodeShape
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/inlineProperty"), {
         unique: true,
       })
       .head()
       .chain((value) => value.toResource())
       .chain((_resource) =>
-        InlineNodeShape.fromRdf({
-          context: _parameters.context,
-          resource: _resource,
-        }),
+        InlineNodeShape.fromRdf({ ..._context, resource: _resource }),
       );
     if (_inlinePropertyEither.isLeft()) {
       return _inlinePropertyEither;
@@ -3501,8 +3582,13 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -3512,7 +3598,7 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
     const _abcStringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/abcStringProperty"), {
         unique: true,
       })
@@ -3523,7 +3609,7 @@ namespace AbstractBaseClassWithPropertiesNodeShape {
     }
 
     const abcStringProperty = _abcStringPropertyEither.unsafeCoerce();
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     return purify.Either.of({ abcStringProperty, identifier });
   }
 
@@ -3590,8 +3676,13 @@ namespace AbstractBaseClassWithoutPropertiesNodeShape {
     return AbstractBaseClassWithPropertiesNodeShape.equals(left, right);
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -3599,11 +3690,11 @@ namespace AbstractBaseClassWithoutPropertiesNodeShape {
     { abcStringProperty: string; identifier: rdfjs.BlankNode | rdfjs.NamedNode }
   > {
     return AbstractBaseClassWithPropertiesNodeShape.fromRdf({
-      context: _parameters.context,
+      ..._context,
       ignoreRdfType: true,
-      resource: _parameters.resource,
+      resource: _resource,
     }).chain((_super) => {
-      const identifier = _parameters.resource.identifier;
+      const identifier = _resource.identifier;
       return purify.Either.of({
         abcStringProperty: _super.abcStringProperty,
         identifier,
@@ -3681,8 +3772,13 @@ export namespace ConcreteParentClassNodeShape {
     );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -3695,13 +3791,13 @@ export namespace ConcreteParentClassNodeShape {
     }
   > {
     return AbstractBaseClassWithoutPropertiesNodeShape.fromRdf({
-      context: _parameters.context,
+      ..._context,
       ignoreRdfType: true,
-      resource: _parameters.resource,
+      resource: _resource,
     }).chain((_super) => {
       if (
-        !_parameters.ignoreRdfType &&
-        !_parameters.resource.isInstanceOf(
+        !_ignoreRdfType &&
+        !_resource.isInstanceOf(
           dataFactory.namedNode(
             "http://example.com/ConcreteParentClassNodeShape",
           ),
@@ -3709,19 +3805,19 @@ export namespace ConcreteParentClassNodeShape {
       ) {
         return purify.Left(
           new rdfjsResource.Resource.ValueError({
-            focusResource: _parameters.resource,
-            message: `${rdfjsResource.Resource.Identifier.toString(_parameters.resource.identifier)} has unexpected RDF type`,
+            focusResource: _resource,
+            message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
             predicate: dataFactory.namedNode(
               "http://example.com/ConcreteParentClassNodeShape",
             ),
           }),
         );
       }
-      const identifier = _parameters.resource.identifier;
+      const identifier = _resource.identifier;
       const _parentStringPropertyEither: purify.Either<
         rdfjsResource.Resource.ValueError,
         string
-      > = _parameters.resource
+      > = _resource
         .values(
           dataFactory.namedNode("http://example.com/parentStringProperty"),
           { unique: true },
@@ -3845,8 +3941,13 @@ export namespace ConcreteChildClassNodeShape {
     );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -3860,13 +3961,13 @@ export namespace ConcreteChildClassNodeShape {
     }
   > {
     return ConcreteParentClassNodeShape.fromRdf({
-      context: _parameters.context,
+      ..._context,
       ignoreRdfType: true,
-      resource: _parameters.resource,
+      resource: _resource,
     }).chain((_super) => {
       if (
-        !_parameters.ignoreRdfType &&
-        !_parameters.resource.isInstanceOf(
+        !_ignoreRdfType &&
+        !_resource.isInstanceOf(
           dataFactory.namedNode(
             "http://example.com/ConcreteChildClassNodeShape",
           ),
@@ -3874,8 +3975,8 @@ export namespace ConcreteChildClassNodeShape {
       ) {
         return purify.Left(
           new rdfjsResource.Resource.ValueError({
-            focusResource: _parameters.resource,
-            message: `${rdfjsResource.Resource.Identifier.toString(_parameters.resource.identifier)} has unexpected RDF type`,
+            focusResource: _resource,
+            message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
             predicate: dataFactory.namedNode(
               "http://example.com/ConcreteChildClassNodeShape",
             ),
@@ -3885,7 +3986,7 @@ export namespace ConcreteChildClassNodeShape {
       const _childStringPropertyEither: purify.Either<
         rdfjsResource.Resource.ValueError,
         string
-      > = _parameters.resource
+      > = _resource
         .values(
           dataFactory.namedNode("http://example.com/childStringProperty"),
           { unique: true },
@@ -3896,7 +3997,7 @@ export namespace ConcreteChildClassNodeShape {
         return _childStringPropertyEither;
       }
       const childStringProperty = _childStringPropertyEither.unsafeCoerce();
-      const identifier = _parameters.resource.identifier;
+      const identifier = _resource.identifier;
       const type = "ConcreteChildClassNodeShape" as const;
       return purify.Either.of({
         identifier,
@@ -4032,8 +4133,13 @@ export namespace AbstractBaseClassForImportedType {
       );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<
@@ -4043,7 +4149,7 @@ export namespace AbstractBaseClassForImportedType {
     const _abcStringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
       string
-    > = _parameters.resource
+    > = _resource
       .values(dataFactory.namedNode("http://example.com/abcStringProperty"), {
         unique: true,
       })
@@ -4054,7 +4160,7 @@ export namespace AbstractBaseClassForImportedType {
     }
 
     const abcStringProperty = _abcStringPropertyEither.unsafeCoerce();
-    const identifier = _parameters.resource.identifier;
+    const identifier = _resource.identifier;
     return purify.Either.of({ abcStringProperty, identifier });
   }
 
@@ -4138,30 +4244,41 @@ export namespace OrNodeShape {
     );
   }
 
-  export function fromRdf<ContextT = null>(_parameters: {
-    context: ContextT;
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<rdfjsResource.Resource.ValueError, OrNodeShape> {
     return (
-      OrNodeShapeMember1.fromRdf(_parameters) as purify.Either<
-        rdfjsResource.Resource.ValueError,
-        OrNodeShape
-      >
+      OrNodeShapeMember1.fromRdf({
+        ignoreRdfType: _ignoreRdfType,
+        resource: _resource,
+        // @ts-ignore
+        ..._context,
+      }) as purify.Either<rdfjsResource.Resource.ValueError, OrNodeShape>
     )
       .altLazy(
         () =>
-          OrNodeShapeMember2.fromRdf(_parameters) as purify.Either<
-            rdfjsResource.Resource.ValueError,
-            OrNodeShape
-          >,
+          OrNodeShapeMember2.fromRdf({
+            ignoreRdfType: _ignoreRdfType,
+            resource: _resource,
+            // @ts-ignore
+            ..._context,
+          }) as purify.Either<rdfjsResource.Resource.ValueError, OrNodeShape>,
       )
       .altLazy(
         () =>
-          ImportedType.fromRdf(_parameters) as purify.Either<
-            rdfjsResource.Resource.ValueError,
-            OrNodeShape
-          >,
+          ImportedType.fromRdf({
+            ignoreRdfType: _ignoreRdfType,
+            resource: _resource,
+            // @ts-ignore
+            ..._context,
+          }) as purify.Either<rdfjsResource.Resource.ValueError, OrNodeShape>,
       );
   }
 

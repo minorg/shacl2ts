@@ -114,12 +114,6 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
       parameters,
       returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>`,
       statements: [`return ${expression};`],
-      typeParameters: [
-        {
-          default: "null",
-          name: "ContextT",
-        },
-      ],
     };
   }
 
@@ -253,7 +247,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
   override propertyFromRdfExpression({
     variables,
   }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
-    return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(_resource => ${this.name}.fromRdf({ context: ${variables.context}, resource: _resource }))`;
+    return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(_resource => ${this.name}.fromRdf({ ...${variables.context}, resource: _resource }))`;
   }
 
   override propertyHashStatements({

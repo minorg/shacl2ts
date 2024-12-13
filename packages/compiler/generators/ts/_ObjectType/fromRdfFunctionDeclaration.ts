@@ -4,10 +4,9 @@ import type { ObjectType } from "../ObjectType.js";
 import { rdfjsTermExpression } from "../rdfjsTermExpression.js";
 
 const variables = {
-  context: "context",
-  ignoreRdfType: "ignoreRdfType",
-  parameters: "_parameters",
-  resource: "resource",
+  context: "_context",
+  ignoreRdfType: "_ignoreRdfType",
+  resource: "_resource",
 };
 
 export function fromRdfFunctionDeclaration(
@@ -35,7 +34,7 @@ export function fromRdfFunctionDeclaration(
   if (!this.abstract) {
     this.rdfType.ifJust((rdfType) => {
       statements.push(
-        `if (!${variables.parameters}.${variables.ignoreRdfType} && !${variables.parameters}.${variables.resource}.isInstanceOf(${rdfjsTermExpression(rdfType, this.configuration)})) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${variables.parameters}.${variables.resource}, message: \`\${rdfjsResource.Resource.Identifier.toString(${variables.parameters}.${variables.resource}.identifier)} has unexpected RDF type\`, predicate: ${rdfjsTermExpression(rdfType, this.configuration)} })); }`,
+        `if (!${variables.ignoreRdfType} && !${variables.resource}.isInstanceOf(${rdfjsTermExpression(rdfType, this.configuration)})) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${variables.resource}, message: \`\${rdfjsResource.Resource.Identifier.toString(${variables.resource}.identifier)} has unexpected RDF type\`, predicate: ${rdfjsTermExpression(rdfType, this.configuration)} })); }`,
       );
     });
   }
@@ -52,8 +51,8 @@ export function fromRdfFunctionDeclaration(
   }
 
   const propertyFromRdfVariables = {
-    context: `${variables.parameters}.${variables.context}`,
-    resource: `${variables.parameters}.${variables.resource}`,
+    context: `${variables.context}`,
+    resource: `${variables.resource}`,
   };
   for (const property of this.properties) {
     const propertyFromRdfStatements = property.fromRdfStatements({
@@ -87,7 +86,7 @@ export function fromRdfFunctionDeclaration(
 
   if (this.parentObjectTypes.length > 0) {
     statements = [
-      `return ${this.parentObjectTypes[0].name}.fromRdf({ ${variables.context}: ${variables.parameters}.${variables.context}, ${variables.ignoreRdfType}: true, ${variables.resource}: ${variables.parameters}.${variables.resource} }).chain(_super => { ${statements.join("\n")} })`,
+      `return ${this.parentObjectTypes[0].name}.fromRdf({ ...${variables.context}, ignoreRdfType: true, resource: ${variables.resource} }).chain(_super => { ${statements.join("\n")} })`,
     ];
   }
 
@@ -97,17 +96,11 @@ export function fromRdfFunctionDeclaration(
     name: "fromRdf",
     parameters: [
       {
-        name: variables.parameters,
-        type: `{ ${variables.context}: ContextT; ${variables.ignoreRdfType}?: boolean; ${variables.resource}: ${this.rdfjsResourceType().name}; }`,
+        name: `{ ignoreRdfType: ${variables.ignoreRdfType}, resource: ${variables.resource},\n// @ts-ignore\n...${variables.context} }`,
+        type: `{ [_index: string]: any; ignoreRdfType?: boolean; resource: ${this.rdfjsResourceType().name}; }`,
       },
     ],
     returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${returnType}>`,
     statements,
-    typeParameters: [
-      {
-        default: "null",
-        name: "ContextT",
-      },
-    ],
   });
 }

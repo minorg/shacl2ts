@@ -30,10 +30,16 @@ export class ImportedType extends AbstractBaseClassForImportedType {
   }
 
   static override fromRdf({
+    extra,
     resource,
-  }: Parameters<
-    typeof AbstractBaseClassForImportedType.fromRdf
-  >[0]): purify.Either<rdfjsResource.Resource.ValueError, ImportedType> {
+  }: {
+    extra?: number;
+    ignoreRdfType?: boolean;
+    resource: rdfjsResource.Resource;
+  }): purify.Either<rdfjsResource.Resource.ValueError, ImportedType> {
+    if (extra !== 1) {
+      throw new Error("extra didn't come through");
+    }
     return Either.of(new ImportedType(resource.identifier));
   }
 
