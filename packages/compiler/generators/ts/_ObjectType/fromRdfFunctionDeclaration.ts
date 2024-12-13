@@ -86,14 +86,14 @@ export function fromRdfFunctionDeclaration(
 
   if (this.parentObjectTypes.length > 0) {
     statements = [
-      `return ${this.parentObjectTypes[0].name}.fromRdf({ ...${variables.context}, ignoreRdfType: true, resource: ${variables.resource} }).chain(_super => { ${statements.join("\n")} })`,
+      `return ${this.parentObjectTypes[0].name}.${this.parentObjectTypes[0].fromRdfFunctionName}({ ...${variables.context}, ignoreRdfType: true, resource: ${variables.resource} }).chain(_super => { ${statements.join("\n")} })`,
     ];
   }
 
   return Maybe.of({
     isExported: true,
     kind: StructureKind.Function,
-    name: "fromRdf",
+    name: this.fromRdfFunctionName,
     parameters: [
       {
         name: `{ ignoreRdfType: ${variables.ignoreRdfType}, resource: ${variables.resource},\n// @ts-ignore\n...${variables.context} }`,

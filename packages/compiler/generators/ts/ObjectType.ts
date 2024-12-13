@@ -104,6 +104,17 @@ export class ObjectType extends Type {
   }
 
   @Memoize()
+  get fromRdfFunctionName(): string {
+    if (
+      this.configuration.objectTypeDeclarationType === "class" &&
+      this.abstract
+    ) {
+      return "interfaceFromRdf";
+    }
+    return "fromRdf";
+  }
+
+  @Memoize()
   get hashFunctionName(): string {
     if (
       this.lazyDescendantObjectTypes().length > 0 ||
@@ -178,7 +189,7 @@ export class ObjectType extends Type {
   override propertyFromRdfExpression({
     variables,
   }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
-    return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(_resource => ${this.name}.fromRdf({ ...${variables.context}, resource: _resource }))`;
+    return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(_resource => ${this.name}.${this.fromRdfFunctionName}({ ...${variables.context}, resource: _resource }))`;
   }
 
   override propertyHashStatements({

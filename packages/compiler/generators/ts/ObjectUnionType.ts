@@ -24,6 +24,7 @@ import { hasherTypeConstraint } from "./_ObjectType/hashFunctionOrMethodDeclarat
  */
 export class ObjectUnionType extends Type {
   readonly export: boolean;
+  readonly fromRdfFunctionName = "fromRdf";
   readonly kind = "ObjectUnionType";
   readonly memberTypes: readonly ObjectType[];
   readonly name: string;
@@ -100,7 +101,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
 
     let expression = "";
     for (const memberType of this.memberTypes) {
-      const typeExpression = `(${memberType.name}.fromRdf(${parameters.map((parameter) => parameter.name).join(", ")}) as purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>)`;
+      const typeExpression = `(${memberType.name}.${memberType.fromRdfFunctionName}(${parameters.map((parameter) => parameter.name).join(", ")}) as purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>)`;
       expression =
         expression.length > 0
           ? `${expression}.altLazy(() => ${typeExpression})`
@@ -110,7 +111,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
     return {
       isExported: true,
       kind: StructureKind.Function,
-      name: "fromRdf",
+      name: this.fromRdfFunctionName,
       parameters,
       returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>`,
       statements: [`return ${expression};`],
@@ -247,7 +248,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
   override propertyFromRdfExpression({
     variables,
   }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
-    return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(_resource => ${this.name}.fromRdf({ ...${variables.context}, resource: _resource }))`;
+    return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(_resource => ${this.name}.${this.fromRdfFunctionName}({ ...${variables.context}, resource: _resource }))`;
   }
 
   override propertyHashStatements({
