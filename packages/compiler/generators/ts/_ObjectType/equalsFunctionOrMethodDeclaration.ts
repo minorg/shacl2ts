@@ -21,7 +21,7 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     // Consider that a root of the object type hierarchy "owns" the identifier and type discriminator properties
     // for all of its subtypes in the hierarchy.
     properties = this.properties;
-    invariant(properties.length >= 2);
+    invariant(properties.length >= 2, this.name);
   } else {
     properties = this.properties.filter(
       (property) =>
