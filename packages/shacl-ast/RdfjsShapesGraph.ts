@@ -11,15 +11,18 @@ import { rdf, sh } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import { Resource, ResourceSet } from "rdfjs-resource";
 import type { NodeShape } from "./NodeShape.js";
+import type { Ontology } from "./Ontology.js";
 import { PropertyGroup } from "./PropertyGroup.js";
 import type { PropertyShape } from "./PropertyShape.js";
 import type { RdfjsFactory } from "./RdfjsFactory.js";
 import type { Shape } from "./Shape.js";
 
 export class RdfjsShapesGraph<
-  NodeShapeT extends NodeShape<any, PropertyShapeT, ShapeT> & ShapeT,
-  PropertyShapeT extends PropertyShape<NodeShapeT, any, ShapeT> & ShapeT,
-  ShapeT extends Shape<NodeShapeT, PropertyShapeT, any>,
+  NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> & ShapeT,
+  OntologyT extends Ontology,
+  PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+    ShapeT,
+  ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
 > {
   readonly dataset: DatasetCore;
   readonly node: BlankNode | DefaultGraph | NamedNode | null;
@@ -41,7 +44,7 @@ export class RdfjsShapesGraph<
     factory,
   }: {
     dataset: DatasetCore;
-    factory: RdfjsFactory<NodeShapeT, PropertyShapeT, ShapeT>;
+    factory: RdfjsFactory<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>;
   }) {
     this.dataset = dataset;
     this.node = this.readGraph();
@@ -135,7 +138,7 @@ export class RdfjsShapesGraph<
   }
 
   private readShapes(
-    factory: RdfjsFactory<NodeShapeT, PropertyShapeT, ShapeT>,
+    factory: RdfjsFactory<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>,
   ): {
     nodeShapes: readonly NodeShapeT[];
     nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShapeT>;

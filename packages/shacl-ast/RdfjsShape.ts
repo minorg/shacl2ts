@@ -4,18 +4,22 @@ import type { Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import { NodeKind } from "./NodeKind.js";
 import type { NodeShape } from "./NodeShape.js";
+import type { Ontology } from "./Ontology.js";
 import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
 import type { ShapesGraph } from "./ShapesGraph.js";
 
 export abstract class RdfjsShape<
-  NodeShapeT extends NodeShape<any, PropertyShapeT, ShapeT> & ShapeT,
-  PropertyShapeT extends PropertyShape<NodeShapeT, any, ShapeT> & ShapeT,
-  ShapeT extends Shape<NodeShapeT, PropertyShapeT, any>,
-> implements Shape<NodeShapeT, PropertyShapeT, ShapeT>
+  NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> & ShapeT,
+  OntologyT extends Ontology,
+  PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+    ShapeT,
+  ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
+> implements Shape<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>
 {
   abstract readonly constraints: RdfjsShape.Constraints<
     NodeShapeT,
+    OntologyT,
     PropertyShapeT,
     ShapeT
   >;
@@ -25,6 +29,7 @@ export abstract class RdfjsShape<
     readonly resource: Resource,
     protected readonly shapesGraph: ShapesGraph<
       NodeShapeT,
+      OntologyT,
       PropertyShapeT,
       ShapeT
     >,
@@ -49,15 +54,19 @@ export abstract class RdfjsShape<
 
 export namespace RdfjsShape {
   export class Constraints<
-    NodeShapeT extends NodeShape<any, PropertyShapeT, ShapeT> & ShapeT,
-    PropertyShapeT extends PropertyShape<NodeShapeT, any, ShapeT> & ShapeT,
-    ShapeT extends Shape<NodeShapeT, PropertyShapeT, any>,
-  > implements Shape.Constraints<NodeShapeT, PropertyShapeT, ShapeT>
+    NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> &
+      ShapeT,
+    OntologyT extends Ontology,
+    PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+      ShapeT,
+    ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
+  > implements Shape.Constraints<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>
   {
     constructor(
       protected readonly resource: Resource,
       protected readonly shapesGraph: ShapesGraph<
         NodeShapeT,
+        OntologyT,
         PropertyShapeT,
         ShapeT
       >,
