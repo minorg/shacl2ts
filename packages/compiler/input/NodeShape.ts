@@ -7,6 +7,7 @@ import { Either, Left, type Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import { IriMintingStrategy } from "../IriMintingStrategy.js";
 import { shaclmate } from "../vocabularies/index.js";
+import type { Ontology } from "./Ontology.js";
 import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
 import { extern } from "./extern.js";
@@ -69,7 +70,7 @@ function descendantClassIris(
 }
 
 export class NodeShape
-  extends RdfjsNodeShape<any, PropertyShape, Shape>
+  extends RdfjsNodeShape<any, Ontology, PropertyShape, Shape>
   implements Shape
 {
   get abstract(): Maybe<boolean> {
