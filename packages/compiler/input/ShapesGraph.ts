@@ -1,9 +1,8 @@
 import type { DatasetCore } from "@rdfjs/types";
 import { RdfjsShapesGraph } from "@shaclmate/shacl-ast";
-import type { NodeShape } from "./NodeShape.js";
-import type { PropertyShape } from "./PropertyShape.js";
+import { NodeShape } from "./NodeShape.js";
+import { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
-import { shapeFactory } from "./shapeFactory.js";
 
 export class ShapesGraph extends RdfjsShapesGraph<
   NodeShape,
@@ -11,6 +10,19 @@ export class ShapesGraph extends RdfjsShapesGraph<
   Shape
 > {
   constructor({ dataset }: { dataset: DatasetCore }) {
-    super({ dataset, shapeFactory });
+    super({
+      dataset,
+      factory: {
+        createNodeShape(resource: any, shapesGraph: ShapesGraph): NodeShape {
+          return new NodeShape(resource, shapesGraph);
+        },
+        createPropertyShape(
+          resource: any,
+          shapesGraph: ShapesGraph,
+        ): PropertyShape {
+          return new PropertyShape(resource, shapesGraph);
+        },
+      },
+    });
   }
 }

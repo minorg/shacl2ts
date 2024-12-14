@@ -13,7 +13,7 @@ describe("RdfjsNodeShape", () => {
   beforeAll(() => {
     shapesGraph = new RdfjsShapesGraph({
       dataset: testData.shapesGraph,
-      shapeFactory: defaultRdfjsFactory,
+      factory: defaultRdfjsFactory,
     });
   });
 

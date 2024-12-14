@@ -38,10 +38,10 @@ export class RdfjsShapesGraph<
 
   constructor({
     dataset,
-    shapeFactory,
+    factory,
   }: {
     dataset: DatasetCore;
-    shapeFactory: RdfjsFactory<NodeShapeT, PropertyShapeT, ShapeT>;
+    factory: RdfjsFactory<NodeShapeT, PropertyShapeT, ShapeT>;
   }) {
     this.dataset = dataset;
     this.node = this.readGraph();
@@ -51,7 +51,7 @@ export class RdfjsShapesGraph<
       nodeShapesByNode,
       propertyShapes,
       propertyShapesByNode,
-    } = this.readShapes(shapeFactory);
+    } = this.readShapes(factory);
     this.nodeShapes = nodeShapes;
     this.nodeShapesByNode = nodeShapesByNode;
     this.propertyShapes = propertyShapes;
@@ -135,7 +135,7 @@ export class RdfjsShapesGraph<
   }
 
   private readShapes(
-    shapeFactory: RdfjsFactory<NodeShapeT, PropertyShapeT, ShapeT>,
+    factory: RdfjsFactory<NodeShapeT, PropertyShapeT, ShapeT>,
   ): {
     nodeShapes: readonly NodeShapeT[];
     nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShapeT>;
@@ -260,7 +260,7 @@ export class RdfjsShapesGraph<
     for (const shapeNode of shapeNodeSet) {
       if (this.dataset.match(shapeNode, sh.path, null, this.node).size > 0) {
         // A property shape is a shape in the shapes graph that is the subject of a triple that has sh:path as its predicate. A shape has at most one value for sh:path. Each value of sh:path in a shape must be a well-formed SHACL property path. It is recommended, but not required, for a property shape to be declared as a SHACL instance of sh:PropertyShape. SHACL instances of sh:PropertyShape have one value for the property sh:path.
-        const propertyShape = shapeFactory.createPropertyShape(
+        const propertyShape = factory.createPropertyShape(
           resourceSet.resource(shapeNode),
           this,
         );
@@ -268,7 +268,7 @@ export class RdfjsShapesGraph<
         propertyShapesByNode.set(shapeNode, propertyShape);
       } else {
         // A node shape is a shape in the shapes graph that is not the subject of a triple with sh:path as its predicate. It is recommended, but not required, for a node shape to be declared as a SHACL instance of sh:NodeShape. SHACL instances of sh:NodeShape cannot have a value for the property sh:path.
-        const nodeShape = shapeFactory.createNodeShape(
+        const nodeShape = factory.createNodeShape(
           resourceSet.resource(shapeNode),
           this,
         );
