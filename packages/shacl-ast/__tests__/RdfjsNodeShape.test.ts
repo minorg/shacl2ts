@@ -3,8 +3,8 @@ import { beforeAll, describe, it } from "vitest";
 import { RdfjsShapesGraph } from "../RdfjsShapesGraph.js";
 import {
   type DefaultRdfjsShapesGraph,
-  defaultRdfjsShapeFactory,
-} from "../defaultRdfjsShapeFactory.js";
+  defaultRdfjsFactory,
+} from "../defaultRdfjsFactory.js";
 import { testData } from "./testData.js";
 
 describe("RdfjsNodeShape", () => {
@@ -13,7 +13,7 @@ describe("RdfjsNodeShape", () => {
   beforeAll(() => {
     shapesGraph = new RdfjsShapesGraph({
       dataset: testData.shapesGraph,
-      shapeFactory: defaultRdfjsShapeFactory,
+      shapeFactory: defaultRdfjsFactory,
     });
   });
 

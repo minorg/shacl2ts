@@ -1,8 +1,8 @@
 import type { Resource } from "rdfjs-resource";
+import type { RdfjsFactory } from "./RdfjsFactory.js";
 import { RdfjsNodeShape } from "./RdfjsNodeShape.js";
 import { RdfjsPropertyShape } from "./RdfjsPropertyShape.js";
 import type { RdfjsShape } from "./RdfjsShape.js";
-import type { RdfjsShapeFactory } from "./RdfjsShapeFactory.js";
 import type { ShapesGraph } from "./ShapesGraph.js";
 
 export type DefaultRdfjsNodeShape = RdfjsNodeShape<
@@ -26,7 +26,7 @@ export type DefaultRdfjsShapesGraph = ShapesGraph<
   DefaultRdfjsShape
 >;
 
-export const defaultRdfjsShapeFactory: RdfjsShapeFactory<
+export const defaultRdfjsFactory: RdfjsFactory<
   DefaultRdfjsNodeShape,
   DefaultRdfjsPropertyShape,
   DefaultRdfjsShape

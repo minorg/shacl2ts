@@ -13,7 +13,7 @@ import { Resource, ResourceSet } from "rdfjs-resource";
 import type { NodeShape } from "./NodeShape.js";
 import { PropertyGroup } from "./PropertyGroup.js";
 import type { PropertyShape } from "./PropertyShape.js";
-import type { RdfjsShapeFactory } from "./RdfjsShapeFactory.js";
+import type { RdfjsFactory } from "./RdfjsFactory.js";
 import type { Shape } from "./Shape.js";
 
 export class RdfjsShapesGraph<
@@ -41,7 +41,7 @@ export class RdfjsShapesGraph<
     shapeFactory,
   }: {
     dataset: DatasetCore;
-    shapeFactory: RdfjsShapeFactory<NodeShapeT, PropertyShapeT, ShapeT>;
+    shapeFactory: RdfjsFactory<NodeShapeT, PropertyShapeT, ShapeT>;
   }) {
     this.dataset = dataset;
     this.node = this.readGraph();
@@ -135,7 +135,7 @@ export class RdfjsShapesGraph<
   }
 
   private readShapes(
-    shapeFactory: RdfjsShapeFactory<NodeShapeT, PropertyShapeT, ShapeT>,
+    shapeFactory: RdfjsFactory<NodeShapeT, PropertyShapeT, ShapeT>,
   ): {
     nodeShapes: readonly NodeShapeT[];
     nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShapeT>;
