@@ -10,6 +10,10 @@ export function hashFunctionDeclaration(
     return Maybe.empty();
   }
 
+  if (this.extern) {
+    return Maybe.empty();
+  }
+
   return hashFunctionOrMethodDeclaration
     .bind(this)()
     .map((hashFunctionOrMethodDeclaration) => ({

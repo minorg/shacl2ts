@@ -1,6 +1,6 @@
 import { Maybe } from "purify-ts";
+import { invariant } from "ts-invariant";
 import type { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
-import { PropertyVisibility } from "../../../PropertyVisibility.js";
 import type { ObjectType } from "../ObjectType.js";
 import { IdentifierProperty } from "./IdentifierProperty.js";
 import { TypeDiscriminatorProperty } from "./TypeDiscriminatorProperty.js";
@@ -21,61 +21,58 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     // Consider that a root of the object type hierarchy "owns" the identifier and type discriminator properties
     // for all of its subtypes in the hierarchy.
     properties = this.properties;
+    invariant(properties.length >= 2, this.name);
   } else {
     properties = this.properties.filter(
       (property) =>
         !(property instanceof IdentifierProperty) &&
         !(property instanceof TypeDiscriminatorProperty),
     );
+    if (
+      this.configuration.objectTypeDeclarationType === "class" &&
+      properties.length === 0
+    ) {
+      // If there's a parent class and no properties in this class, can skip overriding equals
+      return Maybe.empty();
+    }
   }
-  properties = properties.filter(
-    (property) => property.visibility === PropertyVisibility.PUBLIC,
-  );
 
-  if (properties.length === 0) {
-    return Maybe.empty();
-  }
-
-  let expression: string;
-  let hasOverrideKeyword = false;
+  let leftVariable: string;
+  let rightVariable: string;
   switch (this.configuration.objectTypeDeclarationType) {
-    case "class": {
-      expression = `purifyHelpers.Equatable.objectEquals(this, other, { ${properties
-        .map((property) => `${property.name}: ${property.equalsFunction}`)
-        .join()} })`;
-      // If there's an ancestor with an equals implementation then delegate to super.
-      for (const ancestorObjectType of this.ancestorObjectTypes) {
-        if (
-          (ancestorObjectType.classDeclaration().methods ?? []).some(
-            (method) => method.name === "equals",
-          )
-        ) {
-          expression = `super.equals(other).chain(() => ${expression})`;
-          hasOverrideKeyword = true;
-          break;
-        }
-      }
+    case "class":
+      leftVariable = "this";
+      rightVariable = "other";
       break;
-    }
-    case "interface": {
-      expression = `purifyHelpers.Equatable.objectEquals(left, right, { ${properties
-        .map((property) => `${property.name}: ${property.equalsFunction}`)
-        .join()} })`;
-      // For every parent, find the nearest equals implementation
-      for (const parentObjectType of this.parentObjectTypes) {
-        if (parentObjectType.equalsFunctionDeclaration().isJust()) {
-          expression = `${parentObjectType.name}.equals(left, right).chain(() => ${expression})`;
-        } else {
-          for (const ancestorObjectType of parentObjectType.ancestorObjectTypes) {
-            if (ancestorObjectType.equalsFunctionDeclaration().isJust()) {
-              expression = `${ancestorObjectType.name}.equals(left, right).chain(() => ${expression})`;
-              break;
-            }
-          }
-        }
+    case "interface":
+      leftVariable = "left";
+      rightVariable = "right";
+  }
+
+  const chain: string[] = [];
+
+  let hasOverrideKeyword = false;
+  if (this.parentObjectTypes.length > 0) {
+    switch (this.configuration.objectTypeDeclarationType) {
+      case "class": {
+        chain.push("super.equals(other)");
+        hasOverrideKeyword = true;
+        break;
       }
-      break;
+      case "interface": {
+        // For every parent, find the nearest equals implementation
+        for (const parentObjectType of this.parentObjectTypes) {
+          chain.push(`${parentObjectType.name}.equals(left, right)`);
+        }
+        break;
+      }
     }
+  }
+
+  for (const property of properties) {
+    chain.push(
+      `(${property.equalsFunction})(${leftVariable}.${property.name}, ${rightVariable}.${property.name}).mapLeft(propertyValuesUnequal => ({ left: ${leftVariable}, right: ${rightVariable}, propertyName: "${property.name}", propertyValuesUnequal, type: "Property" as const }))`,
+    );
   }
 
   return Maybe.of({
@@ -100,6 +97,12 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
             },
           ],
     returnType: "purifyHelpers.Equatable.EqualsResult",
-    statements: [`return ${expression};`],
+    statements: [
+      `return ${chain
+        .map((chainPart, chainPartI) =>
+          chainPartI === 0 ? chainPart : `chain(() => ${chainPart})`,
+        )
+        .join(".")};`,
+    ],
   });
 }

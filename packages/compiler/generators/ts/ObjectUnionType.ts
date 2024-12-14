@@ -24,6 +24,7 @@ import { hasherTypeConstraint } from "./_ObjectType/hashFunctionOrMethodDeclarat
  */
 export class ObjectUnionType extends Type {
   readonly export: boolean;
+  readonly fromRdfFunctionName = "fromRdf";
   readonly kind = "ObjectUnionType";
   readonly memberTypes: readonly ObjectType[];
   readonly name: string;
@@ -85,9 +86,7 @@ export class ObjectUnionType extends Type {
       ],
       returnType: "purifyHelpers.Equatable.EqualsResult",
       statements: `\
-return purifyHelpers.Equatable.objectEquals(left, right, {
-  type: purifyHelpers.Equatable.strictEquals,
-}).chain(() => {
+return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
   switch (left.${this.configuration.objectTypeDiscriminatorPropertyName}) {
    ${caseBlocks.join(" ")}
   }
@@ -96,15 +95,13 @@ return purifyHelpers.Equatable.objectEquals(left, right, {
   }
 
   get fromRdfFunctionDeclaration(): FunctionDeclarationStructure {
-    const variables = {
-      ignoreRdfType: "ignoreRdfType",
-      options: "_options",
-      resource: "_resource",
-    };
+    const parameters = this.memberTypes[0]
+      .fromRdfFunctionDeclaration()
+      .unsafeCoerce().parameters!;
 
     let expression = "";
     for (const memberType of this.memberTypes) {
-      const typeExpression = `(${memberType.name}.fromRdf(${variables.resource}, ${variables.options}) as purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>)`;
+      const typeExpression = `(${memberType.name}.${memberType.fromRdfFunctionName}(${parameters.map((parameter) => parameter.name).join(", ")}) as purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>)`;
       expression =
         expression.length > 0
           ? `${expression}.altLazy(() => ${typeExpression})`
@@ -114,18 +111,8 @@ return purifyHelpers.Equatable.objectEquals(left, right, {
     return {
       isExported: true,
       kind: StructureKind.Function,
-      name: "fromRdf",
-      parameters: [
-        {
-          name: variables.resource,
-          type: this.rdfjsResourceType().name,
-        },
-        {
-          hasQuestionToken: true,
-          name: variables.options,
-          type: `{ ${variables.ignoreRdfType}?: boolean }`,
-        },
-      ],
+      name: this.fromRdfFunctionName,
+      parameters,
       returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>`,
       statements: [`return ${expression};`],
     };
@@ -261,7 +248,7 @@ return purifyHelpers.Equatable.objectEquals(left, right, {
   override propertyFromRdfExpression({
     variables,
   }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
-    return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(_resource => ${this.name}.fromRdf(_resource))`;
+    return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(_resource => ${this.name}.${this.fromRdfFunctionName}({ ...${variables.context}, resource: _resource }))`;
   }
 
   override propertyHashStatements({
@@ -281,9 +268,9 @@ return purifyHelpers.Equatable.objectEquals(left, right, {
     const options = `{ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }`;
     switch (this.configuration.objectTypeDeclarationType) {
       case "class":
-        return `${variables.value}.toRdf(${options}).identifier`;
+        return `${variables.value}.toRdf(${options})`;
       case "interface":
-        return `${this.name}.toRdf(${variables.value}, ${options}).identifier`;
+        return `${this.name}.toRdf(${variables.value}, ${options})`;
     }
   }
 

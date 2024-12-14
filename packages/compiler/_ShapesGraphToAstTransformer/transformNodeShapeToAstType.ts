@@ -158,6 +158,7 @@ export function transformNodeShapeToAstType(
     childObjectTypes: [],
     descendantObjectTypes: [],
     export: export_,
+    extern: nodeShape.extern.orDefault(false),
     kind: "ObjectType",
     listItemType: Maybe.empty(),
     iriMintingStrategy: nodeShape.iriMintingStrategy.toMaybe(),
@@ -168,6 +169,7 @@ export function transformNodeShapeToAstType(
       ? Maybe.of(nodeShape.resource.identifier as NamedNode)
       : Maybe.empty(),
     parentObjectTypes: [], // This is mutable, we'll populate it below
+    tsImport: nodeShape.tsImport,
   };
   this.nodeShapeAstTypesByIdentifier.set(
     nodeShape.resource.identifier,

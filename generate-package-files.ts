@@ -32,7 +32,7 @@ const externalDependencyVersions = {
   n3: "^1.21.3",
   pino: "^9.1.0",
   "purify-ts": "^2.1.0",
-  "rdfjs-resource": "1.0.13",
+  "rdfjs-resource": "1.0.14",
 };
 
 const packages: readonly Package[] = [
@@ -88,7 +88,7 @@ const packages: readonly Package[] = [
   {
     dependencies: {
       external: {
-        "@kos-kit/sparql-builder": "2.0.102",
+        "@kos-kit/sparql-builder": "2.0.103",
         "@rdfjs/types": externalDependencyVersions["@rdfjs/types"],
         "@types/n3": externalDependencyVersions["@types/n3"],
         "@types/uuid": "^9.0.1",

@@ -32,10 +32,15 @@ function constructorDeclaration(
   const statements: (string | StatementStructures)[] = [];
 
   if (
-    this.ancestorObjectTypes.some(
-      (ancestorObjectType) =>
-        ancestorObjectType.classDeclaration().ctors?.length,
-    )
+    this.ancestorObjectTypes.some((ancestorObjectType) => {
+      const ancestorClassDeclaration = ancestorObjectType
+        .classDeclaration()
+        .extract();
+      if (!ancestorClassDeclaration) {
+        return true; // Probably imported, assume it has a constructor that takes parameters
+      }
+      return ancestorClassDeclaration.ctors?.length;
+    })
   ) {
     // If some ancestor type has a constructor then pass up parameters
     statements.push("super(parameters);");
@@ -60,12 +65,7 @@ function constructorDeclaration(
   let constructorParametersType = `{ ${constructorParameterPropertySignatures.join(
     ", ",
   )} }`;
-  if (
-    this.ancestorObjectTypes.some(
-      (ancestorObjectType) =>
-        ancestorObjectType.classDeclaration().ctors?.length,
-    )
-  ) {
+  if (statements[0] === "super(parameters);") {
     // If some ancestor type has a constructor then pass up parameters
     constructorParametersType = `${constructorParametersType} & ConstructorParameters<typeof ${this.parentObjectTypes[0].name}>[0]`;
   }
@@ -81,7 +81,17 @@ function constructorDeclaration(
   });
 }
 
-export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
+export function classDeclaration(
+  this: ObjectType,
+): Maybe<ClassDeclarationStructure> {
+  if (this.configuration.objectTypeDeclarationType !== "class") {
+    return Maybe.empty();
+  }
+
+  if (this.extern) {
+    return Maybe.empty();
+  }
+
   this.ensureAtMostOneSuperObjectType();
 
   const constructorDeclaration_ = constructorDeclaration.bind(this)();
@@ -97,7 +107,7 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
     );
   }
 
-  return {
+  return Maybe.of({
     ctors: constructorDeclaration_.toList(),
     extends:
       this.parentObjectTypes.length > 0
@@ -114,7 +124,7 @@ export function classDeclaration(this: ObjectType): ClassDeclarationStructure {
     ],
     name: this.name,
     properties,
-  };
+  });
 }
 
 function equalsMethodDeclaration(

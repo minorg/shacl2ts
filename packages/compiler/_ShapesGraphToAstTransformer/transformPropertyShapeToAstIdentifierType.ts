@@ -14,7 +14,6 @@ export function transformPropertyShapeToAstIdentifierType(
   shape: input.Shape,
   inherited: {
     defaultValue: Maybe<BlankNode | Literal | NamedNode>;
-    inline: Maybe<boolean>;
   } | null,
 ): Either<Error, ast.IdentifierType> {
   // defaultValue / hasValue / in only makes sense with IRIs

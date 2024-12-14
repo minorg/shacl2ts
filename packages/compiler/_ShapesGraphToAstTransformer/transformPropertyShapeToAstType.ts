@@ -16,7 +16,7 @@ export function transformPropertyShapeToAstType(
   shape: input.Shape,
   inherited: {
     defaultValue: Maybe<BlankNode | Literal | NamedNode>;
-    inline: Maybe<boolean>;
+    extern: Maybe<boolean>;
   } | null,
 ): Either<Error, ast.Type> {
   // Try to transform the property shape into an AST type without cardinality constraints

@@ -43,8 +43,10 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   );
   if (
     this.configuration.objectTypeDeclarationType === "class" &&
+    this.parentObjectTypes.length > 0 &&
     propertyHashStatements.length === 0
   ) {
+    // If there's a parent class and no hash statements in this class, can skip overriding hash
     return Maybe.empty();
   }
 
@@ -63,33 +65,21 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   const statements: string[] = [];
 
   let hasOverrideKeyword = false;
-  switch (this.configuration.objectTypeDeclarationType) {
-    case "class": {
-      // If there's an ancestor with a hash implementation then delegate to super.
-      for (const ancestorObjectType of this.ancestorObjectTypes) {
-        if (
-          (ancestorObjectType.classDeclaration().methods ?? []).some(
-            (method) => method.name === "hash",
-          )
-        ) {
-          statements.push(`super.hash(${hasherVariable});`);
-          hasOverrideKeyword = true;
-          break;
+  if (this.parentObjectTypes.length > 0) {
+    switch (this.configuration.objectTypeDeclarationType) {
+      case "class": {
+        statements.push(`super.hash(${hasherVariable});`);
+        hasOverrideKeyword = true;
+        break;
+      }
+      case "interface": {
+        for (const parentObjectType of this.parentObjectTypes) {
+          statements.push(
+            `${parentObjectType.name}.${parentObjectType.hashFunctionName}(${thisVariable}, ${hasherVariable});`,
+          );
         }
+        break;
       }
-      break;
-    }
-    case "interface": {
-      for (const parentObjectType of this.parentObjectTypes) {
-        parentObjectType
-          .hashFunctionDeclaration()
-          .ifJust((hashFunctionDeclaration) => {
-            statements.push(
-              `${parentObjectType.name}.${hashFunctionDeclaration.name}(${thisVariable}, ${hasherVariable});`,
-            );
-          });
-      }
-      break;
     }
   }
 

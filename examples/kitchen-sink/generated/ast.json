@@ -33,6 +33,36 @@
     {
       "kind": "ObjectType",
       "name": {
+        "curie": ":AbstractBaseClassForExternObjectType",
+        "identifier": {
+          "termType": "NamedNode",
+          "value": "http://example.com/AbstractBaseClassForExternObjectType"
+        },
+        "shName": "AbstractBaseClassForExternObjectType"
+      },
+      "properties": [
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-140"
+            },
+            "shName": "abcStringProperty"
+          },
+          "path": "http://example.com/abcStringProperty",
+          "type": {
+            "datatype": {
+              "termType": "NamedNode",
+              "value": "http://www.w3.org/2001/XMLSchema#string"
+            },
+            "kind": "LiteralType"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "ObjectType",
+      "name": {
         "curie": ":AbstractBaseClassWithoutPropertiesNodeShape",
         "identifier": {
           "termType": "NamedNode",
@@ -57,7 +87,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-140"
+              "value": "n3-141"
             },
             "shName": "childStringProperty"
           },
@@ -87,7 +117,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-141"
+              "value": "n3-142"
             },
             "shName": "parentStringProperty"
           },
@@ -105,117 +135,14 @@
     {
       "kind": "ObjectType",
       "name": {
-        "curie": ":ExterningAndInliningNodeShape",
+        "curie": ":ExternObjectType",
         "identifier": {
           "termType": "NamedNode",
-          "value": "http://example.com/ExterningAndInliningNodeShape"
+          "value": "http://example.com/ExternObjectType"
         },
-        "shName": "ExterningAndInliningNodeShape"
+        "shName": "ExternObjectType"
       },
-      "properties": [
-        {
-          "name": {
-            "identifier": {
-              "termType": "BlankNode",
-              "value": "n3-142"
-            },
-            "shName": "externProperty"
-          },
-          "path": "http://example.com/externProperty",
-          "type": {
-            "kind": "IdentifierType",
-            "nodeKinds": [
-              "BlankNode",
-              "NamedNode"
-            ]
-          }
-        },
-        {
-          "name": {
-            "identifier": {
-              "termType": "BlankNode",
-              "value": "n3-143"
-            },
-            "shName": "inlineProperty"
-          },
-          "path": "http://example.com/inlineProperty",
-          "type": {
-            "kind": "ObjectType",
-            "name": {
-              "curie": ":ExterningAndInliningNodeShape-InlineNodeShape",
-              "identifier": {
-                "termType": "NamedNode",
-                "value": "http://example.com/ExterningAndInliningNodeShape-InlineNodeShape"
-              },
-              "shName": "InlineNodeShape"
-            },
-            "nodeKinds": [
-              "BlankNode",
-              "NamedNode"
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "kind": "ObjectType",
-      "name": {
-        "curie": ":ExterningAndInliningNodeShape-ExternNodeShape",
-        "identifier": {
-          "termType": "NamedNode",
-          "value": "http://example.com/ExterningAndInliningNodeShape-ExternNodeShape"
-        },
-        "shName": "ExternNodeShape"
-      },
-      "properties": [
-        {
-          "name": {
-            "identifier": {
-              "termType": "BlankNode",
-              "value": "n3-144"
-            },
-            "shName": "stringProperty"
-          },
-          "path": "http://example.com/stringProperty",
-          "type": {
-            "datatype": {
-              "termType": "NamedNode",
-              "value": "http://www.w3.org/2001/XMLSchema#string"
-            },
-            "kind": "LiteralType"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "ObjectType",
-      "name": {
-        "curie": ":ExterningAndInliningNodeShape-InlineNodeShape",
-        "identifier": {
-          "termType": "NamedNode",
-          "value": "http://example.com/ExterningAndInliningNodeShape-InlineNodeShape"
-        },
-        "shName": "InlineNodeShape"
-      },
-      "properties": [
-        {
-          "name": {
-            "identifier": {
-              "termType": "BlankNode",
-              "value": "n3-145"
-            },
-            "shName": "stringProperty"
-          },
-          "path": "http://example.com/stringProperty",
-          "type": {
-            "datatype": {
-              "termType": "NamedNode",
-              "value": "http://www.w3.org/2001/XMLSchema#string"
-            },
-            "kind": "LiteralType"
-          }
-        }
-      ]
+      "properties": []
     },
     {
       "kind": "ObjectType",
@@ -232,7 +159,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-146"
+              "value": "n3-143"
             },
             "shName": "stringProperty"
           },
@@ -345,7 +272,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-151"
+              "value": "n3-148"
             },
             "shName": "stringProperty"
           },
@@ -375,7 +302,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-152"
+              "value": "n3-149"
             },
             "shName": "falseBooleanProperty"
           },
@@ -388,7 +315,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-153"
+              "value": "n3-150"
             },
             "shName": "dateTimeProperty"
           },
@@ -401,7 +328,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-154"
+              "value": "n3-151"
             },
             "shName": "numberProperty"
           },
@@ -414,7 +341,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-155"
+              "value": "n3-152"
             },
             "shName": "stringProperty"
           },
@@ -427,12 +354,161 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-156"
+              "value": "n3-153"
             },
             "shName": "trueBooleanProperty"
           },
           "path": "http://example.com/trueBooleanProperty",
           "type": {
+            "kind": "LiteralType"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "ObjectType",
+      "name": {
+        "curie": ":NodeShapeWithExternProperties",
+        "identifier": {
+          "termType": "NamedNode",
+          "value": "http://example.com/NodeShapeWithExternProperties"
+        },
+        "shName": "NodeShapeWithExternProperties"
+      },
+      "properties": [
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-154"
+            },
+            "shName": "externObjectTypeProperty"
+          },
+          "path": "http://example.com/externObjectTypeProperty",
+          "type": {
+            "itemType": {
+              "kind": "ObjectType",
+              "name": {
+                "curie": ":ExternObjectType",
+                "identifier": {
+                  "termType": "NamedNode",
+                  "value": "http://example.com/ExternObjectType"
+                },
+                "shName": "ExternObjectType"
+              },
+              "nodeKinds": [
+                "BlankNode",
+                "NamedNode"
+              ]
+            },
+            "kind": "OptionType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-155"
+            },
+            "shName": "externProperty"
+          },
+          "path": "http://example.com/externProperty",
+          "type": {
+            "itemType": {
+              "kind": "IdentifierType",
+              "nodeKinds": [
+                "BlankNode",
+                "NamedNode"
+              ]
+            },
+            "kind": "OptionType"
+          }
+        },
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-156"
+            },
+            "shName": "inlineProperty"
+          },
+          "path": "http://example.com/inlineProperty",
+          "type": {
+            "itemType": {
+              "kind": "ObjectType",
+              "name": {
+                "curie": ":NodeShapeWithExternProperties-InlineNodeShape",
+                "identifier": {
+                  "termType": "NamedNode",
+                  "value": "http://example.com/NodeShapeWithExternProperties-InlineNodeShape"
+                },
+                "shName": "InlineNodeShape"
+              },
+              "nodeKinds": [
+                "BlankNode",
+                "NamedNode"
+              ]
+            },
+            "kind": "OptionType"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "ObjectType",
+      "name": {
+        "curie": ":NodeShapeWithExternProperties-ExternNodeShape",
+        "identifier": {
+          "termType": "NamedNode",
+          "value": "http://example.com/NodeShapeWithExternProperties-ExternNodeShape"
+        },
+        "shName": "ExternNodeShape"
+      },
+      "properties": [
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-157"
+            },
+            "shName": "stringProperty"
+          },
+          "path": "http://example.com/stringProperty",
+          "type": {
+            "datatype": {
+              "termType": "NamedNode",
+              "value": "http://www.w3.org/2001/XMLSchema#string"
+            },
+            "kind": "LiteralType"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "ObjectType",
+      "name": {
+        "curie": ":NodeShapeWithExternProperties-InlineNodeShape",
+        "identifier": {
+          "termType": "NamedNode",
+          "value": "http://example.com/NodeShapeWithExternProperties-InlineNodeShape"
+        },
+        "shName": "InlineNodeShape"
+      },
+      "properties": [
+        {
+          "name": {
+            "identifier": {
+              "termType": "BlankNode",
+              "value": "n3-158"
+            },
+            "shName": "stringProperty"
+          },
+          "path": "http://example.com/stringProperty",
+          "type": {
+            "datatype": {
+              "termType": "NamedNode",
+              "value": "http://www.w3.org/2001/XMLSchema#string"
+            },
             "kind": "LiteralType"
           }
         }
@@ -453,7 +529,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-157"
+              "value": "n3-159"
             },
             "shName": "hasIriProperty"
           },
@@ -476,7 +552,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-158"
+              "value": "n3-160"
             },
             "shName": "hasLiteralProperty"
           },
@@ -511,7 +587,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-159"
+              "value": "n3-161"
             },
             "shName": "inBooleansProperty"
           },
@@ -527,7 +603,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-161"
+              "value": "n3-163"
             },
             "shName": "inDateTimesProperty"
           },
@@ -543,7 +619,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-163"
+              "value": "n3-165"
             },
             "shName": "inIrisProperty"
           },
@@ -562,7 +638,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-166"
+              "value": "n3-168"
             },
             "shName": "inNumbersProperty"
           },
@@ -578,7 +654,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-169"
+              "value": "n3-171"
             },
             "shName": "inStringsProperty"
           },
@@ -607,7 +683,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-172"
+              "value": "n3-174"
             },
             "shName": "listProperty"
           },
@@ -656,7 +732,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-173"
+              "value": "n3-175"
             },
             "shName": "orLiteralsProperty"
           },
@@ -672,7 +748,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-178"
+              "value": "n3-180"
             },
             "shName": "orTermsProperty"
           },
@@ -699,7 +775,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-183"
+              "value": "n3-185"
             },
             "shName": "orUnrelatedProperty"
           },
@@ -743,7 +819,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-188"
+              "value": "n3-190"
             },
             "shName": "requiredStringProperty"
           },
@@ -760,7 +836,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-189"
+              "value": "n3-191"
             },
             "shName": "optionalStringProperty"
           },
@@ -780,7 +856,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-190"
+              "value": "n3-192"
             },
             "shName": "setStringProperty"
           },
@@ -813,7 +889,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-191"
+              "value": "n3-193"
             },
             "shName": "protectedProperty"
           },
@@ -830,7 +906,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-192"
+              "value": "n3-194"
             },
             "shName": "privateProperty"
           },
@@ -847,7 +923,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-193"
+              "value": "n3-195"
             },
             "shName": "publicProperty"
           },
@@ -877,7 +953,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-196"
+              "value": "n3-199"
             },
             "shName": "stringProperty1"
           },
@@ -907,7 +983,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-197"
+              "value": "n3-200"
             },
             "shName": "stringProperty2"
           },
@@ -937,7 +1013,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-198"
+              "value": "n3-201"
             },
             "shName": "stringProperty"
           },
@@ -967,7 +1043,7 @@
           "name": {
             "identifier": {
               "termType": "BlankNode",
-              "value": "n3-199"
+              "value": "n3-202"
             },
             "shName": "stringProperty"
           },

@@ -44,11 +44,21 @@ export interface ObjectType {
    * Defaults to true.
    */
   readonly export: boolean;
+
+  /**
+   * If true, the code for this ObjectType is defined externally and should not be generated.
+   *
+   * Defaults to false.
+   */
+  readonly extern: boolean;
+
   /**
    * Strategy for minting new object identifiers. If not specified, require an identifier on construction.
    */
   readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
+
   readonly kind: "ObjectType";
+
   /**
    * If the ObjectType is an RDF list, this is the type of rdf:first.
    * https://www.w3.org/TR/rdf-schema/#ch_collectionvocab
@@ -89,11 +99,20 @@ export interface ObjectType {
    * class targets).
    */
   readonly rdfType: Maybe<NamedNode>;
+
+  /**
+   * A TypeScript import to add to generated code.
+   *
+   * This is often used in conjunction with extern=true to import the extern'd ObjectType code in order for generated
+   * code to reference it.
+   *
+   * import { MyType } from "./MyType.js"
+   */
+  readonly tsImport: Maybe<string>;
 }
 
 export namespace ObjectType {
   export interface Property {
-    readonly inline: boolean;
     readonly name: Name;
     readonly path: PredicatePath;
     readonly type: Type;

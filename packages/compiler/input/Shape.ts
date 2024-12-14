@@ -5,7 +5,7 @@ import type { NodeShape } from "./NodeShape.js";
 import type { PropertyShape } from "./PropertyShape.js";
 
 export interface Shape extends IShape<NodeShape, PropertyShape, any> {
-  readonly inline: Maybe<boolean>;
+  readonly extern: Maybe<boolean>;
   readonly resource: Resource;
   readonly shaclmateName: Maybe<string>;
 }

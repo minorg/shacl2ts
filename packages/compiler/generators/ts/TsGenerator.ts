@@ -122,14 +122,10 @@ export class TsGenerator implements Generator {
     objectType,
     sourceFile,
   }: { objectType: ObjectType; sourceFile: SourceFile }): void {
-    switch (this.configuration.objectTypeDeclarationType) {
-      case "class":
-        sourceFile.addClass(objectType.classDeclaration());
-        break;
-      case "interface":
-        sourceFile.addInterface(objectType.interfaceDeclaration());
-        break;
-    }
+    sourceFile.addStatements([
+      ...objectType.classDeclaration().toList(),
+      ...objectType.interfaceDeclaration().toList(),
+    ]);
 
     const moduleStatements: StatementStructures[] = [
       ...objectType.equalsFunctionDeclaration().toList(),

@@ -10,6 +10,10 @@ export function toRdfFunctionDeclaration(
     return Maybe.empty();
   }
 
+  if (this.extern) {
+    return Maybe.empty();
+  }
+
   return toRdfFunctionOrMethodDeclaration
     .bind(this)()
     .map((toRdfFunctionOrMethodDeclaration) => ({

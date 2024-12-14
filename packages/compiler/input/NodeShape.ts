@@ -9,7 +9,7 @@ import { IriMintingStrategy } from "../IriMintingStrategy.js";
 import { shaclmate } from "../vocabularies/index.js";
 import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
-import { inline } from "./inline.js";
+import { extern } from "./extern.js";
 import { shaclmateName } from "./shaclmateName.js";
 
 function ancestorClassIris(
@@ -110,8 +110,8 @@ export class NodeShape
       .toMaybe();
   }
 
-  get inline(): Maybe<boolean> {
-    return inline.bind(this)();
+  get extern(): Maybe<boolean> {
+    return extern.bind(this)();
   }
 
   get iriMintingStrategy(): Either<Error, IriMintingStrategy> {
@@ -184,6 +184,13 @@ export class NodeShape
 
   get shaclmateName(): Maybe<string> {
     return shaclmateName.bind(this)();
+  }
+
+  get tsImport(): Maybe<string> {
+    return this.resource
+      .value(shaclmate.tsImport)
+      .chain((value) => value.toString())
+      .toMaybe();
   }
 
   private get _mintingStrategy(): Either<Error, IriMintingStrategy> {

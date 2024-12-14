@@ -14,7 +14,6 @@ export function transformPropertyShapeToAstLiteralType(
   shape: input.Shape,
   inherited: {
     defaultValue: Maybe<BlankNode | Literal | NamedNode>;
-    inline: Maybe<boolean>;
   } | null,
 ): Either<Error, ast.LiteralType> {
   const literalDefaultValue = (

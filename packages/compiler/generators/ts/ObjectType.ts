@@ -2,7 +2,7 @@ import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
-import { IriMintingStrategy } from "../../IriMintingStrategy.js";
+import type { IriMintingStrategy } from "../../IriMintingStrategy.js";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
@@ -12,8 +12,10 @@ export class ObjectType extends Type {
   classDeclaration = _ObjectType.classDeclaration;
   equalsFunctionDeclaration = _ObjectType.equalsFunctionDeclaration;
   readonly export_: boolean;
+  readonly extern: boolean;
   fromRdfFunctionDeclaration = _ObjectType.fromRdfFunctionDeclaration;
   hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
+  import_: Maybe<string>;
   interfaceDeclaration = _ObjectType.interfaceDeclaration;
   readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
   readonly kind = "ObjectType";
@@ -30,10 +32,12 @@ export class ObjectType extends Type {
   constructor({
     abstract,
     export_,
+    extern,
     lazyAncestorObjectTypes,
     lazyDescendantObjectTypes,
     lazyParentObjectTypes,
     lazyProperties,
+    import_,
     iriMintingStrategy,
     name,
     rdfType,
@@ -41,6 +45,8 @@ export class ObjectType extends Type {
   }: {
     abstract: boolean;
     export_: boolean;
+    extern: boolean;
+    import_: Maybe<string>;
     lazyAncestorObjectTypes: () => readonly ObjectType[];
     lazyDescendantObjectTypes: () => readonly ObjectType[];
     lazyParentObjectTypes: () => readonly ObjectType[];
@@ -52,6 +58,8 @@ export class ObjectType extends Type {
     super(superParameters);
     this.abstract = abstract;
     this.export_ = export_;
+    this.extern = extern;
+    this.import_ = import_;
     // Lazily initialize some members in getters to avoid recursive construction
     this.lazyAncestorObjectTypes = lazyAncestorObjectTypes;
     this.lazyDescendantObjectTypes = lazyDescendantObjectTypes;
@@ -96,6 +104,17 @@ export class ObjectType extends Type {
   }
 
   @Memoize()
+  get fromRdfFunctionName(): string {
+    if (
+      this.configuration.objectTypeDeclarationType === "class" &&
+      this.abstract
+    ) {
+      return "interfaceFromRdf";
+    }
+    return "fromRdf";
+  }
+
+  @Memoize()
   get hashFunctionName(): string {
     if (
       this.lazyDescendantObjectTypes().length > 0 ||
@@ -121,22 +140,10 @@ export class ObjectType extends Type {
   }
 
   override get importStatements(): readonly string[] {
-    const importStatements = this.properties.flatMap(
-      (property) => property.importStatements,
-    );
-    if (this.configuration.objectTypeDeclarationType === "class") {
-      this.iriMintingStrategy.ifJust((iriMintingStrategy) => {
-        switch (iriMintingStrategy) {
-          case IriMintingStrategy.SHA256:
-            importStatements.push('import { sha256 } from "js-sha256";');
-            break;
-          case IriMintingStrategy.UUIDv4:
-            importStatements.push('import * as uuid from "uuid";');
-            break;
-        }
-      });
-    }
-    return importStatements;
+    return [
+      ...this.import_.toList(),
+      ...this.properties.flatMap((property) => property.importStatements),
+    ];
   }
 
   @Memoize()
@@ -182,7 +189,7 @@ export class ObjectType extends Type {
   override propertyFromRdfExpression({
     variables,
   }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
-    return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(_resource => ${this.name}.fromRdf(_resource))`;
+    return `${variables.resourceValues}.head().chain(value => value.to${this.rdfjsResourceType().named ? "Named" : ""}Resource()).chain(_resource => ${this.name}.${this.fromRdfFunctionName}({ ...${variables.context}, resource: _resource }))`;
   }
 
   override propertyHashStatements({
@@ -203,9 +210,9 @@ export class ObjectType extends Type {
   }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
     switch (this.configuration.objectTypeDeclarationType) {
       case "class":
-        return `${variables.value}.toRdf({ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier`;
+        return `${variables.value}.toRdf({ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} })`;
       case "interface":
-        return `${this.name}.toRdf(${variables.value}, { mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }).identifier`;
+        return `${this.name}.toRdf(${variables.value}, { mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} })`;
     }
   }
 
