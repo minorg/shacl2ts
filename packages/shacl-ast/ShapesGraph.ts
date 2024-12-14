@@ -15,13 +15,15 @@ export interface ShapesGraph<
 > {
   readonly node: BlankNode | DefaultGraph | NamedNode | null;
   readonly nodeShapes: readonly NodeShapeT[];
+  readonly ontologies: readonly OntologyT[];
   readonly propertyGroups: readonly PropertyGroup[];
   readonly propertyShapes: readonly PropertyShapeT[];
 
-  nodeShapeByNode(nodeShapeNode: BlankNode | NamedNode): Maybe<NodeShapeT>;
-  propertyGroupByNode(propertyGroupNode: NamedNode): Maybe<PropertyGroup>;
-  propertyShapeByNode(
-    propertyShapeNode: BlankNode | NamedNode,
+  nodeShapeByIdentifier(identifier: BlankNode | NamedNode): Maybe<NodeShapeT>;
+  ontologyByIdentifier(identifier: BlankNode | NamedNode): Maybe<OntologyT>;
+  propertyGroupByIdentifier(identifier: NamedNode): Maybe<PropertyGroup>;
+  propertyShapeByIdentifier(
+    identifier: BlankNode | NamedNode,
   ): Maybe<PropertyShapeT>;
-  shapeByNode(node: BlankNode | NamedNode): Maybe<ShapeT>;
+  shapeByIdentifier(identifier: BlankNode | NamedNode): Maybe<ShapeT>;
 }

@@ -8,6 +8,10 @@ export class RdfjsOntology implements Ontology {
     this.resource = resource;
   }
 
+  get identifier(): Resource.Identifier {
+    return this.resource.identifier;
+  }
+
   toString(): string {
     return `Ontology(node=${this.resource.identifier.value})`;
   }

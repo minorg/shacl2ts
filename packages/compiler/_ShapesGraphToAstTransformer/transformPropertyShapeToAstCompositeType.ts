@@ -88,7 +88,7 @@ export function transformPropertyShapeToAstCompositeType(
       }
 
       const classNodeShape = this.shapesGraph
-        .nodeShapeByNode(classIri)
+        .nodeShapeByIdentifier(classIri)
         .extractNullable();
       if (classNodeShape === null) {
         return Left(

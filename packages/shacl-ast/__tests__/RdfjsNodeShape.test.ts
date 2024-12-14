@@ -19,15 +19,15 @@ describe("RdfjsNodeShape", () => {
 
   it("should have properties", ({ expect }) => {
     expect(
-      shapesGraph.nodeShapeByNode(schema.Person).unsafeCoerce().constraints
-        .properties,
+      shapesGraph.nodeShapeByIdentifier(schema.Person).unsafeCoerce()
+        .constraints.properties,
     ).toHaveLength(9);
   });
 
   it("should get closed true", ({ expect }) => {
     expect(
       shapesGraph
-        .nodeShapeByNode(schema.DatedMoneySpecification)
+        .nodeShapeByIdentifier(schema.DatedMoneySpecification)
         .unsafeCoerce()
         .constraints.closed.unsafeCoerce(),
     ).toStrictEqual(true);
@@ -35,7 +35,10 @@ describe("RdfjsNodeShape", () => {
 
   it("should convert to a string", ({ expect }) => {
     expect(
-      shapesGraph.nodeShapeByNode(schema.Person).unsafeCoerce().toString(),
+      shapesGraph
+        .nodeShapeByIdentifier(schema.Person)
+        .unsafeCoerce()
+        .toString(),
     ).not.toHaveLength(0);
   });
 });

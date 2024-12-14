@@ -19,6 +19,8 @@ export interface Shape<
     ShapeT
   >;
   readonly description: Maybe<Literal>;
+  readonly identifier: BlankNode | NamedNode;
+  readonly isDefinedBy: Maybe<OntologyT>;
   readonly name: Maybe<Literal>;
   readonly targets: Shape.Targets;
 }

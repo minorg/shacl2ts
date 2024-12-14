@@ -19,7 +19,9 @@ describe("RdfjsPropertyShape", () => {
   });
 
   const findPropertyShape = (nodeShapeNode: NamedNode, path: NamedNode) => {
-    const nodeShape = shapesGraph.nodeShapeByNode(nodeShapeNode).unsafeCoerce();
+    const nodeShape = shapesGraph
+      .nodeShapeByIdentifier(nodeShapeNode)
+      .unsafeCoerce();
     const propertyShape = nodeShape.constraints.properties.find(
       (propertyShape) => {
         const propertyShapePath = propertyShape.path;

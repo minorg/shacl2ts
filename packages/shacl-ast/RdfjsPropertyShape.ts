@@ -52,7 +52,7 @@ export class RdfjsPropertyShape<
       .value(sh.group)
       .chain((value) => value.toIri())
       .toMaybe()
-      .chain((node) => this.shapesGraph.propertyGroupByNode(node));
+      .chain((node) => this.shapesGraph.propertyGroupByIdentifier(node));
   }
 
   get order(): Maybe<number> {

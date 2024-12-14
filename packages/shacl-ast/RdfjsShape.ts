@@ -1,6 +1,6 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
-import { sh } from "@tpluscode/rdf-ns-builders";
-import type { Maybe } from "purify-ts";
+import { rdfs, sh } from "@tpluscode/rdf-ns-builders";
+import { Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import { NodeKind } from "./NodeKind.js";
 import type { NodeShape } from "./NodeShape.js";
@@ -42,6 +42,45 @@ export abstract class RdfjsShape<
       .value(sh.description)
       .chain((value) => value.toLiteral())
       .toMaybe();
+  }
+
+  get identifier(): Resource.Identifier {
+    return this.resource.identifier;
+  }
+
+  get isDefinedBy(): Maybe<OntologyT> {
+    const isDefinedByValue = this.resource.value(rdfs.isDefinedBy);
+    if (isDefinedByValue.isRight()) {
+      // If there's an rdfs:isDefinedBy statement on the shape then don't fall back to anything else
+      return isDefinedByValue
+        .chain((value) => value.toIdentifier())
+        .toMaybe()
+        .chain((identifier) =>
+          this.shapesGraph.ontologyByIdentifier(identifier),
+        );
+    }
+
+    // No rdfs:isDefinedBy statement on the shape
+
+    const ontologies = this.shapesGraph.ontologies;
+    if (ontologies.length === 1) {
+      // If there's a single ontology in the shapes graph, consider the shape a part of the ontology
+      return Maybe.of(ontologies[0]);
+    }
+
+    if (this.identifier.termType === "NamedNode") {
+      const prefixOntologies = ontologies.filter(
+        (ontology) =>
+          ontology.identifier.termType === "NamedNode" &&
+          this.identifier.value.startsWith(ontology.identifier.value),
+      );
+      if (prefixOntologies.length === 1) {
+        // If there's a single ontology whose IRI is a prefix of this shape's IRI, consider the shape a part of the ontology
+        return Maybe.of(prefixOntologies[0]);
+      }
+    }
+
+    return Maybe.empty();
   }
 
   get name(): Maybe<Literal> {
@@ -176,7 +215,9 @@ export namespace RdfjsShape {
         value
           .toIdentifier()
           .toMaybe()
-          .chain((shapeNode) => this.shapesGraph.nodeShapeByNode(shapeNode))
+          .chain((identifier) =>
+            this.shapesGraph.nodeShapeByIdentifier(identifier),
+          )
           .toList(),
       );
     }
@@ -186,7 +227,7 @@ export namespace RdfjsShape {
         value
           .toIdentifier()
           .toMaybe()
-          .chain((shapeNode) => this.shapesGraph.shapeByNode(shapeNode))
+          .chain((identifier) => this.shapesGraph.shapeByIdentifier(identifier))
           .toList(),
       );
     }
@@ -210,7 +251,9 @@ export namespace RdfjsShape {
             value
               .toIdentifier()
               .toMaybe()
-              .chain((shapeNode) => this.shapesGraph.shapeByNode(shapeNode))
+              .chain((identifier) =>
+                this.shapesGraph.shapeByIdentifier(identifier),
+              )
               .toList(),
           ),
         )

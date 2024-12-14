@@ -65,7 +65,9 @@ export namespace RdfjsNodeShape {
         value
           .toIdentifier()
           .toMaybe()
-          .chain((shapeNode) => this.shapesGraph.propertyShapeByNode(shapeNode))
+          .chain((shapeNode) =>
+            this.shapesGraph.propertyShapeByIdentifier(shapeNode),
+          )
           .toList(),
       );
     }

@@ -83,7 +83,7 @@ export class NodeShape
   get ancestorNodeShapes(): readonly NodeShape[] {
     return this.isClass
       ? this.ancestorClassIris.flatMap((classIri) =>
-          this.shapesGraph.nodeShapeByNode(classIri).toList(),
+          this.shapesGraph.nodeShapeByIdentifier(classIri).toList(),
         )
       : [];
   }
@@ -91,7 +91,7 @@ export class NodeShape
   get childNodeShapes(): readonly NodeShape[] {
     return this.isClass
       ? this.childClassIris.flatMap((classIri) =>
-          this.shapesGraph.nodeShapeByNode(classIri).toList(),
+          this.shapesGraph.nodeShapeByIdentifier(classIri).toList(),
         )
       : [];
   }
@@ -99,7 +99,7 @@ export class NodeShape
   get descendantNodeShapes(): readonly NodeShape[] {
     return this.isClass
       ? this.descendantClassIris.flatMap((classIri) =>
-          this.shapesGraph.nodeShapeByNode(classIri).toList(),
+          this.shapesGraph.nodeShapeByIdentifier(classIri).toList(),
         )
       : [];
   }
@@ -178,7 +178,7 @@ export class NodeShape
   get parentNodeShapes(): readonly NodeShape[] {
     return this.isClass
       ? this.parentClassIris.flatMap((classIri) =>
-          this.shapesGraph.nodeShapeByNode(classIri).toList(),
+          this.shapesGraph.nodeShapeByIdentifier(classIri).toList(),
         )
       : [];
   }

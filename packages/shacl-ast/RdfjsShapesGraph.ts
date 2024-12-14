@@ -7,9 +7,9 @@ import type {
   NamedNode,
   Term,
 } from "@rdfjs/types";
-import { rdf, sh } from "@tpluscode/rdf-ns-builders";
+import { owl, sh } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
-import { Resource, ResourceSet } from "rdfjs-resource";
+import { ResourceSet } from "rdfjs-resource";
 import type { NodeShape } from "./NodeShape.js";
 import type { Ontology } from "./Ontology.js";
 import { PropertyGroup } from "./PropertyGroup.js";
@@ -27,17 +27,26 @@ export class RdfjsShapesGraph<
   readonly dataset: DatasetCore;
   readonly node: BlankNode | DefaultGraph | NamedNode | null;
   readonly nodeShapes: readonly NodeShapeT[];
+  readonly ontologies: readonly OntologyT[];
   readonly propertyGroups: readonly PropertyGroup[];
   readonly propertyShapes: readonly PropertyShapeT[];
-  private readonly nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShapeT>;
-  private readonly propertyGroupsByNode: TermMap<
+  private readonly nodeShapesByIdentifier: TermMap<
+    BlankNode | NamedNode,
+    NodeShapeT
+  >;
+  private readonly ontologiesByIdentifier: TermMap<
+    BlankNode | NamedNode,
+    OntologyT
+  >;
+  private readonly propertyGroupsByIdentifier: TermMap<
     BlankNode | NamedNode,
     PropertyGroup
   >;
-  private readonly propertyShapesByNode: TermMap<
+  private readonly propertyShapesByIdentifier: TermMap<
     BlankNode | NamedNode,
     PropertyShapeT
   >;
+  private readonly resourceSet: ResourceSet;
 
   constructor({
     dataset,
@@ -47,44 +56,57 @@ export class RdfjsShapesGraph<
     factory: RdfjsFactory<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>;
   }) {
     this.dataset = dataset;
+    this.resourceSet = new ResourceSet({ dataset: this.dataset });
+
     this.node = this.readGraph();
 
     const {
       nodeShapes,
-      nodeShapesByNode,
+      nodeShapesByIdentifier,
       propertyShapes,
-      propertyShapesByNode,
+      propertyShapesByIdentifier,
     } = this.readShapes(factory);
     this.nodeShapes = nodeShapes;
-    this.nodeShapesByNode = nodeShapesByNode;
+    this.nodeShapesByIdentifier = nodeShapesByIdentifier;
     this.propertyShapes = propertyShapes;
-    this.propertyShapesByNode = propertyShapesByNode;
+    this.propertyShapesByIdentifier = propertyShapesByIdentifier;
 
-    const { propertyGroups, propertyGroupsByNode } = this.readPropertyGroups();
+    const { ontologies, ontologiesByIdentifier } = this.readOntologies(factory);
+    this.ontologies = ontologies;
+    this.ontologiesByIdentifier = ontologiesByIdentifier;
+
+    const { propertyGroups, propertyGroupsByIdentifier } =
+      this.readPropertyGroups();
     this.propertyGroups = propertyGroups;
-    this.propertyGroupsByNode = propertyGroupsByNode;
+    this.propertyGroupsByIdentifier = propertyGroupsByIdentifier;
   }
 
-  nodeShapeByNode(nodeShapeNode: BlankNode | NamedNode): Maybe<NodeShapeT> {
-    return Maybe.fromNullable(this.nodeShapesByNode.get(nodeShapeNode));
+  nodeShapeByIdentifier(
+    nodeShapeNode: BlankNode | NamedNode,
+  ): Maybe<NodeShapeT> {
+    return Maybe.fromNullable(this.nodeShapesByIdentifier.get(nodeShapeNode));
   }
 
-  propertyGroupByNode(propertyGroupNode: NamedNode): Maybe<PropertyGroup> {
-    return Maybe.fromNullable(this.propertyGroupsByNode.get(propertyGroupNode));
+  ontologyByIdentifier(identifier: BlankNode | NamedNode): Maybe<OntologyT> {
+    return Maybe.fromNullable(this.ontologiesByIdentifier.get(identifier));
   }
 
-  propertyShapeByNode(
-    propertyShapeNode: BlankNode | NamedNode,
+  propertyGroupByIdentifier(identifier: NamedNode): Maybe<PropertyGroup> {
+    return Maybe.fromNullable(this.propertyGroupsByIdentifier.get(identifier));
+  }
+
+  propertyShapeByIdentifier(
+    identifier: BlankNode | NamedNode,
   ): Maybe<PropertyShapeT> {
-    return Maybe.fromNullable(this.propertyShapesByNode.get(propertyShapeNode));
+    return Maybe.fromNullable(this.propertyShapesByIdentifier.get(identifier));
   }
 
-  shapeByNode(node: BlankNode | NamedNode): Maybe<ShapeT> {
-    const nodeShape = this.nodeShapeByNode(node);
+  shapeByIdentifier(identifier: BlankNode | NamedNode): Maybe<ShapeT> {
+    const nodeShape = this.nodeShapeByIdentifier(identifier);
     if (nodeShape.isJust()) {
       return nodeShape;
     }
-    return this.propertyShapeByNode(node);
+    return this.propertyShapeByIdentifier(identifier);
   }
 
   private readGraph(): BlankNode | DefaultGraph | NamedNode | null {
@@ -108,45 +130,65 @@ export class RdfjsShapesGraph<
     }
   }
 
+  private readOntologies(
+    factory: RdfjsFactory<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>,
+  ): {
+    ontologies: OntologyT[];
+    ontologiesByIdentifier: TermMap<BlankNode | NamedNode, OntologyT>;
+  } {
+    const ontologies: OntologyT[] = [];
+    const ontologiesByIdentifier: TermMap<BlankNode | NamedNode, OntologyT> =
+      new TermMap();
+    for (const ontologyResource of this.resourceSet.instancesOf(owl.Ontology, {
+      graph: this.node,
+    })) {
+      if (ontologiesByIdentifier.has(ontologyResource.identifier)) {
+        continue;
+      }
+      const ontology = factory.createOntology(ontologyResource, this);
+      ontologies.push(ontology);
+      ontologiesByIdentifier.set(ontologyResource.identifier, ontology);
+    }
+    return { ontologies, ontologiesByIdentifier };
+  }
+
   private readPropertyGroups(): {
     propertyGroups: PropertyGroup[];
-    propertyGroupsByNode: TermMap<BlankNode | NamedNode, PropertyGroup>;
+    propertyGroupsByIdentifier: TermMap<BlankNode | NamedNode, PropertyGroup>;
   } {
     const propertyGroups: PropertyGroup[] = [];
-    const propertyGroupsByNode: TermMap<BlankNode | NamedNode, PropertyGroup> =
-      new TermMap();
-    for (const quad of this.dataset.match(
-      null,
-      rdf.type,
+    const propertyGroupsByIdentifier: TermMap<
+      BlankNode | NamedNode,
+      PropertyGroup
+    > = new TermMap();
+    for (const propertyGroupResource of this.resourceSet.instancesOf(
       sh.PropertyGroup,
-      this.node,
+      { graph: this.node },
     )) {
-      const subject = quad.subject;
-      if (subject.termType !== "NamedNode") {
+      if (propertyGroupResource.identifier.termType !== "NamedNode") {
         continue;
       }
-      if (propertyGroupsByNode.has(subject)) {
+      if (propertyGroupsByIdentifier.has(propertyGroupResource.identifier)) {
         continue;
       }
-      const propertyGroup = new PropertyGroup(
-        new Resource({ dataset: this.dataset, identifier: subject }),
-      );
+      const propertyGroup = new PropertyGroup(propertyGroupResource);
       propertyGroups.push(propertyGroup);
-      propertyGroupsByNode.set(subject, propertyGroup);
+      propertyGroupsByIdentifier.set(
+        propertyGroupResource.identifier,
+        propertyGroup,
+      );
     }
-    return { propertyGroups, propertyGroupsByNode };
+    return { propertyGroups, propertyGroupsByIdentifier };
   }
 
   private readShapes(
     factory: RdfjsFactory<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>,
   ): {
     nodeShapes: readonly NodeShapeT[];
-    nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShapeT>;
+    nodeShapesByIdentifier: TermMap<BlankNode | NamedNode, NodeShapeT>;
     propertyShapes: readonly PropertyShapeT[];
-    propertyShapesByNode: TermMap<BlankNode | NamedNode, PropertyShapeT>;
+    propertyShapesByIdentifier: TermMap<BlankNode | NamedNode, PropertyShapeT>;
   } {
-    const resourceSet = new ResourceSet({ dataset: this.dataset });
-
     // Collect the shape identifiers in sets
     const shapeNodeSet = new TermSet<BlankNode | NamedNode>();
 
@@ -165,7 +207,7 @@ export class RdfjsShapesGraph<
 
     // Subject is a SHACL instance of sh:NodeShape or sh:PropertyShape
     for (const rdfType of [sh.NodeShape, sh.PropertyShape]) {
-      for (const resource of resourceSet.instancesOf(rdfType, {
+      for (const resource of this.resourceSet.instancesOf(rdfType, {
         graph: this.node,
       })) {
         addShapeNode(resource.identifier);
@@ -243,7 +285,7 @@ export class RdfjsShapesGraph<
             continue;
         }
 
-        for (const value of resourceSet
+        for (const value of this.resourceSet
           .resource(quad.object)
           .toList()
           .orDefault([])) {
@@ -254,37 +296,39 @@ export class RdfjsShapesGraph<
 
     // Separate shapes into node and property shapes.
     const nodeShapes: NodeShapeT[] = [];
-    const nodeShapesByNode: TermMap<BlankNode | NamedNode, NodeShapeT> =
+    const nodeShapesByIdentifier: TermMap<BlankNode | NamedNode, NodeShapeT> =
       new TermMap();
     const propertyShapes: PropertyShapeT[] = [];
-    const propertyShapesByNode: TermMap<BlankNode | NamedNode, PropertyShapeT> =
-      new TermMap();
+    const propertyShapesByIdentifier: TermMap<
+      BlankNode | NamedNode,
+      PropertyShapeT
+    > = new TermMap();
 
     for (const shapeNode of shapeNodeSet) {
       if (this.dataset.match(shapeNode, sh.path, null, this.node).size > 0) {
         // A property shape is a shape in the shapes graph that is the subject of a triple that has sh:path as its predicate. A shape has at most one value for sh:path. Each value of sh:path in a shape must be a well-formed SHACL property path. It is recommended, but not required, for a property shape to be declared as a SHACL instance of sh:PropertyShape. SHACL instances of sh:PropertyShape have one value for the property sh:path.
         const propertyShape = factory.createPropertyShape(
-          resourceSet.resource(shapeNode),
+          this.resourceSet.resource(shapeNode),
           this,
         );
         propertyShapes.push(propertyShape);
-        propertyShapesByNode.set(shapeNode, propertyShape);
+        propertyShapesByIdentifier.set(shapeNode, propertyShape);
       } else {
         // A node shape is a shape in the shapes graph that is not the subject of a triple with sh:path as its predicate. It is recommended, but not required, for a node shape to be declared as a SHACL instance of sh:NodeShape. SHACL instances of sh:NodeShape cannot have a value for the property sh:path.
         const nodeShape = factory.createNodeShape(
-          resourceSet.resource(shapeNode),
+          this.resourceSet.resource(shapeNode),
           this,
         );
         nodeShapes.push(nodeShape);
-        nodeShapesByNode.set(shapeNode, nodeShape);
+        nodeShapesByIdentifier.set(shapeNode, nodeShape);
       }
     }
 
     return {
       nodeShapes,
-      nodeShapesByNode,
+      nodeShapesByIdentifier,
       propertyShapes,
-      propertyShapesByNode,
+      propertyShapesByIdentifier,
     };
   }
 }
