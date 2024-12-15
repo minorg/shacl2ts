@@ -4,7 +4,11 @@ import type { PredicatePath } from "@shaclmate/shacl-ast";
 import type { Maybe } from "purify-ts";
 import { Resource } from "rdfjs-resource";
 import genericToposort from "toposort";
-import type { MintingStrategy, PropertyVisibility } from "../enums/index.js";
+import type {
+  MintingStrategy,
+  PropertyVisibility,
+  TsObjectDeclarationType,
+} from "../enums/index.js";
 import type { Name } from "./Name.js";
 import type { Type } from "./Type.js";
 
@@ -105,6 +109,11 @@ export interface ObjectType {
    * import { MyType } from "./MyType.js"
    */
   readonly tsImport: Maybe<string>;
+
+  /**
+   * Whether to generate a TypeScript class or interface for this type.
+   */
+  readonly tsObjectDeclarationType: TsObjectDeclarationType;
 }
 
 export namespace ObjectType {
