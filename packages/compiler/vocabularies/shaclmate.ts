@@ -7,6 +7,12 @@ export interface Shaclmate {
   // Resources
   _MintingStrategy_SHA256: NamedNode<"http://minorg.github.io/shaclmate/ns#_MintingStrategy_SHA256">;
   _MintingStrategy_UUIDv4: NamedNode<"http://minorg.github.io/shaclmate/ns#_MintingStrategy_UUIDv4">;
+  _TsFeature_Equals: NamedNode<"http://minorg.github.io/shaclmate/ns#_TsFeature_Equals">;
+  _TsFeature_FromRdf: NamedNode<"http://minorg.github.io/shaclmate/ns#_TsFeature_FromRdf">;
+  _TsFeature_SparqlGraphPatterns: NamedNode<"http://minorg.github.io/shaclmate/ns#_TsFeature_SparqlGraphPatterns">;
+  _TsFeature_ToRdf: NamedNode<"http://minorg.github.io/shaclmate/ns#_TsFeature_ToRdf">;
+  _TsObjectDeclarationType_Class: NamedNode<"http://minorg.github.io/shaclmate/ns#_TsObjectDeclarationType_Class">;
+  _TsObjectDeclarationType_Interface: NamedNode<"http://minorg.github.io/shaclmate/ns#_TsObjectDeclarationType_Interface">;
   _Visibility_Private: NamedNode<"http://minorg.github.io/shaclmate/ns#_Visibility_Private">;
   _Visibility_Protected: NamedNode<"http://minorg.github.io/shaclmate/ns#_Visibility_Protected">;
   _Visibility_Public: NamedNode<"http://minorg.github.io/shaclmate/ns#_Visibility_Public">;
@@ -17,8 +23,13 @@ export interface Shaclmate {
   extern: NamedNode<"http://minorg.github.io/shaclmate/ns#extern">;
   mintingStrategy: NamedNode<"http://minorg.github.io/shaclmate/ns#mintingStrategy">;
   name: NamedNode<"http://minorg.github.io/shaclmate/ns#name">;
-  tsFromRdfParameter: NamedNode<"http://minorg.github.io/shaclmate/ns#tsFromRdfParameter">;
+  tsDataFactoryImport: NamedNode<"http://minorg.github.io/shaclmate/ns#tsDataFactoryImport">;
+  tsDataFactoryVariable: NamedNode<"http://minorg.github.io/shaclmate/ns#tsDataFactoryVariable">;
+  tsFeature: NamedNode<"http://minorg.github.io/shaclmate/ns#tsFeature">;
   tsImport: NamedNode<"http://minorg.github.io/shaclmate/ns#tsImport">;
+  tsObjectDeclarationType: NamedNode<"http://minorg.github.io/shaclmate/ns#tsObjectDeclarationType">;
+  tsObjectIdentifierPropertyName: NamedNode<"http://minorg.github.io/shaclmate/ns#tsObjectIdentifierPropertyName">;
+  tsObjectTypeDiscriminatorPropertyName: NamedNode<"http://minorg.github.io/shaclmate/ns#tsObjectTypeDiscriminatorPropertyName">;
   visibility: NamedNode<"http://minorg.github.io/shaclmate/ns#visibility">;
 }
 
