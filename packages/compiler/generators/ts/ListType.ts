@@ -2,7 +2,7 @@ import type { NamedNode } from "@rdfjs/types";
 import { NodeKind } from "@shaclmate/shacl-ast";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
-import { MintingStrategy } from "../../MintingStrategy.js";
+import { MintingStrategy } from "../../enums/index.js";
 import { Type } from "./Type.js";
 
 export class ListType extends Type {

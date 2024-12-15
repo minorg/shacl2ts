@@ -4,8 +4,7 @@ import type { PredicatePath } from "@shaclmate/shacl-ast";
 import type { Maybe } from "purify-ts";
 import { Resource } from "rdfjs-resource";
 import genericToposort from "toposort";
-import type { MintingStrategy } from "../MintingStrategy.js";
-import type { PropertyVisibility } from "../PropertyVisibility.js";
+import type { MintingStrategy, PropertyVisibility } from "../enums/index.js";
 import type { Name } from "./Name.js";
 import type { Type } from "./Type.js";
 

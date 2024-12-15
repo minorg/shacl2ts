@@ -1,6 +1,6 @@
 import { RdfjsPropertyShape } from "@shaclmate/shacl-ast";
 import { Either, Left, type Maybe } from "purify-ts";
-import { PropertyVisibility } from "../PropertyVisibility.js";
+import { PropertyVisibility } from "../enums/index.js";
 import { shaclmate } from "../vocabularies/index.js";
 import type { NodeShape } from "./NodeShape.js";
 import type { Ontology } from "./Ontology.js";

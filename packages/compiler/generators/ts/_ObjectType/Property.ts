@@ -6,7 +6,7 @@ import {
   type PropertySignatureStructure,
   Scope,
 } from "ts-morph";
-import { PropertyVisibility } from "../../../PropertyVisibility.js";
+import { PropertyVisibility } from "../../../enums/index.js";
 import type { Configuration } from "../Configuration.js";
 import type { Type } from "../Type.js";
 

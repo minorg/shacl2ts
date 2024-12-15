@@ -6,7 +6,7 @@ import type {
   PropertyDeclarationStructure,
   PropertySignatureStructure,
 } from "ts-morph";
-import { PropertyVisibility } from "../../../PropertyVisibility.js";
+import { PropertyVisibility } from "../../../enums/index.js";
 import { Property } from "./Property.js";
 
 export class TypeDiscriminatorProperty extends Property<TypeDiscriminatorProperty.Type> {

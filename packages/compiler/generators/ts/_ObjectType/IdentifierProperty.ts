@@ -7,8 +7,7 @@ import type {
   PropertyDeclarationStructure,
   PropertySignatureStructure,
 } from "ts-morph";
-import { MintingStrategy } from "../../../MintingStrategy.js";
-import { PropertyVisibility } from "../../../PropertyVisibility.js";
+import { MintingStrategy, PropertyVisibility } from "../../../enums/index.js";
 import type { IdentifierType } from "../IdentifierType.js";
 import { Property } from "./Property.js";
 
