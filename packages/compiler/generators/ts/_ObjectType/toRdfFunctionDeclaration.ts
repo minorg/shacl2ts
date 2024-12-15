@@ -1,12 +1,13 @@
 import { Maybe } from "purify-ts";
 import { type FunctionDeclarationStructure, StructureKind } from "ts-morph";
+import { TsObjectDeclarationType } from "../../../enums/index.js";
 import type { ObjectType } from "../ObjectType.js";
 import { toRdfFunctionOrMethodDeclaration } from "./toRdfFunctionOrMethodDeclaration.js";
 
 export function toRdfFunctionDeclaration(
   this: ObjectType,
 ): Maybe<FunctionDeclarationStructure> {
-  if (this.configuration.objectTypeDeclarationType !== "interface") {
+  if (this.declarationType !== TsObjectDeclarationType.INTERFACE) {
     return Maybe.empty();
   }
 

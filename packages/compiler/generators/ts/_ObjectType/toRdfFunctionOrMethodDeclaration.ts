@@ -2,6 +2,7 @@ import { rdf } from "@tpluscode/rdf-ns-builders";
 import { camelCase } from "change-case";
 import { Maybe } from "purify-ts";
 import type { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
+import { TsObjectDeclarationType } from "../../../enums/index.js";
 import type { ObjectType } from "../ObjectType.js";
 
 const variables = {
@@ -24,11 +25,11 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   this.ensureAtMostOneSuperObjectType();
 
   let thisVariable: string;
-  switch (this.configuration.objectTypeDeclarationType) {
-    case "class":
+  switch (this.declarationType) {
+    case TsObjectDeclarationType.CLASS:
       thisVariable = "this";
       break;
-    case "interface":
+    case TsObjectDeclarationType.INTERFACE:
       thisVariable = camelCase(this.name);
       break;
   }
@@ -39,11 +40,11 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   if (this.parentObjectTypes.length > 0) {
     const superToRdfOptions = `{ ${variables.mutateGraph}, ${this.parentObjectTypes[0].abstract ? "" : `${variables.ignoreRdfType}: true, `}${variables.resourceSet} }`;
     let superToRdfCall: string;
-    switch (this.configuration.objectTypeDeclarationType) {
-      case "class":
+    switch (this.declarationType) {
+      case TsObjectDeclarationType.CLASS:
         superToRdfCall = `super.toRdf(${superToRdfOptions})`;
         break;
-      case "interface":
+      case TsObjectDeclarationType.INTERFACE:
         superToRdfCall = `${this.parentObjectTypes[0].name}.toRdf(${thisVariable}, ${superToRdfOptions})`;
         break;
     }
@@ -79,7 +80,7 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   statements.push(`return ${variables.resource};`);
 
   const parameters: OptionalKind<ParameterDeclarationStructure>[] = [];
-  if (this.configuration.objectTypeDeclarationType === "interface") {
+  if (this.declarationType === TsObjectDeclarationType.INTERFACE) {
     parameters.push({
       name: thisVariable,
       type: this.name,

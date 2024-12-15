@@ -172,13 +172,6 @@ run(
           }),
           inputFilePaths,
           outputFilePath,
-          objectTypeDeclarationType: option({
-            defaultValue: () =>
-              generators.ts.TsGenerator.Configuration.Defaults
-                .objectTypeDeclarationType,
-            long: "object-type-declaration-type",
-            type: oneOf(["class", "interface"]),
-          }),
           objectTypeDiscriminatorPropertyName: option({
             defaultValue: () =>
               generators.ts.TsGenerator.Configuration.Defaults
@@ -203,7 +196,6 @@ run(
           dataFactoryVariable,
           features,
           inputFilePaths,
-          objectTypeDeclarationType,
           objectTypeDiscriminatorPropertyName,
           objectTypeIdentifierPropertyName,
           outputFilePath,
@@ -216,8 +208,6 @@ run(
                 features: new Set(
                   features,
                 ) as generators.ts.TsGenerator.Configuration["features"],
-                objectTypeDeclarationType:
-                  objectTypeDeclarationType as generators.ts.TsGenerator.Configuration["objectTypeDeclarationType"],
                 objectTypeDiscriminatorPropertyName,
                 objectTypeIdentifierPropertyName,
               }),
