@@ -13,6 +13,7 @@ import type {
   TsObjectDeclarationType,
 } from "../../../enums/index.js";
 import type { IdentifierType } from "../IdentifierType.js";
+import { Import } from "../Import.js";
 import { Property } from "./Property.js";
 
 export class IdentifierProperty extends Property<IdentifierType> {
@@ -129,7 +130,7 @@ export class IdentifierProperty extends Property<IdentifierType> {
     return Maybe.empty();
   }
 
-  override get importStatements(): readonly string[] {
+  override get declarationImports(): readonly Import[] {
     if (this.objectTypeDeclarationType !== "class") {
       return [];
     }
@@ -139,9 +140,9 @@ export class IdentifierProperty extends Property<IdentifierType> {
 
     switch (this.mintingStrategy.orDefault("sha256")) {
       case "sha256":
-        return ['import { sha256 } from "js-sha256";'];
+        return [Import.SHA256];
       case "uuidv4":
-        return ['import * as uuid from "uuid";'];
+        return [Import.UUID];
       default:
         throw new Error("not implemented");
     }

@@ -7,6 +7,7 @@ import {
   Scope,
 } from "ts-morph";
 import type { PropertyVisibility } from "../../../enums/index.js";
+import type { Import } from "../Import.js";
 import type { Type } from "../Type.js";
 
 export abstract class Property<TypeT extends { readonly name: string }> {
@@ -43,7 +44,7 @@ export abstract class Property<TypeT extends { readonly name: string }> {
     this.visibility = visibility;
   }
 
-  get importStatements(): readonly string[] {
+  get declarationImports(): readonly Import[] {
     return [];
   }
 

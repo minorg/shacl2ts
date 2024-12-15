@@ -1,6 +1,7 @@
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
+import type { Import } from "./Import.js";
 import { Type } from "./Type.js";
 
 interface MemberTypeTraits {
@@ -118,10 +119,8 @@ export class UnionType extends Type {
     return Maybe.of(this._discriminatorProperty);
   }
 
-  override get importStatements(): readonly string[] {
-    return this.memberTypes.flatMap(
-      (memberType) => memberType.importStatements,
-    );
+  override get useImports(): readonly Import[] {
+    return this.memberTypes.flatMap((memberType) => memberType.useImports);
   }
 
   override propertyEqualsFunction(): string {

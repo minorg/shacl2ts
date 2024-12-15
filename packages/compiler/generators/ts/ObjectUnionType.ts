@@ -8,7 +8,8 @@ import {
   StructureKind,
   type TypeAliasDeclarationStructure,
 } from "ts-morph";
-import type { TsFeature } from "../../enums/index.js";
+import { DeclaredType } from "./DeclaredType.js";
+import type { Import } from "./Import.js";
 import type { ObjectType } from "./ObjectType.js";
 import { Type } from "./Type.js";
 import { hasherTypeConstraint } from "./_ObjectType/hashFunctionOrMethodDeclaration.js";
@@ -23,30 +24,21 @@ import { hasherTypeConstraint } from "./_ObjectType/hashFunctionOrMethodDeclarat
  *
  * It also generates SPARQL graph patterns that UNION the member object types.
  */
-export class ObjectUnionType extends Type {
-  readonly export: boolean;
-  readonly features: Set<TsFeature>;
+export class ObjectUnionType extends DeclaredType {
   readonly fromRdfFunctionName = "fromRdf";
   readonly kind = "ObjectUnionType";
   readonly memberTypes: readonly ObjectType[];
-  readonly name: string;
   private readonly _discriminatorProperty: Type.DiscriminatorProperty;
 
   constructor({
-    export_,
-    features,
     memberTypes,
-    name,
     ...superParameters
-  }: ConstructorParameters<typeof Type>[0] & {
+  }: ConstructorParameters<typeof DeclaredType>[0] & {
     export_: boolean;
-    features: Set<TsFeature>;
     memberTypes: readonly ObjectType[];
     name: string;
   }) {
     super(superParameters);
-    this.export = export_;
-    this.features = features;
     invariant(memberTypes.length >= 2);
     this.memberTypes = memberTypes;
     const discriminatorPropertyName =
@@ -65,7 +57,6 @@ export class ObjectUnionType extends Type {
       name: discriminatorPropertyName,
       values: discriminatorPropertyValues,
     };
-    this.name = name;
   }
 
   override get conversions(): readonly Type.Conversion[] {
@@ -76,6 +67,10 @@ export class ObjectUnionType extends Type {
         sourceTypeName: this.name,
       },
     ];
+  }
+
+  get declarationImports(): readonly Import[] {
+    return this.memberTypes.flatMap((memberType) => memberType.useImports);
   }
 
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
@@ -273,6 +268,10 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
       name: this.name,
       type: this.memberTypes.map((memberType) => memberType.name).join(" | "),
     };
+  }
+
+  get useImports(): readonly Import[] {
+    return [];
   }
 
   override propertyChainSparqlGraphPatternExpression({

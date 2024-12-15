@@ -1,4 +1,5 @@
 import {
+  type ImportDeclarationStructure,
   Project,
   type SourceFile,
   type StatementStructures,
@@ -6,6 +7,7 @@ import {
 } from "ts-morph";
 import * as ast from "../../ast/index.js";
 import type { Generator } from "../Generator.js";
+import type { Import } from "./Import.js";
 import { ObjectType } from "./ObjectType.js";
 import { ObjectUnionType } from "./ObjectUnionType.js";
 import { TypeFactory } from "./TypeFactory.js";
@@ -49,69 +51,44 @@ export class TsGenerator implements Generator {
     objectUnionTypes: readonly ObjectUnionType[];
     sourceFile: SourceFile;
   }): void {
-    this.addImportDeclarations({ objectTypes, sourceFile });
-
-    for (const objectType of objectTypes) {
-      this.addObjectTypeDeclarations({ objectType, sourceFile });
-    }
-
-    for (const objectUnionType of objectUnionTypes) {
-      this.addObjectUnionTypeDeclarations({ objectUnionType, sourceFile });
-    }
-  }
-
-  private addImportDeclarations({
-    objectTypes,
-    sourceFile,
-  }: {
-    objectTypes: readonly ObjectType[];
-    sourceFile: SourceFile;
-  }) {
-    sourceFile.addImportDeclaration({
-      moduleSpecifier: "purify-ts",
-      namespaceImport: "purify",
-    });
-
-    sourceFile.addImportDeclaration({
-      isTypeOnly: true,
-      moduleSpecifier: "@rdfjs/types",
-      namespaceImport: "rdfjs",
-    });
-
     // sourceFile.addStatements(this.configuration.dataFactoryImport);
     sourceFile.addStatements('import { DataFactory as dataFactory } from "n3"');
 
-    // if (this.configuration.features.has("equals")) {
-    sourceFile.addImportDeclaration({
-      moduleSpecifier: "purify-ts-helpers",
-      namespaceImport: "purifyHelpers",
-    });
-    // }
+    // Gather imports
+    const imports: Import[] = [];
+    for (const declaredType of [...objectTypes, ...objectUnionTypes]) {
+      imports.push(...declaredType.declarationImports);
+    }
+    // Deduplicate and add imports
+    const addedStringImports = new Set<string>();
+    const addedStructureImports: ImportDeclarationStructure[] = [];
+    for (const import_ of imports) {
+      if (typeof import_ === "string") {
+        if (!addedStringImports.has(import_)) {
+          sourceFile.addStatements([import_]);
+        }
+        addedStringImports.add(import_);
+        continue;
+      }
 
-    // if (
-    //   this.configuration.features.has("fromRdf") ||
-    //   this.configuration.features.has("toRdf")
-    // ) {
-    sourceFile.addImportDeclaration({
-      moduleSpecifier: "rdfjs-resource",
-      namespaceImport: "rdfjsResource",
-    });
-    // }
-
-    // if (this.configuration.features.has("sparql-graph-patterns")) {
-    sourceFile.addImportDeclaration({
-      moduleSpecifier: "@kos-kit/sparql-builder",
-      namespaceImport: "sparqlBuilder",
-    });
-    // }
-
-    const typeImportStatements = new Set<string>();
-    for (const objectType of objectTypes) {
-      for (const importStatement of objectType.importStatements) {
-        typeImportStatements.add(importStatement);
+      if (
+        !addedStructureImports.find(
+          (addedStructureImport) =>
+            addedStructureImport.moduleSpecifier === import_.moduleSpecifier,
+        )
+      ) {
+        sourceFile.addStatements([import_]);
+        addedStructureImports.push(import_);
       }
     }
-    sourceFile.addStatements([...typeImportStatements]);
+
+    // Add type declarations
+    for (const objectType of objectTypes) {
+      this.addObjectTypeDeclarations({ objectType, sourceFile });
+    }
+    for (const objectUnionType of objectUnionTypes) {
+      this.addObjectUnionTypeDeclarations({ objectUnionType, sourceFile });
+    }
   }
 
   private addObjectTypeDeclarations({
@@ -133,7 +110,7 @@ export class TsGenerator implements Generator {
 
     if (moduleStatements.length > 0) {
       sourceFile.addModule({
-        isExported: objectType.export_,
+        isExported: objectType.export,
         kind: StructureKind.Module,
         name: objectType.name,
         statements: moduleStatements,

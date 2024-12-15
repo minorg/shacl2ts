@@ -116,7 +116,7 @@ export function classDeclaration(
     getAccessors,
     isAbstract: this.abstract,
     kind: StructureKind.Class,
-    isExported: this.export_,
+    isExported: this.export,
     methods: [
       ...equalsMethodDeclaration.bind(this)().toList(),
       ...hashMethodDeclaration.bind(this)().toList(),

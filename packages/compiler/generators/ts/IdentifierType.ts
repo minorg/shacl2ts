@@ -3,6 +3,7 @@ import { NodeKind } from "@shaclmate/shacl-ast";
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
+import { Import } from "./Import.js";
 import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type.js";
 
@@ -84,6 +85,10 @@ export class IdentifierType extends RdfjsTermType<
       names.push("rdfjs.NamedNode");
     }
     return names.join(" | ");
+  }
+
+  get useImports(): readonly Import[] {
+    return [Import.RDFJS_TYPES];
   }
 
   override propertyHashStatements({

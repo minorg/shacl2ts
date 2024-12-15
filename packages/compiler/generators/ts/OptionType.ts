@@ -1,4 +1,5 @@
 import { Memoize } from "typescript-memoize";
+import { Import } from "./Import.js";
 import { Type } from "./Type.js";
 
 export class OptionType extends Type {
@@ -41,13 +42,13 @@ export class OptionType extends Type {
     return conversions;
   }
 
-  override get importStatements(): readonly string[] {
-    return this.itemType.importStatements;
-  }
-
   @Memoize()
   get name(): string {
     return `purify.Maybe<${this.itemType.name}>`;
+  }
+
+  override get useImports(): readonly Import[] {
+    return [...this.itemType.useImports, Import.PURIFY];
   }
 
   override propertyChainSparqlGraphPatternExpression(

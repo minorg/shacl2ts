@@ -3,6 +3,7 @@ import { NodeKind } from "@shaclmate/shacl-ast";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import type { MintingStrategy } from "../../enums/index.js";
+import { Import } from "./Import.js";
 import { Type } from "./Type.js";
 
 export class ListType extends Type {
@@ -45,15 +46,16 @@ export class ListType extends Type {
     return Maybe.empty();
   }
 
-  override get importStatements(): readonly string[] {
-    if (this.identifierNodeKind === NodeKind.IRI) {
-      return ['import { sha256 } from "js-sha256";'];
-    }
-    return [];
-  }
-
   override get name(): string {
     return `readonly ${this.itemType.name}[]`;
+  }
+
+  override get useImports(): readonly Import[] {
+    const imports: Import[] = this.itemType.useImports.concat();
+    if (this.identifierNodeKind === NodeKind.IRI) {
+      imports.push(Import.SHA256);
+    }
+    return imports;
   }
 
   override propertyChainSparqlGraphPatternExpression({

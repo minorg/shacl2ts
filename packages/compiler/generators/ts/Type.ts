@@ -2,6 +2,7 @@ import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import type * as ast from "../../ast/index.js";
+import type { Import } from "./Import.js";
 
 /**
  * Abstract base class for generating TypeScript expressions and statemenst in the TypeScript generator.
@@ -22,7 +23,15 @@ export abstract class Type {
     | "NumberType"
     | "StringType";
 
+  /**
+   * Name of the type.
+   */
   abstract readonly name: string;
+
+  /**
+   * Imports necessary to use this type.
+   */
+  abstract readonly useImports: readonly Import[];
 
   protected readonly dataFactoryVariable: string;
 
@@ -39,13 +48,6 @@ export abstract class Type {
    */
   get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
     return Maybe.empty();
-  }
-
-  /**
-   * Imports used by other methods on this type.
-   */
-  get importStatements(): readonly string[] {
-    return [];
   }
 
   /**
