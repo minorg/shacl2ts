@@ -4,7 +4,7 @@ import type * as purify from "purify-ts";
 import { Either } from "purify-ts";
 import { Equatable } from "purify-ts-helpers";
 import type * as rdfjsResource from "rdfjs-resource";
-import { AbstractBaseClassForExternObjectType } from "./generated/classes.js";
+import { AbstractBaseClassForExternObjectType } from "./generated.js";
 
 /**
  * Example of an imported object type that fulfills the same contract as a generated object type.
@@ -95,6 +95,6 @@ export class ExternObjectType extends AbstractBaseClassForExternObjectType {
   }
 }
 
-export namespace ImportedType {
+export namespace ExternObjectType {
   export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {}
 }

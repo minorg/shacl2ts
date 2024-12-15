@@ -17,14 +17,14 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   returnType: string;
   statements: string[];
 }> {
-  if (!this.configuration.features.has("toRdf")) {
+  if (!this.features.has("toRdf")) {
     return Maybe.empty();
   }
 
   this.ensureAtMostOneSuperObjectType();
 
   let thisVariable: string;
-  switch (this.configuration.objectTypeDeclarationType) {
+  switch (this.declarationType) {
     case "class":
       thisVariable = "this";
       break;
@@ -39,7 +39,7 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   if (this.parentObjectTypes.length > 0) {
     const superToRdfOptions = `{ ${variables.mutateGraph}, ${this.parentObjectTypes[0].abstract ? "" : `${variables.ignoreRdfType}: true, `}${variables.resourceSet} }`;
     let superToRdfCall: string;
-    switch (this.configuration.objectTypeDeclarationType) {
+    switch (this.declarationType) {
       case "class":
         superToRdfCall = `super.toRdf(${superToRdfOptions})`;
         break;
@@ -51,11 +51,11 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     usedIgnoreRdfTypeVariable = !this.parentObjectTypes[0].abstract;
   } else if (this.identifierType.isNamedNodeKind) {
     statements.push(
-      `const ${variables.resource} = ${variables.resourceSet}.mutableNamedResource({ identifier: ${thisVariable}.${this.configuration.objectTypeIdentifierPropertyName}, ${variables.mutateGraph} });`,
+      `const ${variables.resource} = ${variables.resourceSet}.mutableNamedResource({ identifier: ${thisVariable}.${this.identifierProperty.name}, ${variables.mutateGraph} });`,
     );
   } else {
     statements.push(
-      `const ${variables.resource} = ${variables.resourceSet}.mutableResource({ identifier: ${thisVariable}.${this.configuration.objectTypeIdentifierPropertyName}, ${variables.mutateGraph} });`,
+      `const ${variables.resource} = ${variables.resourceSet}.mutableResource({ identifier: ${thisVariable}.${this.identifierProperty.name}, ${variables.mutateGraph} });`,
     );
   }
 
@@ -79,7 +79,7 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   statements.push(`return ${variables.resource};`);
 
   const parameters: OptionalKind<ParameterDeclarationStructure>[] = [];
-  if (this.configuration.objectTypeDeclarationType === "interface") {
+  if (this.declarationType === "interface") {
     parameters.push({
       name: thisVariable,
       type: this.name,

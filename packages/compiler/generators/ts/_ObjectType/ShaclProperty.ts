@@ -81,7 +81,7 @@ export class ShaclProperty extends Property<Type> {
 
   @Memoize()
   private get pathExpression(): string {
-    return `${this.configuration.dataFactoryVariable}.namedNode("${this.path.value}")`;
+    return `${this.dataFactoryVariable}.namedNode("${this.path.value}")`;
   }
 
   override classConstructorStatements({

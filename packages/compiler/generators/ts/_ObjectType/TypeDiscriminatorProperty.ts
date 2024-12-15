@@ -6,28 +6,32 @@ import type {
   PropertyDeclarationStructure,
   PropertySignatureStructure,
 } from "ts-morph";
-import { PropertyVisibility } from "../../../PropertyVisibility.js";
+import type { TsObjectDeclarationType } from "../../../enums/index.js";
 import { Property } from "./Property.js";
 
 export class TypeDiscriminatorProperty extends Property<TypeDiscriminatorProperty.Type> {
   readonly equalsFunction = "purifyHelpers.Equatable.strictEquals";
   readonly value: string;
   private readonly abstract: boolean;
+  private readonly objectTypeDeclarationType: TsObjectDeclarationType;
   private readonly override: boolean;
 
   constructor({
     abstract,
+    objectTypeDeclarationType,
     override,
     value,
     ...superParameters
   }: {
     abstract: boolean;
+    objectTypeDeclarationType: TsObjectDeclarationType;
     override: boolean;
     value: string;
   } & ConstructorParameters<typeof Property>[0]) {
     super(superParameters);
-    invariant(this.visibility === PropertyVisibility.PUBLIC);
+    invariant(this.visibility === "public");
     this.abstract = abstract;
+    this.objectTypeDeclarationType = objectTypeDeclarationType;
     this.override = override;
     this.value = value;
   }
@@ -77,8 +81,7 @@ export class TypeDiscriminatorProperty extends Property<TypeDiscriminatorPropert
   }
 
   override fromRdfStatements(): readonly string[] {
-    return !this.abstract &&
-      this.configuration.objectTypeDeclarationType === "interface"
+    return !this.abstract && this.objectTypeDeclarationType === "interface"
       ? [`const ${this.name} = "${this.value}" as const`]
       : [];
   }

@@ -5,7 +5,6 @@ import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
 import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type.js";
-import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
 export class IdentifierType extends RdfjsTermType<
   BlankNode | NamedNode,
@@ -38,8 +37,7 @@ export class IdentifierType extends RdfjsTermType<
 
     this.defaultValue.ifJust((defaultValue) =>
       conversions.push({
-        conversionExpression: () =>
-          rdfjsTermExpression(defaultValue, this.configuration),
+        conversionExpression: () => this.rdfjsTermExpression(defaultValue),
         sourceTypeCheckExpression: (value) => `typeof ${value} === "undefined"`,
         sourceTypeName: "undefined",
       }),

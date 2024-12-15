@@ -84,7 +84,7 @@ function constructorDeclaration(
 export function classDeclaration(
   this: ObjectType,
 ): Maybe<ClassDeclarationStructure> {
-  if (this.configuration.objectTypeDeclarationType !== "class") {
+  if (this.declarationType !== "class") {
     return Maybe.empty();
   }
 

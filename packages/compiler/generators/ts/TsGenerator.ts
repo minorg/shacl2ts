@@ -6,18 +6,11 @@ import {
 } from "ts-morph";
 import * as ast from "../../ast/index.js";
 import type { Generator } from "../Generator.js";
-import { Configuration as GlobalConfiguration } from "./Configuration.js";
 import { ObjectType } from "./ObjectType.js";
 import { ObjectUnionType } from "./ObjectUnionType.js";
 import { TypeFactory } from "./TypeFactory.js";
 
 export class TsGenerator implements Generator {
-  protected readonly configuration: TsGenerator.Configuration;
-
-  constructor(configuration?: TsGenerator.Configuration) {
-    this.configuration = configuration ?? new TsGenerator.Configuration();
-  }
-
   generate(ast_: ast.Ast): string {
     const sortedAstObjectTypes = ast.ObjectType.toposort(ast_.objectTypes);
 
@@ -26,7 +19,9 @@ export class TsGenerator implements Generator {
     });
     const sourceFile = project.createSourceFile("generated.ts");
 
-    const typeFactory = new TypeFactory({ configuration: this.configuration });
+    const typeFactory = new TypeFactory({
+      dataFactoryVariable: ast_.tsDataFactoryVariable,
+    });
 
     this.addDeclarations({
       objectTypes: sortedAstObjectTypes.flatMap((astObjectType) => {
@@ -83,31 +78,32 @@ export class TsGenerator implements Generator {
       namespaceImport: "rdfjs",
     });
 
-    sourceFile.addStatements(this.configuration.dataFactoryImport);
+    // sourceFile.addStatements(this.configuration.dataFactoryImport);
+    sourceFile.addStatements('import { DataFactory as dataFactory } from "n3"');
 
-    if (this.configuration.features.has("equals")) {
-      sourceFile.addImportDeclaration({
-        moduleSpecifier: "purify-ts-helpers",
-        namespaceImport: "purifyHelpers",
-      });
-    }
+    // if (this.configuration.features.has("equals")) {
+    sourceFile.addImportDeclaration({
+      moduleSpecifier: "purify-ts-helpers",
+      namespaceImport: "purifyHelpers",
+    });
+    // }
 
-    if (
-      this.configuration.features.has("fromRdf") ||
-      this.configuration.features.has("toRdf")
-    ) {
-      sourceFile.addImportDeclaration({
-        moduleSpecifier: "rdfjs-resource",
-        namespaceImport: "rdfjsResource",
-      });
-    }
+    // if (
+    //   this.configuration.features.has("fromRdf") ||
+    //   this.configuration.features.has("toRdf")
+    // ) {
+    sourceFile.addImportDeclaration({
+      moduleSpecifier: "rdfjs-resource",
+      namespaceImport: "rdfjsResource",
+    });
+    // }
 
-    if (this.configuration.features.has("sparql-graph-patterns")) {
-      sourceFile.addImportDeclaration({
-        moduleSpecifier: "@kos-kit/sparql-builder",
-        namespaceImport: "sparqlBuilder",
-      });
-    }
+    // if (this.configuration.features.has("sparql-graph-patterns")) {
+    sourceFile.addImportDeclaration({
+      moduleSpecifier: "@kos-kit/sparql-builder",
+      namespaceImport: "sparqlBuilder",
+    });
+    // }
 
     const typeImportStatements = new Set<string>();
     for (const objectType of objectTypes) {
@@ -151,40 +147,21 @@ export class TsGenerator implements Generator {
   }: { objectUnionType: ObjectUnionType; sourceFile: SourceFile }): void {
     sourceFile.addTypeAlias(objectUnionType.typeAliasDeclaration);
 
-    const moduleStatements: StatementStructures[] = [];
+    const moduleStatements: StatementStructures[] = [
+      ...objectUnionType.equalsFunctionDeclaration.toList(),
+      ...objectUnionType.fromRdfFunctionDeclaration.toList(),
+      ...objectUnionType.hashFunctionDeclaration.toList(),
+      ...objectUnionType.sparqlGraphPatternsClassDeclaration.toList(),
+      ...objectUnionType.toRdfFunctionDeclaration.toList(),
+    ];
 
-    if (this.configuration.features.has("equals")) {
-      moduleStatements.push(objectUnionType.equalsFunctionDeclaration);
+    if (moduleStatements.length > 0) {
+      sourceFile.addModule({
+        isExported: objectUnionType.export,
+        kind: StructureKind.Module,
+        name: objectUnionType.name,
+        statements: moduleStatements,
+      });
     }
-
-    if (this.configuration.features.has("fromRdf")) {
-      moduleStatements.push(objectUnionType.fromRdfFunctionDeclaration);
-    }
-
-    if (this.configuration.features.has("hash")) {
-      moduleStatements.push(objectUnionType.hashFunctionDeclaration);
-    }
-
-    if (this.configuration.features.has("sparql-graph-patterns")) {
-      moduleStatements.push(
-        objectUnionType.sparqlGraphPatternsClassDeclaration,
-      );
-    }
-
-    if (this.configuration.features.has("toRdf")) {
-      moduleStatements.push(objectUnionType.toRdfFunctionDeclaration);
-    }
-
-    sourceFile.addModule({
-      isExported: objectUnionType.export,
-      kind: StructureKind.Module,
-      name: objectUnionType.name,
-      statements: moduleStatements,
-    });
   }
-}
-
-export namespace TsGenerator {
-  export const Configuration = GlobalConfiguration;
-  export type Configuration = GlobalConfiguration;
 }

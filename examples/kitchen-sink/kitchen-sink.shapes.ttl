@@ -7,6 +7,11 @@
 @prefix shaclmate: <http://minorg.github.io/shaclmate/ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
+:
+  a owl:Ontology ;
+  shaclmate:tsObjectDeclarationType shaclmate:_TsObjectDeclarationType_Class ;
+.
+
 # Node shape that serves as an abstract base class for child node shapes
 # It's marked abstract in TypeScript and not exported from the module.
 :AbstractBaseClassWithPropertiesNodeShape
@@ -64,7 +69,15 @@
   sh:name "ExternObjectType" ;
   rdfs:subClassOf :AbstractBaseClassForExternObjectType ;
   shaclmate:extern true ;
-  shaclmate:tsImport "import { ExternObjectType } from \"../ExternObjectType.js\";"
+  shaclmate:tsImport "import { ExternObjectType } from \"./ExternObjectType.js\";"
+.
+
+# A node shape that's generated as a TypeScript interface instead of a class.
+:InterfaceNodeShape
+  a sh:NodeShape ;
+  shaclmate:tsObjectDeclarationType shaclmate:_TsObjectDeclarationType_Interface ;
+  sh:name "InterfaceNodeShape" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
 .
 
 # A node shape that only allows IRI identifiers.

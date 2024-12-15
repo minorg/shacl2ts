@@ -8,6 +8,7 @@ import {
   StructureKind,
   type TypeAliasDeclarationStructure,
 } from "ts-morph";
+import type { TsFeature } from "../../enums/index.js";
 import type { ObjectType } from "./ObjectType.js";
 import { Type } from "./Type.js";
 import { hasherTypeConstraint } from "./_ObjectType/hashFunctionOrMethodDeclaration.js";
@@ -24,25 +25,46 @@ import { hasherTypeConstraint } from "./_ObjectType/hashFunctionOrMethodDeclarat
  */
 export class ObjectUnionType extends Type {
   readonly export: boolean;
+  readonly features: Set<TsFeature>;
   readonly fromRdfFunctionName = "fromRdf";
   readonly kind = "ObjectUnionType";
   readonly memberTypes: readonly ObjectType[];
   readonly name: string;
+  private readonly _discriminatorProperty: Type.DiscriminatorProperty;
 
   constructor({
     export_,
+    features,
     memberTypes,
     name,
     ...superParameters
   }: ConstructorParameters<typeof Type>[0] & {
     export_: boolean;
+    features: Set<TsFeature>;
     memberTypes: readonly ObjectType[];
     name: string;
   }) {
     super(superParameters);
     this.export = export_;
+    this.features = features;
     invariant(memberTypes.length >= 2);
     this.memberTypes = memberTypes;
+    const discriminatorPropertyName =
+      memberTypes[0].discriminatorProperty.unsafeCoerce().name;
+    const discriminatorPropertyValues: string[] = [];
+    for (const memberType of this.memberTypes) {
+      invariant(memberType.declarationType === memberTypes[0].declarationType);
+      invariant(
+        memberType._discriminatorProperty.name === discriminatorPropertyName,
+      );
+      discriminatorPropertyValues.push(
+        ...memberType._discriminatorProperty.values,
+      );
+    }
+    this._discriminatorProperty = {
+      name: discriminatorPropertyName,
+      values: discriminatorPropertyValues,
+    };
     this.name = name;
   }
 
@@ -56,10 +78,18 @@ export class ObjectUnionType extends Type {
     ];
   }
 
-  get equalsFunctionDeclaration(): FunctionDeclarationStructure {
+  override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
+    return Maybe.of(this._discriminatorProperty);
+  }
+
+  get equalsFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
+    if (!this.features.has("equals")) {
+      return Maybe.empty();
+    }
+
     const caseBlocks = this.memberTypes.map((memberType) => {
       let returnExpression: string;
-      switch (this.configuration.objectTypeDeclarationType) {
+      switch (memberType.declarationType) {
         case "class":
           returnExpression = `left.equals(right as unknown as ${memberType.name})`;
           break;
@@ -70,7 +100,7 @@ export class ObjectUnionType extends Type {
       return `case "${memberType.name}": return ${returnExpression};`;
     });
 
-    return {
+    return Maybe.of({
       isExported: true,
       kind: StructureKind.Function,
       name: "equals",
@@ -87,14 +117,18 @@ export class ObjectUnionType extends Type {
       returnType: "purifyHelpers.Equatable.EqualsResult",
       statements: `\
 return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
-  switch (left.${this.configuration.objectTypeDiscriminatorPropertyName}) {
+  switch (left.${this._discriminatorProperty.name}) {
    ${caseBlocks.join(" ")}
   }
 })`,
-    };
+    });
   }
 
-  get fromRdfFunctionDeclaration(): FunctionDeclarationStructure {
+  get fromRdfFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
+    if (!this.features.has("fromRdf")) {
+      return Maybe.empty();
+    }
+
     const parameters = this.memberTypes[0]
       .fromRdfFunctionDeclaration()
       .unsafeCoerce().parameters!;
@@ -108,23 +142,27 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
           : typeExpression;
     }
 
-    return {
+    return Maybe.of({
       isExported: true,
       kind: StructureKind.Function,
       name: this.fromRdfFunctionName,
       parameters,
       returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>`,
       statements: [`return ${expression};`],
-    };
+    });
   }
 
-  get hashFunctionDeclaration(): FunctionDeclarationStructure {
+  get hashFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
+    if (!this.features.has("hash")) {
+      return Maybe.empty();
+    }
+
     const hasherVariable = "_hasher";
     const thisVariable = camelCase(this.name);
 
     const caseBlocks = this.memberTypes.map((memberType) => {
       let returnExpression: string;
-      switch (this.configuration.objectTypeDeclarationType) {
+      switch (memberType.declarationType) {
         case "class":
           returnExpression = `${thisVariable}.hash(${hasherVariable})`;
           break;
@@ -135,7 +173,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
       return `case "${memberType.name}": return ${returnExpression};`;
     });
 
-    return {
+    return Maybe.of({
       isExported: true,
       kind: StructureKind.Function,
       name: "hash",
@@ -150,20 +188,24 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
         },
       ],
       returnType: "HasherT",
-      statements: `switch (${thisVariable}.${this.configuration.objectTypeDiscriminatorPropertyName}) { ${caseBlocks.join(" ")} }`,
+      statements: `switch (${thisVariable}.${this._discriminatorProperty.name}) { ${caseBlocks.join(" ")} }`,
       typeParameters: [
         {
           name: "HasherT",
           constraint: hasherTypeConstraint,
         },
       ],
-    };
+    });
   }
 
-  get sparqlGraphPatternsClassDeclaration(): ClassDeclarationStructure {
+  get sparqlGraphPatternsClassDeclaration(): Maybe<ClassDeclarationStructure> {
+    if (!this.features.has("sparql-graph-patterns")) {
+      return Maybe.empty();
+    }
+
     const subjectVariable = "subject";
 
-    return {
+    return Maybe.of({
       ctors: [
         {
           parameters: [
@@ -182,16 +224,20 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
       isExported: true,
       kind: StructureKind.Class,
       name: "SparqlGraphPatterns",
-    };
+    });
   }
 
-  get toRdfFunctionDeclaration(): FunctionDeclarationStructure {
+  get toRdfFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
+    if (!this.features.has("toRdf")) {
+      return Maybe.empty();
+    }
+
     const parametersVariable = "_parameters";
     const thisVariable = camelCase(this.name);
 
     const caseBlocks = this.memberTypes.map((memberType) => {
       let returnExpression: string;
-      switch (this.configuration.objectTypeDeclarationType) {
+      switch (memberType.declarationType) {
         case "class":
           returnExpression = `${thisVariable}.toRdf(${parametersVariable})`;
           break;
@@ -202,7 +248,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
       return `case "${memberType.name}": return ${returnExpression};`;
     });
 
-    return {
+    return Maybe.of({
       isExported: true,
       kind: StructureKind.Function,
       name: "toRdf",
@@ -217,8 +263,8 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
         },
       ],
       returnType: this.rdfjsResourceType({ mutable: true }).name,
-      statements: `switch (${thisVariable}.${this.configuration.objectTypeDiscriminatorPropertyName}) { ${caseBlocks.join(" ")} }`,
-    };
+      statements: `switch (${thisVariable}.${this._discriminatorProperty.name}) { ${caseBlocks.join(" ")} }`,
+    });
   }
 
   get typeAliasDeclaration(): OptionalKind<TypeAliasDeclarationStructure> {
@@ -254,7 +300,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
   override propertyHashStatements({
     variables,
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
-    switch (this.configuration.objectTypeDeclarationType) {
+    switch (this.memberTypes[0].declarationType) {
       case "class":
         return [`${variables.value}.hash(${variables.hasher});`];
       case "interface":
@@ -266,7 +312,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
     variables,
   }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
     const options = `{ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }`;
-    switch (this.configuration.objectTypeDeclarationType) {
+    switch (this.memberTypes[0].declarationType) {
       case "class":
         return `${variables.value}.toRdf(${options})`;
       case "interface":

@@ -4,8 +4,12 @@ import type { PredicatePath } from "@shaclmate/shacl-ast";
 import type { Maybe } from "purify-ts";
 import { Resource } from "rdfjs-resource";
 import genericToposort from "toposort";
-import type { IriMintingStrategy } from "../IriMintingStrategy.js";
-import type { PropertyVisibility } from "../PropertyVisibility.js";
+import type {
+  MintingStrategy,
+  PropertyVisibility,
+  TsFeature,
+  TsObjectDeclarationType,
+} from "../enums/index.js";
 import type { Name } from "./Name.js";
 import type { Type } from "./Type.js";
 
@@ -51,14 +55,7 @@ export interface ObjectType {
    * Defaults to false.
    */
   readonly extern: boolean;
-
-  /**
-   * Strategy for minting new object identifiers. If not specified, require an identifier on construction.
-   */
-  readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
-
   readonly kind: "ObjectType";
-
   /**
    * If the ObjectType is an RDF list, this is the type of rdf:first.
    * https://www.w3.org/TR/rdf-schema/#ch_collectionvocab
@@ -66,6 +63,10 @@ export interface ObjectType {
    * Mutable to support cycle-handling logic in the compiler.
    */
   listItemType: Maybe<Type>;
+  /**
+   * Strategy for minting new object identifiers. If not specified, require an identifier on construction.
+   */
+  readonly mintingStrategy: Maybe<MintingStrategy>;
   /**
    * Name of this type, usually derived from sh:name or shaclmate:name.
    */
@@ -101,6 +102,16 @@ export interface ObjectType {
   readonly rdfType: Maybe<NamedNode>;
 
   /**
+   * TypeScript features to generate.
+   */
+  readonly tsFeatures: Set<TsFeature>;
+
+  /**
+   * Name of the identifier property in TypeScript-generated classes/interfaces.
+   */
+  readonly tsIdentifierPropertyName: string;
+
+  /**
    * A TypeScript import to add to generated code.
    *
    * This is often used in conjunction with extern=true to import the extern'd ObjectType code in order for generated
@@ -109,6 +120,16 @@ export interface ObjectType {
    * import { MyType } from "./MyType.js"
    */
   readonly tsImport: Maybe<string>;
+
+  /**
+   * Whether to generate a TypeScript class or interface for this type.
+   */
+  readonly tsObjectDeclarationType: TsObjectDeclarationType;
+
+  /**
+   * Name of the type discriminator property in TypeScript-generated classes/interfaces.
+   */
+  readonly tsTypeDiscriminatorPropertyName: string;
 }
 
 export namespace ObjectType {

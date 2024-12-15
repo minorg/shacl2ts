@@ -6,7 +6,7 @@ import { toRdfFunctionOrMethodDeclaration } from "./toRdfFunctionOrMethodDeclara
 export function toRdfFunctionDeclaration(
   this: ObjectType,
 ): Maybe<FunctionDeclarationStructure> {
-  if (this.configuration.objectTypeDeclarationType !== "interface") {
+  if (this.declarationType !== "interface") {
     return Maybe.empty();
   }
 

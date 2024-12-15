@@ -6,4 +6,5 @@ export interface Ast {
   readonly objectIntersectionTypes: readonly ObjectIntersectionType[];
   readonly objectTypes: readonly ObjectType[];
   readonly objectUnionTypes: readonly ObjectUnionType[];
+  readonly tsDataFactoryVariable: string;
 }

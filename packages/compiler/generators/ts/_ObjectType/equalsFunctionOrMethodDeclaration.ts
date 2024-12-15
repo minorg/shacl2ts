@@ -12,7 +12,7 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   returnType: string;
   statements: string[];
 }> {
-  if (!this.configuration.features.has("equals")) {
+  if (!this.features.has("equals")) {
     return Maybe.empty();
   }
 
@@ -28,10 +28,7 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
         !(property instanceof IdentifierProperty) &&
         !(property instanceof TypeDiscriminatorProperty),
     );
-    if (
-      this.configuration.objectTypeDeclarationType === "class" &&
-      properties.length === 0
-    ) {
+    if (this.declarationType === "class" && properties.length === 0) {
       // If there's a parent class and no properties in this class, can skip overriding equals
       return Maybe.empty();
     }
@@ -39,7 +36,7 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
 
   let leftVariable: string;
   let rightVariable: string;
-  switch (this.configuration.objectTypeDeclarationType) {
+  switch (this.declarationType) {
     case "class":
       leftVariable = "this";
       rightVariable = "other";
@@ -53,7 +50,7 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
 
   let hasOverrideKeyword = false;
   if (this.parentObjectTypes.length > 0) {
-    switch (this.configuration.objectTypeDeclarationType) {
+    switch (this.declarationType) {
       case "class": {
         chain.push("super.equals(other)");
         hasOverrideKeyword = true;
@@ -79,7 +76,7 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     hasOverrideKeyword,
     name: "equals",
     parameters:
-      this.configuration.objectTypeDeclarationType === "interface"
+      this.declarationType === "interface"
         ? [
             {
               name: "left",

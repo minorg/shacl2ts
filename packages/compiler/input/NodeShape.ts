@@ -5,7 +5,11 @@ import { NodeKind, RdfjsNodeShape } from "@shaclmate/shacl-ast";
 import { owl, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, type Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
-import { IriMintingStrategy } from "../IriMintingStrategy.js";
+import type {
+  MintingStrategy,
+  TsFeature,
+  TsObjectDeclarationType,
+} from "../enums/index.js";
 import { shaclmate } from "../vocabularies/index.js";
 import type { Ontology } from "./Ontology.js";
 import type { PropertyGroup } from "./PropertyGroup.js";
@@ -13,6 +17,8 @@ import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
 import { extern } from "./extern.js";
 import { shaclmateName } from "./shaclmateName.js";
+import { tsFeatures } from "./tsFeatures.js";
+import { tsObjectDeclarationType } from "./tsObjectDeclarationType.js";
 
 function ancestorClassIris(
   classResource: Resource,
@@ -116,7 +122,14 @@ export class NodeShape
     return extern.bind(this)();
   }
 
-  get iriMintingStrategy(): Either<Error, IriMintingStrategy> {
+  get isClass(): boolean {
+    return (
+      this.resource.isInstanceOf(owl.Class) ||
+      this.resource.isInstanceOf(rdfs.Class)
+    );
+  }
+
+  get mintingStrategy(): Either<Error, MintingStrategy> {
     const thisMintingStrategy = this._mintingStrategy;
     if (thisMintingStrategy.isLeft()) {
       for (const ancestorNodeShape of this.ancestorNodeShapes) {
@@ -127,13 +140,6 @@ export class NodeShape
       }
     }
     return thisMintingStrategy;
-  }
-
-  get isClass(): boolean {
-    return (
-      this.resource.isInstanceOf(owl.Class) ||
-      this.resource.isInstanceOf(rdfs.Class)
-    );
   }
 
   get nodeKinds(): Set<NodeKind.BLANK_NODE | NodeKind.IRI> {
@@ -188,6 +194,12 @@ export class NodeShape
     return shaclmateName.bind(this)();
   }
 
+  get tsFeatures(): Maybe<Set<TsFeature>> {
+    return tsFeatures(this.resource).altLazy(() =>
+      this.isDefinedBy.chain((ontology) => ontology.tsFeatures),
+    );
+  }
+
   get tsImport(): Maybe<string> {
     return this.resource
       .value(shaclmate.tsImport)
@@ -195,18 +207,40 @@ export class NodeShape
       .toMaybe();
   }
 
-  private get _mintingStrategy(): Either<Error, IriMintingStrategy> {
+  get tsObjectDeclarationType(): Either<Error, TsObjectDeclarationType> {
+    return tsObjectDeclarationType(this.resource).altLazy(() =>
+      this.isDefinedBy
+        .toEither(new Error("node shape is not associated with an ontology"))
+        .chain((ontology) => ontology.tsObjectDeclarationType),
+    );
+  }
+
+  get tsObjectIdentifierPropertyName(): Maybe<string> {
+    return this.resource
+      .value(shaclmate.tsObjectIdentifierPropertyName)
+      .chain((value) => value.toString())
+      .toMaybe();
+  }
+
+  get tsObjectTypeDiscriminatorPropertyName(): Maybe<string> {
+    return this.resource
+      .value(shaclmate.tsObjectTypeDiscriminatorPropertyName)
+      .chain((value) => value.toString())
+      .toMaybe();
+  }
+
+  private get _mintingStrategy(): Either<Error, MintingStrategy> {
     return this.resource
       .value(shaclmate.mintingStrategy)
       .chain((value) => value.toIri())
       .chain((iri) => {
         if (iri.equals(shaclmate._MintingStrategy_SHA256)) {
-          return Either.of(IriMintingStrategy.SHA256);
+          return Either.of("sha256");
         }
         if (iri.equals(shaclmate._MintingStrategy_UUIDv4)) {
-          return Either.of(IriMintingStrategy.UUIDv4);
+          return Either.of("uuidv4");
         }
-        return Left(new Error(`unrecognizing minting strategy: ${iri.value}`));
+        return Left(new Error(`unrecognizsed minting strategy: ${iri.value}`));
       });
   }
 

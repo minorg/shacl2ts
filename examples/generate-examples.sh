@@ -6,10 +6,8 @@ cd "$(dirname "$0")/.."
 
 
 # Kitchen sink
-./packages/cli/cli.sh show-ast-json $PWD/examples/kitchen-sink/kitchen-sink.shapes.ttl >examples/kitchen-sink/generated/ast.json
-./packages/cli/cli.sh generate --object-type-declaration-type class $PWD/examples/kitchen-sink/kitchen-sink.shapes.ttl >examples/kitchen-sink/generated/classes.ts
-./packages/cli/cli.sh generate --object-type-declaration-type interface $PWD/examples/kitchen-sink/kitchen-sink.shapes.ttl >examples/kitchen-sink/generated/interfaces.ts
-
+./packages/cli/cli.sh show-ast-json $PWD/examples/kitchen-sink/kitchen-sink.shapes.ttl >examples/kitchen-sink/ast.json
+./packages/cli/cli.sh generate $PWD/examples/kitchen-sink/kitchen-sink.shapes.ttl >examples/kitchen-sink/generated.ts
 
 # SKOS
 #SKOS_SHAPES_TTL_ORIGINAL_FILE_PATH="../kos-kit/skos-shacl/shapes/skos-shaclmate.shacl.ttl"
@@ -19,9 +17,7 @@ cd "$(dirname "$0")/.."
 #else
 #  echo "SKOS shapes original file $SKOS_SHAPES_TTL_ORIGINAL_FILE_PATH not found, using copy"
 #fi
-#./packages/cli/cli.sh show-ast-json $PWD/examples/skos/skos.shapes.ttl >examples/skos/generated/ast.json
-#./packages/cli/cli.sh generate --object-type-declaration-type class $PWD/examples/skos/skos.shapes.ttl >examples/skos/generated/classes.ts
-#./packages/cli/cli.sh generate --object-type-declaration-type interface $PWD/examples/skos/skos.shapes.ttl >examples/skos/generated/interfaces.ts
-
+#./packages/cli/cli.sh show-ast-json $PWD/examples/skos/skos.shapes.ttl >examples/skos/ast.json
+#./packages/cli/cli.sh generate $PWD/examples/skos/skos.shapes.ttl >examples/skos/generated.ts
 
 npm exec biome -- check --write --unsafe $PWD/examples

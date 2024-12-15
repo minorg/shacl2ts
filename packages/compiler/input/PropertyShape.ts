@@ -1,6 +1,6 @@
 import { RdfjsPropertyShape } from "@shaclmate/shacl-ast";
 import { Either, Left, type Maybe } from "purify-ts";
-import { PropertyVisibility } from "../PropertyVisibility.js";
+import type { PropertyVisibility } from "../enums/index.js";
 import { shaclmate } from "../vocabularies/index.js";
 import type { NodeShape } from "./NodeShape.js";
 import type { Ontology } from "./Ontology.js";
@@ -27,16 +27,16 @@ export class PropertyShape
       .chain((value) => value.toIri())
       .chain((iri) => {
         if (iri.equals(shaclmate._Visibility_Private)) {
-          return Either.of(PropertyVisibility.PRIVATE);
+          return Either.of("private" as const);
         }
         if (iri.equals(shaclmate._Visibility_Protected)) {
-          return Either.of(PropertyVisibility.PROTECTED);
+          return Either.of("protected" as const);
         }
         if (iri.equals(shaclmate._Visibility_Public)) {
-          return Either.of(PropertyVisibility.PUBLIC);
+          return Either.of("public" as const);
         }
         return Left(new Error(`unknown visibility: ${iri.value}`));
       })
-      .orDefault(PropertyVisibility.PUBLIC);
+      .orDefault("public" as const);
   }
 }

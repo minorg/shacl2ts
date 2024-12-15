@@ -1,6 +1,7 @@
+import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
+import { xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import type * as ast from "../../ast/index.js";
-import type { Configuration } from "./Configuration.js";
 
 /**
  * Abstract base class for generating TypeScript expressions and statemenst in the TypeScript generator.
@@ -23,14 +24,14 @@ export abstract class Type {
 
   abstract readonly name: string;
 
-  protected readonly configuration: Configuration;
+  protected readonly dataFactoryVariable: string;
 
   constructor({
-    configuration,
+    dataFactoryVariable,
   }: {
-    configuration: Configuration;
+    dataFactoryVariable: string;
   }) {
-    this.configuration = configuration;
+    this.dataFactoryVariable = dataFactoryVariable;
   }
 
   /**
@@ -127,6 +128,22 @@ export abstract class Type {
       value: string;
     };
   }): string;
+
+  protected rdfjsTermExpression(
+    rdfjsTerm: BlankNode | Literal | NamedNode,
+  ): string {
+    switch (rdfjsTerm.termType) {
+      case "BlankNode":
+        return `${this.dataFactoryVariable}.blankNode("${rdfjsTerm.value}")`;
+      case "Literal":
+        if (rdfjsTerm.datatype.equals(xsd.string)) {
+          return `${this.dataFactoryVariable}.literal("${rdfjsTerm.value}", "${rdfjsTerm.language}")`;
+        }
+        return `${this.dataFactoryVariable}.literal("${rdfjsTerm.value}", ${this.dataFactoryVariable}.namedNode("${rdfjsTerm.datatype.value}"))`;
+      case "NamedNode":
+        return `${this.dataFactoryVariable}.namedNode("${rdfjsTerm.value}")`;
+    }
+  }
 }
 
 export namespace Type {

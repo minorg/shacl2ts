@@ -5,10 +5,7 @@ import { Compiler } from "@shaclmate/compiler";
 import * as generators from "@shaclmate/compiler/generators";
 import type { Generator } from "@shaclmate/compiler/generators/Generator";
 import {
-  array,
   command,
-  multioption,
-  oneOf,
   option,
   restPositionals,
   run,
@@ -16,8 +13,8 @@ import {
   subcommands,
 } from "cmd-ts";
 import { ExistingPath } from "cmd-ts/dist/esm/batteries/fs.js";
-import { DataFactory, Parser, Store } from "n3";
 import * as N3 from "n3";
+import { DataFactory, Parser, Store } from "n3";
 import pino from "pino";
 import SHACLValidator from "rdf-validate-shacl";
 import { dashDataset } from "./dashDataset.js";
@@ -141,87 +138,12 @@ run(
         name: "generate",
         description: "generate TypeScript for the SHACL Shapes Graph AST",
         args: {
-          dataFactoryImport: option({
-            defaultValue: () =>
-              generators.ts.TsGenerator.Configuration.Defaults
-                .dataFactoryImport,
-            description: "import line to get an RDF/JS DataFactory",
-            long: "data-factory-import",
-            type: string,
-          }),
-          dataFactoryVariable: option({
-            defaultValue: () =>
-              generators.ts.TsGenerator.Configuration.Defaults
-                .dataFactoryVariable,
-            description: "variable of the RDF/JS DataFactory that was imported",
-            long: "data-factory-variable",
-            type: string,
-          }),
-          features: multioption({
-            description: "generator features to enable",
-            long: "feature",
-            type: array(
-              oneOf([
-                "class",
-                "equals",
-                "fromRdf",
-                "toRdf",
-                "sparql-graph-patterns",
-              ]),
-            ),
-          }),
           inputFilePaths,
           outputFilePath,
-          objectTypeDeclarationType: option({
-            defaultValue: () =>
-              generators.ts.TsGenerator.Configuration.Defaults
-                .objectTypeDeclarationType,
-            long: "object-type-declaration-type",
-            type: oneOf(["class", "interface"]),
-          }),
-          objectTypeDiscriminatorPropertyName: option({
-            defaultValue: () =>
-              generators.ts.TsGenerator.Configuration.Defaults
-                .objectTypeDiscriminatorPropertyName,
-            description:
-              "name of a property to add to generated object types to discriminate them with a string enum",
-            long: "object-type-discriminator-property-name",
-            type: string,
-          }),
-          objectTypeIdentifierPropertyName: option({
-            defaultValue: () =>
-              generators.ts.TsGenerator.Configuration.Defaults
-                .objectTypeIdentifierPropertyName,
-            description:
-              "name of a property to add to generated object types to discriminate them with a string enum",
-            long: "object-type-discriminator-property-name",
-            type: string,
-          }),
         },
-        handler: async ({
-          dataFactoryImport,
-          dataFactoryVariable,
-          features,
-          inputFilePaths,
-          objectTypeDeclarationType,
-          objectTypeDiscriminatorPropertyName,
-          objectTypeIdentifierPropertyName,
-          outputFilePath,
-        }) => {
+        handler: async ({ inputFilePaths, outputFilePath }) => {
           generate({
-            generator: new generators.ts.TsGenerator(
-              new generators.ts.TsGenerator.Configuration({
-                dataFactoryImport,
-                dataFactoryVariable,
-                features: new Set(
-                  features,
-                ) as generators.ts.TsGenerator.Configuration["features"],
-                objectTypeDeclarationType:
-                  objectTypeDeclarationType as generators.ts.TsGenerator.Configuration["objectTypeDeclarationType"],
-                objectTypeDiscriminatorPropertyName,
-                objectTypeIdentifierPropertyName,
-              }),
-            ),
+            generator: new generators.ts.TsGenerator(),
             inputFilePaths,
             outputFilePath,
           });

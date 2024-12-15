@@ -2,7 +2,11 @@ import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
-import type { IriMintingStrategy } from "../../IriMintingStrategy.js";
+import type {
+  MintingStrategy,
+  TsFeature,
+  TsObjectDeclarationType,
+} from "../../enums/index.js";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
@@ -10,15 +14,17 @@ import * as _ObjectType from "./_ObjectType/index.js";
 export class ObjectType extends Type {
   readonly abstract: boolean;
   classDeclaration = _ObjectType.classDeclaration;
+  readonly declarationType: TsObjectDeclarationType;
   equalsFunctionDeclaration = _ObjectType.equalsFunctionDeclaration;
   readonly export_: boolean;
   readonly extern: boolean;
+  readonly features: Set<TsFeature>;
   fromRdfFunctionDeclaration = _ObjectType.fromRdfFunctionDeclaration;
   hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
   import_: Maybe<string>;
   interfaceDeclaration = _ObjectType.interfaceDeclaration;
-  readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
   readonly kind = "ObjectType";
+  readonly mintingStrategy: Maybe<MintingStrategy>;
   readonly name: string;
   readonly rdfType: Maybe<NamedNode>;
   sparqlGraphPatternsClassDeclaration =
@@ -31,43 +37,60 @@ export class ObjectType extends Type {
 
   constructor({
     abstract,
+    declarationType,
     export_,
     extern,
+    features,
     lazyAncestorObjectTypes,
     lazyDescendantObjectTypes,
     lazyParentObjectTypes,
     lazyProperties,
     import_,
-    iriMintingStrategy,
+    mintingStrategy,
     name,
     rdfType,
     ...superParameters
   }: {
     abstract: boolean;
+    declarationType: TsObjectDeclarationType;
     export_: boolean;
     extern: boolean;
+    features: Set<TsFeature>;
     import_: Maybe<string>;
     lazyAncestorObjectTypes: () => readonly ObjectType[];
     lazyDescendantObjectTypes: () => readonly ObjectType[];
     lazyParentObjectTypes: () => readonly ObjectType[];
     lazyProperties: () => readonly ObjectType.Property[];
-    iriMintingStrategy: Maybe<IriMintingStrategy>;
+    mintingStrategy: Maybe<MintingStrategy>;
     name: string;
     rdfType: Maybe<NamedNode>;
   } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
     this.abstract = abstract;
+    this.declarationType = declarationType;
     this.export_ = export_;
     this.extern = extern;
+    this.features = features;
     this.import_ = import_;
     // Lazily initialize some members in getters to avoid recursive construction
     this.lazyAncestorObjectTypes = lazyAncestorObjectTypes;
     this.lazyDescendantObjectTypes = lazyDescendantObjectTypes;
     this.lazyParentObjectTypes = lazyParentObjectTypes;
     this.lazyProperties = lazyProperties;
-    this.iriMintingStrategy = iriMintingStrategy;
+    this.mintingStrategy = mintingStrategy;
     this.rdfType = rdfType;
     this.name = name;
+  }
+
+  get _discriminatorProperty(): Type.DiscriminatorProperty {
+    const discriminatorProperty = this.properties.find(
+      (property) => property instanceof ObjectType.TypeDiscriminatorProperty,
+    );
+    invariant(discriminatorProperty);
+    return {
+      name: discriminatorProperty.name,
+      values: [this.discriminatorValue],
+    };
   }
 
   @Memoize()
@@ -92,11 +115,7 @@ export class ObjectType extends Type {
   }
 
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
-    return Maybe.of({
-      name: this.configuration.objectTypeDiscriminatorPropertyName,
-      type: "string" as const,
-      values: [this.discriminatorValue],
-    });
+    return Maybe.of(this._discriminatorProperty);
   }
 
   get discriminatorValue(): string {
@@ -105,10 +124,7 @@ export class ObjectType extends Type {
 
   @Memoize()
   get fromRdfFunctionName(): string {
-    if (
-      this.configuration.objectTypeDeclarationType === "class" &&
-      this.abstract
-    ) {
+    if (this.declarationType === "class" && this.abstract) {
       return "interfaceFromRdf";
     }
     return "fromRdf";
@@ -178,7 +194,7 @@ export class ObjectType extends Type {
   }
 
   override propertyEqualsFunction(): string {
-    switch (this.configuration.objectTypeDeclarationType) {
+    switch (this.declarationType) {
       case "class":
         return "purifyHelpers.Equatable.equals";
       case "interface":
@@ -195,7 +211,7 @@ export class ObjectType extends Type {
   override propertyHashStatements({
     variables,
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
-    switch (this.configuration.objectTypeDeclarationType) {
+    switch (this.declarationType) {
       case "class":
         return [`${variables.value}.hash(${variables.hasher});`];
       case "interface":
@@ -208,7 +224,7 @@ export class ObjectType extends Type {
   override propertyToRdfExpression({
     variables,
   }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
-    switch (this.configuration.objectTypeDeclarationType) {
+    switch (this.declarationType) {
       case "class":
         return `${variables.value}.toRdf({ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} })`;
       case "interface":

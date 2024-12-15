@@ -6,7 +6,7 @@ import { equalsFunctionOrMethodDeclaration } from "./equalsFunctionOrMethodDecla
 export function equalsFunctionDeclaration(
   this: ObjectType,
 ): Maybe<FunctionDeclarationStructure> {
-  if (this.configuration.objectTypeDeclarationType !== "interface") {
+  if (this.declarationType !== "interface") {
     return Maybe.empty();
   }
 

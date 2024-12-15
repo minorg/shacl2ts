@@ -2,7 +2,6 @@ import { Maybe } from "purify-ts";
 import { type ClassDeclarationStructure, StructureKind } from "ts-morph";
 import { logger } from "../../../logger.js";
 import type { ObjectType } from "../ObjectType.js";
-import { rdfjsTermExpression } from "../rdfjsTermExpression.js";
 
 const ignoreRdfTypeVariable = "ignoreRdfType";
 const optionsVariable = "_options";
@@ -11,7 +10,7 @@ const subjectVariable = "subject";
 export function sparqlGraphPatternsClassDeclaration(
   this: ObjectType,
 ): Maybe<ClassDeclarationStructure> {
-  if (!this.configuration.features.has("sparql-graph-patterns")) {
+  if (!this.features.has("sparql-graph-patterns")) {
     return Maybe.empty();
   }
 
@@ -41,7 +40,7 @@ export function sparqlGraphPatternsClassDeclaration(
   if (!this.abstract) {
     this.rdfType.ifJust((rdfType) =>
       constructorStatements.push(
-        `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${rdfjsTermExpression(rdfType, this.configuration)})); }`,
+        `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${this.rdfjsTermExpression(rdfType)})); }`,
       ),
     );
   }

@@ -2,7 +2,6 @@ import type { Literal } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type.js";
-import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
 export class LiteralType extends RdfjsTermType<Literal, Literal> {
   readonly kind:
@@ -36,15 +35,14 @@ export class LiteralType extends RdfjsTermType<Literal, Literal> {
 
     conversions.push({
       conversionExpression: (value) =>
-        `${this.configuration.dataFactoryVariable}.literal(${value})`,
+        `${this.dataFactoryVariable}.literal(${value})`,
       sourceTypeCheckExpression: (value) => `typeof ${value} === "string"`,
       sourceTypeName: "string",
     });
 
     this.defaultValue.ifJust((defaultValue) => {
       conversions.push({
-        conversionExpression: () =>
-          rdfjsTermExpression(defaultValue, this.configuration),
+        conversionExpression: () => this.rdfjsTermExpression(defaultValue),
         sourceTypeCheckExpression: (value) => `typeof ${value} === "undefined"`,
         sourceTypeName: "undefined",
       });

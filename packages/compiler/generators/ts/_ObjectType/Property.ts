@@ -6,8 +6,7 @@ import {
   type PropertySignatureStructure,
   Scope,
 } from "ts-morph";
-import { PropertyVisibility } from "../../../PropertyVisibility.js";
-import type { Configuration } from "../Configuration.js";
+import type { PropertyVisibility } from "../../../enums/index.js";
 import type { Type } from "../Type.js";
 
 export abstract class Property<TypeT extends { readonly name: string }> {
@@ -25,20 +24,20 @@ export abstract class Property<TypeT extends { readonly name: string }> {
   readonly name: string;
   readonly type: TypeT;
   readonly visibility: PropertyVisibility;
-  protected readonly configuration: Configuration;
+  protected readonly dataFactoryVariable: string;
 
   constructor({
-    configuration,
+    dataFactoryVariable,
     name,
     type,
     visibility,
   }: {
-    configuration: Configuration;
+    dataFactoryVariable: string;
     name: string;
     type: TypeT;
     visibility: PropertyVisibility;
   }) {
-    this.configuration = configuration;
+    this.dataFactoryVariable = dataFactoryVariable;
     this.name = name;
     this.type = type;
     this.visibility = visibility;
@@ -52,11 +51,11 @@ export abstract class Property<TypeT extends { readonly name: string }> {
     visibility: PropertyVisibility,
   ): Scope | undefined {
     switch (visibility) {
-      case PropertyVisibility.PRIVATE:
+      case "private":
         return Scope.Private;
-      case PropertyVisibility.PROTECTED:
+      case "protected":
         return Scope.Protected;
-      case PropertyVisibility.PUBLIC:
+      case "public":
         return undefined;
     }
   }
