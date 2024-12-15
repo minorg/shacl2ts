@@ -7,7 +7,7 @@ import type {
   PropertyDeclarationStructure,
   PropertySignatureStructure,
 } from "ts-morph";
-import { IriMintingStrategy } from "../../../IriMintingStrategy.js";
+import { MintingStrategy } from "../../../MintingStrategy";
 import { PropertyVisibility } from "../../../PropertyVisibility.js";
 import type { IdentifierType } from "../IdentifierType.js";
 import { Property } from "./Property.js";
@@ -16,19 +16,19 @@ export class IdentifierProperty extends Property<IdentifierType> {
   readonly abstract: boolean;
   readonly equalsFunction = "purifyHelpers.Equatable.booleanEquals";
   private readonly classDeclarationVisibility: Maybe<PropertyVisibility>;
-  private readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
+  private readonly mintingStrategy: Maybe<MintingStrategy>;
   private readonly override: boolean;
 
   constructor({
     abstract,
     classDeclarationVisibility,
-    iriMintingStrategy,
+    mintingStrategy,
     override,
     ...superParameters
   }: {
     abstract: boolean;
     classDeclarationVisibility: Maybe<PropertyVisibility>;
-    iriMintingStrategy: Maybe<IriMintingStrategy>;
+    mintingStrategy: Maybe<MintingStrategy>;
     override: boolean;
     type: IdentifierType;
   } & ConstructorParameters<typeof Property>[0]) {
@@ -36,7 +36,7 @@ export class IdentifierProperty extends Property<IdentifierType> {
     invariant(this.visibility === PropertyVisibility.PUBLIC);
     this.abstract = abstract;
     this.classDeclarationVisibility = classDeclarationVisibility;
-    this.iriMintingStrategy = iriMintingStrategy;
+    this.mintingStrategy = mintingStrategy;
     this.override = override;
   }
 
@@ -65,12 +65,12 @@ export class IdentifierProperty extends Property<IdentifierType> {
 
     let mintIdentifier: string;
     if (this.type.nodeKinds.has(NodeKind.IRI)) {
-      switch (this.iriMintingStrategy.orDefault(IriMintingStrategy.SHA256)) {
-        case IriMintingStrategy.SHA256:
+      switch (this.mintingStrategy.orDefault(MintingStrategy.SHA256)) {
+        case MintingStrategy.SHA256:
           mintIdentifier =
             "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${this.hash(sha256.create())}`)";
           break;
-        case IriMintingStrategy.UUIDv4:
+        case MintingStrategy.UUIDv4:
           mintIdentifier =
             "dataFactory.namedNode(`urn:shaclmate:object:${this.type}:${uuid.v4()}`)";
           break;
@@ -130,10 +130,10 @@ export class IdentifierProperty extends Property<IdentifierType> {
       return [];
     }
 
-    switch (this.iriMintingStrategy.orDefault(IriMintingStrategy.SHA256)) {
-      case IriMintingStrategy.SHA256:
+    switch (this.mintingStrategy.orDefault(MintingStrategy.SHA256)) {
+      case MintingStrategy.SHA256:
         return ['import { sha256 } from "js-sha256";'];
-      case IriMintingStrategy.UUIDv4:
+      case MintingStrategy.UUIDv4:
         return ['import * as uuid from "uuid";'];
       default:
         throw new Error("not implemented");

@@ -4,7 +4,7 @@ import type { PredicatePath } from "@shaclmate/shacl-ast";
 import type { Maybe } from "purify-ts";
 import { Resource } from "rdfjs-resource";
 import genericToposort from "toposort";
-import type { IriMintingStrategy } from "../IriMintingStrategy.js";
+import type { MintingStrategy } from "../MintingStrategy";
 import type { PropertyVisibility } from "../PropertyVisibility.js";
 import type { Name } from "./Name.js";
 import type { Type } from "./Type.js";
@@ -51,14 +51,7 @@ export interface ObjectType {
    * Defaults to false.
    */
   readonly extern: boolean;
-
-  /**
-   * Strategy for minting new object identifiers. If not specified, require an identifier on construction.
-   */
-  readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
-
   readonly kind: "ObjectType";
-
   /**
    * If the ObjectType is an RDF list, this is the type of rdf:first.
    * https://www.w3.org/TR/rdf-schema/#ch_collectionvocab
@@ -66,6 +59,10 @@ export interface ObjectType {
    * Mutable to support cycle-handling logic in the compiler.
    */
   listItemType: Maybe<Type>;
+  /**
+   * Strategy for minting new object identifiers. If not specified, require an identifier on construction.
+   */
+  readonly mintingStrategy: Maybe<MintingStrategy>;
   /**
    * Name of this type, usually derived from sh:name or shaclmate:name.
    */

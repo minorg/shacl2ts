@@ -2,7 +2,7 @@ import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
-import type { IriMintingStrategy } from "../../IriMintingStrategy.js";
+import type { MintingStrategy } from "../../MintingStrategy";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
@@ -17,8 +17,8 @@ export class ObjectType extends Type {
   hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
   import_: Maybe<string>;
   interfaceDeclaration = _ObjectType.interfaceDeclaration;
-  readonly iriMintingStrategy: Maybe<IriMintingStrategy>;
   readonly kind = "ObjectType";
+  readonly mintingStrategy: Maybe<MintingStrategy>;
   readonly name: string;
   readonly rdfType: Maybe<NamedNode>;
   sparqlGraphPatternsClassDeclaration =
@@ -38,7 +38,7 @@ export class ObjectType extends Type {
     lazyParentObjectTypes,
     lazyProperties,
     import_,
-    iriMintingStrategy,
+    mintingStrategy,
     name,
     rdfType,
     ...superParameters
@@ -51,7 +51,7 @@ export class ObjectType extends Type {
     lazyDescendantObjectTypes: () => readonly ObjectType[];
     lazyParentObjectTypes: () => readonly ObjectType[];
     lazyProperties: () => readonly ObjectType.Property[];
-    iriMintingStrategy: Maybe<IriMintingStrategy>;
+    mintingStrategy: Maybe<MintingStrategy>;
     name: string;
     rdfType: Maybe<NamedNode>;
   } & ConstructorParameters<typeof Type>[0]) {
@@ -65,7 +65,7 @@ export class ObjectType extends Type {
     this.lazyDescendantObjectTypes = lazyDescendantObjectTypes;
     this.lazyParentObjectTypes = lazyParentObjectTypes;
     this.lazyProperties = lazyProperties;
-    this.iriMintingStrategy = iriMintingStrategy;
+    this.mintingStrategy = mintingStrategy;
     this.rdfType = rdfType;
     this.name = name;
   }

@@ -161,7 +161,7 @@ export function transformNodeShapeToAstType(
     extern: nodeShape.extern.orDefault(false),
     kind: "ObjectType",
     listItemType: Maybe.empty(),
-    iriMintingStrategy: nodeShape.iriMintingStrategy.toMaybe(),
+    mintingStrategy: nodeShape.mintingStrategy.toMaybe(),
     name: this.shapeAstName(nodeShape),
     nodeKinds: nodeShape.nodeKinds,
     properties: [], // This is mutable, we'll populate it below.

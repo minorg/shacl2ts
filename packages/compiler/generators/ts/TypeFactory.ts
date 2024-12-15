@@ -195,7 +195,7 @@ export class TypeFactory {
             itemType: this.createTypeFromAstType(
               astType.listItemType.unsafeCoerce(),
             ),
-            iriMintingStrategy: astType.iriMintingStrategy,
+            mintingStrategy: astType.mintingStrategy,
             rdfType: astType.rdfType,
           });
         }
@@ -308,7 +308,7 @@ export class TypeFactory {
             classDeclarationVisibility:
               identifierPropertyClassDeclarationVisibility,
             configuration: this.configuration,
-            iriMintingStrategy: astType.iriMintingStrategy,
+            mintingStrategy: astType.mintingStrategy,
             name: this.configuration.objectTypeIdentifierPropertyName,
             override: astType.parentObjectTypes.length > 0,
             type: identifierType,
@@ -351,7 +351,7 @@ export class TypeFactory {
           left.name.localeCompare(right.name),
         );
       },
-      iriMintingStrategy: astType.iriMintingStrategy,
+      mintingStrategy: astType.mintingStrategy,
       name: tsName(astType.name),
       rdfType: astType.rdfType,
     });
