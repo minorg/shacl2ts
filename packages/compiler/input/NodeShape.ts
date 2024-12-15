@@ -5,7 +5,10 @@ import { NodeKind, RdfjsNodeShape } from "@shaclmate/shacl-ast";
 import { owl, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, type Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
-import { MintingStrategy } from "../enums/index.js";
+import {
+  MintingStrategy,
+  type TsObjectDeclarationType,
+} from "../enums/index.js";
 import { shaclmate } from "../vocabularies/index.js";
 import type { Ontology } from "./Ontology.js";
 import type { PropertyGroup } from "./PropertyGroup.js";
@@ -13,6 +16,7 @@ import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
 import { extern } from "./extern.js";
 import { shaclmateName } from "./shaclmateName.js";
+import { tsObjectDeclarationType } from "./tsObjectDeclarationType.js";
 
 function ancestorClassIris(
   classResource: Resource,
@@ -195,6 +199,14 @@ export class NodeShape
       .toMaybe();
   }
 
+  get tsObjectDeclarationType(): Either<Error, TsObjectDeclarationType> {
+    return tsObjectDeclarationType(this.resource).altLazy(() =>
+      this.isDefinedBy
+        .toEither(new Error("node shape is not associated with an ontology"))
+        .chain((ontology) => ontology.tsObjectDeclarationType),
+    );
+  }
+
   private get _mintingStrategy(): Either<Error, MintingStrategy> {
     return this.resource
       .value(shaclmate.mintingStrategy)
@@ -206,7 +218,7 @@ export class NodeShape
         if (iri.equals(shaclmate._MintingStrategy_UUIDv4)) {
           return Either.of(MintingStrategy.UUIDv4);
         }
-        return Left(new Error(`unrecognizing minting strategy: ${iri.value}`));
+        return Left(new Error(`unrecognizsed minting strategy: ${iri.value}`));
       });
   }
 

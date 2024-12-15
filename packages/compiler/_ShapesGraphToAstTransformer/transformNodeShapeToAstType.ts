@@ -3,6 +3,7 @@ import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
 import type { ShapesGraphToAstTransformer } from "../ShapesGraphToAstTransformer.js";
 import type * as ast from "../ast/index.js";
+import { TsObjectDeclarationType } from "../enums/TsObjectDeclarationType";
 import * as input from "../input/index.js";
 import { logger } from "../logger.js";
 import type { NodeShapeAstType } from "./NodeShapeAstType.js";
@@ -125,6 +126,9 @@ export function transformNodeShapeToAstType(
       kind: compositeTypeKind,
       memberTypes: [] as ast.ObjectType[],
       name: this.shapeAstName(nodeShape),
+      tsObjectDeclarationType: nodeShape.tsObjectDeclarationType.orDefault(
+        TsObjectDeclarationType.CLASS,
+      ),
     };
 
     this.nodeShapeAstTypesByIdentifier.set(
@@ -170,6 +174,9 @@ export function transformNodeShapeToAstType(
       : Maybe.empty(),
     parentObjectTypes: [], // This is mutable, we'll populate it below
     tsImport: nodeShape.tsImport,
+    tsObjectDeclarationType: nodeShape.tsObjectDeclarationType.orDefault(
+      TsObjectDeclarationType.CLASS,
+    ),
   };
   this.nodeShapeAstTypesByIdentifier.set(
     nodeShape.resource.identifier,
