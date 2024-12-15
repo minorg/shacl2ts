@@ -14,10 +14,7 @@ export interface PropertyShape<
   ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
 > extends Shape<NodeShapeT, OntologyT, PropertyShapeT, ShapeT> {
   readonly defaultValue: Maybe<BlankNode | Literal | NamedNode>;
-  readonly editor: Maybe<NamedNode>;
   readonly group: Maybe<PropertyGroup>;
   readonly order: Maybe<number>;
   readonly path: PropertyPath;
-  readonly singleLine: Maybe<boolean>;
-  readonly viewer: Maybe<NamedNode>;
 }

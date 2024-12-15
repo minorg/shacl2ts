@@ -1,5 +1,5 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
-import { dash, sh } from "@tpluscode/rdf-ns-builders";
+import { sh } from "@tpluscode/rdf-ns-builders";
 import type { Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import type { NodeShape } from "./NodeShape.js";
@@ -40,13 +40,6 @@ export class RdfjsPropertyShape<
       .toMaybe();
   }
 
-  get editor(): Maybe<NamedNode> {
-    return this.resource
-      .value(dash.editor)
-      .chain((value) => value.toIri())
-      .toMaybe();
-  }
-
   get group(): Maybe<PropertyGroup> {
     return this.resource
       .value(sh.group)
@@ -68,20 +61,6 @@ export class RdfjsPropertyShape<
       .chain((value) => value.toResource())
       .chain(PropertyPath.fromResource)
       .unsafeCoerce();
-  }
-
-  get singleLine(): Maybe<boolean> {
-    return this.resource
-      .value(dash.singleLine)
-      .chain((value) => value.toBoolean())
-      .toMaybe();
-  }
-
-  get viewer(): Maybe<NamedNode> {
-    return this.resource
-      .value(dash.viewer)
-      .chain((value) => value.toIri())
-      .toMaybe();
   }
 
   override toString(): string {
