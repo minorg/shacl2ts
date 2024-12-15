@@ -4,12 +4,13 @@ import { PropertyVisibility } from "../PropertyVisibility.js";
 import { shaclmate } from "../vocabularies/index.js";
 import type { NodeShape } from "./NodeShape.js";
 import type { Ontology } from "./Ontology.js";
+import type { PropertyGroup } from "./PropertyGroup.js";
 import type { Shape } from "./Shape.js";
 import { extern } from "./extern.js";
 import { shaclmateName } from "./shaclmateName.js";
 
 export class PropertyShape
-  extends RdfjsPropertyShape<NodeShape, Ontology, any, Shape>
+  extends RdfjsPropertyShape<NodeShape, Ontology, PropertyGroup, any, Shape>
   implements Shape
 {
   get extern(): Maybe<boolean> {
