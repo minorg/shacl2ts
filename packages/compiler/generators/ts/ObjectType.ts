@@ -8,6 +8,7 @@ import type {
   TsObjectDeclarationType,
 } from "../../enums/index.js";
 import type { IdentifierType } from "./IdentifierType.js";
+import type { Import } from "./Import.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
 
@@ -109,6 +110,8 @@ export class ObjectType extends Type {
     ];
   }
 
+  get declarationImports(): readonly Import[] {}
+
   @Memoize()
   get descendantObjectTypes(): readonly ObjectType[] {
     return this.lazyDescendantObjectTypes();
@@ -155,13 +158,6 @@ export class ObjectType extends Type {
     return this.identifierProperty.type;
   }
 
-  override get importStatements(): readonly string[] {
-    return [
-      ...this.import_.toList(),
-      ...this.properties.flatMap((property) => property.importStatements),
-    ];
-  }
-
   @Memoize()
   get parentObjectTypes(): readonly ObjectType[] {
     return this.lazyParentObjectTypes();
@@ -179,6 +175,13 @@ export class ObjectType extends Type {
       }
     }
     return properties;
+  }
+
+  override get useImports(): readonly string[] {
+    return [
+      ...this.import_.toList(),
+      ...this.properties.flatMap((property) => property.importStatements),
+    ];
   }
 
   override propertyChainSparqlGraphPatternExpression({

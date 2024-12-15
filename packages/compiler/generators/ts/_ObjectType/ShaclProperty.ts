@@ -68,7 +68,7 @@ export class ShaclProperty extends Property<Type> {
   }
 
   override get importStatements(): readonly string[] {
-    return this.type.importStatements;
+    return this.type.useImports;
   }
 
   override get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {

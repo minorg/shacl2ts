@@ -41,13 +41,13 @@ export class OptionType extends Type {
     return conversions;
   }
 
-  override get importStatements(): readonly string[] {
-    return this.itemType.importStatements;
-  }
-
   @Memoize()
   get name(): string {
     return `purify.Maybe<${this.itemType.name}>`;
+  }
+
+  override get useImports(): readonly string[] {
+    return this.itemType.useImports;
   }
 
   override propertyChainSparqlGraphPatternExpression(

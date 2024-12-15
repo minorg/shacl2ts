@@ -45,15 +45,15 @@ export class ListType extends Type {
     return Maybe.empty();
   }
 
-  override get importStatements(): readonly string[] {
+  override get name(): string {
+    return `readonly ${this.itemType.name}[]`;
+  }
+
+  override get useImports(): readonly string[] {
     if (this.identifierNodeKind === NodeKind.IRI) {
       return ['import { sha256 } from "js-sha256";'];
     }
     return [];
-  }
-
-  override get name(): string {
-    return `readonly ${this.itemType.name}[]`;
   }
 
   override propertyChainSparqlGraphPatternExpression({

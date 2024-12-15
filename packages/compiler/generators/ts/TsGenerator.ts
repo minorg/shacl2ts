@@ -107,7 +107,7 @@ export class TsGenerator implements Generator {
 
     const typeImportStatements = new Set<string>();
     for (const objectType of objectTypes) {
-      for (const importStatement of objectType.importStatements) {
+      for (const importStatement of objectType.useImports) {
         typeImportStatements.add(importStatement);
       }
     }

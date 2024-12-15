@@ -30,7 +30,7 @@ export abstract class PrimitiveType<
     return Maybe.empty();
   }
 
-  override get importStatements(): readonly string[] {
+  override get useImports(): readonly string[] {
     return [];
   }
 

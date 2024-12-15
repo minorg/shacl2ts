@@ -65,12 +65,12 @@ export class LiteralType extends RdfjsTermType<Literal, Literal> {
     });
   }
 
-  override get importStatements(): readonly string[] {
-    return ["// @ts-ignore", 'import * as rdfLiteral from "rdf-literal";'];
-  }
-
   get name(): string {
     return "rdfjs.Literal";
+  }
+
+  override get useImports(): readonly string[] {
+    return ["// @ts-ignore", 'import * as rdfLiteral from "rdf-literal";'];
   }
 
   override fromRdfResourceValueExpression({

@@ -2,6 +2,7 @@ import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import { xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import type * as ast from "../../ast/index.js";
+import type { Import } from "./Import.js";
 
 /**
  * Abstract base class for generating TypeScript expressions and statemenst in the TypeScript generator.
@@ -42,9 +43,9 @@ export abstract class Type {
   }
 
   /**
-   * Imports used by other methods on this type.
+   * Imports necessary to use this type.
    */
-  get importStatements(): readonly string[] {
+  get useImports(): readonly Import[] {
     return [];
   }
 

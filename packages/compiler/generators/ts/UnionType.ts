@@ -118,7 +118,7 @@ export class UnionType extends Type {
     return Maybe.of(this._discriminatorProperty);
   }
 
-  override get importStatements(): readonly string[] {
+  override get useImports(): readonly string[] {
     return this.memberTypes.flatMap(
       (memberType) => memberType.importStatements,
     );
