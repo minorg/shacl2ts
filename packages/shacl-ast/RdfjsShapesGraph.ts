@@ -12,9 +12,10 @@ import { Maybe } from "purify-ts";
 import { ResourceSet } from "rdfjs-resource";
 import type { NodeShape } from "./NodeShape.js";
 import type { Ontology } from "./Ontology.js";
-import { PropertyGroup } from "./PropertyGroup.js";
+import type { PropertyGroup } from "./PropertyGroup.js";
 import type { PropertyShape } from "./PropertyShape.js";
 import type { RdfjsFactory } from "./RdfjsFactory.js";
+import { RdfjsPropertyGroup } from "./RdfjsPropertyGroup.js";
 import type { Shape } from "./Shape.js";
 
 export class RdfjsShapesGraph<
@@ -171,7 +172,7 @@ export class RdfjsShapesGraph<
       if (propertyGroupsByIdentifier.has(propertyGroupResource.identifier)) {
         continue;
       }
-      const propertyGroup = new PropertyGroup(propertyGroupResource);
+      const propertyGroup = new RdfjsPropertyGroup(propertyGroupResource);
       propertyGroups.push(propertyGroup);
       propertyGroupsByIdentifier.set(
         propertyGroupResource.identifier,
