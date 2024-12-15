@@ -15,7 +15,7 @@
   shaclmate:abstract true;
   shaclmate:export false ;
   # Common pattern: put the minting strategy and nodeKind on an ABC
-  shaclmate:mintingStrategy shaclmate:SHA256 ;
+  shaclmate:mintingStrategy shaclmate:_MintingStrategy_SHA256 ;
   sh:name "AbstractBaseClassWithPropertiesNodeShape" ;
   sh:nodeKind sh:BlankNodeOrIRI ;
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "abcStringProperty" ; sh:path :abcStringProperty ] ;
@@ -210,9 +210,9 @@
 :NodeShapeWithPropertyVisibilities
   a sh:NodeShape ;
   sh:name "NodeShapeWithPropertyVisibilities" ;
-  sh:property [ shaclmate:visibility shaclmate:Protected ; sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "protectedProperty" ; sh:path :publicProperty ] ;
-  sh:property [ shaclmate:visibility shaclmate:Private ; sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "privateProperty" ; sh:path :privateProperty ] ;
-  sh:property [ shaclmate:visibility shaclmate:Public ; sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "publicProperty" ; sh:path :publicProperty ] ;
+  sh:property [ shaclmate:visibility shaclmate:_Visibility_Protected ; sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "protectedProperty" ; sh:path :publicProperty ] ;
+  sh:property [ shaclmate:visibility shaclmate:_Visibility_Private ; sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "privateProperty" ; sh:path :privateProperty ] ;
+  sh:property [ shaclmate:visibility shaclmate:_Visibility_Public ; sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "publicProperty" ; sh:path :publicProperty ] ;
 .
 
 # Node that that sh:or's other node shapes. This will usually be generated as a discriminated union.
@@ -237,7 +237,7 @@
 # A node shape that mints its identifier by hashing (other) contents, if no identifier is supplied
 :Sha256IriNodeShape
   a sh:NodeShape ;
-  shaclmate:mintingStrategy shaclmate:SHA256 ;
+  shaclmate:mintingStrategy shaclmate:_MintingStrategy_SHA256 ;
   sh:nodeKind sh:IRI ;
   sh:name "Sha256IriNodeShape" ;
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
@@ -246,7 +246,7 @@
 # A node shape that mints its identifier by generating a v4 UUID, if no identifier is supplied
 :UuidV4IriNodeShape
   a sh:NodeShape ;
-  shaclmate:mintingStrategy shaclmate:UUIDv4 ;
+  shaclmate:mintingStrategy shaclmate:_MintingStrategy_UUIDv4 ;
   sh:nodeKind sh:IRI ;
   sh:name "UuidV4IriNodeShape" ;
   sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;

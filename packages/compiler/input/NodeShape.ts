@@ -199,10 +199,10 @@ export class NodeShape
       .value(shaclmate.mintingStrategy)
       .chain((value) => value.toIri())
       .chain((iri) => {
-        if (iri.equals(shaclmate.SHA256)) {
+        if (iri.equals(shaclmate._MintingStrategy_SHA256)) {
           return Either.of(IriMintingStrategy.SHA256);
         }
-        if (iri.equals(shaclmate.UUIDv4)) {
+        if (iri.equals(shaclmate._MintingStrategy_UUIDv4)) {
           return Either.of(IriMintingStrategy.UUIDv4);
         }
         return Left(new Error(`unrecognizing minting strategy: ${iri.value}`));

@@ -5,11 +5,11 @@ export interface Shaclmate {
   "": NamedNode<"http://minorg.github.io/shaclmate/ns#">;
 
   // Resources
-  Private: NamedNode<"http://minorg.github.io/shaclmate/ns#Private">;
-  Protected: NamedNode<"http://minorg.github.io/shaclmate/ns#Protected">;
-  Public: NamedNode<"http://minorg.github.io/shaclmate/ns#Public">;
-  SHA256: NamedNode<"http://minorg.github.io/shaclmate/ns#SHA256">;
-  UUIDv4: NamedNode<"http://minorg.github.io/shaclmate/ns#UUIDv4">;
+  _MintingStrategy_SHA256: NamedNode<"http://minorg.github.io/shaclmate/ns#_MintingStrategy_SHA256">;
+  _MintingStrategy_UUIDv4: NamedNode<"http://minorg.github.io/shaclmate/ns#_MintingStrategy_UUIDv4">;
+  _Visibility_Private: NamedNode<"http://minorg.github.io/shaclmate/ns#_Visibility_Private">;
+  _Visibility_Protected: NamedNode<"http://minorg.github.io/shaclmate/ns#_Visibility_Protected">;
+  _Visibility_Public: NamedNode<"http://minorg.github.io/shaclmate/ns#_Visibility_Public">;
 
   // Properties
   abstract: NamedNode<"http://minorg.github.io/shaclmate/ns#abstract">;
