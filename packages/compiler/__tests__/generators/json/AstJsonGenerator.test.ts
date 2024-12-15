@@ -20,7 +20,6 @@ describe("AstJsonGenerator", () => {
             "..",
             "examples",
             directoryName,
-            "generated",
             "ast.json",
           ),
         )
