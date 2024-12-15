@@ -25,13 +25,13 @@ export class PropertyShape
       .value(shaclmate.visibility)
       .chain((value) => value.toIri())
       .chain((iri) => {
-        if (iri.equals(shaclmate.Private)) {
+        if (iri.equals(shaclmate._Visibility_Private)) {
           return Either.of(PropertyVisibility.PRIVATE);
         }
-        if (iri.equals(shaclmate.Protected)) {
+        if (iri.equals(shaclmate._Visibility_Protected)) {
           return Either.of(PropertyVisibility.PROTECTED);
         }
-        if (iri.equals(shaclmate.Public)) {
+        if (iri.equals(shaclmate._Visibility_Public)) {
           return Either.of(PropertyVisibility.PUBLIC);
         }
         return Left(new Error(`unknown visibility: ${iri.value}`));
