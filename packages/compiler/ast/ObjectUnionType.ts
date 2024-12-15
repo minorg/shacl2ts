@@ -1,11 +1,10 @@
 import type { TsFeature } from "../enums/index.js";
-import type { Name } from "./Name.js";
-import type { ObjectType } from "./ObjectType.js";
+import type { ObjectCompositeType } from "./ObjectCompositeType.js";
 
 /**
  * A disjunction/union of object types, corresponding to an sh:or on a node shape.
  */
-export interface ObjectUnionType {
+export interface ObjectUnionType extends ObjectCompositeType {
   /**
    * Should generated code derived from this ObjectType be visible outside its module?
    *
@@ -14,18 +13,6 @@ export interface ObjectUnionType {
   readonly export: boolean;
 
   readonly kind: "ObjectUnionType";
-
-  /**
-   * Member types of the union.
-   *
-   * Mutable to support cycle-handling logic in the compiler.
-   */
-  readonly memberTypes: ObjectType[];
-
-  /**
-   * Name of this type, usually derived from sh:name or shaclmate:name.
-   */
-  readonly name: Name;
 
   /**
    * TypeScript features to generate.
