@@ -5,9 +5,9 @@ import { NodeKind, RdfjsNodeShape } from "@shaclmate/shacl-ast";
 import { owl, rdfs } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, type Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
-import {
+import type {
   MintingStrategy,
-  type TsObjectDeclarationType,
+  TsObjectDeclarationType,
 } from "../enums/index.js";
 import { shaclmate } from "../vocabularies/index.js";
 import type { Ontology } from "./Ontology.js";
@@ -213,10 +213,10 @@ export class NodeShape
       .chain((value) => value.toIri())
       .chain((iri) => {
         if (iri.equals(shaclmate._MintingStrategy_SHA256)) {
-          return Either.of(MintingStrategy.SHA256);
+          return Either.of("sha256");
         }
         if (iri.equals(shaclmate._MintingStrategy_UUIDv4)) {
-          return Either.of(MintingStrategy.UUIDv4);
+          return Either.of("uuidv4");
         }
         return Left(new Error(`unrecognizsed minting strategy: ${iri.value}`));
       });

@@ -9,7 +9,6 @@ import {
   type StatementStructures,
   StructureKind,
 } from "ts-morph";
-import { TsObjectDeclarationType } from "../../../enums/index.js";
 import type { ObjectType } from "../ObjectType.js";
 import { equalsFunctionOrMethodDeclaration } from "./equalsFunctionOrMethodDeclaration.js";
 import { hashFunctionOrMethodDeclaration } from "./hashFunctionOrMethodDeclaration.js";
@@ -85,7 +84,7 @@ function constructorDeclaration(
 export function classDeclaration(
   this: ObjectType,
 ): Maybe<ClassDeclarationStructure> {
-  if (this.declarationType !== TsObjectDeclarationType.CLASS) {
+  if (this.declarationType !== "class") {
     return Maybe.empty();
   }
 

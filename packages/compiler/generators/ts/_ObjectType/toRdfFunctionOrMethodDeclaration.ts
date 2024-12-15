@@ -2,7 +2,6 @@ import { rdf } from "@tpluscode/rdf-ns-builders";
 import { camelCase } from "change-case";
 import { Maybe } from "purify-ts";
 import type { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
-import { TsObjectDeclarationType } from "../../../enums/index.js";
 import type { ObjectType } from "../ObjectType.js";
 
 const variables = {
@@ -26,10 +25,10 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
 
   let thisVariable: string;
   switch (this.declarationType) {
-    case TsObjectDeclarationType.CLASS:
+    case "class":
       thisVariable = "this";
       break;
-    case TsObjectDeclarationType.INTERFACE:
+    case "interface":
       thisVariable = camelCase(this.name);
       break;
   }
@@ -41,10 +40,10 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     const superToRdfOptions = `{ ${variables.mutateGraph}, ${this.parentObjectTypes[0].abstract ? "" : `${variables.ignoreRdfType}: true, `}${variables.resourceSet} }`;
     let superToRdfCall: string;
     switch (this.declarationType) {
-      case TsObjectDeclarationType.CLASS:
+      case "class":
         superToRdfCall = `super.toRdf(${superToRdfOptions})`;
         break;
-      case TsObjectDeclarationType.INTERFACE:
+      case "interface":
         superToRdfCall = `${this.parentObjectTypes[0].name}.toRdf(${thisVariable}, ${superToRdfOptions})`;
         break;
     }
@@ -80,7 +79,7 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   statements.push(`return ${variables.resource};`);
 
   const parameters: OptionalKind<ParameterDeclarationStructure>[] = [];
-  if (this.declarationType === TsObjectDeclarationType.INTERFACE) {
+  if (this.declarationType === "interface") {
     parameters.push({
       name: thisVariable,
       type: this.name,

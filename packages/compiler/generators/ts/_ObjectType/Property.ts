@@ -6,7 +6,7 @@ import {
   type PropertySignatureStructure,
   Scope,
 } from "ts-morph";
-import { PropertyVisibility } from "../../../enums/index.js";
+import type { PropertyVisibility } from "../../../enums/index.js";
 import type { Configuration } from "../Configuration.js";
 import type { Type } from "../Type.js";
 
@@ -52,11 +52,11 @@ export abstract class Property<TypeT extends { readonly name: string }> {
     visibility: PropertyVisibility,
   ): Scope | undefined {
     switch (visibility) {
-      case PropertyVisibility.PRIVATE:
+      case "private":
         return Scope.Private;
-      case PropertyVisibility.PROTECTED:
+      case "protected":
         return Scope.Protected;
-      case PropertyVisibility.PUBLIC:
+      case "public":
         return undefined;
     }
   }

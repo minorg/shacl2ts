@@ -23,7 +23,7 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   }
 
   let thisVariable: string;
-  switch (this.configuration.objectTypeDeclarationType) {
+  switch (this.declarationType) {
     case "class":
       thisVariable = "this";
       break;
@@ -42,7 +42,7 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     }),
   );
   if (
-    this.configuration.objectTypeDeclarationType === "class" &&
+    this.declarationType === "class" &&
     this.parentObjectTypes.length > 0 &&
     propertyHashStatements.length === 0
   ) {
@@ -51,7 +51,7 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   }
 
   const parameters: OptionalKind<ParameterDeclarationStructure>[] = [];
-  if (this.configuration.objectTypeDeclarationType === "interface") {
+  if (this.declarationType === "interface") {
     parameters.push({
       name: thisVariable,
       type: this.name,
@@ -66,7 +66,7 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
 
   let hasOverrideKeyword = false;
   if (this.parentObjectTypes.length > 0) {
-    switch (this.configuration.objectTypeDeclarationType) {
+    switch (this.declarationType) {
       case "class": {
         statements.push(`super.hash(${hasherVariable});`);
         hasOverrideKeyword = true;

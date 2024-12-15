@@ -2,8 +2,8 @@ import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
-import {
-  type MintingStrategy,
+import type {
+  MintingStrategy,
   TsObjectDeclarationType,
 } from "../../enums/index.js";
 import type { IdentifierType } from "./IdentifierType.js";
@@ -112,10 +112,7 @@ export class ObjectType extends Type {
 
   @Memoize()
   get fromRdfFunctionName(): string {
-    if (
-      this.declarationType === TsObjectDeclarationType.CLASS &&
-      this.abstract
-    ) {
+    if (this.declarationType === "class" && this.abstract) {
       return "interfaceFromRdf";
     }
     return "fromRdf";
@@ -186,9 +183,9 @@ export class ObjectType extends Type {
 
   override propertyEqualsFunction(): string {
     switch (this.declarationType) {
-      case TsObjectDeclarationType.CLASS:
+      case "class":
         return "purifyHelpers.Equatable.equals";
-      case TsObjectDeclarationType.INTERFACE:
+      case "interface":
         return `${this.name}.equals`;
     }
   }
@@ -203,9 +200,9 @@ export class ObjectType extends Type {
     variables,
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     switch (this.declarationType) {
-      case TsObjectDeclarationType.CLASS:
+      case "class":
         return [`${variables.value}.hash(${variables.hasher});`];
-      case TsObjectDeclarationType.INTERFACE:
+      case "interface":
         return [
           `${this.name}.${this.hashFunctionName}(${variables.value}, ${variables.hasher});`,
         ];
@@ -216,9 +213,9 @@ export class ObjectType extends Type {
     variables,
   }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
     switch (this.declarationType) {
-      case TsObjectDeclarationType.CLASS:
+      case "class":
         return `${variables.value}.toRdf({ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} })`;
-      case TsObjectDeclarationType.INTERFACE:
+      case "interface":
         return `${this.name}.toRdf(${variables.value}, { mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} })`;
     }
   }

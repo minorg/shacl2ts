@@ -8,7 +8,6 @@ import {
   StructureKind,
   type TypeAliasDeclarationStructure,
 } from "ts-morph";
-import { TsObjectDeclarationType } from "../../enums/index.js";
 import type { ObjectType } from "./ObjectType.js";
 import { Type } from "./Type.js";
 import { hasherTypeConstraint } from "./_ObjectType/hashFunctionOrMethodDeclaration.js";
@@ -67,10 +66,10 @@ export class ObjectUnionType extends Type {
     const caseBlocks = this.memberTypes.map((memberType) => {
       let returnExpression: string;
       switch (memberType.declarationType) {
-        case TsObjectDeclarationType.CLASS:
+        case "class":
           returnExpression = `left.equals(right as unknown as ${memberType.name})`;
           break;
-        case TsObjectDeclarationType.INTERFACE:
+        case "interface":
           returnExpression = `${memberType.name}.equals(left, right as unknown as ${memberType.name})`;
           break;
       }
@@ -132,10 +131,10 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
     const caseBlocks = this.memberTypes.map((memberType) => {
       let returnExpression: string;
       switch (memberType.declarationType) {
-        case TsObjectDeclarationType.CLASS:
+        case "class":
           returnExpression = `${thisVariable}.hash(${hasherVariable})`;
           break;
-        case TsObjectDeclarationType.INTERFACE:
+        case "interface":
           returnExpression = `${memberType.name}.${memberType.hashFunctionName}(${thisVariable}, ${hasherVariable})`;
           break;
       }
@@ -199,10 +198,10 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
     const caseBlocks = this.memberTypes.map((memberType) => {
       let returnExpression: string;
       switch (memberType.declarationType) {
-        case TsObjectDeclarationType.CLASS:
+        case "class":
           returnExpression = `${thisVariable}.toRdf(${parametersVariable})`;
           break;
-        case TsObjectDeclarationType.INTERFACE:
+        case "interface":
           returnExpression = `${this.name}.toRdf(${thisVariable}, ${parametersVariable})`;
           break;
       }
@@ -262,9 +261,9 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
     variables,
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     switch (this.memberTypes[0].declarationType) {
-      case TsObjectDeclarationType.CLASS:
+      case "class":
         return [`${variables.value}.hash(${variables.hasher});`];
-      case TsObjectDeclarationType.INTERFACE:
+      case "interface":
         return [`${this.name}.hash(${variables.value}, ${variables.hasher});`];
     }
   }
@@ -274,9 +273,9 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
   }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
     const options = `{ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }`;
     switch (this.memberTypes[0].declarationType) {
-      case TsObjectDeclarationType.CLASS:
+      case "class":
         return `${variables.value}.toRdf(${options})`;
-      case TsObjectDeclarationType.INTERFACE:
+      case "interface":
         return `${this.name}.toRdf(${variables.value}, ${options})`;
     }
   }

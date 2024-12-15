@@ -6,7 +6,7 @@ import { rdf, xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import { fromRdf } from "rdf-literal";
 import type * as ast from "../../ast/index.js";
-import { PropertyVisibility } from "../../enums/index.js";
+import type { PropertyVisibility } from "../../enums/index.js";
 import { logger } from "../../logger.js";
 import { BooleanType } from "./BooleanType.js";
 import type { Configuration } from "./Configuration.js";
@@ -294,13 +294,9 @@ export class TypeFactory {
           )
         ) {
           // If the type has a non-abstract descendant, declare the identifier property for it
-          identifierPropertyClassDeclarationVisibility = Maybe.of(
-            PropertyVisibility.PROTECTED,
-          );
+          identifierPropertyClassDeclarationVisibility = Maybe.of("protected");
         } else {
-          identifierPropertyClassDeclarationVisibility = Maybe.of(
-            PropertyVisibility.PRIVATE,
-          );
+          identifierPropertyClassDeclarationVisibility = Maybe.of("private");
         }
 
         const identifierProperty: ObjectType.IdentifierProperty =
@@ -311,9 +307,10 @@ export class TypeFactory {
             configuration: this.configuration,
             mintingStrategy: astType.mintingStrategy,
             name: this.configuration.objectTypeIdentifierPropertyName,
+            objectTypeDeclarationType: astType.tsObjectDeclarationType,
             override: astType.parentObjectTypes.length > 0,
             type: identifierType,
-            visibility: PropertyVisibility.PUBLIC,
+            visibility: "public",
           });
         properties.push(identifierProperty);
 
@@ -335,6 +332,7 @@ export class TypeFactory {
               abstract: astType.abstract,
               configuration: this.configuration,
               name: this.configuration.objectTypeDiscriminatorPropertyName,
+              objectTypeDeclarationType: objectType.declarationType,
               override: objectType.parentObjectTypes.length > 0,
               type: {
                 name: [...typeDiscriminatorValues]
@@ -342,7 +340,7 @@ export class TypeFactory {
                   .map((name) => `"${name}"`)
                   .join("|"),
               },
-              visibility: PropertyVisibility.PUBLIC,
+              visibility: "public",
               value: objectType.discriminatorValue,
             }),
           );

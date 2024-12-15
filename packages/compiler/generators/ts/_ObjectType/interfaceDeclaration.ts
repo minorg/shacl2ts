@@ -5,13 +5,12 @@ import {
   type PropertySignatureStructure,
   StructureKind,
 } from "ts-morph";
-import { TsObjectDeclarationType } from "../../../enums/TsObjectDeclarationType.js";
 import type { ObjectType } from "../ObjectType.js";
 
 export function interfaceDeclaration(
   this: ObjectType,
 ): Maybe<InterfaceDeclarationStructure> {
-  if (this.declarationType !== TsObjectDeclarationType.INTERFACE) {
+  if (this.declarationType !== "interface") {
     return Maybe.empty();
   }
 

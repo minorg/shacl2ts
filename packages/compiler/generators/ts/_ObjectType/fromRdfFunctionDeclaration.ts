@@ -1,6 +1,5 @@
 import { Maybe } from "purify-ts";
 import { type FunctionDeclarationStructure, StructureKind } from "ts-morph";
-import { TsObjectDeclarationType } from "../../../enums/index.js";
 import type { ObjectType } from "../ObjectType.js";
 import { rdfjsTermExpression } from "../rdfjsTermExpression.js";
 
@@ -75,10 +74,7 @@ export function fromRdfFunctionDeclaration(
   let returnType = `{ ${Object.entries(propertiesByName)
     .map(([name, { type }]) => `${name}: ${type}`)
     .join(", ")} }`;
-  if (
-    this.declarationType === TsObjectDeclarationType.CLASS &&
-    !this.abstract
-  ) {
+  if (this.declarationType === "class" && !this.abstract) {
     construction = `new ${this.name}(${construction})`;
     returnType = this.name;
   }
