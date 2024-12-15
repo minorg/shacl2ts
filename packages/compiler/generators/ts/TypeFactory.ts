@@ -255,6 +255,7 @@ export class TypeFactory {
     const objectType = new ObjectType({
       abstract: astType.abstract,
       configuration: this.configuration,
+      declarationType: astType.tsObjectDeclarationType,
       export_: astType.export,
       extern: astType.extern,
       import_: astType.tsImport,

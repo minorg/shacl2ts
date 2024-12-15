@@ -8,6 +8,7 @@ import {
   StructureKind,
   type TypeAliasDeclarationStructure,
 } from "ts-morph";
+import { TsObjectDeclarationType } from "../../enums/index.js";
 import type { ObjectType } from "./ObjectType.js";
 import { Type } from "./Type.js";
 import { hasherTypeConstraint } from "./_ObjectType/hashFunctionOrMethodDeclaration.js";
@@ -43,6 +44,12 @@ export class ObjectUnionType extends Type {
     this.export = export_;
     invariant(memberTypes.length >= 2);
     this.memberTypes = memberTypes;
+    invariant(
+      memberTypes.every(
+        (memberType) =>
+          memberType.declarationType === memberTypes[0].declarationType,
+      ),
+    );
     this.name = name;
   }
 
@@ -59,11 +66,11 @@ export class ObjectUnionType extends Type {
   get equalsFunctionDeclaration(): FunctionDeclarationStructure {
     const caseBlocks = this.memberTypes.map((memberType) => {
       let returnExpression: string;
-      switch (this.configuration.objectTypeDeclarationType) {
-        case "class":
+      switch (memberType.declarationType) {
+        case TsObjectDeclarationType.CLASS:
           returnExpression = `left.equals(right as unknown as ${memberType.name})`;
           break;
-        case "interface":
+        case TsObjectDeclarationType.INTERFACE:
           returnExpression = `${memberType.name}.equals(left, right as unknown as ${memberType.name})`;
           break;
       }
@@ -124,11 +131,11 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
 
     const caseBlocks = this.memberTypes.map((memberType) => {
       let returnExpression: string;
-      switch (this.configuration.objectTypeDeclarationType) {
-        case "class":
+      switch (memberType.declarationType) {
+        case TsObjectDeclarationType.CLASS:
           returnExpression = `${thisVariable}.hash(${hasherVariable})`;
           break;
-        case "interface":
+        case TsObjectDeclarationType.INTERFACE:
           returnExpression = `${memberType.name}.${memberType.hashFunctionName}(${thisVariable}, ${hasherVariable})`;
           break;
       }
@@ -191,11 +198,11 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
 
     const caseBlocks = this.memberTypes.map((memberType) => {
       let returnExpression: string;
-      switch (this.configuration.objectTypeDeclarationType) {
-        case "class":
+      switch (memberType.declarationType) {
+        case TsObjectDeclarationType.CLASS:
           returnExpression = `${thisVariable}.toRdf(${parametersVariable})`;
           break;
-        case "interface":
+        case TsObjectDeclarationType.INTERFACE:
           returnExpression = `${this.name}.toRdf(${thisVariable}, ${parametersVariable})`;
           break;
       }
@@ -254,10 +261,10 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
   override propertyHashStatements({
     variables,
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
-    switch (this.configuration.objectTypeDeclarationType) {
-      case "class":
+    switch (this.memberTypes[0].declarationType) {
+      case TsObjectDeclarationType.CLASS:
         return [`${variables.value}.hash(${variables.hasher});`];
-      case "interface":
+      case TsObjectDeclarationType.INTERFACE:
         return [`${this.name}.hash(${variables.value}, ${variables.hasher});`];
     }
   }
@@ -266,10 +273,10 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
     variables,
   }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
     const options = `{ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} }`;
-    switch (this.configuration.objectTypeDeclarationType) {
-      case "class":
+    switch (this.memberTypes[0].declarationType) {
+      case TsObjectDeclarationType.CLASS:
         return `${variables.value}.toRdf(${options})`;
-      case "interface":
+      case TsObjectDeclarationType.INTERFACE:
         return `${this.name}.toRdf(${variables.value}, ${options})`;
     }
   }

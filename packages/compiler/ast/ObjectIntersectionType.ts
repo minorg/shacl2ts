@@ -1,4 +1,3 @@
-import type { TsObjectDeclarationType } from "../enums/index.js";
 import type { Name } from "./Name.js";
 import type { ObjectType } from "./ObjectType.js";
 
@@ -19,9 +18,4 @@ export interface ObjectIntersectionType {
    * Name of this type, usually derived from sh:name or shaclmate:name.
    */
   readonly name: Name;
-
-  /**
-   * Whether to generate a TypeScript class or interface for this type.
-   */
-  readonly tsObjectDeclarationType: TsObjectDeclarationType;
 }

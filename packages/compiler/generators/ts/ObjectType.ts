@@ -2,7 +2,10 @@ import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
-import type { MintingStrategy } from "../../enums/index.js";
+import {
+  type MintingStrategy,
+  TsObjectDeclarationType,
+} from "../../enums/index.js";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
@@ -10,6 +13,7 @@ import * as _ObjectType from "./_ObjectType/index.js";
 export class ObjectType extends Type {
   readonly abstract: boolean;
   classDeclaration = _ObjectType.classDeclaration;
+  readonly declarationType: TsObjectDeclarationType;
   equalsFunctionDeclaration = _ObjectType.equalsFunctionDeclaration;
   readonly export_: boolean;
   readonly extern: boolean;
@@ -31,6 +35,7 @@ export class ObjectType extends Type {
 
   constructor({
     abstract,
+    declarationType,
     export_,
     extern,
     lazyAncestorObjectTypes,
@@ -44,6 +49,7 @@ export class ObjectType extends Type {
     ...superParameters
   }: {
     abstract: boolean;
+    declarationType: TsObjectDeclarationType;
     export_: boolean;
     extern: boolean;
     import_: Maybe<string>;
@@ -57,6 +63,7 @@ export class ObjectType extends Type {
   } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
     this.abstract = abstract;
+    this.declarationType = declarationType;
     this.export_ = export_;
     this.extern = extern;
     this.import_ = import_;
@@ -106,7 +113,7 @@ export class ObjectType extends Type {
   @Memoize()
   get fromRdfFunctionName(): string {
     if (
-      this.configuration.objectTypeDeclarationType === "class" &&
+      this.declarationType === TsObjectDeclarationType.CLASS &&
       this.abstract
     ) {
       return "interfaceFromRdf";
@@ -178,10 +185,10 @@ export class ObjectType extends Type {
   }
 
   override propertyEqualsFunction(): string {
-    switch (this.configuration.objectTypeDeclarationType) {
-      case "class":
+    switch (this.declarationType) {
+      case TsObjectDeclarationType.CLASS:
         return "purifyHelpers.Equatable.equals";
-      case "interface":
+      case TsObjectDeclarationType.INTERFACE:
         return `${this.name}.equals`;
     }
   }
@@ -195,10 +202,10 @@ export class ObjectType extends Type {
   override propertyHashStatements({
     variables,
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
-    switch (this.configuration.objectTypeDeclarationType) {
-      case "class":
+    switch (this.declarationType) {
+      case TsObjectDeclarationType.CLASS:
         return [`${variables.value}.hash(${variables.hasher});`];
-      case "interface":
+      case TsObjectDeclarationType.INTERFACE:
         return [
           `${this.name}.${this.hashFunctionName}(${variables.value}, ${variables.hasher});`,
         ];
@@ -208,10 +215,10 @@ export class ObjectType extends Type {
   override propertyToRdfExpression({
     variables,
   }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
-    switch (this.configuration.objectTypeDeclarationType) {
-      case "class":
+    switch (this.declarationType) {
+      case TsObjectDeclarationType.CLASS:
         return `${variables.value}.toRdf({ mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} })`;
-      case "interface":
+      case TsObjectDeclarationType.INTERFACE:
         return `${this.name}.toRdf(${variables.value}, { mutateGraph: ${variables.mutateGraph}, resourceSet: ${variables.resourceSet} })`;
     }
   }
