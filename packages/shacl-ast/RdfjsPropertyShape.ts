@@ -50,7 +50,7 @@ export class RdfjsPropertyShape<
 
   get order(): Maybe<number> {
     return this.resource
-      .value(sh.maxCount)
+      .value(sh.order)
       .chain((value) => value.toNumber())
       .toMaybe();
   }
