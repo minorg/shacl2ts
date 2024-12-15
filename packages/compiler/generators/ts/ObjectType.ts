@@ -2,7 +2,7 @@ import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
-import type { MintingStrategy } from "../../MintingStrategy";
+import type { MintingStrategy } from "../../MintingStrategy.js";
 import type { IdentifierType } from "./IdentifierType.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
