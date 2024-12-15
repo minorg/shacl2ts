@@ -3,18 +3,40 @@ import type { Maybe } from "purify-ts";
 import type { NodeKind } from "./NodeKind.js";
 import type { NodeShape } from "./NodeShape.js";
 import type { Ontology } from "./Ontology.js";
+import type { PropertyGroup } from "./PropertyGroup.js";
 import type { PropertyShape } from "./PropertyShape.js";
 
 export interface Shape<
-  NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> & ShapeT,
-  OntologyT extends Ontology,
-  PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+  NodeShapeT extends NodeShape<
+    any,
+    OntologyT,
+    PropertyGroupT,
+    PropertyShapeT,
+    ShapeT
+  > &
     ShapeT,
-  ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
+  OntologyT extends Ontology,
+  PropertyGroupT extends PropertyGroup,
+  PropertyShapeT extends PropertyShape<
+    NodeShapeT,
+    OntologyT,
+    PropertyGroupT,
+    any,
+    ShapeT
+  > &
+    ShapeT,
+  ShapeT extends Shape<
+    NodeShapeT,
+    OntologyT,
+    PropertyGroupT,
+    PropertyShapeT,
+    any
+  >,
 > {
   readonly constraints: Shape.Constraints<
     NodeShapeT,
     OntologyT,
+    PropertyGroupT,
     PropertyShapeT,
     ShapeT
   >;
@@ -27,12 +49,31 @@ export interface Shape<
 
 export namespace Shape {
   export interface Constraints<
-    NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> &
+    NodeShapeT extends NodeShape<
+      any,
+      OntologyT,
+      PropertyGroupT,
+      PropertyShapeT,
+      ShapeT
+    > &
       ShapeT,
     OntologyT extends Ontology,
-    PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+    PropertyGroupT extends PropertyGroup,
+    PropertyShapeT extends PropertyShape<
+      NodeShapeT,
+      OntologyT,
+      PropertyGroupT,
+      any,
+      ShapeT
+    > &
       ShapeT,
-    ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
+    ShapeT extends Shape<
+      NodeShapeT,
+      OntologyT,
+      PropertyGroupT,
+      PropertyShapeT,
+      any
+    >,
   > {
     readonly and: readonly ShapeT[];
     readonly classes: readonly NamedNode[];

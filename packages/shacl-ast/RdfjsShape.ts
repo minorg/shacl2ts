@@ -5,21 +5,44 @@ import type { Resource } from "rdfjs-resource";
 import { NodeKind } from "./NodeKind.js";
 import type { NodeShape } from "./NodeShape.js";
 import type { Ontology } from "./Ontology.js";
+import type { PropertyGroup } from "./PropertyGroup.js";
 import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
 import type { ShapesGraph } from "./ShapesGraph.js";
 
 export abstract class RdfjsShape<
-  NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> & ShapeT,
-  OntologyT extends Ontology,
-  PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+  NodeShapeT extends NodeShape<
+    any,
+    OntologyT,
+    PropertyGroupT,
+    PropertyShapeT,
+    ShapeT
+  > &
     ShapeT,
-  ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
-> implements Shape<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>
+  OntologyT extends Ontology,
+  PropertyGroupT extends PropertyGroup,
+  PropertyShapeT extends PropertyShape<
+    NodeShapeT,
+    OntologyT,
+    PropertyGroupT,
+    any,
+    ShapeT
+  > &
+    ShapeT,
+  ShapeT extends Shape<
+    NodeShapeT,
+    OntologyT,
+    PropertyGroupT,
+    PropertyShapeT,
+    any
+  >,
+> implements
+    Shape<NodeShapeT, OntologyT, PropertyGroupT, PropertyShapeT, ShapeT>
 {
   abstract readonly constraints: RdfjsShape.Constraints<
     NodeShapeT,
     OntologyT,
+    PropertyGroupT,
     PropertyShapeT,
     ShapeT
   >;
@@ -30,6 +53,7 @@ export abstract class RdfjsShape<
     protected readonly shapesGraph: ShapesGraph<
       NodeShapeT,
       OntologyT,
+      PropertyGroupT,
       PropertyShapeT,
       ShapeT
     >,
@@ -93,19 +117,46 @@ export abstract class RdfjsShape<
 
 export namespace RdfjsShape {
   export class Constraints<
-    NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> &
+    NodeShapeT extends NodeShape<
+      any,
+      OntologyT,
+      PropertyGroupT,
+      PropertyShapeT,
+      ShapeT
+    > &
       ShapeT,
     OntologyT extends Ontology,
-    PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+    PropertyGroupT extends PropertyGroup,
+    PropertyShapeT extends PropertyShape<
+      NodeShapeT,
+      OntologyT,
+      PropertyGroupT,
+      any,
+      ShapeT
+    > &
       ShapeT,
-    ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
-  > implements Shape.Constraints<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>
+    ShapeT extends Shape<
+      NodeShapeT,
+      OntologyT,
+      PropertyGroupT,
+      PropertyShapeT,
+      any
+    >,
+  > implements
+      Shape.Constraints<
+        NodeShapeT,
+        OntologyT,
+        PropertyGroupT,
+        PropertyShapeT,
+        ShapeT
+      >
   {
     constructor(
       protected readonly resource: Resource,
       protected readonly shapesGraph: ShapesGraph<
         NodeShapeT,
         OntologyT,
+        PropertyGroupT,
         PropertyShapeT,
         ShapeT
       >,

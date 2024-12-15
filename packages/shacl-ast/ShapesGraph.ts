@@ -7,21 +7,41 @@ import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
 
 export interface ShapesGraph<
-  NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> & ShapeT,
-  OntologyT extends Ontology,
-  PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+  NodeShapeT extends NodeShape<
+    any,
+    OntologyT,
+    PropertyGroupT,
+    PropertyShapeT,
+    ShapeT
+  > &
     ShapeT,
-  ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
+  OntologyT extends Ontology,
+  PropertyGroupT extends PropertyGroup,
+  PropertyShapeT extends PropertyShape<
+    NodeShapeT,
+    OntologyT,
+    PropertyGroupT,
+    any,
+    ShapeT
+  > &
+    ShapeT,
+  ShapeT extends Shape<
+    NodeShapeT,
+    OntologyT,
+    PropertyGroupT,
+    PropertyShapeT,
+    any
+  >,
 > {
   readonly node: BlankNode | DefaultGraph | NamedNode | null;
   readonly nodeShapes: readonly NodeShapeT[];
   readonly ontologies: readonly OntologyT[];
-  readonly propertyGroups: readonly PropertyGroup[];
+  readonly propertyGroups: readonly PropertyGroupT[];
   readonly propertyShapes: readonly PropertyShapeT[];
 
   nodeShapeByIdentifier(identifier: BlankNode | NamedNode): Maybe<NodeShapeT>;
   ontologyByIdentifier(identifier: BlankNode | NamedNode): Maybe<OntologyT>;
-  propertyGroupByIdentifier(identifier: NamedNode): Maybe<PropertyGroup>;
+  propertyGroupByIdentifier(identifier: NamedNode): Maybe<PropertyGroupT>;
   propertyShapeByIdentifier(
     identifier: BlankNode | NamedNode,
   ): Maybe<PropertyShapeT>;

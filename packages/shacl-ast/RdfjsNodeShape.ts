@@ -3,32 +3,66 @@ import type { Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import type { NodeShape } from "./NodeShape.js";
 import type { Ontology } from "./Ontology.js";
+import type { PropertyGroup } from "./PropertyGroup.js";
 import type { PropertyShape } from "./PropertyShape.js";
 import { RdfjsShape } from "./RdfjsShape.js";
 import type { Shape } from "./Shape.js";
 import type { ShapesGraph } from "./ShapesGraph.js";
 
 export class RdfjsNodeShape<
-    NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> &
+    NodeShapeT extends NodeShape<
+      any,
+      OntologyT,
+      PropertyGroupT,
+      PropertyShapeT,
+      ShapeT
+    > &
       ShapeT,
     OntologyT extends Ontology,
-    PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+    PropertyGroupT extends PropertyGroup,
+    PropertyShapeT extends PropertyShape<
+      NodeShapeT,
+      OntologyT,
+      PropertyGroupT,
+      any,
+      ShapeT
+    > &
       ShapeT,
-    ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
+    ShapeT extends Shape<
+      NodeShapeT,
+      OntologyT,
+      PropertyGroupT,
+      PropertyShapeT,
+      any
+    >,
   >
-  extends RdfjsShape<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>
-  implements NodeShape<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>
+  extends RdfjsShape<
+    NodeShapeT,
+    OntologyT,
+    PropertyGroupT,
+    PropertyShapeT,
+    ShapeT
+  >
+  implements
+    NodeShape<NodeShapeT, OntologyT, PropertyGroupT, PropertyShapeT, ShapeT>
 {
   readonly constraints: RdfjsNodeShape.Constraints<
     NodeShapeT,
     OntologyT,
+    PropertyGroupT,
     PropertyShapeT,
     ShapeT
   >;
 
   constructor(
     resource: Resource,
-    shapesGraph: ShapesGraph<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>,
+    shapesGraph: ShapesGraph<
+      NodeShapeT,
+      OntologyT,
+      PropertyGroupT,
+      PropertyShapeT,
+      ShapeT
+    >,
   ) {
     super(resource, shapesGraph);
     this.constraints = new RdfjsNodeShape.Constraints(resource, shapesGraph);
@@ -41,15 +75,35 @@ export class RdfjsNodeShape<
 
 export namespace RdfjsNodeShape {
   export class Constraints<
-    NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> &
+    NodeShapeT extends NodeShape<
+      any,
+      OntologyT,
+      PropertyGroupT,
+      PropertyShapeT,
+      ShapeT
+    > &
       ShapeT,
     OntologyT extends Ontology,
-    PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+    PropertyGroupT extends PropertyGroup,
+    PropertyShapeT extends PropertyShape<
+      NodeShapeT,
+      OntologyT,
+      PropertyGroupT,
+      any,
+      ShapeT
+    > &
       ShapeT,
-    ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
+    ShapeT extends Shape<
+      NodeShapeT,
+      OntologyT,
+      PropertyGroupT,
+      PropertyShapeT,
+      any
+    >,
   > extends RdfjsShape.Constraints<
     NodeShapeT,
     OntologyT,
+    PropertyGroupT,
     PropertyShapeT,
     ShapeT
   > {
