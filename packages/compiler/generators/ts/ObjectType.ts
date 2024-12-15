@@ -8,7 +8,7 @@ import type {
 } from "../../enums/index.js";
 import { DeclaredType } from "./DeclaredType.js";
 import type { IdentifierType } from "./IdentifierType.js";
-import type { Import } from "./Import.js";
+import { Import } from "./Import.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
 
@@ -99,9 +99,22 @@ export class ObjectType extends DeclaredType {
   }
 
   get declarationImports(): readonly Import[] {
-    return this.extern
-      ? []
-      : this.properties.flatMap((property) => property.declarationImports);
+    if (this.extern) {
+      return [];
+    }
+    const imports: Import[] = this.properties.flatMap(
+      (property) => property.declarationImports,
+    );
+    if (this.features.has("equals")) {
+      imports.push(Import.PURIFY_HELPERS);
+    }
+    if (this.features.has("fromRdf") || this.features.has("toRdf")) {
+      imports.push(Import.RDFJS_RESOURCE);
+    }
+    if (this.features.has("sparql-graph-patterns")) {
+      imports.push(Import.SPARQL_BUILDER);
+    }
+    return imports;
   }
 
   @Memoize()
