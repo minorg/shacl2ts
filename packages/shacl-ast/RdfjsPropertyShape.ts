@@ -12,22 +12,55 @@ import type { Shape } from "./Shape.js";
 import type { ShapesGraph } from "./ShapesGraph.js";
 
 export class RdfjsPropertyShape<
-  NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> & ShapeT,
-  OntologyT extends Ontology,
-  PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+  NodeShapeT extends NodeShape<
+    any,
+    OntologyT,
+    PropertyGroupT,
+    PropertyShapeT,
+    ShapeT
+  > &
     ShapeT,
-  ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
-> extends RdfjsShape<NodeShapeT, OntologyT, PropertyShapeT, ShapeT> {
+  OntologyT extends Ontology,
+  PropertyGroupT extends PropertyGroup,
+  PropertyShapeT extends PropertyShape<
+    NodeShapeT,
+    OntologyT,
+    PropertyGroupT,
+    any,
+    ShapeT
+  > &
+    ShapeT,
+  ShapeT extends Shape<
+    NodeShapeT,
+    OntologyT,
+    PropertyGroupT,
+    PropertyShapeT,
+    any
+  >,
+> extends RdfjsShape<
+  NodeShapeT,
+  OntologyT,
+  PropertyGroupT,
+  PropertyShapeT,
+  ShapeT
+> {
   readonly constraints: RdfjsShape.Constraints<
     NodeShapeT,
     OntologyT,
+    PropertyGroupT,
     PropertyShapeT,
     ShapeT
   >;
 
   constructor(
     resource: Resource,
-    shapesGraph: ShapesGraph<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>,
+    shapesGraph: ShapesGraph<
+      NodeShapeT,
+      OntologyT,
+      PropertyGroupT,
+      PropertyShapeT,
+      ShapeT
+    >,
   ) {
     super(resource, shapesGraph);
     this.constraints = new RdfjsShape.Constraints(resource, shapesGraph);
@@ -40,7 +73,7 @@ export class RdfjsPropertyShape<
       .toMaybe();
   }
 
-  get group(): Maybe<PropertyGroup> {
+  get group(): Maybe<PropertyGroupT> {
     return this.resource
       .value(sh.group)
       .chain((value) => value.toIri())

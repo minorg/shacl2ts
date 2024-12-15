@@ -7,14 +7,34 @@ import type { PropertyPath } from "./PropertyPath.js";
 import type { Shape } from "./Shape.js";
 
 export interface PropertyShape<
-  NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> & ShapeT,
-  OntologyT extends Ontology,
-  PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+  NodeShapeT extends NodeShape<
+    any,
+    OntologyT,
+    PropertyGroupT,
+    PropertyShapeT,
+    ShapeT
+  > &
     ShapeT,
-  ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
-> extends Shape<NodeShapeT, OntologyT, PropertyShapeT, ShapeT> {
+  OntologyT extends Ontology,
+  PropertyGroupT extends PropertyGroup,
+  PropertyShapeT extends PropertyShape<
+    NodeShapeT,
+    OntologyT,
+    PropertyGroupT,
+    any,
+    ShapeT
+  > &
+    ShapeT,
+  ShapeT extends Shape<
+    NodeShapeT,
+    OntologyT,
+    PropertyGroupT,
+    PropertyShapeT,
+    any
+  >,
+> extends Shape<NodeShapeT, OntologyT, PropertyGroupT, PropertyShapeT, ShapeT> {
   readonly defaultValue: Maybe<BlankNode | Literal | NamedNode>;
-  readonly group: Maybe<PropertyGroup>;
+  readonly group: Maybe<PropertyGroupT>;
   readonly order: Maybe<number>;
   readonly path: PropertyPath;
 }

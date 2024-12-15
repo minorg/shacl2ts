@@ -1,4 +1,4 @@
-import { schema } from "@tpluscode/rdf-ns-builders";
+import { dash } from "@tpluscode/rdf-ns-builders";
 import { it } from "vitest";
 import type { NodeShape } from "../NodeShape.js";
 import type { Ontology } from "../Ontology.js";
@@ -7,7 +7,7 @@ import type { PropertyShape } from "../PropertyShape.js";
 import type { Shape } from "../Shape.js";
 import type { ShapesGraph } from "../ShapesGraph.js";
 
-export function behavesLikeNodeShape<
+export function behavesLikePropertyGroup<
   NodeShapeT extends NodeShape<
     any,
     OntologyT,
@@ -42,19 +42,12 @@ export function behavesLikeNodeShape<
     ShapeT
   >,
 ) {
-  it("constraints: should get closed true", ({ expect }) => {
-    expect(
-      shapesGraph
-        .nodeShapeByIdentifier(schema.DatedMoneySpecification)
-        .unsafeCoerce()
-        .constraints.closed.unsafeCoerce(),
-    ).toStrictEqual(true);
-  });
-
-  it("constraints: should have properties", ({ expect }) => {
-    expect(
-      shapesGraph.nodeShapeByIdentifier(schema.Person).unsafeCoerce()
-        .constraints.properties,
-    ).toHaveLength(9);
+  it("should have a label", ({ expect }) => {
+    const propertyGroup = shapesGraph
+      .propertyGroupByIdentifier(dash.ScriptAPIGenerationRules)
+      .unsafeCoerce();
+    expect(propertyGroup.label.unsafeCoerce().value).toStrictEqual(
+      "Script API Generation Rules",
+    );
   });
 }

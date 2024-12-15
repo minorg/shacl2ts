@@ -7,6 +7,7 @@ export * from "./PropertyPath.js";
 export * from "./PropertyShape.js";
 export * from "./RdfjsNodeShape.js";
 export * from "./RdfjsOntology.js";
+export * from "./RdfjsPropertyGroup.js";
 export * from "./RdfjsPropertyShape.js";
 export * from "./RdfjsShape.js";
 export * from "./RdfjsFactory.js";

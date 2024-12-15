@@ -15,21 +15,40 @@ import type { Ontology } from "./Ontology.js";
 import type { PropertyGroup } from "./PropertyGroup.js";
 import type { PropertyShape } from "./PropertyShape.js";
 import type { RdfjsFactory } from "./RdfjsFactory.js";
-import { RdfjsPropertyGroup } from "./RdfjsPropertyGroup.js";
 import type { Shape } from "./Shape.js";
 
 export class RdfjsShapesGraph<
-  NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> & ShapeT,
-  OntologyT extends Ontology,
-  PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+  NodeShapeT extends NodeShape<
+    any,
+    OntologyT,
+    PropertyGroupT,
+    PropertyShapeT,
+    ShapeT
+  > &
     ShapeT,
-  ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
+  OntologyT extends Ontology,
+  PropertyGroupT extends PropertyGroup,
+  PropertyShapeT extends PropertyShape<
+    NodeShapeT,
+    OntologyT,
+    PropertyGroupT,
+    any,
+    ShapeT
+  > &
+    ShapeT,
+  ShapeT extends Shape<
+    NodeShapeT,
+    OntologyT,
+    PropertyGroupT,
+    PropertyShapeT,
+    any
+  >,
 > {
   readonly dataset: DatasetCore;
   readonly node: BlankNode | DefaultGraph | NamedNode | null;
   readonly nodeShapes: readonly NodeShapeT[];
   readonly ontologies: readonly OntologyT[];
-  readonly propertyGroups: readonly PropertyGroup[];
+  readonly propertyGroups: readonly PropertyGroupT[];
   readonly propertyShapes: readonly PropertyShapeT[];
   private readonly nodeShapesByIdentifier: TermMap<
     BlankNode | NamedNode,
@@ -41,7 +60,7 @@ export class RdfjsShapesGraph<
   >;
   private readonly propertyGroupsByIdentifier: TermMap<
     BlankNode | NamedNode,
-    PropertyGroup
+    PropertyGroupT
   >;
   private readonly propertyShapesByIdentifier: TermMap<
     BlankNode | NamedNode,
@@ -54,7 +73,13 @@ export class RdfjsShapesGraph<
     factory,
   }: {
     dataset: DatasetCore;
-    factory: RdfjsFactory<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>;
+    factory: RdfjsFactory<
+      NodeShapeT,
+      OntologyT,
+      PropertyGroupT,
+      PropertyShapeT,
+      ShapeT
+    >;
   }) {
     this.dataset = dataset;
     this.resourceSet = new ResourceSet({ dataset: this.dataset });
@@ -77,7 +102,7 @@ export class RdfjsShapesGraph<
     this.ontologiesByIdentifier = ontologiesByIdentifier;
 
     const { propertyGroups, propertyGroupsByIdentifier } =
-      this.readPropertyGroups();
+      this.readPropertyGroups(factory);
     this.propertyGroups = propertyGroups;
     this.propertyGroupsByIdentifier = propertyGroupsByIdentifier;
   }
@@ -92,7 +117,7 @@ export class RdfjsShapesGraph<
     return Maybe.fromNullable(this.ontologiesByIdentifier.get(identifier));
   }
 
-  propertyGroupByIdentifier(identifier: NamedNode): Maybe<PropertyGroup> {
+  propertyGroupByIdentifier(identifier: NamedNode): Maybe<PropertyGroupT> {
     return Maybe.fromNullable(this.propertyGroupsByIdentifier.get(identifier));
   }
 
@@ -132,7 +157,13 @@ export class RdfjsShapesGraph<
   }
 
   private readOntologies(
-    factory: RdfjsFactory<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>,
+    factory: RdfjsFactory<
+      NodeShapeT,
+      OntologyT,
+      PropertyGroupT,
+      PropertyShapeT,
+      ShapeT
+    >,
   ): {
     ontologies: OntologyT[];
     ontologiesByIdentifier: TermMap<BlankNode | NamedNode, OntologyT>;
@@ -153,14 +184,22 @@ export class RdfjsShapesGraph<
     return { ontologies, ontologiesByIdentifier };
   }
 
-  private readPropertyGroups(): {
-    propertyGroups: PropertyGroup[];
-    propertyGroupsByIdentifier: TermMap<BlankNode | NamedNode, PropertyGroup>;
+  private readPropertyGroups(
+    factory: RdfjsFactory<
+      NodeShapeT,
+      OntologyT,
+      PropertyGroupT,
+      PropertyShapeT,
+      ShapeT
+    >,
+  ): {
+    propertyGroups: PropertyGroupT[];
+    propertyGroupsByIdentifier: TermMap<BlankNode | NamedNode, PropertyGroupT>;
   } {
-    const propertyGroups: PropertyGroup[] = [];
+    const propertyGroups: PropertyGroupT[] = [];
     const propertyGroupsByIdentifier: TermMap<
       BlankNode | NamedNode,
-      PropertyGroup
+      PropertyGroupT
     > = new TermMap();
     for (const propertyGroupResource of this.resourceSet.instancesOf(
       sh.PropertyGroup,
@@ -172,7 +211,10 @@ export class RdfjsShapesGraph<
       if (propertyGroupsByIdentifier.has(propertyGroupResource.identifier)) {
         continue;
       }
-      const propertyGroup = new RdfjsPropertyGroup(propertyGroupResource);
+      const propertyGroup = factory.createPropertyGroup(
+        propertyGroupResource,
+        this,
+      );
       propertyGroups.push(propertyGroup);
       propertyGroupsByIdentifier.set(
         propertyGroupResource.identifier,
@@ -183,7 +225,13 @@ export class RdfjsShapesGraph<
   }
 
   private readShapes(
-    factory: RdfjsFactory<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>,
+    factory: RdfjsFactory<
+      NodeShapeT,
+      OntologyT,
+      PropertyGroupT,
+      PropertyShapeT,
+      ShapeT
+    >,
   ): {
     nodeShapes: readonly NodeShapeT[];
     nodeShapesByIdentifier: TermMap<BlankNode | NamedNode, NodeShapeT>;
