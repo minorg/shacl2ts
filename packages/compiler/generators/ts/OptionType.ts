@@ -1,4 +1,5 @@
 import { Memoize } from "typescript-memoize";
+import type { Import } from "./Import.js";
 import { Type } from "./Type.js";
 
 export class OptionType extends Type {
@@ -46,7 +47,7 @@ export class OptionType extends Type {
     return `purify.Maybe<${this.itemType.name}>`;
   }
 
-  override get useImports(): readonly string[] {
+  override get useImports(): readonly Import[] {
     return this.itemType.useImports;
   }
 

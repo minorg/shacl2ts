@@ -4,29 +4,26 @@ import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
 import type {
   MintingStrategy,
-  TsFeature,
   TsObjectDeclarationType,
 } from "../../enums/index.js";
+import { DeclaredType } from "./DeclaredType.js";
 import type { IdentifierType } from "./IdentifierType.js";
 import type { Import } from "./Import.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
 
-export class ObjectType extends Type {
+export class ObjectType extends DeclaredType {
   readonly abstract: boolean;
   classDeclaration = _ObjectType.classDeclaration;
   readonly declarationType: TsObjectDeclarationType;
   equalsFunctionDeclaration = _ObjectType.equalsFunctionDeclaration;
-  readonly export_: boolean;
   readonly extern: boolean;
-  readonly features: Set<TsFeature>;
   fromRdfFunctionDeclaration = _ObjectType.fromRdfFunctionDeclaration;
   hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
   import_: Maybe<string>;
   interfaceDeclaration = _ObjectType.interfaceDeclaration;
   readonly kind = "ObjectType";
   readonly mintingStrategy: Maybe<MintingStrategy>;
-  readonly name: string;
   readonly rdfType: Maybe<NamedNode>;
   sparqlGraphPatternsClassDeclaration =
     _ObjectType.sparqlGraphPatternsClassDeclaration;
@@ -39,39 +36,31 @@ export class ObjectType extends Type {
   constructor({
     abstract,
     declarationType,
-    export_,
     extern,
-    features,
     lazyAncestorObjectTypes,
     lazyDescendantObjectTypes,
     lazyParentObjectTypes,
     lazyProperties,
     import_,
     mintingStrategy,
-    name,
     rdfType,
     ...superParameters
   }: {
     abstract: boolean;
     declarationType: TsObjectDeclarationType;
-    export_: boolean;
     extern: boolean;
-    features: Set<TsFeature>;
     import_: Maybe<string>;
     lazyAncestorObjectTypes: () => readonly ObjectType[];
     lazyDescendantObjectTypes: () => readonly ObjectType[];
     lazyParentObjectTypes: () => readonly ObjectType[];
     lazyProperties: () => readonly ObjectType.Property[];
     mintingStrategy: Maybe<MintingStrategy>;
-    name: string;
     rdfType: Maybe<NamedNode>;
-  } & ConstructorParameters<typeof Type>[0]) {
+  } & ConstructorParameters<typeof DeclaredType>[0]) {
     super(superParameters);
     this.abstract = abstract;
     this.declarationType = declarationType;
-    this.export_ = export_;
     this.extern = extern;
-    this.features = features;
     this.import_ = import_;
     // Lazily initialize some members in getters to avoid recursive construction
     this.lazyAncestorObjectTypes = lazyAncestorObjectTypes;
@@ -80,7 +69,6 @@ export class ObjectType extends Type {
     this.lazyProperties = lazyProperties;
     this.mintingStrategy = mintingStrategy;
     this.rdfType = rdfType;
-    this.name = name;
   }
 
   get _discriminatorProperty(): Type.DiscriminatorProperty {
@@ -110,7 +98,11 @@ export class ObjectType extends Type {
     ];
   }
 
-  get declarationImports(): readonly Import[] {}
+  get declarationImports(): readonly Import[] {
+    return this.extern
+      ? []
+      : this.properties.flatMap((property) => property.declarationImports);
+  }
 
   @Memoize()
   get descendantObjectTypes(): readonly ObjectType[] {
@@ -177,11 +169,8 @@ export class ObjectType extends Type {
     return properties;
   }
 
-  override get useImports(): readonly string[] {
-    return [
-      ...this.import_.toList(),
-      ...this.properties.flatMap((property) => property.importStatements),
-    ];
+  override get useImports(): readonly Import[] {
+    return this.import_.toList();
   }
 
   override propertyChainSparqlGraphPatternExpression({

@@ -8,6 +8,7 @@ import type {
   PropertySignatureStructure,
 } from "ts-morph";
 import { Memoize } from "typescript-memoize";
+import type { Import } from "../Import.js";
 import type { Type } from "../Type.js";
 import { Property } from "./Property.js";
 
@@ -63,12 +64,12 @@ export class ShaclProperty extends Property<Type> {
     });
   }
 
-  override get equalsFunction(): string {
-    return this.type.propertyEqualsFunction();
+  override get declarationImports(): readonly Import[] {
+    return this.type.useImports;
   }
 
-  override get importStatements(): readonly string[] {
-    return this.type.useImports;
+  override get equalsFunction(): string {
+    return this.type.propertyEqualsFunction();
   }
 
   override get interfacePropertySignature(): OptionalKind<PropertySignatureStructure> {

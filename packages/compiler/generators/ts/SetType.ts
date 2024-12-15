@@ -1,4 +1,5 @@
 import { Memoize } from "typescript-memoize";
+import type { Import } from "./Import.js";
 import { Type } from "./Type.js";
 
 export class SetType extends Type {
@@ -39,7 +40,7 @@ export class SetType extends Type {
     return `readonly (${this.itemType.name})[]`;
   }
 
-  override get useImports(): readonly string[] {
+  override get useImports(): readonly Import[] {
     return this.itemType.useImports;
   }
 
