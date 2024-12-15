@@ -7,6 +7,7 @@ import * as purifyHelpers from "purify-ts-helpers";
 // @ts-ignore
 import * as rdfLiteral from "rdf-literal";
 import * as rdfjsResource from "rdfjs-resource";
+import * as uuid from "uuid";
 import { ExternObjectType } from "../ExternObjectType.js";
 export class UuidV4IriNodeShape {
   private _identifier: rdfjs.NamedNode | undefined;
@@ -24,7 +25,7 @@ export class UuidV4IriNodeShape {
   get identifier(): rdfjs.NamedNode {
     if (typeof this._identifier === "undefined") {
       this._identifier = dataFactory.namedNode(
-        `urn:shaclmate:object:${this.type}:${this.hash(sha256.create())}`,
+        `urn:shaclmate:object:${this.type}:${uuid.v4()}`,
       );
     }
     return this._identifier;
@@ -546,8 +547,8 @@ export namespace OrNodeShapeMember1 {
 }
 export class NodeShapeWithPropertyVisibilities {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
-  readonly privateProperty: string;
-  readonly protectedProperty: string;
+  private readonly privateProperty: string;
+  protected readonly protectedProperty: string;
   readonly publicProperty: string;
   readonly type = "NodeShapeWithPropertyVisibilities";
 
