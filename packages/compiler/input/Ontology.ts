@@ -6,6 +6,13 @@ import { tsFeatures } from "./tsFeatures.js";
 import { tsObjectDeclarationType } from "./tsObjectDeclarationType.js";
 
 export class Ontology extends RdfjsOntology {
+  get tsDataFactoryVariable(): Maybe<string> {
+    return this.resource
+      .value(shaclmate.tsDataFactoryVariable)
+      .chain((value) => value.toString())
+      .toMaybe();
+  }
+
   get tsFeatures(): Maybe<Set<TsFeature>> {
     return tsFeatures(this.resource);
   }

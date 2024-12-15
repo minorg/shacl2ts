@@ -7,7 +7,6 @@ import {
   Scope,
 } from "ts-morph";
 import type { PropertyVisibility } from "../../../enums/index.js";
-import type { Configuration } from "../Configuration.js";
 import type { Type } from "../Type.js";
 
 export abstract class Property<TypeT extends { readonly name: string }> {
@@ -25,20 +24,20 @@ export abstract class Property<TypeT extends { readonly name: string }> {
   readonly name: string;
   readonly type: TypeT;
   readonly visibility: PropertyVisibility;
-  protected readonly configuration: Configuration;
+  protected readonly dataFactoryVariable: string;
 
   constructor({
-    configuration,
+    dataFactoryVariable,
     name,
     type,
     visibility,
   }: {
-    configuration: Configuration;
+    dataFactoryVariable: string;
     name: string;
     type: TypeT;
     visibility: PropertyVisibility;
   }) {
-    this.configuration = configuration;
+    this.dataFactoryVariable = dataFactoryVariable;
     this.name = name;
     this.type = type;
     this.visibility = visibility;

@@ -215,6 +215,20 @@ export class NodeShape
     );
   }
 
+  get tsObjectIdentifierPropertyName(): Maybe<string> {
+    return this.resource
+      .value(shaclmate.tsObjectIdentifierPropertyName)
+      .chain((value) => value.toString())
+      .toMaybe();
+  }
+
+  get tsObjectTypeDiscriminatorPropertyName(): Maybe<string> {
+    return this.resource
+      .value(shaclmate.tsObjectTypeDiscriminatorPropertyName)
+      .chain((value) => value.toString())
+      .toMaybe();
+  }
+
   private get _mintingStrategy(): Either<Error, MintingStrategy> {
     return this.resource
       .value(shaclmate.mintingStrategy)

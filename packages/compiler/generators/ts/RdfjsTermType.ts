@@ -1,7 +1,6 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import type { Maybe } from "purify-ts";
 import { Type } from "./Type.js";
-import { rdfjsTermExpression } from "./rdfjsTermExpression.js";
 
 /**
  * Abstract base class for IdentifierType and LiteralType.
@@ -48,13 +47,13 @@ export abstract class RdfjsTermType<
     this.hasValue
       .ifJust((hasValue) => {
         chain.push(
-          `find(_value => _value.toTerm().equals(${rdfjsTermExpression(hasValue, this.configuration)}))`,
+          `find(_value => _value.toTerm().equals(${this.rdfjsTermExpression(hasValue)}))`,
         );
       })
       .ifNothing(() => chain.push("head()"));
     this.defaultValue.ifJust((defaultValue) => {
       chain.push(
-        `alt(purify.Either.of(new rdfjsResource.Resource.Value({ subject: ${variables.resource}, predicate: ${variables.predicate}, object: ${rdfjsTermExpression(defaultValue, this.configuration)} })))`,
+        `alt(purify.Either.of(new rdfjsResource.Resource.Value({ subject: ${variables.resource}, predicate: ${variables.predicate}, object: ${this.rdfjsTermExpression(defaultValue)} })))`,
       );
     });
     chain.push(
@@ -92,7 +91,7 @@ export abstract class RdfjsTermType<
     return this.defaultValue
       .map(
         (defaultValue) =>
-          `!${variables.value}.equals(${rdfjsTermExpression(defaultValue, this.configuration)}) ? ${variables.value} : undefined`,
+          `!${variables.value}.equals(${this.rdfjsTermExpression(defaultValue)}) ? ${variables.value} : undefined`,
       )
       .orDefault(variables.value);
   }

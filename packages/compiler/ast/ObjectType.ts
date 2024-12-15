@@ -107,6 +107,11 @@ export interface ObjectType {
   readonly tsFeatures: Set<TsFeature>;
 
   /**
+   * Name of the identifier property in TypeScript-generated classes/interfaces.
+   */
+  readonly tsIdentifierPropertyName: string;
+
+  /**
    * A TypeScript import to add to generated code.
    *
    * This is often used in conjunction with extern=true to import the extern'd ObjectType code in order for generated
@@ -120,6 +125,11 @@ export interface ObjectType {
    * Whether to generate a TypeScript class or interface for this type.
    */
   readonly tsObjectDeclarationType: TsObjectDeclarationType;
+
+  /**
+   * Name of the type discriminator property in TypeScript-generated classes/interfaces.
+   */
+  readonly tsTypeDiscriminatorPropertyName: string;
 }
 
 export namespace ObjectType {

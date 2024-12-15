@@ -138,60 +138,12 @@ run(
         name: "generate",
         description: "generate TypeScript for the SHACL Shapes Graph AST",
         args: {
-          dataFactoryImport: option({
-            defaultValue: () =>
-              generators.ts.TsGenerator.Configuration.Defaults
-                .dataFactoryImport,
-            description: "import line to get an RDF/JS DataFactory",
-            long: "data-factory-import",
-            type: string,
-          }),
-          dataFactoryVariable: option({
-            defaultValue: () =>
-              generators.ts.TsGenerator.Configuration.Defaults
-                .dataFactoryVariable,
-            description: "variable of the RDF/JS DataFactory that was imported",
-            long: "data-factory-variable",
-            type: string,
-          }),
           inputFilePaths,
           outputFilePath,
-          objectTypeDiscriminatorPropertyName: option({
-            defaultValue: () =>
-              generators.ts.TsGenerator.Configuration.Defaults
-                .objectTypeDiscriminatorPropertyName,
-            description:
-              "name of a property to add to generated object types to discriminate them with a string enum",
-            long: "object-type-discriminator-property-name",
-            type: string,
-          }),
-          objectTypeIdentifierPropertyName: option({
-            defaultValue: () =>
-              generators.ts.TsGenerator.Configuration.Defaults
-                .objectTypeIdentifierPropertyName,
-            description:
-              "name of a property to add to generated object types to discriminate them with a string enum",
-            long: "object-type-discriminator-property-name",
-            type: string,
-          }),
         },
-        handler: async ({
-          dataFactoryImport,
-          dataFactoryVariable,
-          inputFilePaths,
-          objectTypeDiscriminatorPropertyName,
-          objectTypeIdentifierPropertyName,
-          outputFilePath,
-        }) => {
+        handler: async ({ inputFilePaths, outputFilePath }) => {
           generate({
-            generator: new generators.ts.TsGenerator(
-              new generators.ts.TsGenerator.Configuration({
-                dataFactoryImport,
-                dataFactoryVariable,
-                objectTypeDiscriminatorPropertyName,
-                objectTypeIdentifierPropertyName,
-              }),
-            ),
+            generator: new generators.ts.TsGenerator(),
             inputFilePaths,
             outputFilePath,
           });

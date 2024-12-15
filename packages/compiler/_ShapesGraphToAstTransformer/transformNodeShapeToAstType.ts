@@ -180,9 +180,13 @@ export function transformNodeShapeToAstType(
       : Maybe.empty(),
     parentObjectTypes: [], // This is mutable, we'll populate it below
     tsFeatures: nodeShape.tsFeatures.orDefault(tsFeaturesDefault),
+    tsIdentifierPropertyName:
+      nodeShape.tsObjectIdentifierPropertyName.orDefault("identifier"),
     tsImport: nodeShape.tsImport,
     tsObjectDeclarationType:
       nodeShape.tsObjectDeclarationType.orDefault("class"),
+    tsTypeDiscriminatorPropertyName:
+      nodeShape.tsObjectTypeDiscriminatorPropertyName.orDefault("type"),
   };
   this.nodeShapeAstTypesByIdentifier.set(
     nodeShape.resource.identifier,

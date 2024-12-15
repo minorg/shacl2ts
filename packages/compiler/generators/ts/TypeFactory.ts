@@ -9,7 +9,6 @@ import type * as ast from "../../ast/index.js";
 import type { PropertyVisibility } from "../../enums/index.js";
 import { logger } from "../../logger.js";
 import { BooleanType } from "./BooleanType.js";
-import type { Configuration } from "./Configuration.js";
 import { DateTimeType } from "./DateTimeType.js";
 import { IdentifierType } from "./IdentifierType.js";
 import { ListType } from "./ListType.js";
@@ -33,17 +32,17 @@ export class TypeFactory {
     BlankNode | NamedNode,
     ObjectType
   > = new TermMap();
-  private readonly configuration: Configuration;
+  private readonly dataFactoryVariable: string;
 
-  constructor({ configuration }: { configuration: Configuration }) {
-    this.configuration = configuration;
+  constructor({ dataFactoryVariable }: { dataFactoryVariable: string }) {
+    this.dataFactoryVariable = dataFactoryVariable;
   }
 
   createTypeFromAstType(astType: ast.Type): Type {
     switch (astType.kind) {
       case "IdentifierType":
         return new IdentifierType({
-          configuration: this.configuration,
+          dataFactoryVariable: this.dataFactoryVariable,
           defaultValue: astType.defaultValue,
           hasValue: astType.hasValue,
           in_: astType.in_,
@@ -72,7 +71,7 @@ export class TypeFactory {
 
           if (datatype.equals(xsd.boolean)) {
             return new BooleanType({
-              configuration: this.configuration,
+              dataFactoryVariable: this.dataFactoryVariable,
               defaultValue: astType.defaultValue,
               hasValue: astType.hasValue,
               in_: astType.in_,
@@ -89,7 +88,7 @@ export class TypeFactory {
 
           if (datatype.equals(xsd.dateTime)) {
             return new DateTimeType({
-              configuration: this.configuration,
+              dataFactoryVariable: this.dataFactoryVariable,
               defaultValue: astType.defaultValue,
               hasValue: astType.hasValue,
               in_: astType.in_,
@@ -131,7 +130,7 @@ export class TypeFactory {
           ]) {
             if (datatype.equals(numberDatatype)) {
               return new NumberType({
-                configuration: this.configuration,
+                dataFactoryVariable: this.dataFactoryVariable,
                 defaultValue: astType.defaultValue,
                 hasValue: astType.hasValue,
                 in_: astType.in_,
@@ -149,7 +148,7 @@ export class TypeFactory {
 
           if (datatype.equals(xsd.anyURI) || datatype.equals(xsd.string)) {
             return new StringType({
-              configuration: this.configuration,
+              dataFactoryVariable: this.dataFactoryVariable,
               defaultValue: astType.defaultValue,
               hasValue: astType.hasValue,
               in_: astType.in_,
@@ -177,7 +176,7 @@ export class TypeFactory {
         }
 
         return new LiteralType({
-          configuration: this.configuration,
+          dataFactoryVariable: this.dataFactoryVariable,
           defaultValue: astType.defaultValue,
           in_: astType.in_,
           hasValue: astType.hasValue,
@@ -188,7 +187,7 @@ export class TypeFactory {
       case "ObjectType": {
         if (astType.listItemType.isJust()) {
           return new ListType({
-            configuration: this.configuration,
+            dataFactoryVariable: this.dataFactoryVariable,
             identifierNodeKind: astType.nodeKinds.has(NodeKind.BLANK_NODE)
               ? NodeKind.BLANK_NODE
               : NodeKind.IRI,
@@ -204,7 +203,7 @@ export class TypeFactory {
       }
       case "ObjectUnionType": {
         return new ObjectUnionType({
-          configuration: this.configuration,
+          dataFactoryVariable: this.dataFactoryVariable,
           export_: astType.export,
           features: astType.tsFeatures,
           name: tsName((astType as ast.ObjectUnionType).name),
@@ -215,18 +214,18 @@ export class TypeFactory {
       }
       case "OptionType":
         return new OptionType({
-          configuration: this.configuration,
+          dataFactoryVariable: this.dataFactoryVariable,
           itemType: this.createTypeFromAstType(astType.itemType),
         });
       case "SetType":
         return new SetType({
-          configuration: this.configuration,
+          dataFactoryVariable: this.dataFactoryVariable,
           itemType: this.createTypeFromAstType(astType.itemType),
           minCount: astType.minCount,
         });
       case "UnionType": {
         return new UnionType({
-          configuration: this.configuration,
+          dataFactoryVariable: this.dataFactoryVariable,
           memberTypes: astType.memberTypes.map((astType) =>
             this.createTypeFromAstType(astType),
           ),
@@ -246,7 +245,7 @@ export class TypeFactory {
     }
 
     const identifierType = new IdentifierType({
-      configuration: this.configuration,
+      dataFactoryVariable: this.dataFactoryVariable,
       defaultValue: Maybe.empty(),
       hasValue: Maybe.empty(),
       in_: Maybe.empty(),
@@ -255,7 +254,7 @@ export class TypeFactory {
 
     const objectType = new ObjectType({
       abstract: astType.abstract,
-      configuration: this.configuration,
+      dataFactoryVariable: this.dataFactoryVariable,
       declarationType: astType.tsObjectDeclarationType,
       export_: astType.export,
       extern: astType.extern,
@@ -306,9 +305,9 @@ export class TypeFactory {
             abstract: astType.abstract,
             classDeclarationVisibility:
               identifierPropertyClassDeclarationVisibility,
-            configuration: this.configuration,
+            dataFactoryVariable: this.dataFactoryVariable,
             mintingStrategy: astType.mintingStrategy,
-            name: this.configuration.objectTypeIdentifierPropertyName,
+            name: astType.tsIdentifierPropertyName,
             objectTypeDeclarationType: astType.tsObjectDeclarationType,
             override: astType.parentObjectTypes.length > 0,
             type: identifierType,
@@ -332,8 +331,8 @@ export class TypeFactory {
           properties.push(
             new ObjectType.TypeDiscriminatorProperty({
               abstract: astType.abstract,
-              configuration: this.configuration,
-              name: this.configuration.objectTypeDiscriminatorPropertyName,
+              dataFactoryVariable: this.dataFactoryVariable,
+              name: astType.tsTypeDiscriminatorPropertyName,
               objectTypeDeclarationType: objectType.declarationType,
               override: objectType.parentObjectTypes.length > 0,
               type: {
@@ -373,7 +372,7 @@ export class TypeFactory {
     }
 
     const property = new ObjectType.ShaclProperty({
-      configuration: this.configuration,
+      dataFactoryVariable: this.dataFactoryVariable,
       name: tsName(astObjectTypeProperty.name),
       path: astObjectTypeProperty.path.iri,
       type: this.createTypeFromAstType(astObjectTypeProperty.type),

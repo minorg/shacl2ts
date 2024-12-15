@@ -6,18 +6,11 @@ import {
 } from "ts-morph";
 import * as ast from "../../ast/index.js";
 import type { Generator } from "../Generator.js";
-import { Configuration as GlobalConfiguration } from "./Configuration.js";
 import { ObjectType } from "./ObjectType.js";
 import { ObjectUnionType } from "./ObjectUnionType.js";
 import { TypeFactory } from "./TypeFactory.js";
 
 export class TsGenerator implements Generator {
-  protected readonly configuration: TsGenerator.Configuration;
-
-  constructor(configuration?: TsGenerator.Configuration) {
-    this.configuration = configuration ?? new TsGenerator.Configuration();
-  }
-
   generate(ast_: ast.Ast): string {
     const sortedAstObjectTypes = ast.ObjectType.toposort(ast_.objectTypes);
 
@@ -26,7 +19,9 @@ export class TsGenerator implements Generator {
     });
     const sourceFile = project.createSourceFile("generated.ts");
 
-    const typeFactory = new TypeFactory({ configuration: this.configuration });
+    const typeFactory = new TypeFactory({
+      dataFactoryVariable: ast_.tsDataFactoryVariable,
+    });
 
     this.addDeclarations({
       objectTypes: sortedAstObjectTypes.flatMap((astObjectType) => {
@@ -83,7 +78,8 @@ export class TsGenerator implements Generator {
       namespaceImport: "rdfjs",
     });
 
-    sourceFile.addStatements(this.configuration.dataFactoryImport);
+    // sourceFile.addStatements(this.configuration.dataFactoryImport);
+    sourceFile.addStatements('import { DataFactory as dataFactory } from "n3"');
 
     // if (this.configuration.features.has("equals")) {
     sourceFile.addImportDeclaration({
@@ -168,9 +164,4 @@ export class TsGenerator implements Generator {
       });
     }
   }
-}
-
-export namespace TsGenerator {
-  export const Configuration = GlobalConfiguration;
-  export type Configuration = GlobalConfiguration;
 }

@@ -82,6 +82,17 @@ export class ObjectType extends Type {
     this.name = name;
   }
 
+  get _discriminatorProperty(): Type.DiscriminatorProperty {
+    const discriminatorProperty = this.properties.find(
+      (property) => property instanceof ObjectType.TypeDiscriminatorProperty,
+    );
+    invariant(discriminatorProperty);
+    return {
+      name: discriminatorProperty.name,
+      values: [this.discriminatorValue],
+    };
+  }
+
   @Memoize()
   get ancestorObjectTypes(): readonly ObjectType[] {
     return this.lazyAncestorObjectTypes();
@@ -104,11 +115,7 @@ export class ObjectType extends Type {
   }
 
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
-    return Maybe.of({
-      name: this.configuration.objectTypeDiscriminatorPropertyName,
-      type: "string" as const,
-      values: [this.discriminatorValue],
-    });
+    return Maybe.of(this._discriminatorProperty);
   }
 
   get discriminatorValue(): string {

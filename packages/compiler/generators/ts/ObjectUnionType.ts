@@ -30,6 +30,7 @@ export class ObjectUnionType extends Type {
   readonly kind = "ObjectUnionType";
   readonly memberTypes: readonly ObjectType[];
   readonly name: string;
+  private readonly _discriminatorProperty: Type.DiscriminatorProperty;
 
   constructor({
     export_,
@@ -48,12 +49,22 @@ export class ObjectUnionType extends Type {
     this.features = features;
     invariant(memberTypes.length >= 2);
     this.memberTypes = memberTypes;
-    invariant(
-      memberTypes.every(
-        (memberType) =>
-          memberType.declarationType === memberTypes[0].declarationType,
-      ),
-    );
+    const discriminatorPropertyName =
+      memberTypes[0].discriminatorProperty.unsafeCoerce().name;
+    const discriminatorPropertyValues: string[] = [];
+    for (const memberType of this.memberTypes) {
+      invariant(memberType.declarationType === memberTypes[0].declarationType);
+      invariant(
+        memberType._discriminatorProperty.name === discriminatorPropertyName,
+      );
+      discriminatorPropertyValues.push(
+        ...memberType._discriminatorProperty.values,
+      );
+    }
+    this._discriminatorProperty = {
+      name: discriminatorPropertyName,
+      values: discriminatorPropertyValues,
+    };
     this.name = name;
   }
 
@@ -65,6 +76,10 @@ export class ObjectUnionType extends Type {
         sourceTypeName: this.name,
       },
     ];
+  }
+
+  override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
+    return Maybe.of(this._discriminatorProperty);
   }
 
   get equalsFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
@@ -102,7 +117,7 @@ export class ObjectUnionType extends Type {
       returnType: "purifyHelpers.Equatable.EqualsResult",
       statements: `\
 return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
-  switch (left.${this.configuration.objectTypeDiscriminatorPropertyName}) {
+  switch (left.${this._discriminatorProperty.name}) {
    ${caseBlocks.join(" ")}
   }
 })`,
@@ -173,7 +188,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
         },
       ],
       returnType: "HasherT",
-      statements: `switch (${thisVariable}.${this.configuration.objectTypeDiscriminatorPropertyName}) { ${caseBlocks.join(" ")} }`,
+      statements: `switch (${thisVariable}.${this._discriminatorProperty.name}) { ${caseBlocks.join(" ")} }`,
       typeParameters: [
         {
           name: "HasherT",
@@ -248,7 +263,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
         },
       ],
       returnType: this.rdfjsResourceType({ mutable: true }).name,
-      statements: `switch (${thisVariable}.${this.configuration.objectTypeDiscriminatorPropertyName}) { ${caseBlocks.join(" ")} }`,
+      statements: `switch (${thisVariable}.${this._discriminatorProperty.name}) { ${caseBlocks.join(" ")} }`,
     });
   }
 

@@ -2,7 +2,7 @@ import type PrefixMap from "@rdfjs/prefix-map/PrefixMap.js";
 import TermMap from "@rdfjs/term-map";
 import type * as rdfjs from "@rdfjs/types";
 import { dash } from "@tpluscode/rdf-ns-builders";
-import { Either } from "purify-ts";
+import { Either, Maybe } from "purify-ts";
 import * as _ShapesGraphToAstTransformer from "./_ShapesGraphToAstTransformer/index.js";
 import type * as ast from "./ast/index.js";
 import type * as input from "./input/index.js";
@@ -53,17 +53,24 @@ export class ShapesGraphToAstTransformer {
             !nodeShape.resource.identifier.value.startsWith(dash[""].value),
         )
         .map((nodeShape) => this.transformNodeShapeToAstType(nodeShape)),
-    ).map((nodeShapeAstTypes) => ({
-      objectIntersectionTypes: nodeShapeAstTypes.filter(
-        (nodeShapeAstType) =>
-          nodeShapeAstType.kind === "ObjectIntersectionType",
-      ),
-      objectTypes: nodeShapeAstTypes.filter(
-        (nodeShapeAstType) => nodeShapeAstType.kind === "ObjectType",
-      ),
-      objectUnionTypes: nodeShapeAstTypes.filter(
-        (nodeShapeAstType) => nodeShapeAstType.kind === "ObjectUnionType",
-      ),
-    }));
+    ).map(
+      (nodeShapeAstTypes) =>
+        ({
+          objectIntersectionTypes: nodeShapeAstTypes.filter(
+            (nodeShapeAstType) =>
+              nodeShapeAstType.kind === "ObjectIntersectionType",
+          ),
+          objectTypes: nodeShapeAstTypes.filter(
+            (nodeShapeAstType) => nodeShapeAstType.kind === "ObjectType",
+          ),
+          objectUnionTypes: nodeShapeAstTypes.filter(
+            (nodeShapeAstType) => nodeShapeAstType.kind === "ObjectUnionType",
+          ),
+          tsDataFactoryVariable: (this.shapesGraph.ontologies.length === 1
+            ? this.shapesGraph.ontologies[0].tsDataFactoryVariable
+            : Maybe.empty()
+          ).orDefault("dataFactory"),
+        }) satisfies ast.Ast,
+    );
   }
 }

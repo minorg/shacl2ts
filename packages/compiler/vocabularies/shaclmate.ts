@@ -24,7 +24,6 @@ export interface Shaclmate {
   extern: NamedNode<"http://minorg.github.io/shaclmate/ns#extern">;
   mintingStrategy: NamedNode<"http://minorg.github.io/shaclmate/ns#mintingStrategy">;
   name: NamedNode<"http://minorg.github.io/shaclmate/ns#name">;
-  tsDataFactoryImport: NamedNode<"http://minorg.github.io/shaclmate/ns#tsDataFactoryImport">;
   tsDataFactoryVariable: NamedNode<"http://minorg.github.io/shaclmate/ns#tsDataFactoryVariable">;
   tsFeature: NamedNode<"http://minorg.github.io/shaclmate/ns#tsFeature">;
   tsImport: NamedNode<"http://minorg.github.io/shaclmate/ns#tsImport">;
