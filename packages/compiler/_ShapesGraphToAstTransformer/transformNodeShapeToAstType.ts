@@ -3,9 +3,18 @@ import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
 import type { ShapesGraphToAstTransformer } from "../ShapesGraphToAstTransformer.js";
 import type * as ast from "../ast/index.js";
+import type { TsFeature } from "../enums/index.js";
 import * as input from "../input/index.js";
 import { logger } from "../logger.js";
 import type { NodeShapeAstType } from "./NodeShapeAstType.js";
+
+const tsFeaturesDefault: Set<TsFeature> = new Set([
+  "equals",
+  "fromRdf",
+  "hash",
+  "toRdf",
+  "sparql-graph-patterns",
+]);
 
 /**
  * Is an ast.ObjectType actually the shape of an RDF list?
@@ -125,6 +134,7 @@ export function transformNodeShapeToAstType(
       kind: compositeTypeKind,
       memberTypes: [] as ast.ObjectType[],
       name: this.shapeAstName(nodeShape),
+      tsFeatures: nodeShape.tsFeatures.orDefault(tsFeaturesDefault),
     };
 
     this.nodeShapeAstTypesByIdentifier.set(
@@ -169,6 +179,7 @@ export function transformNodeShapeToAstType(
       ? Maybe.of(nodeShape.resource.identifier as NamedNode)
       : Maybe.empty(),
     parentObjectTypes: [], // This is mutable, we'll populate it below
+    tsFeatures: nodeShape.tsFeatures.orDefault(tsFeaturesDefault),
     tsImport: nodeShape.tsImport,
     tsObjectDeclarationType:
       nodeShape.tsObjectDeclarationType.orDefault("class"),

@@ -12,7 +12,7 @@ const variables = {
 export function fromRdfFunctionDeclaration(
   this: ObjectType,
 ): Maybe<FunctionDeclarationStructure> {
-  if (!this.configuration.features.has("fromRdf")) {
+  if (!this.features.has("fromRdf")) {
     return Maybe.empty();
   }
 

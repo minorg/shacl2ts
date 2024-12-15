@@ -85,29 +85,29 @@ export class TsGenerator implements Generator {
 
     sourceFile.addStatements(this.configuration.dataFactoryImport);
 
-    if (this.configuration.features.has("equals")) {
-      sourceFile.addImportDeclaration({
-        moduleSpecifier: "purify-ts-helpers",
-        namespaceImport: "purifyHelpers",
-      });
-    }
+    // if (this.configuration.features.has("equals")) {
+    sourceFile.addImportDeclaration({
+      moduleSpecifier: "purify-ts-helpers",
+      namespaceImport: "purifyHelpers",
+    });
+    // }
 
-    if (
-      this.configuration.features.has("fromRdf") ||
-      this.configuration.features.has("toRdf")
-    ) {
-      sourceFile.addImportDeclaration({
-        moduleSpecifier: "rdfjs-resource",
-        namespaceImport: "rdfjsResource",
-      });
-    }
+    // if (
+    //   this.configuration.features.has("fromRdf") ||
+    //   this.configuration.features.has("toRdf")
+    // ) {
+    sourceFile.addImportDeclaration({
+      moduleSpecifier: "rdfjs-resource",
+      namespaceImport: "rdfjsResource",
+    });
+    // }
 
-    if (this.configuration.features.has("sparql-graph-patterns")) {
-      sourceFile.addImportDeclaration({
-        moduleSpecifier: "@kos-kit/sparql-builder",
-        namespaceImport: "sparqlBuilder",
-      });
-    }
+    // if (this.configuration.features.has("sparql-graph-patterns")) {
+    sourceFile.addImportDeclaration({
+      moduleSpecifier: "@kos-kit/sparql-builder",
+      namespaceImport: "sparqlBuilder",
+    });
+    // }
 
     const typeImportStatements = new Set<string>();
     for (const objectType of objectTypes) {

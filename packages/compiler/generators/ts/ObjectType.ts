@@ -4,6 +4,7 @@ import { invariant } from "ts-invariant";
 import { Memoize } from "typescript-memoize";
 import type {
   MintingStrategy,
+  TsFeature,
   TsObjectDeclarationType,
 } from "../../enums/index.js";
 import type { IdentifierType } from "./IdentifierType.js";
@@ -17,6 +18,7 @@ export class ObjectType extends Type {
   equalsFunctionDeclaration = _ObjectType.equalsFunctionDeclaration;
   readonly export_: boolean;
   readonly extern: boolean;
+  readonly features: Set<TsFeature>;
   fromRdfFunctionDeclaration = _ObjectType.fromRdfFunctionDeclaration;
   hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
   import_: Maybe<string>;
@@ -38,6 +40,7 @@ export class ObjectType extends Type {
     declarationType,
     export_,
     extern,
+    features,
     lazyAncestorObjectTypes,
     lazyDescendantObjectTypes,
     lazyParentObjectTypes,
@@ -52,6 +55,7 @@ export class ObjectType extends Type {
     declarationType: TsObjectDeclarationType;
     export_: boolean;
     extern: boolean;
+    features: Set<TsFeature>;
     import_: Maybe<string>;
     lazyAncestorObjectTypes: () => readonly ObjectType[];
     lazyDescendantObjectTypes: () => readonly ObjectType[];
@@ -66,6 +70,7 @@ export class ObjectType extends Type {
     this.declarationType = declarationType;
     this.export_ = export_;
     this.extern = extern;
+    this.features = features;
     this.import_ = import_;
     // Lazily initialize some members in getters to avoid recursive construction
     this.lazyAncestorObjectTypes = lazyAncestorObjectTypes;

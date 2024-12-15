@@ -17,7 +17,7 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   returnType: string;
   statements: string[];
 }> {
-  if (!this.configuration.features.has("toRdf")) {
+  if (!this.features.has("toRdf")) {
     return Maybe.empty();
   }
 

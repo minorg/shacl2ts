@@ -18,7 +18,7 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   statements: string[];
   typeParameters: OptionalKind<TypeParameterDeclarationStructure>[];
 }> {
-  if (!this.configuration.features.has("hash")) {
+  if (!this.features.has("hash")) {
     return Maybe.empty();
   }
 

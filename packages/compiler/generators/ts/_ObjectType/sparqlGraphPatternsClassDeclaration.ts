@@ -11,7 +11,7 @@ const subjectVariable = "subject";
 export function sparqlGraphPatternsClassDeclaration(
   this: ObjectType,
 ): Maybe<ClassDeclarationStructure> {
-  if (!this.configuration.features.has("sparql-graph-patterns")) {
+  if (!this.features.has("sparql-graph-patterns")) {
     return Maybe.empty();
   }
 

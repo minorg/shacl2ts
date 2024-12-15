@@ -1,3 +1,4 @@
+import type { TsFeature } from "../enums/index.js";
 import type { Name } from "./Name.js";
 import type { ObjectType } from "./ObjectType.js";
 
@@ -25,4 +26,9 @@ export interface ObjectUnionType {
    * Name of this type, usually derived from sh:name or shaclmate:name.
    */
   readonly name: Name;
+
+  /**
+   * TypeScript features to generate.
+   */
+  readonly tsFeatures: Set<TsFeature>;
 }

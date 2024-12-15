@@ -206,6 +206,7 @@ export class TypeFactory {
         return new ObjectUnionType({
           configuration: this.configuration,
           export_: astType.export,
+          features: astType.tsFeatures,
           name: tsName((astType as ast.ObjectUnionType).name),
           memberTypes: astType.memberTypes
             .map((astType) => this.createTypeFromAstType(astType))
@@ -258,6 +259,7 @@ export class TypeFactory {
       declarationType: astType.tsObjectDeclarationType,
       export_: astType.export,
       extern: astType.extern,
+      features: astType.tsFeatures,
       import_: astType.tsImport,
       lazyAncestorObjectTypes: () =>
         astType.ancestorObjectTypes.map((astType) =>

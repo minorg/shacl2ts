@@ -12,7 +12,7 @@ export function equalsFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   returnType: string;
   statements: string[];
 }> {
-  if (!this.configuration.features.has("equals")) {
+  if (!this.features.has("equals")) {
     return Maybe.empty();
   }
 

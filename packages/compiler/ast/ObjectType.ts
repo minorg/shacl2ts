@@ -7,6 +7,7 @@ import genericToposort from "toposort";
 import type {
   MintingStrategy,
   PropertyVisibility,
+  TsFeature,
   TsObjectDeclarationType,
 } from "../enums/index.js";
 import type { Name } from "./Name.js";
@@ -99,6 +100,11 @@ export interface ObjectType {
    * class targets).
    */
   readonly rdfType: Maybe<NamedNode>;
+
+  /**
+   * TypeScript features to generate.
+   */
+  readonly tsFeatures: Set<TsFeature>;
 
   /**
    * A TypeScript import to add to generated code.

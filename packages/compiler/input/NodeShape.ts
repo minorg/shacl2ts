@@ -7,6 +7,7 @@ import { Either, Left, type Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import type {
   MintingStrategy,
+  TsFeature,
   TsObjectDeclarationType,
 } from "../enums/index.js";
 import { shaclmate } from "../vocabularies/index.js";
@@ -16,6 +17,7 @@ import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
 import { extern } from "./extern.js";
 import { shaclmateName } from "./shaclmateName.js";
+import { tsFeatures } from "./tsFeatures.js";
 import { tsObjectDeclarationType } from "./tsObjectDeclarationType.js";
 
 function ancestorClassIris(
@@ -190,6 +192,12 @@ export class NodeShape
 
   get shaclmateName(): Maybe<string> {
     return shaclmateName.bind(this)();
+  }
+
+  get tsFeatures(): Maybe<Set<TsFeature>> {
+    return tsFeatures(this.resource).altLazy(() =>
+      this.isDefinedBy.chain((ontology) => ontology.tsFeatures),
+    );
   }
 
   get tsImport(): Maybe<string> {

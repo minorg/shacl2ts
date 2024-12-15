@@ -8,6 +8,7 @@ import {
   StructureKind,
   type TypeAliasDeclarationStructure,
 } from "ts-morph";
+import type { TsFeature } from "../../enums/index.js";
 import type { ObjectType } from "./ObjectType.js";
 import { Type } from "./Type.js";
 import { hasherTypeConstraint } from "./_ObjectType/hashFunctionOrMethodDeclaration.js";
@@ -24,6 +25,7 @@ import { hasherTypeConstraint } from "./_ObjectType/hashFunctionOrMethodDeclarat
  */
 export class ObjectUnionType extends Type {
   readonly export: boolean;
+  readonly features: Set<TsFeature>;
   readonly fromRdfFunctionName = "fromRdf";
   readonly kind = "ObjectUnionType";
   readonly memberTypes: readonly ObjectType[];
@@ -31,16 +33,19 @@ export class ObjectUnionType extends Type {
 
   constructor({
     export_,
+    features,
     memberTypes,
     name,
     ...superParameters
   }: ConstructorParameters<typeof Type>[0] & {
     export_: boolean;
+    features: Set<TsFeature>;
     memberTypes: readonly ObjectType[];
     name: string;
   }) {
     super(superParameters);
     this.export = export_;
+    this.features = features;
     invariant(memberTypes.length >= 2);
     this.memberTypes = memberTypes;
     invariant(
@@ -63,7 +68,7 @@ export class ObjectUnionType extends Type {
   }
 
   get equalsFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
-    if (!this.configuration.features.has("equals")) {
+    if (!this.features.has("equals")) {
       return Maybe.empty();
     }
 
@@ -105,7 +110,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
   }
 
   get fromRdfFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
-    if (!this.configuration.features.has("fromRdf")) {
+    if (!this.features.has("fromRdf")) {
       return Maybe.empty();
     }
 
@@ -133,7 +138,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
   }
 
   get hashFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
-    if (!this.configuration.features.has("hash")) {
+    if (!this.features.has("hash")) {
       return Maybe.empty();
     }
 
@@ -179,7 +184,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
   }
 
   get sparqlGraphPatternsClassDeclaration(): Maybe<ClassDeclarationStructure> {
-    if (!this.configuration.features.has("sparql-graph-patterns")) {
+    if (!this.features.has("sparql-graph-patterns")) {
       return Maybe.empty();
     }
 
@@ -208,7 +213,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
   }
 
   get toRdfFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
-    if (!this.configuration.features.has("toRdf")) {
+    if (!this.features.has("toRdf")) {
       return Maybe.empty();
     }
 
