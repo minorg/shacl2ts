@@ -62,7 +62,11 @@ export class ObjectUnionType extends Type {
     ];
   }
 
-  get equalsFunctionDeclaration(): FunctionDeclarationStructure {
+  get equalsFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
+    if (!this.configuration.features.has("equals")) {
+      return Maybe.empty();
+    }
+
     const caseBlocks = this.memberTypes.map((memberType) => {
       let returnExpression: string;
       switch (memberType.declarationType) {
@@ -76,7 +80,7 @@ export class ObjectUnionType extends Type {
       return `case "${memberType.name}": return ${returnExpression};`;
     });
 
-    return {
+    return Maybe.of({
       isExported: true,
       kind: StructureKind.Function,
       name: "equals",
@@ -97,10 +101,14 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
    ${caseBlocks.join(" ")}
   }
 })`,
-    };
+    });
   }
 
-  get fromRdfFunctionDeclaration(): FunctionDeclarationStructure {
+  get fromRdfFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
+    if (!this.configuration.features.has("fromRdf")) {
+      return Maybe.empty();
+    }
+
     const parameters = this.memberTypes[0]
       .fromRdfFunctionDeclaration()
       .unsafeCoerce().parameters!;
@@ -114,17 +122,21 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
           : typeExpression;
     }
 
-    return {
+    return Maybe.of({
       isExported: true,
       kind: StructureKind.Function,
       name: this.fromRdfFunctionName,
       parameters,
       returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>`,
       statements: [`return ${expression};`],
-    };
+    });
   }
 
-  get hashFunctionDeclaration(): FunctionDeclarationStructure {
+  get hashFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
+    if (!this.configuration.features.has("hash")) {
+      return Maybe.empty();
+    }
+
     const hasherVariable = "_hasher";
     const thisVariable = camelCase(this.name);
 
@@ -141,7 +153,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
       return `case "${memberType.name}": return ${returnExpression};`;
     });
 
-    return {
+    return Maybe.of({
       isExported: true,
       kind: StructureKind.Function,
       name: "hash",
@@ -163,13 +175,17 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
           constraint: hasherTypeConstraint,
         },
       ],
-    };
+    });
   }
 
-  get sparqlGraphPatternsClassDeclaration(): ClassDeclarationStructure {
+  get sparqlGraphPatternsClassDeclaration(): Maybe<ClassDeclarationStructure> {
+    if (!this.configuration.features.has("sparql-graph-patterns")) {
+      return Maybe.empty();
+    }
+
     const subjectVariable = "subject";
 
-    return {
+    return Maybe.of({
       ctors: [
         {
           parameters: [
@@ -188,10 +204,14 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
       isExported: true,
       kind: StructureKind.Class,
       name: "SparqlGraphPatterns",
-    };
+    });
   }
 
-  get toRdfFunctionDeclaration(): FunctionDeclarationStructure {
+  get toRdfFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
+    if (!this.configuration.features.has("toRdf")) {
+      return Maybe.empty();
+    }
+
     const parametersVariable = "_parameters";
     const thisVariable = camelCase(this.name);
 
@@ -208,7 +228,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
       return `case "${memberType.name}": return ${returnExpression};`;
     });
 
-    return {
+    return Maybe.of({
       isExported: true,
       kind: StructureKind.Function,
       name: "toRdf",
@@ -224,7 +244,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
       ],
       returnType: this.rdfjsResourceType({ mutable: true }).name,
       statements: `switch (${thisVariable}.${this.configuration.objectTypeDiscriminatorPropertyName}) { ${caseBlocks.join(" ")} }`,
-    };
+    });
   }
 
   get typeAliasDeclaration(): OptionalKind<TypeAliasDeclarationStructure> {

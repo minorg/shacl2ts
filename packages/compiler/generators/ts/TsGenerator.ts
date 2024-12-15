@@ -151,36 +151,22 @@ export class TsGenerator implements Generator {
   }: { objectUnionType: ObjectUnionType; sourceFile: SourceFile }): void {
     sourceFile.addTypeAlias(objectUnionType.typeAliasDeclaration);
 
-    const moduleStatements: StatementStructures[] = [];
+    const moduleStatements: StatementStructures[] = [
+      ...objectUnionType.equalsFunctionDeclaration.toList(),
+      ...objectUnionType.fromRdfFunctionDeclaration.toList(),
+      ...objectUnionType.hashFunctionDeclaration.toList(),
+      ...objectUnionType.sparqlGraphPatternsClassDeclaration.toList(),
+      ...objectUnionType.toRdfFunctionDeclaration.toList(),
+    ];
 
-    if (this.configuration.features.has("equals")) {
-      moduleStatements.push(objectUnionType.equalsFunctionDeclaration);
+    if (moduleStatements.length > 0) {
+      sourceFile.addModule({
+        isExported: objectUnionType.export,
+        kind: StructureKind.Module,
+        name: objectUnionType.name,
+        statements: moduleStatements,
+      });
     }
-
-    if (this.configuration.features.has("fromRdf")) {
-      moduleStatements.push(objectUnionType.fromRdfFunctionDeclaration);
-    }
-
-    if (this.configuration.features.has("hash")) {
-      moduleStatements.push(objectUnionType.hashFunctionDeclaration);
-    }
-
-    if (this.configuration.features.has("sparql-graph-patterns")) {
-      moduleStatements.push(
-        objectUnionType.sparqlGraphPatternsClassDeclaration,
-      );
-    }
-
-    if (this.configuration.features.has("toRdf")) {
-      moduleStatements.push(objectUnionType.toRdfFunctionDeclaration);
-    }
-
-    sourceFile.addModule({
-      isExported: objectUnionType.export,
-      kind: StructureKind.Module,
-      name: objectUnionType.name,
-      statements: moduleStatements,
-    });
   }
 }
 
