@@ -18,6 +18,12 @@ export namespace Import {
     namespaceImport: "purifyHelpers",
   };
 
+  export const RDF_LITERAL: Import = {
+    kind: StructureKind.ImportDeclaration,
+    moduleSpecifier: "rdf-literal",
+    namespaceImport: "rdfLiteral",
+  };
+
   export const RDFJS_RESOURCE: Import = {
     kind: StructureKind.ImportDeclaration,
     moduleSpecifier: "rdfjs-resource",
@@ -45,7 +51,7 @@ export namespace Import {
 
   export const UUID: Import = {
     kind: StructureKind.ImportDeclaration,
-    namespaceImport: "*",
+    namespaceImport: "uuid",
     moduleSpecifier: "uuid",
   };
 }

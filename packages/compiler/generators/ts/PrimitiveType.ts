@@ -1,4 +1,5 @@
 import { Maybe } from "purify-ts";
+import type { Import } from "./Import.js";
 import { LiteralType } from "./LiteralType.js";
 import type { Type } from "./Type.js";
 
@@ -30,7 +31,7 @@ export abstract class PrimitiveType<
     return Maybe.empty();
   }
 
-  override get useImports(): readonly string[] {
+  override get useImports(): readonly Import[] {
     return [];
   }
 

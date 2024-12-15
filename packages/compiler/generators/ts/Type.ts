@@ -23,7 +23,15 @@ export abstract class Type {
     | "NumberType"
     | "StringType";
 
+  /**
+   * Name of the type.
+   */
   abstract readonly name: string;
+
+  /**
+   * Imports necessary to use this type.
+   */
+  abstract readonly useImports: readonly Import[];
 
   protected readonly dataFactoryVariable: string;
 
@@ -40,13 +48,6 @@ export abstract class Type {
    */
   get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
     return Maybe.empty();
-  }
-
-  /**
-   * Imports necessary to use this type.
-   */
-  get useImports(): readonly Import[] {
-    return [];
   }
 
   /**

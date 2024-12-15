@@ -1,5 +1,6 @@
 import type { Literal } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
+import { Import } from "./Import.js";
 import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type.js";
 
@@ -69,8 +70,8 @@ export class LiteralType extends RdfjsTermType<Literal, Literal> {
     return "rdfjs.Literal";
   }
 
-  override get useImports(): readonly string[] {
-    return ["// @ts-ignore", 'import * as rdfLiteral from "rdf-literal";'];
+  override get useImports(): readonly Import[] {
+    return [Import.RDF_LITERAL, Import.RDFJS_TYPES];
   }
 
   override fromRdfResourceValueExpression({

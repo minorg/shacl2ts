@@ -270,6 +270,10 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
     };
   }
 
+  get useImports(): readonly Import[] {
+    return [];
+  }
+
   override propertyChainSparqlGraphPatternExpression({
     variables,
   }: Parameters<
