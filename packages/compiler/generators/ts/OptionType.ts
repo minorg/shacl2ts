@@ -1,5 +1,5 @@
 import { Memoize } from "typescript-memoize";
-import type { Import } from "./Import.js";
+import { Import } from "./Import.js";
 import { Type } from "./Type.js";
 
 export class OptionType extends Type {
@@ -48,7 +48,7 @@ export class OptionType extends Type {
   }
 
   override get useImports(): readonly Import[] {
-    return this.itemType.useImports;
+    return [...this.itemType.useImports, Import.PURIFY];
   }
 
   override propertyChainSparqlGraphPatternExpression(

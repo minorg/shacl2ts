@@ -109,6 +109,7 @@ export class ObjectType extends DeclaredType {
       imports.push(Import.PURIFY_HELPERS);
     }
     if (this.features.has("fromRdf") || this.features.has("toRdf")) {
+      imports.push(Import.PURIFY);
       imports.push(Import.RDFJS_RESOURCE);
     }
     if (this.features.has("sparql-graph-patterns")) {

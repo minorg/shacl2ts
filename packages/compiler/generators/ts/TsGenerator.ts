@@ -1,4 +1,5 @@
 import {
+  type ImportDeclarationStructure,
   Project,
   type SourceFile,
   type StatementStructures,
@@ -6,6 +7,7 @@ import {
 } from "ts-morph";
 import * as ast from "../../ast/index.js";
 import type { Generator } from "../Generator.js";
+import type { Import } from "./Import.js";
 import { ObjectType } from "./ObjectType.js";
 import { ObjectUnionType } from "./ObjectUnionType.js";
 import { TypeFactory } from "./TypeFactory.js";
@@ -52,10 +54,38 @@ export class TsGenerator implements Generator {
     // sourceFile.addStatements(this.configuration.dataFactoryImport);
     sourceFile.addStatements('import { DataFactory as dataFactory } from "n3"');
 
+    // Gather imports
+    const imports: Import[] = [];
+    for (const declaredType of [...objectTypes, ...objectUnionTypes]) {
+      imports.push(...declaredType.declarationImports);
+    }
+    // Deduplicate and add imports
+    const addedStringImports = new Set<string>();
+    const addedStructureImports: ImportDeclarationStructure[] = [];
+    for (const import_ of imports) {
+      if (typeof import_ === "string") {
+        if (!addedStringImports.has(import_)) {
+          sourceFile.addStatements([import_]);
+        }
+        addedStringImports.add(import_);
+        continue;
+      }
+
+      if (
+        !addedStructureImports.find(
+          (addedStructureImport) =>
+            addedStructureImport.moduleSpecifier === import_.moduleSpecifier,
+        )
+      ) {
+        sourceFile.addStatements([import_]);
+        addedStructureImports.push(import_);
+      }
+    }
+
+    // Add type declarations
     for (const objectType of objectTypes) {
       this.addObjectTypeDeclarations({ objectType, sourceFile });
     }
-
     for (const objectUnionType of objectUnionTypes) {
       this.addObjectUnionTypeDeclarations({ objectUnionType, sourceFile });
     }
@@ -65,8 +95,6 @@ export class TsGenerator implements Generator {
     objectType,
     sourceFile,
   }: { objectType: ObjectType; sourceFile: SourceFile }): void {
-    sourceFile.addStatements(objectType.declarationImports);
-
     sourceFile.addStatements([
       ...objectType.classDeclaration().toList(),
       ...objectType.interfaceDeclaration().toList(),
@@ -94,8 +122,6 @@ export class TsGenerator implements Generator {
     objectUnionType,
     sourceFile,
   }: { objectUnionType: ObjectUnionType; sourceFile: SourceFile }): void {
-    sourceFile.addStatements(objectUnionType.declarationImports);
-
     sourceFile.addTypeAlias(objectUnionType.typeAliasDeclaration);
 
     const moduleStatements: StatementStructures[] = [
