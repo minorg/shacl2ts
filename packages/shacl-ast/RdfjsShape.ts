@@ -1,21 +1,25 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
-import { sh } from "@tpluscode/rdf-ns-builders";
-import type { Maybe } from "purify-ts";
+import { rdfs, sh } from "@tpluscode/rdf-ns-builders";
+import { Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import { NodeKind } from "./NodeKind.js";
 import type { NodeShape } from "./NodeShape.js";
+import type { Ontology } from "./Ontology.js";
 import type { PropertyShape } from "./PropertyShape.js";
 import type { Shape } from "./Shape.js";
 import type { ShapesGraph } from "./ShapesGraph.js";
 
 export abstract class RdfjsShape<
-  NodeShapeT extends NodeShape<any, PropertyShapeT, ShapeT> & ShapeT,
-  PropertyShapeT extends PropertyShape<NodeShapeT, any, ShapeT> & ShapeT,
-  ShapeT extends Shape<NodeShapeT, PropertyShapeT, any>,
-> implements Shape<NodeShapeT, PropertyShapeT, ShapeT>
+  NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> & ShapeT,
+  OntologyT extends Ontology,
+  PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+    ShapeT,
+  ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
+> implements Shape<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>
 {
   abstract readonly constraints: RdfjsShape.Constraints<
     NodeShapeT,
+    OntologyT,
     PropertyShapeT,
     ShapeT
   >;
@@ -25,6 +29,7 @@ export abstract class RdfjsShape<
     readonly resource: Resource,
     protected readonly shapesGraph: ShapesGraph<
       NodeShapeT,
+      OntologyT,
       PropertyShapeT,
       ShapeT
     >,
@@ -39,6 +44,45 @@ export abstract class RdfjsShape<
       .toMaybe();
   }
 
+  get identifier(): Resource.Identifier {
+    return this.resource.identifier;
+  }
+
+  get isDefinedBy(): Maybe<OntologyT> {
+    const isDefinedByValue = this.resource.value(rdfs.isDefinedBy);
+    if (isDefinedByValue.isRight()) {
+      // If there's an rdfs:isDefinedBy statement on the shape then don't fall back to anything else
+      return isDefinedByValue
+        .chain((value) => value.toIdentifier())
+        .toMaybe()
+        .chain((identifier) =>
+          this.shapesGraph.ontologyByIdentifier(identifier),
+        );
+    }
+
+    // No rdfs:isDefinedBy statement on the shape
+
+    const ontologies = this.shapesGraph.ontologies;
+    if (ontologies.length === 1) {
+      // If there's a single ontology in the shapes graph, consider the shape a part of the ontology
+      return Maybe.of(ontologies[0]);
+    }
+
+    if (this.identifier.termType === "NamedNode") {
+      const prefixOntologies = ontologies.filter(
+        (ontology) =>
+          ontology.identifier.termType === "NamedNode" &&
+          this.identifier.value.startsWith(ontology.identifier.value),
+      );
+      if (prefixOntologies.length === 1) {
+        // If there's a single ontology whose IRI is a prefix of this shape's IRI, consider the shape a part of the ontology
+        return Maybe.of(prefixOntologies[0]);
+      }
+    }
+
+    return Maybe.empty();
+  }
+
   get name(): Maybe<Literal> {
     return this.resource
       .value(sh.name)
@@ -49,15 +93,19 @@ export abstract class RdfjsShape<
 
 export namespace RdfjsShape {
   export class Constraints<
-    NodeShapeT extends NodeShape<any, PropertyShapeT, ShapeT> & ShapeT,
-    PropertyShapeT extends PropertyShape<NodeShapeT, any, ShapeT> & ShapeT,
-    ShapeT extends Shape<NodeShapeT, PropertyShapeT, any>,
-  > implements Shape.Constraints<NodeShapeT, PropertyShapeT, ShapeT>
+    NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> &
+      ShapeT,
+    OntologyT extends Ontology,
+    PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+      ShapeT,
+    ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
+  > implements Shape.Constraints<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>
   {
     constructor(
       protected readonly resource: Resource,
       protected readonly shapesGraph: ShapesGraph<
         NodeShapeT,
+        OntologyT,
         PropertyShapeT,
         ShapeT
       >,
@@ -167,7 +215,9 @@ export namespace RdfjsShape {
         value
           .toIdentifier()
           .toMaybe()
-          .chain((shapeNode) => this.shapesGraph.nodeShapeByNode(shapeNode))
+          .chain((identifier) =>
+            this.shapesGraph.nodeShapeByIdentifier(identifier),
+          )
           .toList(),
       );
     }
@@ -177,7 +227,7 @@ export namespace RdfjsShape {
         value
           .toIdentifier()
           .toMaybe()
-          .chain((shapeNode) => this.shapesGraph.shapeByNode(shapeNode))
+          .chain((identifier) => this.shapesGraph.shapeByIdentifier(identifier))
           .toList(),
       );
     }
@@ -201,7 +251,9 @@ export namespace RdfjsShape {
             value
               .toIdentifier()
               .toMaybe()
-              .chain((shapeNode) => this.shapesGraph.shapeByNode(shapeNode))
+              .chain((identifier) =>
+                this.shapesGraph.shapeByIdentifier(identifier),
+              )
               .toList(),
           ),
         )

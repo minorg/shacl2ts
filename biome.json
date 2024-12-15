@@ -30,7 +30,8 @@
         "noNonNullAssertion": "off"
       },
       "suspicious": {
-        "noExplicitAny": "off"
+        "noExplicitAny": "off",
+        "noEmptyInterface": "off"
       }
     }
   },

@@ -1,8 +1,9 @@
 import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
-import { dash, sh } from "@tpluscode/rdf-ns-builders";
+import { sh } from "@tpluscode/rdf-ns-builders";
 import type { Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import type { NodeShape } from "./NodeShape.js";
+import type { Ontology } from "./Ontology.js";
 import type { PropertyGroup } from "./PropertyGroup.js";
 import { PropertyPath } from "./PropertyPath.js";
 import type { PropertyShape } from "./PropertyShape.js";
@@ -11,19 +12,22 @@ import type { Shape } from "./Shape.js";
 import type { ShapesGraph } from "./ShapesGraph.js";
 
 export class RdfjsPropertyShape<
-  NodeShapeT extends NodeShape<any, PropertyShapeT, ShapeT> & ShapeT,
-  PropertyShapeT extends PropertyShape<NodeShapeT, any, ShapeT> & ShapeT,
-  ShapeT extends Shape<NodeShapeT, PropertyShapeT, any>,
-> extends RdfjsShape<NodeShapeT, PropertyShapeT, ShapeT> {
+  NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> & ShapeT,
+  OntologyT extends Ontology,
+  PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+    ShapeT,
+  ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
+> extends RdfjsShape<NodeShapeT, OntologyT, PropertyShapeT, ShapeT> {
   readonly constraints: RdfjsShape.Constraints<
     NodeShapeT,
+    OntologyT,
     PropertyShapeT,
     ShapeT
   >;
 
   constructor(
     resource: Resource,
-    shapesGraph: ShapesGraph<NodeShapeT, PropertyShapeT, ShapeT>,
+    shapesGraph: ShapesGraph<NodeShapeT, OntologyT, PropertyShapeT, ShapeT>,
   ) {
     super(resource, shapesGraph);
     this.constraints = new RdfjsShape.Constraints(resource, shapesGraph);
@@ -36,24 +40,17 @@ export class RdfjsPropertyShape<
       .toMaybe();
   }
 
-  get editor(): Maybe<NamedNode> {
-    return this.resource
-      .value(dash.editor)
-      .chain((value) => value.toIri())
-      .toMaybe();
-  }
-
   get group(): Maybe<PropertyGroup> {
     return this.resource
       .value(sh.group)
       .chain((value) => value.toIri())
       .toMaybe()
-      .chain((node) => this.shapesGraph.propertyGroupByNode(node));
+      .chain((node) => this.shapesGraph.propertyGroupByIdentifier(node));
   }
 
   get order(): Maybe<number> {
     return this.resource
-      .value(sh.maxCount)
+      .value(sh.order)
       .chain((value) => value.toNumber())
       .toMaybe();
   }
@@ -64,20 +61,6 @@ export class RdfjsPropertyShape<
       .chain((value) => value.toResource())
       .chain(PropertyPath.fromResource)
       .unsafeCoerce();
-  }
-
-  get singleLine(): Maybe<boolean> {
-    return this.resource
-      .value(dash.singleLine)
-      .chain((value) => value.toBoolean())
-      .toMaybe();
-  }
-
-  get viewer(): Maybe<NamedNode> {
-    return this.resource
-      .value(dash.viewer)
-      .chain((value) => value.toIri())
-      .toMaybe();
   }
 
   override toString(): string {

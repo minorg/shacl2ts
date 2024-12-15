@@ -2,24 +2,37 @@ import type { BlankNode, Literal, NamedNode } from "@rdfjs/types";
 import type { Maybe } from "purify-ts";
 import type { NodeKind } from "./NodeKind.js";
 import type { NodeShape } from "./NodeShape.js";
+import type { Ontology } from "./Ontology.js";
 import type { PropertyShape } from "./PropertyShape.js";
 
 export interface Shape<
-  NodeShapeT extends NodeShape<any, PropertyShapeT, ShapeT> & ShapeT,
-  PropertyShapeT extends PropertyShape<NodeShapeT, any, ShapeT> & ShapeT,
-  ShapeT extends Shape<NodeShapeT, PropertyShapeT, any>,
+  NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> & ShapeT,
+  OntologyT extends Ontology,
+  PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+    ShapeT,
+  ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
 > {
-  readonly constraints: Shape.Constraints<NodeShapeT, PropertyShapeT, ShapeT>;
+  readonly constraints: Shape.Constraints<
+    NodeShapeT,
+    OntologyT,
+    PropertyShapeT,
+    ShapeT
+  >;
   readonly description: Maybe<Literal>;
+  readonly identifier: BlankNode | NamedNode;
+  readonly isDefinedBy: Maybe<OntologyT>;
   readonly name: Maybe<Literal>;
   readonly targets: Shape.Targets;
 }
 
 export namespace Shape {
   export interface Constraints<
-    NodeShapeT extends NodeShape<any, PropertyShapeT, ShapeT> & ShapeT,
-    PropertyShapeT extends PropertyShape<NodeShapeT, any, ShapeT> & ShapeT,
-    ShapeT extends Shape<NodeShapeT, PropertyShapeT, any>,
+    NodeShapeT extends NodeShape<any, OntologyT, PropertyShapeT, ShapeT> &
+      ShapeT,
+    OntologyT extends Ontology,
+    PropertyShapeT extends PropertyShape<NodeShapeT, OntologyT, any, ShapeT> &
+      ShapeT,
+    ShapeT extends Shape<NodeShapeT, OntologyT, PropertyShapeT, any>,
   > {
     readonly and: readonly ShapeT[];
     readonly classes: readonly NamedNode[];
