@@ -119,12 +119,9 @@
     ) ;
     sh:path rdf:rest .
 
-# Node shape that isn't an rdfs:Class.
-:NonClassNodeShape
-  a sh:NodeShape ;
-  sh:name "NonClassNodeShape" ;
-  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
-.
+# Shape with custom rdf:type's
+# The shaclmate:fromRdfType is expected on deserialization.
+# shaclmate:toRdfType's are added an serialization.
 
 # Shape with sh:defaultValue properties
 :NodeShapeWithDefaultValueProperties
@@ -226,6 +223,13 @@
   sh:property [ shaclmate:visibility shaclmate:_Visibility_Protected ; sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "protectedProperty" ; sh:path :publicProperty ] ;
   sh:property [ shaclmate:visibility shaclmate:_Visibility_Private ; sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "privateProperty" ; sh:path :privateProperty ] ;
   sh:property [ shaclmate:visibility shaclmate:_Visibility_Public ; sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "publicProperty" ; sh:path :publicProperty ] ;
+.
+
+# Node shape that isn't an rdfs:Class.
+:NonClassNodeShape
+  a sh:NodeShape ;
+  sh:name "NonClassNodeShape" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
 .
 
 # Node that that sh:or's other node shapes. This will usually be generated as a discriminated union.
