@@ -30,13 +30,11 @@ export function fromRdfFunctionDeclaration(
   > = {};
   let statements: string[] = [];
 
-  if (!this.abstract) {
-    this.fromRdfType.ifJust((rdfType) => {
-      statements.push(
-        `if (!${variables.ignoreRdfType} && !${variables.resource}.isInstanceOf(${this.rdfjsTermExpression(rdfType)})) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${variables.resource}, message: \`\${rdfjsResource.Resource.Identifier.toString(${variables.resource}.identifier)} has unexpected RDF type\`, predicate: ${this.rdfjsTermExpression(rdfType)} })); }`,
-      );
-    });
-  }
+  this.fromRdfType.ifJust((rdfType) => {
+    statements.push(
+      `if (!${variables.ignoreRdfType} && !${variables.resource}.isInstanceOf(${this.rdfjsTermExpression(rdfType)})) { return purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${variables.resource}, message: \`\${rdfjsResource.Resource.Identifier.toString(${variables.resource}.identifier)} has unexpected RDF type\`, predicate: ${this.rdfjsTermExpression(rdfType)} })); }`,
+    );
+  });
 
   for (const ancestorObjectType of this.ancestorObjectTypes) {
     for (const property of ancestorObjectType.properties) {
