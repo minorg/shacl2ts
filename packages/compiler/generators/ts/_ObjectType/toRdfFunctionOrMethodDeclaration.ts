@@ -59,9 +59,9 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     );
   }
 
-  for (const rdfType of this.toRdfTypes) {
+  if (this.toRdfTypes.length > 0) {
     statements.push(
-      `if (!${variables.ignoreRdfType}) { ${variables.resource}.add(${variables.resource}.dataFactory.namedNode("${rdf.type.value}"), ${variables.resource}.dataFactory.namedNode("${rdfType.value}")); }`,
+      `if (!${variables.ignoreRdfType}) { ${this.toRdfTypes.map((toRdfType) => `${variables.resource}.add(${variables.resource}.dataFactory.namedNode("${rdf.type.value}"), ${variables.resource}.dataFactory.namedNode("${toRdfType.value}"));`).join(" ")} }`,
     );
     usedIgnoreRdfTypeVariable = true;
   }

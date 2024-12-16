@@ -122,6 +122,13 @@
 # Shape with custom rdf:type's
 # The shaclmate:fromRdfType is expected on deserialization.
 # shaclmate:toRdfType's are added an serialization.
+:NodeShapeWithExplicitRdfTypes
+  a owl:Class, sh:NodeShape ;
+  shaclmate:fromRdfType :FromRdfType ;
+  shaclmate:toRdfType :ToRdfType ;
+  sh:name "NodeShapeWithExplicitRdfTypes" ;
+  sh:property [ sh:datatype xsd:string ; sh:maxCount 1 ; sh:minCount 1 ; sh:name "stringProperty" ; sh:path :stringProperty ] ;
+.
 
 # Shape with sh:defaultValue properties
 :NodeShapeWithDefaultValueProperties
