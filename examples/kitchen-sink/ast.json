@@ -247,6 +247,10 @@
             "kind": "UnionType",
             "types": [
               {
+                "fromRdfType": {
+                  "termType": "NamedNode",
+                  "value": "http://example.com/ListShape"
+                },
                 "kind": "ObjectType",
                 "listItemType": {
                   "datatype": {
@@ -267,10 +271,12 @@
                   "BlankNode",
                   "NamedNode"
                 ],
-                "rdfType": {
-                  "termType": "NamedNode",
-                  "value": "http://example.com/ListShape"
-                }
+                "toRdfTypes": [
+                  {
+                    "termType": "NamedNode",
+                    "value": "http://example.com/ListShape"
+                  }
+                ]
               },
               {
                 "hasValue": {
@@ -719,6 +725,10 @@
           },
           "path": "http://example.com/listProperty",
           "type": {
+            "fromRdfType": {
+              "termType": "NamedNode",
+              "value": "http://example.com/ListShape"
+            },
             "kind": "ObjectType",
             "listItemType": {
               "datatype": {
@@ -739,10 +749,12 @@
               "BlankNode",
               "NamedNode"
             ],
-            "rdfType": {
-              "termType": "NamedNode",
-              "value": "http://example.com/ListShape"
-            }
+            "toRdfTypes": [
+              {
+                "termType": "NamedNode",
+                "value": "http://example.com/ListShape"
+              }
+            ]
           }
         }
       ]
