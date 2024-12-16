@@ -195,7 +195,7 @@ export class TypeFactory {
               astType.listItemType.unsafeCoerce(),
             ),
             mintingStrategy: astType.mintingStrategy,
-            rdfType: astType.rdfType,
+            rdfType: astType.fromRdfType,
           });
         }
 
@@ -259,6 +259,7 @@ export class TypeFactory {
       export_: astType.export,
       extern: astType.extern,
       features: astType.tsFeatures,
+      fromRdfType: astType.fromRdfType,
       import_: astType.tsImport,
       lazyAncestorObjectTypes: () =>
         astType.ancestorObjectTypes.map((astType) =>
@@ -353,7 +354,7 @@ export class TypeFactory {
       },
       mintingStrategy: astType.mintingStrategy,
       name: tsName(astType.name),
-      rdfType: astType.rdfType,
+      toRdfTypes: astType.toRdfTypes,
     });
     this.cachedObjectTypesByIdentifier.set(astType.name.identifier, objectType);
     return objectType;

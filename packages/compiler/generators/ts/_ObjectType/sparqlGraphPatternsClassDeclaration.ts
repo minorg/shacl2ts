@@ -38,7 +38,7 @@ export function sparqlGraphPatternsClassDeclaration(
   }
 
   if (!this.abstract) {
-    this.rdfType.ifJust((rdfType) =>
+    this.fromRdfType.ifJust((rdfType) =>
       constructorStatements.push(
         `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${this.rdfjsTermExpression(rdfType)})); }`,
       ),

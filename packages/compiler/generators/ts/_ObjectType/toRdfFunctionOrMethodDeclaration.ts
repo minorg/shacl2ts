@@ -60,7 +60,7 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   }
 
   if (!this.abstract) {
-    this.rdfType.ifJust((rdfType) => {
+    this.fromRdfType.ifJust((rdfType) => {
       statements.push(
         `if (!${variables.ignoreRdfType}) { ${variables.resource}.add(${variables.resource}.dataFactory.namedNode("${rdf.type.value}"), ${variables.resource}.dataFactory.namedNode("${rdfType.value}")); }`,
       );
