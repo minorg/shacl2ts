@@ -4,7 +4,8 @@ import { invariant } from "ts-invariant";
 import {
   type ClassDeclarationStructure,
   type FunctionDeclarationStructure,
-  type OptionalKind,
+  type ModuleDeclarationStructure,
+  type StatementStructures,
   StructureKind,
   type TypeAliasDeclarationStructure,
 } from "ts-morph";
@@ -73,11 +74,41 @@ export class ObjectUnionType extends DeclaredType {
     return this.memberTypes.flatMap((memberType) => memberType.useImports);
   }
 
+  get declarations() {
+    const declarations: (
+      | ModuleDeclarationStructure
+      | TypeAliasDeclarationStructure
+    )[] = [this.typeAliasDeclaration];
+
+    const moduleStatements: StatementStructures[] = [
+      ...this.equalsFunctionDeclaration.toList(),
+      ...this.fromRdfFunctionDeclaration.toList(),
+      ...this.hashFunctionDeclaration.toList(),
+      ...this.sparqlGraphPatternsClassDeclaration.toList(),
+      ...this.toRdfFunctionDeclaration.toList(),
+    ];
+
+    if (moduleStatements.length > 0) {
+      declarations.push({
+        isExported: this.export,
+        kind: StructureKind.Module,
+        name: this.name,
+        statements: moduleStatements,
+      });
+    }
+
+    return declarations;
+  }
+
   override get discriminatorProperty(): Maybe<Type.DiscriminatorProperty> {
     return Maybe.of(this._discriminatorProperty);
   }
 
-  get equalsFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
+  get useImports(): readonly Import[] {
+    return [];
+  }
+
+  private get equalsFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
     if (!this.features.has("equals")) {
       return Maybe.empty();
     }
@@ -119,18 +150,14 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
     });
   }
 
-  get fromRdfFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
+  private get fromRdfFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
     if (!this.features.has("fromRdf")) {
       return Maybe.empty();
     }
 
-    const parameters = this.memberTypes[0]
-      .fromRdfFunctionDeclaration()
-      .unsafeCoerce().parameters!;
-
     let expression = "";
     for (const memberType of this.memberTypes) {
-      const typeExpression = `(${memberType.name}.${memberType.fromRdfFunctionName}(${parameters.map((parameter) => parameter.name).join(", ")}) as purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>)`;
+      const typeExpression = `(${memberType.name}.${memberType.fromRdfFunctionName}(parameters) as purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>)`;
       expression =
         expression.length > 0
           ? `${expression}.altLazy(() => ${typeExpression})`
@@ -141,13 +168,18 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
       isExported: true,
       kind: StructureKind.Function,
       name: this.fromRdfFunctionName,
-      parameters,
+      parameters: [
+        {
+          name: "parameters",
+          type: `{ [_index: string]: any; ignoreRdfType?: boolean; resource: ${this.rdfjsResourceType().name}; }`,
+        },
+      ],
       returnType: `purify.Either<rdfjsResource.Resource.ValueError, ${this.name}>`,
       statements: [`return ${expression};`],
     });
   }
 
-  get hashFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
+  private get hashFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
     if (!this.features.has("hash")) {
       return Maybe.empty();
     }
@@ -193,7 +225,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
     });
   }
 
-  get sparqlGraphPatternsClassDeclaration(): Maybe<ClassDeclarationStructure> {
+  private get sparqlGraphPatternsClassDeclaration(): Maybe<ClassDeclarationStructure> {
     if (!this.features.has("sparql-graph-patterns")) {
       return Maybe.empty();
     }
@@ -222,7 +254,7 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
     });
   }
 
-  get toRdfFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
+  private get toRdfFunctionDeclaration(): Maybe<FunctionDeclarationStructure> {
     if (!this.features.has("toRdf")) {
       return Maybe.empty();
     }
@@ -262,16 +294,13 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
     });
   }
 
-  get typeAliasDeclaration(): OptionalKind<TypeAliasDeclarationStructure> {
+  private get typeAliasDeclaration(): TypeAliasDeclarationStructure {
     return {
       isExported: true,
+      kind: StructureKind.TypeAlias,
       name: this.name,
       type: this.memberTypes.map((memberType) => memberType.name).join(" | "),
     };
-  }
-
-  get useImports(): readonly Import[] {
-    return [];
   }
 
   override propertyChainSparqlGraphPatternExpression({

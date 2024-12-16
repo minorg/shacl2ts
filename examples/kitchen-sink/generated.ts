@@ -4552,7 +4552,6 @@ export namespace AbstractBaseClassForExternObjectType {
     }
   }
 }
-
 export type OrNodeShape =
   | OrNodeShapeMember1
   | OrNodeShapeMember2
@@ -4577,41 +4576,30 @@ export namespace OrNodeShape {
     );
   }
 
-  export function fromRdf({
-    ignoreRdfType: _ignoreRdfType,
-    resource: _resource,
-    // @ts-ignore
-    ..._context
-  }: {
+  export function fromRdf(parameters: {
     [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
   }): purify.Either<rdfjsResource.Resource.ValueError, OrNodeShape> {
     return (
-      OrNodeShapeMember1.fromRdf({
-        ignoreRdfType: _ignoreRdfType,
-        resource: _resource,
-        // @ts-ignore
-        ..._context,
-      }) as purify.Either<rdfjsResource.Resource.ValueError, OrNodeShape>
+      OrNodeShapeMember1.fromRdf(parameters) as purify.Either<
+        rdfjsResource.Resource.ValueError,
+        OrNodeShape
+      >
     )
       .altLazy(
         () =>
-          OrNodeShapeMember2.fromRdf({
-            ignoreRdfType: _ignoreRdfType,
-            resource: _resource,
-            // @ts-ignore
-            ..._context,
-          }) as purify.Either<rdfjsResource.Resource.ValueError, OrNodeShape>,
+          OrNodeShapeMember2.fromRdf(parameters) as purify.Either<
+            rdfjsResource.Resource.ValueError,
+            OrNodeShape
+          >,
       )
       .altLazy(
         () =>
-          ExternObjectType.fromRdf({
-            ignoreRdfType: _ignoreRdfType,
-            resource: _resource,
-            // @ts-ignore
-            ..._context,
-          }) as purify.Either<rdfjsResource.Resource.ValueError, OrNodeShape>,
+          ExternObjectType.fromRdf(parameters) as purify.Either<
+            rdfjsResource.Resource.ValueError,
+            OrNodeShape
+          >,
       );
   }
 

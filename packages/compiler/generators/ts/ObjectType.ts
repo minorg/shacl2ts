@@ -1,6 +1,13 @@
 import type { NamedNode } from "@rdfjs/types";
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
+import {
+  type ClassDeclarationStructure,
+  type InterfaceDeclarationStructure,
+  type ModuleDeclarationStructure,
+  type StatementStructures,
+  StructureKind,
+} from "ts-morph";
 import { Memoize } from "typescript-memoize";
 import type {
   MintingStrategy,
@@ -14,20 +21,12 @@ import * as _ObjectType from "./_ObjectType/index.js";
 
 export class ObjectType extends DeclaredType {
   readonly abstract: boolean;
-  classDeclaration = _ObjectType.classDeclaration;
   readonly declarationType: TsObjectDeclarationType;
-  equalsFunctionDeclaration = _ObjectType.equalsFunctionDeclaration;
   readonly extern: boolean;
-  fromRdfFunctionDeclaration = _ObjectType.fromRdfFunctionDeclaration;
-  hashFunctionDeclaration = _ObjectType.hashFunctionDeclaration;
-  import_: Maybe<string>;
-  interfaceDeclaration = _ObjectType.interfaceDeclaration;
   readonly kind = "ObjectType";
   readonly mintingStrategy: Maybe<MintingStrategy>;
   readonly rdfType: Maybe<NamedNode>;
-  sparqlGraphPatternsClassDeclaration =
-    _ObjectType.sparqlGraphPatternsClassDeclaration;
-  toRdfFunctionDeclaration = _ObjectType.toRdfFunctionDeclaration;
+  private readonly import_: Maybe<string>;
   private readonly lazyAncestorObjectTypes: () => readonly ObjectType[];
   private readonly lazyDescendantObjectTypes: () => readonly ObjectType[];
   private readonly lazyParentObjectTypes: () => readonly ObjectType[];
@@ -116,6 +115,36 @@ export class ObjectType extends DeclaredType {
       imports.push(Import.SPARQL_BUILDER);
     }
     return imports;
+  }
+
+  get declarations() {
+    const declarations: (
+      | ClassDeclarationStructure
+      | InterfaceDeclarationStructure
+      | ModuleDeclarationStructure
+    )[] = [
+      ..._ObjectType.classDeclaration.bind(this)().toList(),
+      ..._ObjectType.interfaceDeclaration.bind(this)().toList(),
+    ];
+
+    const moduleStatements: StatementStructures[] = [
+      ..._ObjectType.equalsFunctionDeclaration.bind(this)().toList(),
+      ..._ObjectType.fromRdfFunctionDeclaration.bind(this)().toList(),
+      ..._ObjectType.hashFunctionDeclaration.bind(this)().toList(),
+      ..._ObjectType.sparqlGraphPatternsClassDeclaration.bind(this)().toList(),
+      ..._ObjectType.toRdfFunctionDeclaration.bind(this)().toList(),
+    ];
+
+    if (moduleStatements.length > 0) {
+      declarations.push({
+        isExported: this.export,
+        kind: StructureKind.Module,
+        name: this.name,
+        statements: moduleStatements,
+      });
+    }
+
+    return declarations;
   }
 
   @Memoize()
