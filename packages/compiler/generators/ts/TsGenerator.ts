@@ -2,8 +2,6 @@ import {
   type ImportDeclarationStructure,
   Project,
   type SourceFile,
-  type StatementStructures,
-  StructureKind,
 } from "ts-morph";
 import * as ast from "../../ast/index.js";
 import type { Generator } from "../Generator.js";
@@ -84,61 +82,10 @@ export class TsGenerator implements Generator {
 
     // Add type declarations
     for (const objectType of objectTypes) {
-      this.addObjectTypeDeclarations({ objectType, sourceFile });
+      sourceFile.addStatements(objectType.declarations);
     }
     for (const objectUnionType of objectUnionTypes) {
-      this.addObjectUnionTypeDeclarations({ objectUnionType, sourceFile });
-    }
-  }
-
-  private addObjectTypeDeclarations({
-    objectType,
-    sourceFile,
-  }: { objectType: ObjectType; sourceFile: SourceFile }): void {
-    sourceFile.addStatements([
-      ...objectType.classDeclaration().toList(),
-      ...objectType.interfaceDeclaration().toList(),
-    ]);
-
-    const moduleStatements: StatementStructures[] = [
-      ...objectType.equalsFunctionDeclaration().toList(),
-      ...objectType.fromRdfFunctionDeclaration().toList(),
-      ...objectType.hashFunctionDeclaration().toList(),
-      ...objectType.sparqlGraphPatternsClassDeclaration().toList(),
-      ...objectType.toRdfFunctionDeclaration().toList(),
-    ];
-
-    if (moduleStatements.length > 0) {
-      sourceFile.addModule({
-        isExported: objectType.export,
-        kind: StructureKind.Module,
-        name: objectType.name,
-        statements: moduleStatements,
-      });
-    }
-  }
-
-  private addObjectUnionTypeDeclarations({
-    objectUnionType,
-    sourceFile,
-  }: { objectUnionType: ObjectUnionType; sourceFile: SourceFile }): void {
-    sourceFile.addTypeAlias(objectUnionType.typeAliasDeclaration);
-
-    const moduleStatements: StatementStructures[] = [
-      ...objectUnionType.equalsFunctionDeclaration.toList(),
-      ...objectUnionType.fromRdfFunctionDeclaration.toList(),
-      ...objectUnionType.hashFunctionDeclaration.toList(),
-      ...objectUnionType.sparqlGraphPatternsClassDeclaration.toList(),
-      ...objectUnionType.toRdfFunctionDeclaration.toList(),
-    ];
-
-    if (moduleStatements.length > 0) {
-      sourceFile.addModule({
-        isExported: objectUnionType.export,
-        kind: StructureKind.Module,
-        name: objectUnionType.name,
-        statements: moduleStatements,
-      });
+      sourceFile.addStatements(objectUnionType.declarations);
     }
   }
 }

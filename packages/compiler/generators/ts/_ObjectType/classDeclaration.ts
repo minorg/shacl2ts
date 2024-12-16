@@ -30,22 +30,8 @@ function constructorDeclaration(
   }
 
   const statements: (string | StatementStructures)[] = [];
-
-  if (
-    this.ancestorObjectTypes.some((ancestorObjectType) => {
-      const ancestorClassDeclaration = ancestorObjectType
-        .classDeclaration()
-        .extract();
-      if (!ancestorClassDeclaration) {
-        return true; // Probably imported, assume it has a constructor that takes parameters
-      }
-      return ancestorClassDeclaration.ctors?.length;
-    })
-  ) {
-    // If some ancestor type has a constructor then pass up parameters
+  if (this.parentObjectTypes.length > 0) {
     statements.push("super(parameters);");
-  } else if (this.parentObjectTypes.length > 0) {
-    statements.push("super();");
   }
   statements.push(...propertyStatements);
 
