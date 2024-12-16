@@ -3,7 +3,7 @@ import type * as rdfjs from "@rdfjs/types";
 import type { NamedNode } from "@rdfjs/types";
 import { NodeKind, RdfjsNodeShape } from "@shaclmate/shacl-ast";
 import { owl, rdfs } from "@tpluscode/rdf-ns-builders";
-import { Either, Left, type Maybe } from "purify-ts";
+import { Either, Left, Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import type {
   MintingStrategy,
@@ -122,6 +122,26 @@ export class NodeShape
     return extern.bind(this)();
   }
 
+  get fromRdfType(): Maybe<NamedNode> {
+    const fromRdfType = this.resource
+      .value(shaclmate.fromRdfType)
+      .chain((value) => value.toIri())
+      .toMaybe();
+    if (fromRdfType.isJust()) {
+      return fromRdfType;
+    }
+
+    if (
+      !this.abstract.orDefault(false) &&
+      this.isClass &&
+      this.resource.identifier.termType === "NamedNode"
+    ) {
+      return Maybe.of(this.resource.identifier);
+    }
+
+    return Maybe.empty();
+  }
+
   get isClass(): boolean {
     return (
       this.resource.isInstanceOf(owl.Class) ||
@@ -192,6 +212,25 @@ export class NodeShape
 
   get shaclmateName(): Maybe<string> {
     return shaclmateName.bind(this)();
+  }
+
+  get toRdfTypes(): readonly NamedNode[] {
+    const toRdfTypes = this.resource
+      .values(shaclmate.toRdfType)
+      .flatMap((value) => value.toIri().toMaybe().toList());
+    if (toRdfTypes.length > 0) {
+      return toRdfTypes;
+    }
+
+    if (
+      !this.abstract.orDefault(false) &&
+      this.isClass &&
+      this.resource.identifier.termType === "NamedNode"
+    ) {
+      return [this.resource.identifier];
+    }
+
+    return [];
   }
 
   get tsFeatures(): Maybe<Set<TsFeature>> {
