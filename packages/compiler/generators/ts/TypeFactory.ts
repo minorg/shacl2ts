@@ -188,6 +188,7 @@ export class TypeFactory {
         if (astType.listItemType.isJust()) {
           return new ListType({
             dataFactoryVariable: this.dataFactoryVariable,
+            fromRdfType: astType.fromRdfType,
             identifierNodeKind: astType.nodeKinds.has(NodeKind.BLANK_NODE)
               ? NodeKind.BLANK_NODE
               : NodeKind.IRI,
@@ -195,7 +196,7 @@ export class TypeFactory {
               astType.listItemType.unsafeCoerce(),
             ),
             mintingStrategy: astType.mintingStrategy,
-            rdfType: astType.fromRdfType,
+            toRdfTypes: astType.toRdfTypes,
           });
         }
 

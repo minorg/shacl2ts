@@ -9,27 +9,31 @@ import { Type } from "./Type.js";
 export class ListType extends Type {
   readonly itemType: Type;
   readonly kind = "ListType";
+  private readonly fromRdfType: Maybe<NamedNode>;
   private readonly identifierNodeKind: NodeKind.BLANK_NODE | NodeKind.IRI;
   private readonly mintingStrategy: MintingStrategy;
-  private readonly rdfType: Maybe<NamedNode>;
+  private readonly toRdfTypes: readonly NamedNode[];
 
   constructor({
     identifierNodeKind,
     itemType,
     mintingStrategy,
-    rdfType,
+    fromRdfType,
+    toRdfTypes,
     ...superParameters
   }: {
+    fromRdfType: Maybe<NamedNode>;
     identifierNodeKind: ListType["identifierNodeKind"];
     itemType: Type;
     mintingStrategy: Maybe<MintingStrategy>;
-    rdfType: Maybe<NamedNode>;
+    toRdfTypes: readonly NamedNode[];
   } & ConstructorParameters<typeof Type>[0]) {
     super(superParameters);
     this.identifierNodeKind = identifierNodeKind;
     this.itemType = itemType;
     this.mintingStrategy = mintingStrategy.orDefault("sha256");
-    this.rdfType = rdfType;
+    this.fromRdfType = fromRdfType;
+    this.toRdfTypes = toRdfTypes;
   }
 
   override get conversions(): readonly Type.Conversion[] {
@@ -87,7 +91,18 @@ export class ListType extends Type {
   override propertyFromRdfExpression({
     variables,
   }: Parameters<Type["propertyFromRdfExpression"]>[0]): string {
-    return `${variables.resourceValues}.head().chain(value => value.toList()).map(values => values.flatMap(_value => ${this.itemType.propertyFromRdfExpression({ variables: { ...variables, resourceValues: "_value.toValues()" } })}.toMaybe().toList()))`;
+    const chain: string[] = [variables.resourceValues];
+    chain.push("head()");
+    this.fromRdfType.ifJust((fromRdfType) => {
+      chain.push(
+        `chain(value => value.toResource().chain(resource => resource.isInstanceOf(${this.rdfjsTermExpression(fromRdfType)})).isLeft() ? purify.Left(new rdfjsResource.Resource.ValueError({ focusResource: ${variables.resource}, message: "unexpected RDF type", predicate: ${this.rdfjsTermExpression(fromRdfType)} })) : purify.Either.of(value)`,
+      );
+    });
+    chain.push("chain(value => value.toList())");
+    chain.push(
+      `map(values => values.flatMap(_value => ${this.itemType.propertyFromRdfExpression({ variables: { ...variables, resourceValues: "_value.toValues()" } })}.toMaybe().toList()))`,
+    );
+    return chain.join(".");
   }
 
   override propertyHashStatements({
@@ -150,7 +165,7 @@ export class ListType extends Type {
       currentSubListResource = newSubListResource;
     }
     
-    ${this.rdfType.map((rdfType) => `currentSubListResource.add(dataFactory.namedNode("${rdf.type.value}"), dataFactory.namedNode("${rdfType.value}"))`).orDefault("")}
+    ${this.toRdfTypes.map((rdfType) => `currentSubListResource.add(dataFactory.namedNode("${rdf.type.value}"), dataFactory.namedNode("${rdfType.value}"))`).join("\n")}
         
     currentSubListResource.add(dataFactory.namedNode("${rdf.first.value}"), ${this.itemType.propertyToRdfExpression({ variables: { mutateGraph: variables.mutateGraph, predicate: `dataFactory.namedNode("${rdf.first.value}")`, resource: "currentSubListResource", resourceSet: variables.resourceSet, value: "item" } })});
 
