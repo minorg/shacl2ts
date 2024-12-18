@@ -95,7 +95,7 @@ export class ListType extends Type {
     chain.push("head()");
     this.fromRdfType.ifJust((fromRdfType) => {
       chain.push(
-        `chain(value => value.toResource().map(resource => resource.isInstanceOf(${this.rdfjsTermExpression(fromRdfType)})).orDefault(false) ? purify.Left<rdfjsResource.Resource.ValueError, rdfjsResource.Resource.Value>(new rdfjsResource.Resource.ValueError({ focusResource: ${variables.resource}, message: "unexpected RDF type", predicate: ${this.rdfjsTermExpression(fromRdfType)} })) : purify.Right<rdfjsResource.Resource.Value, rdfjsResource.Resource.ValueError>(value))`,
+        `chain(value => value.toResource().map(resource => resource.isInstanceOf(${this.rdfjsTermExpression(fromRdfType)})).orDefault(false) ?  purify.Right<rdfjsResource.Resource.Value, rdfjsResource.Resource.ValueError>(value)) : purify.Left<rdfjsResource.Resource.ValueError, rdfjsResource.Resource.Value>(new rdfjsResource.Resource.ValueError({ focusResource: ${variables.resource}, message: "unexpected RDF type", predicate: ${this.rdfjsTermExpression(fromRdfType)} }))`,
       );
     });
     chain.push("chain(value => value.toList())");
