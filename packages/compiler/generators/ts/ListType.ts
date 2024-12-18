@@ -138,7 +138,7 @@ export class ListType extends Type {
       }
     }
 
-    return `${variables.value}.reduce(({ currentSubListResource, listResource }, item, itemIndex) => {
+    return `${variables.value}.reduce(({ currentSubListResource, listResource }, item, itemIndex, list) => {
     if (itemIndex === 0) {
       currentSubListResource = listResource;
     } else {
@@ -154,7 +154,7 @@ export class ListType extends Type {
         
     currentSubListResource.add(dataFactory.namedNode("${rdf.first.value}"), ${this.itemType.propertyToRdfExpression({ variables: { mutateGraph: variables.mutateGraph, predicate: `dataFactory.namedNode("${rdf.first.value}")`, resource: "currentSubListResource", resourceSet: variables.resourceSet, value: "item" } })});
 
-    if (itemIndex + 1 === ${variables.value}.length) {
+    if (itemIndex + 1 === list.length) {
       currentSubListResource.add(dataFactory.namedNode("${rdf.rest.value}"), dataFactory.namedNode("${rdf.nil.value}"));
     }
     
