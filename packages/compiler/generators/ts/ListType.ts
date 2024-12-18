@@ -81,7 +81,7 @@ export class ListType extends Type {
   }
 
   override propertyEqualsFunction(): string {
-    return `(left, right) => purifyHelpers.Arrays.equals(left, right, ${this.itemType.propertyEqualsFunction()})`;
+    return `((left, right) => purifyHelpers.Arrays.equals(left, right, ${this.itemType.propertyEqualsFunction()}))`;
   }
 
   override propertyFromRdfExpression({
