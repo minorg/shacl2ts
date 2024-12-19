@@ -80,6 +80,7 @@ export class UuidV4IriNodeShape {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
@@ -214,6 +215,7 @@ export class Sha256IriNodeShape {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
@@ -348,6 +350,7 @@ export class OrNodeShapeMember2 {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
@@ -482,6 +485,7 @@ export class OrNodeShapeMember1 {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
@@ -539,6 +543,141 @@ export namespace OrNodeShapeMember1 {
           this.subject,
           dataFactory.namedNode("http://example.com/stringProperty1"),
           this.variable("StringProperty1"),
+        ),
+      );
+    }
+  }
+}
+export class NonClassNodeShape {
+  private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
+  readonly stringProperty: string;
+  readonly type = "NonClassNodeShape";
+
+  constructor(parameters: {
+    readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
+    readonly stringProperty: string;
+  }) {
+    this._identifier = parameters.identifier;
+    this.stringProperty = parameters.stringProperty;
+  }
+
+  get identifier(): rdfjs.BlankNode | rdfjs.NamedNode {
+    if (typeof this._identifier === "undefined") {
+      this._identifier = dataFactory.namedNode(
+        `urn:shaclmate:object:${this.type}:${this.hash(sha256.create())}`,
+      );
+    }
+    return this._identifier;
+  }
+
+  equals(other: NonClassNodeShape): purifyHelpers.Equatable.EqualsResult {
+    return purifyHelpers.Equatable.booleanEquals(
+      this.identifier,
+      other.identifier,
+    )
+      .mapLeft((propertyValuesUnequal) => ({
+        left: this,
+        right: other,
+        propertyName: "identifier",
+        propertyValuesUnequal,
+        type: "Property" as const,
+      }))
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(
+          this.stringProperty,
+          other.stringProperty,
+        ).mapLeft((propertyValuesUnequal) => ({
+          left: this,
+          right: other,
+          propertyName: "stringProperty",
+          propertyValuesUnequal,
+          type: "Property" as const,
+        })),
+      )
+      .chain(() =>
+        purifyHelpers.Equatable.strictEquals(this.type, other.type).mapLeft(
+          (propertyValuesUnequal) => ({
+            left: this,
+            right: other,
+            propertyName: "type",
+            propertyValuesUnequal,
+            type: "Property" as const,
+          }),
+        ),
+      );
+  }
+
+  hash<
+    HasherT extends {
+      update: (message: string | number[] | ArrayBuffer | Uint8Array) => void;
+    },
+  >(_hasher: HasherT): HasherT {
+    _hasher.update(this.stringProperty);
+    return _hasher;
+  }
+
+  toRdf({
+    mutateGraph,
+    resourceSet,
+  }: {
+    ignoreRdfType?: boolean;
+    mutateGraph: rdfjsResource.MutableResource.MutateGraph;
+    resourceSet: rdfjsResource.MutableResourceSet;
+  }): rdfjsResource.MutableResource {
+    const _resource = resourceSet.mutableResource({
+      identifier: this.identifier,
+      mutateGraph,
+    });
+    _resource.add(
+      dataFactory.namedNode("http://example.com/stringProperty"),
+      this.stringProperty,
+    );
+    return _resource;
+  }
+}
+
+export namespace NonClassNodeShape {
+  export function fromRdf({
+    ignoreRdfType: _ignoreRdfType,
+    resource: _resource,
+    // @ts-ignore
+    ..._context
+  }: {
+    [_index: string]: any;
+    ignoreRdfType?: boolean;
+    resource: rdfjsResource.Resource;
+  }): purify.Either<rdfjsResource.Resource.ValueError, NonClassNodeShape> {
+    const identifier = _resource.identifier;
+    const _stringPropertyEither: purify.Either<
+      rdfjsResource.Resource.ValueError,
+      string
+    > = _resource
+      .values(dataFactory.namedNode("http://example.com/stringProperty"), {
+        unique: true,
+      })
+      .head()
+      .chain((_value) => _value.toString());
+    if (_stringPropertyEither.isLeft()) {
+      return _stringPropertyEither;
+    }
+
+    const stringProperty = _stringPropertyEither.unsafeCoerce();
+    return purify.Either.of(
+      new NonClassNodeShape({ identifier, stringProperty }),
+    );
+  }
+
+  export class SparqlGraphPatterns extends sparqlBuilder.ResourceGraphPatterns {
+    constructor(
+      subject: sparqlBuilder.ResourceGraphPatterns.SubjectParameter,
+      _options?: { ignoreRdfType?: boolean },
+    ) {
+      super(subject);
+      this.add(
+        sparqlBuilder.GraphPattern.basic(
+          this.subject,
+          dataFactory.namedNode("http://example.com/stringProperty"),
+          this.variable("StringProperty"),
         ),
       );
     }
@@ -650,6 +789,7 @@ export class NodeShapeWithPropertyVisibilities {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
@@ -902,6 +1042,7 @@ export class NodeShapeWithPropertyCardinalities {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
@@ -1307,6 +1448,7 @@ export class NodeShapeWithOrProperties {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
@@ -1596,6 +1738,7 @@ export class NodeShapeWithListProperty {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
@@ -1956,6 +2099,7 @@ export class NodeShapeWithInProperties {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
@@ -2380,6 +2524,7 @@ export class NodeShapeWithHasValueProperties {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
@@ -2567,6 +2712,7 @@ export class InlineNodeShape {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
@@ -2701,6 +2847,7 @@ export class ExternNodeShape {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
@@ -2918,6 +3065,7 @@ export class NodeShapeWithExternProperties {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
@@ -3252,6 +3400,7 @@ export class NodeShapeWithDefaultValueProperties {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
@@ -3506,10 +3655,10 @@ export namespace NodeShapeWithDefaultValueProperties {
     }
   }
 }
-export class NonClassNodeShape {
+export class NodeShapeWithExplicitRdfTypes {
   private _identifier: rdfjs.BlankNode | rdfjs.NamedNode | undefined;
   readonly stringProperty: string;
-  readonly type = "NonClassNodeShape";
+  readonly type = "NodeShapeWithExplicitRdfTypes";
 
   constructor(parameters: {
     readonly identifier?: rdfjs.BlankNode | rdfjs.NamedNode;
@@ -3528,7 +3677,9 @@ export class NonClassNodeShape {
     return this._identifier;
   }
 
-  equals(other: NonClassNodeShape): purifyHelpers.Equatable.EqualsResult {
+  equals(
+    other: NodeShapeWithExplicitRdfTypes,
+  ): purifyHelpers.Equatable.EqualsResult {
     return purifyHelpers.Equatable.booleanEquals(
       this.identifier,
       other.identifier,
@@ -3575,9 +3726,11 @@ export class NonClassNodeShape {
   }
 
   toRdf({
+    ignoreRdfType,
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
@@ -3585,6 +3738,21 @@ export class NonClassNodeShape {
       identifier: this.identifier,
       mutateGraph,
     });
+    if (!ignoreRdfType) {
+      _resource.add(
+        _resource.dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+        ),
+        _resource.dataFactory.namedNode("http://example.com/ToRdfType"),
+      );
+      _resource.add(
+        _resource.dataFactory.namedNode(
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+        ),
+        _resource.dataFactory.namedNode("http://example.com/FromRdfType"),
+      );
+    }
+
     _resource.add(
       dataFactory.namedNode("http://example.com/stringProperty"),
       this.stringProperty,
@@ -3593,7 +3761,7 @@ export class NonClassNodeShape {
   }
 }
 
-export namespace NonClassNodeShape {
+export namespace NodeShapeWithExplicitRdfTypes {
   export function fromRdf({
     ignoreRdfType: _ignoreRdfType,
     resource: _resource,
@@ -3603,7 +3771,25 @@ export namespace NonClassNodeShape {
     [_index: string]: any;
     ignoreRdfType?: boolean;
     resource: rdfjsResource.Resource;
-  }): purify.Either<rdfjsResource.Resource.ValueError, NonClassNodeShape> {
+  }): purify.Either<
+    rdfjsResource.Resource.ValueError,
+    NodeShapeWithExplicitRdfTypes
+  > {
+    if (
+      !_ignoreRdfType &&
+      !_resource.isInstanceOf(
+        dataFactory.namedNode("http://example.com/FromRdfType"),
+      )
+    ) {
+      return purify.Left(
+        new rdfjsResource.Resource.ValueError({
+          focusResource: _resource,
+          message: `${rdfjsResource.Resource.Identifier.toString(_resource.identifier)} has unexpected RDF type`,
+          predicate: dataFactory.namedNode("http://example.com/FromRdfType"),
+        }),
+      );
+    }
+
     const identifier = _resource.identifier;
     const _stringPropertyEither: purify.Either<
       rdfjsResource.Resource.ValueError,
@@ -3620,7 +3806,7 @@ export namespace NonClassNodeShape {
 
     const stringProperty = _stringPropertyEither.unsafeCoerce();
     return purify.Either.of(
-      new NonClassNodeShape({ identifier, stringProperty }),
+      new NodeShapeWithExplicitRdfTypes({ identifier, stringProperty }),
     );
   }
 
@@ -3630,6 +3816,15 @@ export namespace NonClassNodeShape {
       _options?: { ignoreRdfType?: boolean },
     ) {
       super(subject);
+      if (!_options?.ignoreRdfType) {
+        this.add(
+          ...new sparqlBuilder.RdfTypeGraphPatterns(
+            subject,
+            dataFactory.namedNode("http://example.com/FromRdfType"),
+          ),
+        );
+      }
+
       this.add(
         sparqlBuilder.GraphPattern.basic(
           this.subject,
@@ -3712,6 +3907,7 @@ export class IriNodeShape {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource<rdfjs.NamedNode> {
@@ -3886,6 +4082,7 @@ export namespace InterfaceNodeShape {
       mutateGraph,
       resourceSet,
     }: {
+      ignoreRdfType?: boolean;
       mutateGraph: rdfjsResource.MutableResource.MutateGraph;
       resourceSet: rdfjsResource.MutableResourceSet;
     },
@@ -3964,6 +4161,7 @@ abstract class AbstractBaseClassWithPropertiesNodeShape {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
@@ -4033,14 +4231,28 @@ abstract class AbstractBaseClassWithoutPropertiesNodeShape extends AbstractBaseC
     | "ConcreteChildClassNodeShape"
     | "ConcreteParentClassNodeShape";
 
+  // biome-ignore lint/complexity/noUselessConstructor: Always have a constructor
+  constructor(
+    parameters: ConstructorParameters<
+      typeof AbstractBaseClassWithPropertiesNodeShape
+    >[0],
+  ) {
+    super(parameters);
+  }
+
   override toRdf({
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
-    const _resource = super.toRdf({ mutateGraph, resourceSet });
+    const _resource = super.toRdf({
+      ignoreRdfType: true,
+      mutateGraph,
+      resourceSet,
+    });
     return _resource;
   }
 }
@@ -4146,7 +4358,11 @@ export class ConcreteParentClassNodeShape extends AbstractBaseClassWithoutProper
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
-    const _resource = super.toRdf({ mutateGraph, resourceSet });
+    const _resource = super.toRdf({
+      ignoreRdfType: true,
+      mutateGraph,
+      resourceSet,
+    });
     if (!ignoreRdfType) {
       _resource.add(
         _resource.dataFactory.namedNode(
@@ -4315,8 +4531,8 @@ export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {
     const _resource = super.toRdf({
-      mutateGraph,
       ignoreRdfType: true,
+      mutateGraph,
       resourceSet,
     });
     if (!ignoreRdfType) {
@@ -4489,6 +4705,7 @@ export abstract class AbstractBaseClassForExternObjectType {
     mutateGraph,
     resourceSet,
   }: {
+    ignoreRdfType?: boolean;
     mutateGraph: rdfjsResource.MutableResource.MutateGraph;
     resourceSet: rdfjsResource.MutableResourceSet;
   }): rdfjsResource.MutableResource {

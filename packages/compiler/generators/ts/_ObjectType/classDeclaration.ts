@@ -16,7 +16,7 @@ import { toRdfFunctionOrMethodDeclaration } from "./toRdfFunctionOrMethodDeclara
 
 function constructorDeclaration(
   this: ObjectType,
-): Maybe<OptionalKind<ConstructorDeclarationStructure>> {
+): OptionalKind<ConstructorDeclarationStructure> {
   const propertyStatements: string[] = [];
   for (const property of this.properties) {
     for (const statement of property.classConstructorStatements({
@@ -25,12 +25,11 @@ function constructorDeclaration(
       propertyStatements.push(statement);
     }
   }
-  if (propertyStatements.length === 0) {
-    return Maybe.empty();
-  }
 
   const statements: (string | StatementStructures)[] = [];
   if (this.parentObjectTypes.length > 0) {
+    // An ancestor object type may be extern so we always have a constructor and always pass up parameters instead
+    // of trying to sense whether we need to or not.
     statements.push("super(parameters);");
   }
   statements.push(...propertyStatements);
@@ -44,27 +43,36 @@ function constructorDeclaration(
         )
         .toList(),
   );
-  if (constructorParameterPropertySignatures.length === 0) {
-    return Maybe.empty();
+
+  let constructorParametersType: string;
+  if (constructorParameterPropertySignatures.length > 0) {
+    constructorParametersType = `{ ${constructorParameterPropertySignatures.join(
+      ", ",
+    )} }`;
+  } else {
+    constructorParametersType = "";
+  }
+  if (this.parentObjectTypes.length > 0) {
+    // Pass up parameters
+    constructorParametersType = `${constructorParametersType}${constructorParametersType.length > 0 ? " & " : ""}ConstructorParameters<typeof ${this.parentObjectTypes[0].name}>[0]`;
+  }
+  if (constructorParametersType.length === 0) {
+    constructorParametersType = "object";
   }
 
-  let constructorParametersType = `{ ${constructorParameterPropertySignatures.join(
-    ", ",
-  )} }`;
-  if (statements[0] === "super(parameters);") {
-    // If some ancestor type has a constructor then pass up parameters
-    constructorParametersType = `${constructorParametersType} & ConstructorParameters<typeof ${this.parentObjectTypes[0].name}>[0]`;
-  }
-
-  return Maybe.of({
+  return {
+    leadingTrivia:
+      propertyStatements.length === 0
+        ? "// biome-ignore lint/complexity/noUselessConstructor: Always have a constructor\n"
+        : undefined,
     parameters: [
       {
-        name: "parameters",
+        name: statements.length > 0 ? "parameters" : "_parameters",
         type: constructorParametersType,
       },
     ],
     statements,
-  });
+  };
 }
 
 export function classDeclaration(
@@ -80,8 +88,6 @@ export function classDeclaration(
 
   this.ensureAtMostOneSuperObjectType();
 
-  const constructorDeclaration_ = constructorDeclaration.bind(this)();
-
   const getAccessors: OptionalKind<GetAccessorDeclarationStructure>[] = [];
   const properties: OptionalKind<PropertyDeclarationStructure>[] = [];
   for (const property of this.properties) {
@@ -94,7 +100,7 @@ export function classDeclaration(
   }
 
   return Maybe.of({
-    ctors: constructorDeclaration_.toList(),
+    ctors: [constructorDeclaration.bind(this)()],
     extends:
       this.parentObjectTypes.length > 0
         ? this.parentObjectTypes[0].name

@@ -37,13 +37,12 @@ export function sparqlGraphPatternsClassDeclaration(
     constructorStatements.push(`super(${subjectVariable});`);
   }
 
-  if (!this.abstract) {
-    this.rdfType.ifJust((rdfType) =>
-      constructorStatements.push(
-        `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${this.rdfjsTermExpression(rdfType)})); }`,
-      ),
-    );
-  }
+  this.fromRdfType.ifJust((fromRdfType) =>
+    constructorStatements.push(
+      `if (!${optionsVariable}?.${ignoreRdfTypeVariable}) { this.add(...new sparqlBuilder.RdfTypeGraphPatterns(${subjectVariable}, ${this.rdfjsTermExpression(fromRdfType)})); }`,
+    ),
+  );
+
   for (const property of this.properties) {
     property
       .sparqlGraphPatternExpression()

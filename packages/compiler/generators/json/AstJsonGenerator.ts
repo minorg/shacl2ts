@@ -96,6 +96,7 @@ function typeToJson(type: ast.Type): AstJson.Type {
       };
     case "ObjectType":
       return {
+        fromRdfType: type.fromRdfType.map(termToJson).extract(),
         kind: type.kind,
         listItemType: type.listItemType.map(typeToJson).extract(),
         name: nameToJson(type.name),
@@ -104,7 +105,10 @@ function typeToJson(type: ast.Type): AstJson.Type {
             ? type.parentObjectTypes.map((type) => nameToJson(type.name))
             : undefined,
         nodeKinds: [...type.nodeKinds].map(nodeKindToJson),
-        rdfType: type.rdfType.map(termToJson).extract(),
+        toRdfTypes:
+          type.toRdfTypes.length > 0
+            ? type.toRdfTypes.map(termToJson)
+            : undefined,
       };
     case "OptionType":
       return {

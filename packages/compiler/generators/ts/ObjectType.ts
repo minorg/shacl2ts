@@ -23,9 +23,10 @@ export class ObjectType extends DeclaredType {
   readonly abstract: boolean;
   readonly declarationType: TsObjectDeclarationType;
   readonly extern: boolean;
+  readonly fromRdfType: Maybe<NamedNode>;
   readonly kind = "ObjectType";
   readonly mintingStrategy: Maybe<MintingStrategy>;
-  readonly rdfType: Maybe<NamedNode>;
+  readonly toRdfTypes: readonly NamedNode[];
   private readonly import_: Maybe<string>;
   private readonly lazyAncestorObjectTypes: () => readonly ObjectType[];
   private readonly lazyDescendantObjectTypes: () => readonly ObjectType[];
@@ -36,30 +37,33 @@ export class ObjectType extends DeclaredType {
     abstract,
     declarationType,
     extern,
+    fromRdfType,
     lazyAncestorObjectTypes,
     lazyDescendantObjectTypes,
     lazyParentObjectTypes,
     lazyProperties,
     import_,
     mintingStrategy,
-    rdfType,
+    toRdfTypes,
     ...superParameters
   }: {
     abstract: boolean;
     declarationType: TsObjectDeclarationType;
     extern: boolean;
+    fromRdfType: Maybe<NamedNode>;
     import_: Maybe<string>;
     lazyAncestorObjectTypes: () => readonly ObjectType[];
     lazyDescendantObjectTypes: () => readonly ObjectType[];
     lazyParentObjectTypes: () => readonly ObjectType[];
     lazyProperties: () => readonly ObjectType.Property[];
     mintingStrategy: Maybe<MintingStrategy>;
-    rdfType: Maybe<NamedNode>;
+    toRdfTypes: readonly NamedNode[];
   } & ConstructorParameters<typeof DeclaredType>[0]) {
     super(superParameters);
     this.abstract = abstract;
     this.declarationType = declarationType;
     this.extern = extern;
+    this.fromRdfType = fromRdfType;
     this.import_ = import_;
     // Lazily initialize some members in getters to avoid recursive construction
     this.lazyAncestorObjectTypes = lazyAncestorObjectTypes;
@@ -67,7 +71,7 @@ export class ObjectType extends DeclaredType {
     this.lazyParentObjectTypes = lazyParentObjectTypes;
     this.lazyProperties = lazyProperties;
     this.mintingStrategy = mintingStrategy;
-    this.rdfType = rdfType;
+    this.toRdfTypes = toRdfTypes;
   }
 
   get _discriminatorProperty(): Type.DiscriminatorProperty {

@@ -303,6 +303,17 @@ describe("TsGenerator", () => {
     });
   });
 
+  it("fromRdf: explicit RDF types", ({ expect }) => {
+    testFromRdf({
+      expect,
+      model: new kitchenSink.NodeShapeWithExplicitRdfTypes({
+        identifier: dataFactory.blankNode(),
+        stringProperty: "test",
+      }),
+      modelFromRdf: kitchenSink.NodeShapeWithExplicitRdfTypes.fromRdf,
+    });
+  });
+
   it("fromRdf: ensure hasValue (sh:hasValue)", ({ expect }) => {
     testFromRdf({
       expect,
@@ -538,6 +549,37 @@ describe("TsGenerator", () => {
       ...dataset,
     ]);
     expect(ttl).not.toHaveLength(0);
+  });
+
+  it("to: explicit RDF types", ({ expect }) => {
+    const dataset = new N3.Store();
+    const resource = new kitchenSink.NodeShapeWithExplicitRdfTypes({
+      identifier: dataFactory.blankNode(),
+      stringProperty: "test",
+    }).toRdf({
+      mutateGraph: dataFactory.defaultGraph(),
+      resourceSet: new MutableResourceSet({
+        dataFactory,
+        dataset,
+      }),
+    });
+    expect(dataset.size).toStrictEqual(3); // Two RDF types and the property
+    expect(
+      resource.isInstanceOf(
+        dataFactory.namedNode("http://example.com/FromRdfType"),
+      ),
+    );
+    expect(
+      resource.isInstanceOf(
+        dataFactory.namedNode("http://example.com/ToRdfType"),
+      ),
+    );
+    expect(
+      resource
+        .value(dataFactory.namedNode("http://example.com/stringProperty"))
+        .chain((value) => value.toString())
+        .unsafeCoerce(),
+    ).toStrictEqual("test");
   });
 
   it("toRdf: should serialize and deserialize a list", ({ expect }) => {

@@ -3,7 +3,7 @@ import type * as rdfjs from "@rdfjs/types";
 import type { NamedNode } from "@rdfjs/types";
 import { NodeKind, RdfjsNodeShape } from "@shaclmate/shacl-ast";
 import { owl, rdfs } from "@tpluscode/rdf-ns-builders";
-import { Either, Left, type Maybe } from "purify-ts";
+import { Either, Left, Maybe } from "purify-ts";
 import type { Resource } from "rdfjs-resource";
 import type {
   MintingStrategy,
@@ -122,6 +122,29 @@ export class NodeShape
     return extern.bind(this)();
   }
 
+  get fromRdfType(): Maybe<NamedNode> {
+    // Check for an explicit shaclmate:fromRdfType
+    const fromRdfType = this.resource
+      .value(shaclmate.fromRdfType)
+      .chain((value) => value.toIri())
+      .toMaybe();
+    if (fromRdfType.isJust()) {
+      return fromRdfType;
+    }
+
+    // No explicit shaclmate:fromRdfType
+    // If the shape is a class, not abstract, and identified by an IRI then use the shape IRI as the fromRdfType.
+    if (
+      !this.abstract.orDefault(false) &&
+      this.isClass &&
+      this.resource.identifier.termType === "NamedNode"
+    ) {
+      return Maybe.of(this.resource.identifier);
+    }
+
+    return Maybe.empty();
+  }
+
   get isClass(): boolean {
     return (
       this.resource.isInstanceOf(owl.Class) ||
@@ -192,6 +215,35 @@ export class NodeShape
 
   get shaclmateName(): Maybe<string> {
     return shaclmateName.bind(this)();
+  }
+
+  get toRdfTypes(): readonly NamedNode[] {
+    // Look for one or more explicit shaclmate:toRdfType's
+    const toRdfTypes = this.resource
+      .values(shaclmate.toRdfType)
+      .flatMap((value) => value.toIri().toMaybe().toList())
+      .concat();
+
+    if (toRdfTypes.length === 0) {
+      // No explicit shaclmate:toRdfType's
+      // If the shape is a class, not abstract, and identified by an IRI then use the shape IRI as the fromRdfType.
+      if (
+        !this.abstract.orDefault(false) &&
+        this.isClass &&
+        this.resource.identifier.termType === "NamedNode"
+      ) {
+        toRdfTypes.push(this.resource.identifier);
+      }
+    }
+
+    // Ensure the toRdfTypes includes the fromRdfType if there is one
+    this.fromRdfType.ifJust((fromRdfType) => {
+      if (!toRdfTypes.some((toRdfType) => toRdfType.equals(fromRdfType))) {
+        toRdfTypes.push(fromRdfType);
+      }
+    });
+
+    return toRdfTypes;
   }
 
   get tsFeatures(): Maybe<Set<TsFeature>> {

@@ -37,7 +37,7 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
 
   const statements: string[] = [];
   if (this.parentObjectTypes.length > 0) {
-    const superToRdfOptions = `{ ${variables.mutateGraph}, ${this.parentObjectTypes[0].abstract ? "" : `${variables.ignoreRdfType}: true, `}${variables.resourceSet} }`;
+    const superToRdfOptions = `{ ${variables.ignoreRdfType}: true, ${variables.mutateGraph}, ${variables.resourceSet} }`;
     let superToRdfCall: string;
     switch (this.declarationType) {
       case "class":
@@ -59,13 +59,11 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     );
   }
 
-  if (!this.abstract) {
-    this.rdfType.ifJust((rdfType) => {
-      statements.push(
-        `if (!${variables.ignoreRdfType}) { ${variables.resource}.add(${variables.resource}.dataFactory.namedNode("${rdf.type.value}"), ${variables.resource}.dataFactory.namedNode("${rdfType.value}")); }`,
-      );
-      usedIgnoreRdfTypeVariable = true;
-    });
+  if (this.toRdfTypes.length > 0) {
+    statements.push(
+      `if (!${variables.ignoreRdfType}) { ${this.toRdfTypes.map((toRdfType) => `${variables.resource}.add(${variables.resource}.dataFactory.namedNode("${rdf.type.value}"), ${variables.resource}.dataFactory.namedNode("${toRdfType.value}"));`).join(" ")} }`,
+    );
+    usedIgnoreRdfTypeVariable = true;
   }
 
   for (const property of this.properties) {
@@ -87,7 +85,7 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   }
   parameters.push({
     name: `{ ${usedIgnoreRdfTypeVariable ? `${variables.ignoreRdfType}, ` : ""}${variables.mutateGraph}, ${variables.resourceSet} }`,
-    type: `{ ${usedIgnoreRdfTypeVariable ? `${variables.ignoreRdfType}?: boolean; ` : ""}${variables.mutateGraph}: rdfjsResource.MutableResource.MutateGraph, ${variables.resourceSet}: rdfjsResource.MutableResourceSet }`,
+    type: `{ ${variables.ignoreRdfType}?: boolean; ${variables.mutateGraph}: rdfjsResource.MutableResource.MutateGraph, ${variables.resourceSet}: rdfjsResource.MutableResourceSet }`,
   });
 
   return Maybe.of({

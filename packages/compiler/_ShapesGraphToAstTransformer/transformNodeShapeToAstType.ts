@@ -1,4 +1,3 @@
-import type { NamedNode } from "@rdfjs/types";
 import { rdf } from "@tpluscode/rdf-ns-builders";
 import { Either, Left, Maybe } from "purify-ts";
 import type { ShapesGraphToAstTransformer } from "../ShapesGraphToAstTransformer.js";
@@ -120,11 +119,9 @@ export function transformNodeShapeToAstType(
     const compositeTypeNodeShapes = compositeTypeShapes.filter(
       (shape) => shape instanceof input.NodeShape,
     );
-    if (compositeTypeNodeShapes.length < 2) {
+    if (compositeTypeNodeShapes.length === 0) {
       return Left(
-        new Error(
-          `${nodeShape} only has one node shape in its logical constraint`,
-        ),
+        new Error(`${nodeShape} has no node shapes in its logical constraint`),
       );
     }
 
@@ -169,16 +166,15 @@ export function transformNodeShapeToAstType(
     descendantObjectTypes: [],
     export: export_,
     extern: nodeShape.extern.orDefault(false),
+    fromRdfType: nodeShape.fromRdfType,
     kind: "ObjectType",
     listItemType: Maybe.empty(),
     mintingStrategy: nodeShape.mintingStrategy.toMaybe(),
     name: this.shapeAstName(nodeShape),
     nodeKinds: nodeShape.nodeKinds,
     properties: [], // This is mutable, we'll populate it below.
-    rdfType: nodeShape.isClass
-      ? Maybe.of(nodeShape.resource.identifier as NamedNode)
-      : Maybe.empty(),
     parentObjectTypes: [], // This is mutable, we'll populate it below
+    toRdfTypes: nodeShape.toRdfTypes,
     tsFeatures: nodeShape.tsFeatures.orDefault(tsFeaturesDefault),
     tsIdentifierPropertyName:
       nodeShape.tsObjectIdentifierPropertyName.orDefault("identifier"),

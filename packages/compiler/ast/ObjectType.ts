@@ -55,7 +55,20 @@ export interface ObjectType {
    * Defaults to false.
    */
   readonly extern: boolean;
+
+  /**
+   * The expected rdf:type of instances of this ObjectType.
+   *
+   * This is usually the identifier of an sh:NodeShape that is also an rdfs:Class (i.e., a node shape with implicit
+   * class targets).
+   */
+  readonly fromRdfType: Maybe<NamedNode>;
+
+  /**
+   * Type discriminator.
+   */
   readonly kind: "ObjectType";
+
   /**
    * If the ObjectType is an RDF list, this is the type of rdf:first.
    * https://www.w3.org/TR/rdf-schema/#ch_collectionvocab
@@ -94,12 +107,12 @@ export interface ObjectType {
   readonly properties: ObjectType.Property[];
 
   /**
-   * The expected rdf:type of instances of this ObjectType.
+   * rdf:type's that will be added to this object when it's serialized toRdf.
    *
    * This is usually the identifier of an sh:NodeShape that is also an rdfs:Class (i.e., a node shape with implicit
    * class targets).
    */
-  readonly rdfType: Maybe<NamedNode>;
+  readonly toRdfTypes: readonly NamedNode[];
 
   /**
    * TypeScript features to generate.
