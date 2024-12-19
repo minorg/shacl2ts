@@ -40,7 +40,7 @@ export class ObjectUnionType extends DeclaredType {
     name: string;
   }) {
     super(superParameters);
-    invariant(memberTypes.length >= 2);
+    invariant(memberTypes.length > 0);
     this.memberTypes = memberTypes;
     const discriminatorPropertyName =
       memberTypes[0].discriminatorProperty.unsafeCoerce().name;

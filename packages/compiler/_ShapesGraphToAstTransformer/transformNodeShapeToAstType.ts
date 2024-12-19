@@ -119,11 +119,9 @@ export function transformNodeShapeToAstType(
     const compositeTypeNodeShapes = compositeTypeShapes.filter(
       (shape) => shape instanceof input.NodeShape,
     );
-    if (compositeTypeNodeShapes.length < 2) {
+    if (compositeTypeNodeShapes.length === 0) {
       return Left(
-        new Error(
-          `${nodeShape} only has one node shape in its logical constraint`,
-        ),
+        new Error(`${nodeShape} has no node shapes in its logical constraint`),
       );
     }
 
