@@ -79,7 +79,9 @@ export class ListType extends Type {
             (itemSparqlGraphPatternsExpression) =>
               `itemGraphPatterns: (_itemVariable) => ${itemSparqlGraphPatternsExpression.toSparqlGraphPatternsExpression()}, `,
           )
-          .orDefault("")} rdfList: ${variables.subject} })`,
+          .orDefault(
+            "",
+          )} ${this.fromRdfType.map((fromRdfType) => `rdfListType: ${this.rdfjsTermExpression(fromRdfType)}, `).orDefault("")} rdfList: ${variables.subject} })`,
       ),
     );
   }
