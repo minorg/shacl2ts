@@ -156,6 +156,14 @@ export class IdentifierProperty extends Property<IdentifierType> {
     };
   }
 
+  override get jsonPropertySignature(): OptionalKind<PropertySignatureStructure> {
+    return {
+      isReadonly: true,
+      name: "@id",
+      type: "string",
+    };
+  }
+
   override classConstructorStatements({
     variables,
   }: Parameters<
@@ -183,10 +191,10 @@ export class IdentifierProperty extends Property<IdentifierType> {
     return Maybe.empty();
   }
 
-  override toJsonExpression(
-    parameters: Parameters<Property<IdentifierType>["toJsonExpression"]>[0],
-  ): string {
-    return this.type.propertyToJsonExpression(parameters);
+  override toJsonObjectMember({
+    variables,
+  }: Parameters<Property<IdentifierType>["toJsonObjectMember"]>[0]): string {
+    return `"@id": ${variables.value}.value`;
   }
 
   override toRdfStatements(): readonly string[] {

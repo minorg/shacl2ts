@@ -1,5 +1,4 @@
 import { rdf } from "@tpluscode/rdf-ns-builders";
-import { camelCase } from "change-case";
 import { Maybe } from "purify-ts";
 import type { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
@@ -23,16 +22,6 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
 
   this.ensureAtMostOneSuperObjectType();
 
-  let thisVariable: string;
-  switch (this.declarationType) {
-    case "class":
-      thisVariable = "this";
-      break;
-    case "interface":
-      thisVariable = camelCase(this.name);
-      break;
-  }
-
   let usedIgnoreRdfTypeVariable = false;
 
   const statements: string[] = [];
@@ -44,18 +33,18 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
         superToRdfCall = `super.toRdf(${superToRdfOptions})`;
         break;
       case "interface":
-        superToRdfCall = `${this.parentObjectTypes[0].name}.toRdf(${thisVariable}, ${superToRdfOptions})`;
+        superToRdfCall = `${this.parentObjectTypes[0].name}.toRdf(${this.thisVariable}, ${superToRdfOptions})`;
         break;
     }
     statements.push(`const ${variables.resource} = ${superToRdfCall};`);
     usedIgnoreRdfTypeVariable = !this.parentObjectTypes[0].abstract;
   } else if (this.identifierType.isNamedNodeKind) {
     statements.push(
-      `const ${variables.resource} = ${variables.resourceSet}.mutableNamedResource({ identifier: ${thisVariable}.${this.identifierProperty.name}, ${variables.mutateGraph} });`,
+      `const ${variables.resource} = ${variables.resourceSet}.mutableNamedResource({ identifier: ${this.thisVariable}.${this.identifierProperty.name}, ${variables.mutateGraph} });`,
     );
   } else {
     statements.push(
-      `const ${variables.resource} = ${variables.resourceSet}.mutableResource({ identifier: ${thisVariable}.${this.identifierProperty.name}, ${variables.mutateGraph} });`,
+      `const ${variables.resource} = ${variables.resourceSet}.mutableResource({ identifier: ${this.thisVariable}.${this.identifierProperty.name}, ${variables.mutateGraph} });`,
     );
   }
 
@@ -69,7 +58,10 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   for (const property of this.properties) {
     statements.push(
       ...property.toRdfStatements({
-        variables: { ...variables, value: `${thisVariable}.${property.name}` },
+        variables: {
+          ...variables,
+          value: `${this.thisVariable}.${property.name}`,
+        },
       }),
     );
   }
@@ -79,7 +71,7 @@ export function toRdfFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   const parameters: OptionalKind<ParameterDeclarationStructure>[] = [];
   if (this.declarationType === "interface") {
     parameters.push({
-      name: thisVariable,
+      name: this.thisVariable,
       type: this.name,
     });
   }

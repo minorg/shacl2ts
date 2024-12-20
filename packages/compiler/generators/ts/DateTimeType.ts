@@ -2,7 +2,7 @@ import { PrimitiveType } from "./PrimitiveType.js";
 import type { Type } from "./Type.js";
 
 export class DateTimeType extends PrimitiveType<Date> {
-  override readonly jsonDeclaration = "string";
+  override readonly jsonName = "string";
   readonly kind = "DateTimeType";
 
   override get conversions(): readonly Type.Conversion[] {

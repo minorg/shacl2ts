@@ -50,8 +50,8 @@ export class ListType extends Type {
     return Maybe.empty();
   }
 
-  get jsonDeclaration(): string {
-    return `readonly (${this.itemType.jsonDeclaration})[]`;
+  get jsonName(): string {
+    return `readonly (${this.itemType.jsonName})[]`;
   }
 
   override get name(): string {
