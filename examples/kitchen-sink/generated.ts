@@ -108,6 +108,10 @@ export class UuidV4IriNodeShape {
     );
     return _resource;
   }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
+  }
 }
 
 export namespace UuidV4IriNodeShape {
@@ -256,6 +260,10 @@ export class Sha256IriNodeShape {
       this.stringProperty,
     );
     return _resource;
+  }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
   }
 }
 
@@ -406,6 +414,10 @@ export class OrNodeShapeMember2 {
     );
     return _resource;
   }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
+  }
 }
 
 export namespace OrNodeShapeMember2 {
@@ -555,6 +567,10 @@ export class OrNodeShapeMember1 {
     );
     return _resource;
   }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
+  }
 }
 
 export namespace OrNodeShapeMember1 {
@@ -703,6 +719,10 @@ export class NonClassNodeShape {
       this.stringProperty,
     );
     return _resource;
+  }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
   }
 }
 
@@ -898,6 +918,10 @@ export class NodeShapeWithPropertyVisibilities {
       this.publicProperty,
     );
     return _resource;
+  }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
   }
 }
 
@@ -1171,6 +1195,10 @@ export class NodeShapeWithPropertyCardinalities {
       this.setStringProperty,
     );
     return _resource;
+  }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
   }
 }
 
@@ -1661,6 +1689,10 @@ export class NodeShapeWithOrProperties {
     );
     return _resource;
   }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
+  }
 }
 
 export namespace NodeShapeWithOrProperties {
@@ -2007,6 +2039,10 @@ export class NodeShapeWithListProperty {
       ).listResource.identifier,
     );
     return _resource;
+  }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
   }
 }
 
@@ -2392,6 +2428,10 @@ export class NodeShapeWithInProperties {
       this.inStringsProperty,
     );
     return _resource;
+  }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
   }
 }
 
@@ -2826,6 +2866,10 @@ export class NodeShapeWithHasValueProperties {
     );
     return _resource;
   }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
+  }
 }
 
 export namespace NodeShapeWithHasValueProperties {
@@ -3024,6 +3068,10 @@ export class InlineNodeShape {
     );
     return _resource;
   }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
+  }
 }
 
 export namespace InlineNodeShape {
@@ -3172,6 +3220,10 @@ export class ExternNodeShape {
       this.stringProperty,
     );
     return _resource;
+  }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
   }
 }
 
@@ -3428,6 +3480,10 @@ export class NodeShapeWithExternProperties {
       ),
     );
     return _resource;
+  }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
   }
 }
 
@@ -3792,6 +3848,10 @@ export class NodeShapeWithDefaultValueProperties {
     );
     return _resource;
   }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
+  }
 }
 
 export namespace NodeShapeWithDefaultValueProperties {
@@ -4137,6 +4197,10 @@ export class NodeShapeWithExplicitRdfTypes {
     );
     return _resource;
   }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
+  }
 }
 
 export namespace NodeShapeWithExplicitRdfTypes {
@@ -4312,6 +4376,10 @@ export class IriNodeShape {
       this.stringProperty,
     );
     return _resource;
+  }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
   }
 }
 
@@ -4595,6 +4663,10 @@ abstract class AbstractBaseClassWithPropertiesNodeShape {
     );
     return _resource;
   }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
+  }
 }
 
 namespace AbstractBaseClassWithPropertiesNodeShape {
@@ -4674,6 +4746,10 @@ abstract class AbstractBaseClassWithoutPropertiesNodeShape extends AbstractBaseC
       resourceSet,
     });
     return _resource;
+  }
+
+  override toString(): string {
+    return JSON.stringify(this.toJson());
   }
 }
 
@@ -4811,6 +4887,10 @@ export class ConcreteParentClassNodeShape extends AbstractBaseClassWithoutProper
       this.parentStringProperty,
     );
     return _resource;
+  }
+
+  override toString(): string {
+    return JSON.stringify(this.toJson());
   }
 }
 
@@ -4996,6 +5076,10 @@ export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
     );
     return _resource;
   }
+
+  override toString(): string {
+    return JSON.stringify(this.toJson());
+  }
 }
 
 export namespace ConcreteChildClassNodeShape {
@@ -5176,6 +5260,10 @@ export abstract class AbstractBaseClassForExternObjectType {
       this.abcStringProperty,
     );
     return _resource;
+  }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
   }
 }
 

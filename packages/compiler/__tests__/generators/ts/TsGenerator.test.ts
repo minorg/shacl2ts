@@ -670,4 +670,16 @@ describe("TsGenerator", () => {
         .unsafeCoerce(),
     ).toStrictEqual(true);
   });
+
+  it("toString", ({ expect }) => {
+    const instance = new kitchenSink.ConcreteChildClassNodeShape({
+      abcStringProperty: "abc",
+      childStringProperty: "child",
+      identifier: dataFactory.namedNode("http://example.com/test"),
+      parentStringProperty: "parent",
+    });
+    expect(instance.toString()).toStrictEqual(
+      '{"abcStringProperty":"abc","identifier":"http://example.com/test","type":"ConcreteChildClassNodeShape","@type":"http://example.com/ConcreteChildClassNodeShape","parentStringProperty":"parent","childStringProperty":"child"}',
+    );
+  });
 });
