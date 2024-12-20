@@ -84,7 +84,7 @@ export class ShaclProperty extends Property<Type> {
     return {
       isReadonly: true,
       name: this.name,
-      type: this.type.jsonDeclaration,
+      type: this.type.jsonName,
     };
   }
 

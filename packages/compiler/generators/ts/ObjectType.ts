@@ -203,7 +203,7 @@ export class ObjectType extends DeclaredType {
     return this.identifierProperty.type;
   }
 
-  get jsonDeclaration(): string {
+  get jsonName(): string {
     return `ReturnType<${this.name}["toJson"]>`;
   }
 

@@ -11,7 +11,7 @@ export class IdentifierType extends RdfjsTermType<
   BlankNode | NamedNode,
   NamedNode
 > {
-  readonly jsonDeclaration = "string";
+  readonly jsonName = "string";
   readonly kind = "IdentifierType";
   readonly nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
 

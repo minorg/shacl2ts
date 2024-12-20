@@ -104,9 +104,9 @@ export class ObjectUnionType extends DeclaredType {
     return Maybe.of(this._discriminatorProperty);
   }
 
-  get jsonDeclaration(): string {
+  get jsonName(): string {
     return this.memberTypes
-      .map((memberType) => memberType.jsonDeclaration)
+      .map((memberType) => memberType.jsonName)
       .join(" | ");
   }
 

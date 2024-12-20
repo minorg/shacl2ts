@@ -35,8 +35,8 @@ export class SetType extends Type {
     ];
   }
 
-  get jsonDeclaration(): string {
-    return `readonly (${this.itemType.jsonDeclaration})[]`;
+  get jsonName(): string {
+    return `readonly (${this.itemType.jsonName})[]`;
   }
 
   @Memoize()

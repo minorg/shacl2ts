@@ -38,7 +38,7 @@ export function toJsonFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     }
 
     for (const parentObjectType of this.parentObjectTypes) {
-      returnType.push(parentObjectType.jsonDeclaration);
+      returnType.push(parentObjectType.jsonName);
     }
   }
 

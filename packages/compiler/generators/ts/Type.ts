@@ -18,7 +18,7 @@ export abstract class Type {
   /**
    * JSON-compatible returned by propertyToJsonExpression.
    */
-  abstract readonly jsonDeclaration: string;
+  abstract readonly jsonName: string;
 
   abstract readonly kind:
     | ast.Type["kind"]

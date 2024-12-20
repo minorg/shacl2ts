@@ -42,8 +42,8 @@ export class OptionType extends Type {
     return conversions;
   }
 
-  get jsonDeclaration(): string {
-    return `(${this.itemType.jsonDeclaration}) | undefined`;
+  get jsonName(): string {
+    return `(${this.itemType.jsonName}) | undefined`;
   }
 
   @Memoize()
