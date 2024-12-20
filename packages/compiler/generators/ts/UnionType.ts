@@ -119,6 +119,12 @@ export class UnionType extends Type {
     return Maybe.of(this._discriminatorProperty);
   }
 
+  get jsonDeclaration(): string {
+    return this.memberTypes
+      .map((memberType) => memberType.jsonDeclaration)
+      .join(" | ");
+  }
+
   override get useImports(): readonly Import[] {
     return this.memberTypes.flatMap((memberType) => memberType.useImports);
   }
@@ -201,18 +207,47 @@ ${this.memberTypeTraits
     );
   }
 
-  override propertyToRdfExpression({
+  override propertyToJsonExpression({
     variables,
-  }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
-    let expression = "";
-    for (const memberTypeTraits of this.memberTypeTraits) {
-      if (expression.length === 0) {
-        expression = memberTypeTraits.memberType.propertyToRdfExpression({
+  }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
+    return this.ternaryExpression({
+      memberTypeExpression: (memberTypeTraits) =>
+        memberTypeTraits.memberType.propertyToJsonExpression({
           variables: {
             ...variables,
             value: memberTypeTraits.payload(variables.value),
           },
-        });
+        }),
+      variables,
+    });
+  }
+
+  override propertyToRdfExpression({
+    variables,
+  }: Parameters<Type["propertyToRdfExpression"]>[0]): string {
+    return this.ternaryExpression({
+      memberTypeExpression: (memberTypeTraits) =>
+        memberTypeTraits.memberType.propertyToRdfExpression({
+          variables: {
+            ...variables,
+            value: memberTypeTraits.payload(variables.value),
+          },
+        }),
+      variables,
+    });
+  }
+
+  private ternaryExpression({
+    memberTypeExpression,
+    variables,
+  }: {
+    memberTypeExpression: (memberTypeTraits: MemberTypeTraits) => string;
+    variables: { value: string };
+  }): string {
+    let expression = "";
+    for (const memberTypeTraits of this.memberTypeTraits) {
+      if (expression.length === 0) {
+        expression = memberTypeExpression(memberTypeTraits);
       } else {
         expression = `(${memberTypeTraits.discriminatorPropertyValues
           .map(
@@ -221,7 +256,7 @@ ${this.memberTypeTraits
           )
           .join(
             " || ",
-          )}) ? ${memberTypeTraits.memberType.propertyToRdfExpression({ variables: { ...variables, value: memberTypeTraits.payload(variables.value) } })} : ${expression}`;
+          )}) ? ${memberTypeExpression(memberTypeTraits)} : ${expression}`;
       }
     }
     return expression;

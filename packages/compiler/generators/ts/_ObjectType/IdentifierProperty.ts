@@ -183,6 +183,12 @@ export class IdentifierProperty extends Property<IdentifierType> {
     return Maybe.empty();
   }
 
+  override toJsonExpression(
+    parameters: Parameters<Property<IdentifierType>["toJsonExpression"]>[0],
+  ): string {
+    return this.type.propertyToJsonExpression(parameters);
+  }
+
   override toRdfStatements(): readonly string[] {
     return [];
   }

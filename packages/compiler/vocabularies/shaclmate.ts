@@ -11,6 +11,7 @@ export interface Shaclmate {
   _TsFeature_FromRdf: NamedNode<"http://minorg.github.io/shaclmate/ns#_TsFeature_FromRdf">;
   _TsFeature_Hash: NamedNode<"http://minorg.github.io/shaclmate/ns#_TsFeature_Hash">;
   _TsFeature_SparqlGraphPatterns: NamedNode<"http://minorg.github.io/shaclmate/ns#_TsFeature_SparqlGraphPatterns">;
+  _TsFeature_ToJson: NamedNode<"http://minorg.github.io/shaclmate/ns#_TsFeature_ToJson">;
   _TsFeature_ToRdf: NamedNode<"http://minorg.github.io/shaclmate/ns#_TsFeature_ToRdf">;
   _TsObjectDeclarationType_Class: NamedNode<"http://minorg.github.io/shaclmate/ns#_TsObjectDeclarationType_Class">;
   _TsObjectDeclarationType_Interface: NamedNode<"http://minorg.github.io/shaclmate/ns#_TsObjectDeclarationType_Interface">;

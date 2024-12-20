@@ -2,6 +2,7 @@ import { PrimitiveType } from "./PrimitiveType.js";
 import type { Type } from "./Type.js";
 
 export class DateTimeType extends PrimitiveType<Date> {
+  override readonly jsonDeclaration = "string";
   readonly kind = "DateTimeType";
 
   override get conversions(): readonly Type.Conversion[] {
@@ -51,9 +52,15 @@ export class DateTimeType extends PrimitiveType<Date> {
     return [`${variables.hasher}.update(${variables.value}.toISOString());`];
   }
 
+  override propertyToJsonExpression({
+    variables,
+  }: Parameters<PrimitiveType<Date>["propertyToJsonExpression"]>[0]): string {
+    return `${variables.value}.toISOString()`;
+  }
+
   override propertyToRdfExpression({
     variables,
-  }: Parameters<PrimitiveType<string>["propertyToRdfExpression"]>[0]): string {
+  }: Parameters<PrimitiveType<Date>["propertyToRdfExpression"]>[0]): string {
     return this.primitiveDefaultValue
       .map(
         (defaultValue) =>

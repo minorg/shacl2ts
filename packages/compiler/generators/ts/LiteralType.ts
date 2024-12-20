@@ -5,6 +5,12 @@ import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type.js";
 
 export class LiteralType extends RdfjsTermType<Literal, Literal> {
+  readonly jsonDeclaration = JSON.stringify({
+    "@language": "string | undefined",
+    "@type": "string | undefined",
+    "@value": "string",
+  });
+
   readonly kind:
     | "BooleanType"
     | "DateTimeType"
@@ -88,5 +94,11 @@ export class LiteralType extends RdfjsTermType<Literal, Literal> {
     RdfjsTermType<Literal, Literal>["propertyHashStatements"]
   >[0]): readonly string[] {
     return [`${variables.hasher}.update(${variables.value}.value);`];
+  }
+
+  override propertyToJsonExpression({
+    variables,
+  }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
+    return `{ "@language": ${variables.value}.language.length > 0 ? ${variables.value}.language : undefined, "@type": ${variables.value}.datatype.value, "@value": ${variables.value}.value }`;
   }
 }

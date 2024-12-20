@@ -3,6 +3,7 @@ import { PrimitiveType } from "./PrimitiveType.js";
 import type { Type } from "./Type.js";
 
 export class NumberType extends PrimitiveType<number> {
+  override readonly jsonDeclaration = "number";
   readonly kind = "NumberType";
 
   override get conversions(): readonly Type.Conversion[] {

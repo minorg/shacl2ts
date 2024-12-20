@@ -7,5 +7,6 @@ export * from "./interfaceDeclaration.js";
 export * from "./Property.js";
 export * from "./ShaclProperty.js";
 export * from "./sparqlGraphPatternsClassDeclaration.js";
+export * from "./toJsonFunctionDeclaration.js";
 export * from "./toRdfFunctionDeclaration.js";
 export * from "./TypeDiscriminatorProperty.js";

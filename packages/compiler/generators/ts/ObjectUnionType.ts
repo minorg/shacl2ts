@@ -104,6 +104,12 @@ export class ObjectUnionType extends DeclaredType {
     return Maybe.of(this._discriminatorProperty);
   }
 
+  get jsonDeclaration(): string {
+    return this.memberTypes
+      .map((memberType) => memberType.jsonDeclaration)
+      .join(" | ");
+  }
+
   get useImports(): readonly Import[] {
     return [];
   }
@@ -333,6 +339,17 @@ return purifyHelpers.Equatable.strictEquals(left.type, right.type).chain(() => {
         return [`${variables.value}.hash(${variables.hasher});`];
       case "interface":
         return [`${this.name}.hash(${variables.value}, ${variables.hasher});`];
+    }
+  }
+
+  override propertyToJsonExpression({
+    variables,
+  }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
+    switch (this.memberTypes[0].declarationType) {
+      case "class":
+        return `${variables.value}.toJson()`;
+      case "interface":
+        return `${this.name}.toJson(${variables.value})`;
     }
   }
 

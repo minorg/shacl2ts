@@ -338,6 +338,7 @@ export class TypeFactory {
               objectTypeDeclarationType: objectType.declarationType,
               override: objectType.parentObjectTypes.length > 0,
               type: {
+                jsonDeclaration: "string",
                 name: [...typeDiscriminatorValues]
                   .sort()
                   .map((name) => `"${name}"`)

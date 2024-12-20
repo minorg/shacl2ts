@@ -35,6 +35,10 @@ export class SetType extends Type {
     ];
   }
 
+  get jsonDeclaration(): string {
+    return `readonly (${this.itemType.jsonDeclaration})[]`;
+  }
+
   @Memoize()
   get name(): string {
     return `readonly (${this.itemType.name})[]`;
@@ -92,6 +96,12 @@ export class SetType extends Type {
       );
     }
     return this.itemType.propertySparqlGraphPatternExpression(parameters);
+  }
+
+  override propertyToJsonExpression({
+    variables,
+  }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
+    return `${variables.value}.map(_item => ${this.itemType.propertyToJsonExpression({ variables: { value: "_item" } })})`;
   }
 
   override propertyToRdfExpression({

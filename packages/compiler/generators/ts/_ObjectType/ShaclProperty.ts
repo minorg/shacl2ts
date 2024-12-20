@@ -157,6 +157,12 @@ export class ShaclProperty extends Property<Type> {
     );
   }
 
+  override toJsonExpression(
+    parameters: Parameters<Type["propertyToJsonExpression"]>[0],
+  ): string {
+    return this.type.propertyToJsonExpression(parameters);
+  }
+
   override toRdfStatements({
     variables,
   }: Parameters<Property<Type>["toRdfStatements"]>[0]): readonly string[] {

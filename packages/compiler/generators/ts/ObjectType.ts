@@ -136,6 +136,7 @@ export class ObjectType extends DeclaredType {
       ..._ObjectType.fromRdfFunctionDeclaration.bind(this)().toList(),
       ..._ObjectType.hashFunctionDeclaration.bind(this)().toList(),
       ..._ObjectType.sparqlGraphPatternsClassDeclaration.bind(this)().toList(),
+      ..._ObjectType.toJsonFunctionDeclaration.bind(this)().toList(),
       ..._ObjectType.toRdfFunctionDeclaration.bind(this)().toList(),
     ];
 
@@ -195,6 +196,10 @@ export class ObjectType extends DeclaredType {
   @Memoize()
   get identifierType(): IdentifierType {
     return this.identifierProperty.type;
+  }
+
+  get jsonDeclaration(): string {
+    return `ReturnType<${this.name}["toJson"]>`;
   }
 
   @Memoize()
@@ -257,6 +262,17 @@ export class ObjectType extends DeclaredType {
         return [
           `${this.name}.${this.hashFunctionName}(${variables.value}, ${variables.hasher});`,
         ];
+    }
+  }
+
+  override propertyToJsonExpression({
+    variables,
+  }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
+    switch (this.declarationType) {
+      case "class":
+        return `${variables.value}.toJson()`;
+      case "interface":
+        return `${this.name}.toJson(${variables.value})`;
     }
   }
 
