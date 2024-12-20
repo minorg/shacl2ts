@@ -54,10 +54,12 @@ export function toJsonFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     returnType.splice(
       0,
       0,
-      `{ ${this.ownProperties.map((property) => {
-        const propertySignature = property.jsonPropertySignature;
-        return `readonly ${propertySignature.name}: ${propertySignature.type}`;
-      })} }`,
+      `{ ${this.ownProperties
+        .map((property) => {
+          const propertySignature = property.jsonPropertySignature;
+          return `readonly "${propertySignature.name}": ${propertySignature.type}`;
+        })
+        .join("; ")} }`,
     );
   }
 

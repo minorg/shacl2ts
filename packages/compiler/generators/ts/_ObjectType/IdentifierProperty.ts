@@ -157,17 +157,10 @@ export class IdentifierProperty extends Property<IdentifierType> {
   }
 
   override get jsonPropertySignature(): OptionalKind<PropertySignatureStructure> {
-    const type: string[] = [];
-    if (this.type.nodeKinds.has(NodeKind.IRI)) {
-      type.push("string");
-    }
-    if (this.type.nodeKinds.has(NodeKind.BLANK_NODE)) {
-      type.push("undefined");
-    }
     return {
       isReadonly: true,
       name: "@id",
-      type: type.join(" | "),
+      type: "string",
     };
   }
 
@@ -201,15 +194,6 @@ export class IdentifierProperty extends Property<IdentifierType> {
   override toJsonObjectMember({
     variables,
   }: Parameters<Property<IdentifierType>["toJsonObjectMember"]>[0]): string {
-    if (
-      this.type.nodeKinds.has(NodeKind.BLANK_NODE) &&
-      this.type.nodeKinds.has(NodeKind.IRI)
-    ) {
-      return `${variables.value}.termType === "NamedNode" ? ${variables.value} : undefined`;
-    }
-    if (this.type.nodeKinds.has(NodeKind.BLANK_NODE)) {
-      return `"@id": undefined`;
-    }
     return `"@id": ${variables.value}`;
   }
 
