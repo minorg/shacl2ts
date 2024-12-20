@@ -1603,7 +1603,12 @@ export class NodeShapeWithOrProperties {
           | { "@id": string }
         )
       | undefined;
-    readonly orUnrelatedProperty: (number | { "@id": string }) | undefined;
+    readonly orUnrelatedProperty:
+      | (
+          | { type: "0-number"; value: number }
+          | { type: "1-rdfjs.NamedNode"; value: { "@id": string } }
+        )
+      | undefined;
     readonly type: string;
   } {
     return JSON.parse(
@@ -1650,8 +1655,11 @@ export class NodeShapeWithOrProperties {
         orUnrelatedProperty: this.orUnrelatedProperty
           .map((_item) =>
             _item.type === "1-rdfjs.NamedNode"
-              ? { "@id": _item.value.value }
-              : _item.value,
+              ? {
+                  type: "1-rdfjs.NamedNode",
+                  value: { "@id": _item.value.value },
+                }
+              : { type: "0-number", value: _item.value },
           )
           .extract(),
         type: this.type,

@@ -120,6 +120,10 @@ export class UnionType extends Type {
   }
 
   get jsonName(): string {
+    if (this._discriminatorProperty.synthetic) {
+      return `(${this.memberTypeTraits.map((memberTypeTraits) => `{ ${this._discriminatorProperty.name}: "${memberTypeTraits.discriminatorPropertyValues[0]}", value: ${memberTypeTraits.memberType.jsonName} }`).join(" | ")})`;
+    }
+
     return this.memberTypes
       .map((memberType) => memberType.jsonName)
       .join(" | ");
@@ -210,6 +214,21 @@ ${this.memberTypeTraits
   override propertyToJsonExpression({
     variables,
   }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
+    if (this._discriminatorProperty.synthetic) {
+      return this.ternaryExpression({
+        memberTypeExpression: (memberTypeTraits) =>
+          `{ type: "${memberTypeTraits.discriminatorPropertyValues[0]}", value: ${memberTypeTraits.memberType.propertyToJsonExpression(
+            {
+              variables: {
+                ...variables,
+                value: memberTypeTraits.payload(variables.value),
+              },
+            },
+          )} }`,
+        variables,
+      });
+    }
+
     return this.ternaryExpression({
       memberTypeExpression: (memberTypeTraits) =>
         memberTypeTraits.memberType.propertyToJsonExpression({
