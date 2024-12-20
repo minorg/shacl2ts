@@ -1128,7 +1128,7 @@ export class NodeShapeWithPropertyCardinalities {
 
   toJson(): {
     readonly identifier: string;
-    readonly optionalStringProperty: string | null | undefined;
+    readonly optionalStringProperty: string | undefined;
     readonly requiredStringProperty: string;
     readonly setStringProperty: readonly string[];
     readonly type: string;
@@ -1555,47 +1555,68 @@ export class NodeShapeWithOrProperties {
   toJson(): {
     readonly identifier: string;
     readonly orLiteralsProperty:
-      | {
-          "@language": "string | undefined";
-          "@type": "string | undefined";
-          "@value": "string";
-        }
-      | null
+      | (
+          | string
+          | {
+              "@language": string | undefined;
+              "@type": string | undefined;
+              "@value": string;
+            }
+        )
       | undefined;
     readonly orTermsProperty:
       | (
+          | string
           | {
-              "@language": "string | undefined";
-              "@type": "string | undefined";
-              "@value": "string";
+              "@language": string | undefined;
+              "@type": string | undefined;
+              "@value": string;
             }
           | string
         )
-      | null
       | undefined;
-    readonly orUnrelatedProperty: (number | string) | null | undefined;
+    readonly orUnrelatedProperty: (number | string) | undefined;
     readonly type: string;
   } {
     return JSON.parse(
       JSON.stringify({
         identifier: this.identifier.value,
         orLiteralsProperty: this.orLiteralsProperty
-          .map((_item) => ({
-            "@language": _item.language.length > 0 ? _item.language : undefined,
-            "@type": _item.datatype.value,
-            "@value": _item.value,
-          }))
+          .map((_item) =>
+            _item.datatype.value ===
+              "http://www.w3.org/2001/XMLSchema#string" &&
+            _item.language.length === 0
+              ? _item.value
+              : {
+                  "@language":
+                    _item.language.length > 0 ? _item.language : undefined,
+                  "@type":
+                    _item.datatype.value !==
+                    "http://www.w3.org/2001/XMLSchema#string"
+                      ? _item.datatype.value
+                      : undefined,
+                  "@value": _item.value,
+                },
+          )
           .extract(),
         orTermsProperty: this.orTermsProperty
           .map((_item) =>
             _item.termType === "NamedNode"
               ? _item.value
-              : {
-                  "@language":
-                    _item.language.length > 0 ? _item.language : undefined,
-                  "@type": _item.datatype.value,
-                  "@value": _item.value,
-                },
+              : _item.datatype.value ===
+                    "http://www.w3.org/2001/XMLSchema#string" &&
+                  _item.language.length === 0
+                ? _item.value
+                : {
+                    "@language":
+                      _item.language.length > 0 ? _item.language : undefined,
+                    "@type":
+                      _item.datatype.value !==
+                      "http://www.w3.org/2001/XMLSchema#string"
+                        ? _item.datatype.value
+                        : undefined,
+                    "@value": _item.value,
+                  },
           )
           .extract(),
         orUnrelatedProperty: this.orUnrelatedProperty
@@ -2308,11 +2329,11 @@ export class NodeShapeWithInProperties {
 
   toJson(): {
     readonly identifier: string;
-    readonly inBooleansProperty: boolean | null | undefined;
-    readonly inDateTimesProperty: string | null | undefined;
-    readonly inIrisProperty: string | null | undefined;
-    readonly inNumbersProperty: number | null | undefined;
-    readonly inStringsProperty: string | null | undefined;
+    readonly inBooleansProperty: boolean | undefined;
+    readonly inDateTimesProperty: string | undefined;
+    readonly inIrisProperty: string | undefined;
+    readonly inNumbersProperty: number | undefined;
+    readonly inStringsProperty: string | undefined;
     readonly type: string;
   } {
     return JSON.parse(
@@ -2764,8 +2785,8 @@ export class NodeShapeWithHasValueProperties {
   }
 
   toJson(): {
-    readonly hasIriProperty: string | null | undefined;
-    readonly hasLiteralProperty: string | null | undefined;
+    readonly hasIriProperty: string | undefined;
+    readonly hasLiteralProperty: string | undefined;
     readonly identifier: string;
     readonly type: string;
   } {
@@ -3355,14 +3376,10 @@ export class NodeShapeWithExternProperties {
   toJson(): {
     readonly externObjectTypeProperty:
       | ReturnType<ExternObjectType["toJson"]>
-      | null
       | undefined;
-    readonly externProperty: string | null | undefined;
+    readonly externProperty: string | undefined;
     readonly identifier: string;
-    readonly inlineProperty:
-      | ReturnType<InlineNodeShape["toJson"]>
-      | null
-      | undefined;
+    readonly inlineProperty: ReturnType<InlineNodeShape["toJson"]> | undefined;
     readonly type: string;
   } {
     return JSON.parse(

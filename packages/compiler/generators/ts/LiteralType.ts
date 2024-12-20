@@ -1,15 +1,13 @@
 import type { Literal } from "@rdfjs/types";
+import { xsd } from "@tpluscode/rdf-ns-builders";
 import { Maybe } from "purify-ts";
 import { Import } from "./Import.js";
 import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type.js";
 
 export class LiteralType extends RdfjsTermType<Literal, Literal> {
-  readonly jsonDeclaration = JSON.stringify({
-    "@language": "string | undefined",
-    "@type": "string | undefined",
-    "@value": "string",
-  });
+  readonly jsonDeclaration =
+    'string | { "@language": string | undefined, "@type": string | undefined, "@value": string }';
 
   readonly kind:
     | "BooleanType"
@@ -99,6 +97,6 @@ export class LiteralType extends RdfjsTermType<Literal, Literal> {
   override propertyToJsonExpression({
     variables,
   }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
-    return `{ "@language": ${variables.value}.language.length > 0 ? ${variables.value}.language : undefined, "@type": ${variables.value}.datatype.value, "@value": ${variables.value}.value }`;
+    return `(${variables.value}.datatype.value === "${xsd.string.value}" && ${variables.value}.language.length === 0 ? ${variables.value}.value : { "@language": ${variables.value}.language.length > 0 ? ${variables.value}.language : undefined, "@type": ${variables.value}.datatype.value !== "${xsd.string.value}" ? ${variables.value}.datatype.value : undefined, "@value": ${variables.value}.value })`;
   }
 }

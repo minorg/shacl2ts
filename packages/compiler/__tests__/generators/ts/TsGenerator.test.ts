@@ -501,6 +501,36 @@ describe("TsGenerator", () => {
     instance.hash(sha256.create());
   });
 
+  it("toJson: or properties", ({ expect }) => {
+    const instance = new kitchenSink.NodeShapeWithOrProperties({
+      identifier: dataFactory.namedNode("http://example.com/instance"),
+      orLiteralsProperty: 1,
+      orUnrelatedProperty: { type: "0-number", value: 1 },
+      orTermsProperty: dataFactory.literal("test"),
+    });
+    const jsonObject = instance.toJson();
+    expect(jsonObject.identifier).toStrictEqual("http://example.com/instance");
+    expect(jsonObject.type).toStrictEqual("NodeShapeWithOrProperties");
+    expect(jsonObject.orLiteralsProperty).toStrictEqual({
+      "@type": "http://www.w3.org/2001/XMLSchema#integer",
+      "@value": "1",
+    });
+    expect(jsonObject.orTermsProperty).toStrictEqual("test");
+  });
+
+  it("toJson: child-parent", ({ expect }) => {
+    const instance = new kitchenSink.ConcreteChildClassNodeShape({
+      abcStringProperty: "abc",
+      childStringProperty: "child",
+      parentStringProperty: "parent",
+    });
+    const jsonObject = instance.toJson();
+    expect(jsonObject.abcStringProperty).toStrictEqual("abc");
+    expect(jsonObject.childStringProperty).toStrictEqual("child");
+    expect(jsonObject.parentStringProperty).toStrictEqual("parent");
+    expect(jsonObject.type).toStrictEqual("ConcreteChildClassNodeShape");
+  });
+
   it("toRdf: should populate a dataset", ({ expect }) => {
     const dataset = new N3.Store();
     const resourceSet = new MutableResourceSet({ dataFactory, dataset });
@@ -551,7 +581,7 @@ describe("TsGenerator", () => {
     expect(ttl).not.toHaveLength(0);
   });
 
-  it("to: explicit RDF types", ({ expect }) => {
+  it("toRdf: explicit RDF types", ({ expect }) => {
     const dataset = new N3.Store();
     const resource = new kitchenSink.NodeShapeWithExplicitRdfTypes({
       identifier: dataFactory.blankNode(),
