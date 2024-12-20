@@ -1600,10 +1600,10 @@ export class NodeShapeWithOrProperties {
               "@type": string | undefined;
               "@value": string;
             }
-          | string
+          | { "@id": string }
         )
       | undefined;
-    readonly orUnrelatedProperty: (number | string) | undefined;
+    readonly orUnrelatedProperty: (number | { "@id": string }) | undefined;
     readonly type: string;
   } {
     return JSON.parse(
@@ -1630,7 +1630,7 @@ export class NodeShapeWithOrProperties {
         orTermsProperty: this.orTermsProperty
           .map((_item) =>
             _item.termType === "NamedNode"
-              ? _item.value
+              ? { "@id": _item.value }
               : _item.datatype.value ===
                     "http://www.w3.org/2001/XMLSchema#string" &&
                   _item.language.length === 0
@@ -1650,7 +1650,7 @@ export class NodeShapeWithOrProperties {
         orUnrelatedProperty: this.orUnrelatedProperty
           .map((_item) =>
             _item.type === "1-rdfjs.NamedNode"
-              ? _item.value.value
+              ? { "@id": _item.value.value }
               : _item.value,
           )
           .extract(),
@@ -2367,7 +2367,7 @@ export class NodeShapeWithInProperties {
     readonly "@id": string;
     readonly inBooleansProperty: boolean | undefined;
     readonly inDateTimesProperty: string | undefined;
-    readonly inIrisProperty: string | undefined;
+    readonly inIrisProperty: { "@id": string } | undefined;
     readonly inNumbersProperty: number | undefined;
     readonly inStringsProperty: string | undefined;
     readonly type: string;
@@ -2382,7 +2382,7 @@ export class NodeShapeWithInProperties {
           .map((_item) => _item.toISOString())
           .extract(),
         inIrisProperty: this.inIrisProperty
-          .map((_item) => _item.value)
+          .map((_item) => ({ "@id": _item.value }))
           .extract(),
         inNumbersProperty: this.inNumbersProperty
           .map((_item) => _item)
@@ -2825,7 +2825,7 @@ export class NodeShapeWithHasValueProperties {
   }
 
   toJson(): {
-    readonly hasIriProperty: string | undefined;
+    readonly hasIriProperty: { "@id": string } | undefined;
     readonly hasLiteralProperty: string | undefined;
     readonly "@id": string;
     readonly type: string;
@@ -2833,7 +2833,7 @@ export class NodeShapeWithHasValueProperties {
     return JSON.parse(
       JSON.stringify({
         hasIriProperty: this.hasIriProperty
-          .map((_item) => _item.value)
+          .map((_item) => ({ "@id": _item.value }))
           .extract(),
         hasLiteralProperty: this.hasLiteralProperty
           .map((_item) => _item)
@@ -3429,7 +3429,7 @@ export class NodeShapeWithExternProperties {
     readonly externObjectTypeProperty:
       | ReturnType<ExternObjectType["toJson"]>
       | undefined;
-    readonly externProperty: string | undefined;
+    readonly externProperty: { "@id": string } | undefined;
     readonly "@id": string;
     readonly inlineProperty: ReturnType<InlineNodeShape["toJson"]> | undefined;
     readonly type: string;
@@ -3440,7 +3440,7 @@ export class NodeShapeWithExternProperties {
           .map((_item) => _item.toJson())
           .extract(),
         externProperty: this.externProperty
-          .map((_item) => _item.value)
+          .map((_item) => ({ "@id": _item.value }))
           .extract(),
         "@id": this.identifier,
         inlineProperty: this.inlineProperty

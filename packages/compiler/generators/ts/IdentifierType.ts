@@ -11,7 +11,7 @@ export class IdentifierType extends RdfjsTermType<
   BlankNode | NamedNode,
   NamedNode
 > {
-  readonly jsonName = "string";
+  readonly jsonName = `{ "@id": string }`;
   readonly kind = "IdentifierType";
   readonly nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
 
@@ -103,7 +103,7 @@ export class IdentifierType extends RdfjsTermType<
   override propertyToJsonExpression({
     variables,
   }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
-    return `${variables.value}.value`;
+    return `{ "@id": ${variables.value}.value }`;
   }
 
   protected override fromRdfResourceValueExpression({
