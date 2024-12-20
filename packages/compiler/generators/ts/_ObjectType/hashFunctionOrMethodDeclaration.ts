@@ -1,4 +1,3 @@
-import { camelCase } from "change-case";
 import { Maybe } from "purify-ts";
 import type {
   OptionalKind,
@@ -22,22 +21,12 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     return Maybe.empty();
   }
 
-  let thisVariable: string;
-  switch (this.declarationType) {
-    case "class":
-      thisVariable = "this";
-      break;
-    case "interface":
-      thisVariable = `_${camelCase(this.name)}`;
-      break;
-  }
-
   const propertyHashStatements = this.properties.flatMap((property) =>
     property.hashStatements({
       depth: 0,
       variables: {
         hasher: hasherVariable,
-        value: `${thisVariable}.${property.name}`,
+        value: `${this.thisVariable}.${property.name}`,
       },
     }),
   );
@@ -53,7 +42,7 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   const parameters: OptionalKind<ParameterDeclarationStructure>[] = [];
   if (this.declarationType === "interface") {
     parameters.push({
-      name: thisVariable,
+      name: this.thisVariable,
       type: this.name,
     });
   }
@@ -75,7 +64,7 @@ export function hashFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
       case "interface": {
         for (const parentObjectType of this.parentObjectTypes) {
           statements.push(
-            `${parentObjectType.name}.${parentObjectType.hashFunctionName}(${thisVariable}, ${hasherVariable});`,
+            `${parentObjectType.name}.${parentObjectType.hashFunctionName}(${this.thisVariable}, ${hasherVariable});`,
           );
         }
         break;

@@ -1,4 +1,5 @@
 import type { NamedNode } from "@rdfjs/types";
+import { camelCase } from "change-case";
 import { Maybe } from "purify-ts";
 import { invariant } from "ts-invariant";
 import {
@@ -242,6 +243,17 @@ export class ObjectType extends DeclaredType {
 
   override get useImports(): readonly Import[] {
     return this.import_.toList();
+  }
+
+  protected get thisVariable(): string {
+    switch (this.declarationType) {
+      case "class":
+        return "this";
+      case "interface":
+        return `_${camelCase(this.name)}`;
+      default:
+        throw new RangeError(this.declarationType);
+    }
   }
 
   override propertyChainSparqlGraphPatternExpression({

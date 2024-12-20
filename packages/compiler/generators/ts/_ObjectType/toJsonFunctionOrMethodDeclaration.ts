@@ -21,16 +21,6 @@ export function toJsonFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     return Maybe.empty();
   }
 
-  let thisVariable: string;
-  switch (this.declarationType) {
-    case "class":
-      thisVariable = "this";
-      break;
-    case "interface":
-      thisVariable = camelCase(this.name);
-      break;
-  }
-
   const jsonObjectMembers: string[] = [];
   const returnType: string[] = [];
 
@@ -48,7 +38,7 @@ export function toJsonFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
       case "interface":
         for (const parentObjectType of this.parentObjectTypes) {
           jsonObjectMembers.push(
-            `...${parentObjectType.name}.toJson(${thisVariable});`,
+            `...${parentObjectType.name}.toJson(${this.thisVariable});`,
           );
         }
         break;
@@ -74,14 +64,14 @@ export function toJsonFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
 
   for (const property of this.ownProperties) {
     jsonObjectMembers.push(
-      `${property.name}: ${property.toJsonExpression({ variables: { value: `${thisVariable}.${property.name}` } })}`,
+      `${property.name}: ${property.toJsonExpression({ variables: { value: `${this.thisVariable}.${property.name}` } })}`,
     );
   }
 
   const parameters: OptionalKind<ParameterDeclarationStructure>[] = [];
   if (this.declarationType === "interface") {
     parameters.push({
-      name: thisVariable,
+      name: this.thisVariable,
       type: this.name,
     });
   }
