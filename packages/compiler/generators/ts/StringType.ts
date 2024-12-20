@@ -3,6 +3,7 @@ import { PrimitiveType } from "./PrimitiveType.js";
 import type { Type } from "./Type.js";
 
 export class StringType extends PrimitiveType<string> {
+  override readonly jsonDeclaration = "string";
   readonly kind = "StringType";
 
   override get conversions(): readonly Type.Conversion[] {

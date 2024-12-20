@@ -94,6 +94,14 @@ export class TypeDiscriminatorProperty extends Property<TypeDiscriminatorPropert
     return Maybe.empty();
   }
 
+  override toJsonExpression({
+    variables,
+  }: Parameters<
+    Property<TypeDiscriminatorProperty.Type>["toJsonExpression"]
+  >[0]): string {
+    return variables.value;
+  }
+
   override toRdfStatements(): readonly string[] {
     return [];
   }
@@ -101,6 +109,7 @@ export class TypeDiscriminatorProperty extends Property<TypeDiscriminatorPropert
 
 export namespace TypeDiscriminatorProperty {
   export interface Type {
+    readonly jsonDeclaration: string;
     readonly name: string;
   }
 }

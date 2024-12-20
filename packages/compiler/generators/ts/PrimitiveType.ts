@@ -44,4 +44,10 @@ export abstract class PrimitiveType<
   }: Parameters<Type["propertyHashStatements"]>[0]): readonly string[] {
     return [`${variables.hasher}.update(${variables.value}.toString());`];
   }
+
+  override propertyToJsonExpression({
+    variables,
+  }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
+    return variables.value;
+  }
 }

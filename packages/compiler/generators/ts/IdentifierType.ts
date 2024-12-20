@@ -11,6 +11,7 @@ export class IdentifierType extends RdfjsTermType<
   BlankNode | NamedNode,
   NamedNode
 > {
+  readonly jsonDeclaration = "string";
   readonly kind = "IdentifierType";
   readonly nodeKinds: Set<NodeKind.BLANK_NODE | NodeKind.IRI>;
 
@@ -97,6 +98,12 @@ export class IdentifierType extends RdfjsTermType<
     return [
       `${variables.hasher}.update(rdfjsResource.Resource.Identifier.toString(${variables.value}));`,
     ];
+  }
+
+  override propertyToJsonExpression({
+    variables,
+  }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
+    return `${variables.value}.value`;
   }
 
   protected override fromRdfResourceValueExpression({

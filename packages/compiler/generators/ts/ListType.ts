@@ -50,6 +50,10 @@ export class ListType extends Type {
     return Maybe.empty();
   }
 
+  get jsonDeclaration(): string {
+    return `readonly (${this.itemType.jsonDeclaration})[]`;
+  }
+
   override get name(): string {
     return `readonly ${this.itemType.name}[]`;
   }
@@ -114,6 +118,12 @@ export class ListType extends Type {
     return [
       `for (const _element${depth} of ${variables.value}) { ${this.itemType.propertyHashStatements({ depth: depth + 1, variables: { ...variables, value: `_element${depth}` } }).join("\n")} }`,
     ];
+  }
+
+  override propertyToJsonExpression({
+    variables,
+  }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
+    return `${variables.value}.map(_item => (${this.itemType.propertyToJsonExpression({ variables: { value: "_item" } })}))`;
   }
 
   override propertyToRdfExpression({

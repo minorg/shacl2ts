@@ -11,6 +11,7 @@ const tsFeaturesDefault: Set<TsFeature> = new Set([
   "equals",
   "fromRdf",
   "hash",
+  "toJson",
   "toRdf",
   "sparql-graph-patterns",
 ]);

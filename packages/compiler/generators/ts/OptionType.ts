@@ -42,6 +42,10 @@ export class OptionType extends Type {
     return conversions;
   }
 
+  get jsonDeclaration(): string {
+    return `(${this.itemType.jsonDeclaration}) | undefined`;
+  }
+
   @Memoize()
   get name(): string {
     return `purify.Maybe<${this.itemType.name}>`;
@@ -99,6 +103,12 @@ export class OptionType extends Type {
     return new Type.SparqlGraphPatternExpression(
       `sparqlBuilder.GraphPattern.optional(${this.itemType.propertySparqlGraphPatternExpression(parameters).toSparqlGraphPatternExpression()})`,
     );
+  }
+
+  override propertyToJsonExpression({
+    variables,
+  }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
+    return `${variables.value}.map(_item => (${this.itemType.propertyToJsonExpression({ variables: { value: "_item" } })})).extract()`;
   }
 
   override propertyToRdfExpression({

@@ -18,6 +18,10 @@ import type { IdentifierType } from "./IdentifierType.js";
 import { Import } from "./Import.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
+import {
+  IdentifierProperty,
+  TypeDiscriminatorProperty,
+} from "./_ObjectType/index.js";
 
 export class ObjectType extends DeclaredType {
   readonly abstract: boolean;
@@ -136,6 +140,7 @@ export class ObjectType extends DeclaredType {
       ..._ObjectType.fromRdfFunctionDeclaration.bind(this)().toList(),
       ..._ObjectType.hashFunctionDeclaration.bind(this)().toList(),
       ..._ObjectType.sparqlGraphPatternsClassDeclaration.bind(this)().toList(),
+      ..._ObjectType.toJsonFunctionDeclaration.bind(this)().toList(),
       ..._ObjectType.toRdfFunctionDeclaration.bind(this)().toList(),
     ];
 
@@ -195,6 +200,25 @@ export class ObjectType extends DeclaredType {
   @Memoize()
   get identifierType(): IdentifierType {
     return this.identifierProperty.type;
+  }
+
+  get jsonDeclaration(): string {
+    return `ReturnType<${this.name}["toJson"]>`;
+  }
+
+  @Memoize()
+  get ownProperties(): readonly ObjectType.Property[] {
+    if (this.parentObjectTypes.length === 0) {
+      // Consider that a root of the object type hierarchy "owns" the identifier and type discriminator properties
+      // for all of its subtypes in the hierarchy.
+      invariant(this.properties.length >= 2, this.name);
+      return this.properties;
+    }
+    return this.properties.filter(
+      (property) =>
+        !(property instanceof IdentifierProperty) &&
+        !(property instanceof TypeDiscriminatorProperty),
+    );
   }
 
   @Memoize()
@@ -257,6 +281,17 @@ export class ObjectType extends DeclaredType {
         return [
           `${this.name}.${this.hashFunctionName}(${variables.value}, ${variables.hasher});`,
         ];
+    }
+  }
+
+  override propertyToJsonExpression({
+    variables,
+  }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
+    switch (this.declarationType) {
+      case "class":
+        return `${variables.value}.toJson()`;
+      case "interface":
+        return `${this.name}.toJson(${variables.value})`;
     }
   }
 

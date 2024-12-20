@@ -3,6 +3,7 @@ import { PrimitiveType } from "./PrimitiveType.js";
 import type { Type } from "./Type.js";
 
 export class BooleanType extends PrimitiveType<boolean> {
+  override readonly jsonDeclaration = "boolean";
   readonly kind = "BooleanType";
 
   override get conversions(): readonly Type.Conversion[] {

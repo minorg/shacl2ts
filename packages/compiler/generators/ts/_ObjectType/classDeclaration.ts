@@ -12,6 +12,7 @@ import {
 import type { ObjectType } from "../ObjectType.js";
 import { equalsFunctionOrMethodDeclaration } from "./equalsFunctionOrMethodDeclaration.js";
 import { hashFunctionOrMethodDeclaration } from "./hashFunctionOrMethodDeclaration.js";
+import { toJsonFunctionOrMethodDeclaration } from "./toJsonFunctionOrMethodDeclaration.js";
 import { toRdfFunctionOrMethodDeclaration } from "./toRdfFunctionOrMethodDeclaration.js";
 
 function constructorDeclaration(
@@ -112,6 +113,7 @@ export function classDeclaration(
     methods: [
       ...equalsMethodDeclaration.bind(this)().toList(),
       ...hashMethodDeclaration.bind(this)().toList(),
+      ...toJsonMethodDeclaration.bind(this)().toList(),
       ...toRdfMethodDeclaration.bind(this)().toList(),
     ],
     name: this.name,
@@ -133,6 +135,17 @@ function hashMethodDeclaration(
     .map((hashFunctionOrMethodDeclaration) => ({
       ...hashFunctionOrMethodDeclaration,
       name: "hash",
+    }));
+}
+
+function toJsonMethodDeclaration(
+  this: ObjectType,
+): Maybe<OptionalKind<MethodDeclarationStructure>> {
+  return toJsonFunctionOrMethodDeclaration
+    .bind(this)()
+    .map((toJsonFunctionOrMethodDeclaration) => ({
+      ...toJsonFunctionOrMethodDeclaration,
+      hasOverrideKeyword: this.parentObjectTypes.length > 0,
     }));
 }
 

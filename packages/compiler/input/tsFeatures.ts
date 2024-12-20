@@ -17,6 +17,8 @@ export function tsFeatures(resource: Resource): Maybe<Set<TsFeature>> {
       tsFeatures.add("hash");
     } else if (featureIri.equals(shaclmate._TsFeature_SparqlGraphPatterns)) {
       tsFeatures.add("sparql-graph-patterns");
+    } else if (featureIri.equals(shaclmate._TsFeature_ToJson)) {
+      tsFeatures.add("toJson");
     } else if (featureIri.equals(shaclmate._TsFeature_ToRdf)) {
       tsFeatures.add("toRdf");
     } else {

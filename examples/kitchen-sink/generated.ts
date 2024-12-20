@@ -76,6 +76,20 @@ export class UuidV4IriNodeShape {
     return _hasher;
   }
 
+  toJson(): {
+    readonly identifier: string;
+    readonly stringProperty: string;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        identifier: this.identifier.value,
+        stringProperty: this.stringProperty,
+        type: this.type,
+      }),
+    );
+  }
+
   toRdf({
     mutateGraph,
     resourceSet,
@@ -209,6 +223,20 @@ export class Sha256IriNodeShape {
   >(_hasher: HasherT): HasherT {
     _hasher.update(this.stringProperty);
     return _hasher;
+  }
+
+  toJson(): {
+    readonly identifier: string;
+    readonly stringProperty: string;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        identifier: this.identifier.value,
+        stringProperty: this.stringProperty,
+        type: this.type,
+      }),
+    );
   }
 
   toRdf({
@@ -346,6 +374,20 @@ export class OrNodeShapeMember2 {
     return _hasher;
   }
 
+  toJson(): {
+    readonly identifier: string;
+    readonly stringProperty2: string;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        identifier: this.identifier.value,
+        stringProperty2: this.stringProperty2,
+        type: this.type,
+      }),
+    );
+  }
+
   toRdf({
     mutateGraph,
     resourceSet,
@@ -481,6 +523,20 @@ export class OrNodeShapeMember1 {
     return _hasher;
   }
 
+  toJson(): {
+    readonly identifier: string;
+    readonly stringProperty1: string;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        identifier: this.identifier.value,
+        stringProperty1: this.stringProperty1,
+        type: this.type,
+      }),
+    );
+  }
+
   toRdf({
     mutateGraph,
     resourceSet,
@@ -614,6 +670,20 @@ export class NonClassNodeShape {
   >(_hasher: HasherT): HasherT {
     _hasher.update(this.stringProperty);
     return _hasher;
+  }
+
+  toJson(): {
+    readonly identifier: string;
+    readonly stringProperty: string;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        identifier: this.identifier.value,
+        stringProperty: this.stringProperty,
+        type: this.type,
+      }),
+    );
   }
 
   toRdf({
@@ -783,6 +853,24 @@ export class NodeShapeWithPropertyVisibilities {
     _hasher.update(this.protectedProperty);
     _hasher.update(this.publicProperty);
     return _hasher;
+  }
+
+  toJson(): {
+    readonly identifier: string;
+    readonly privateProperty: string;
+    readonly protectedProperty: string;
+    readonly publicProperty: string;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        identifier: this.identifier.value,
+        privateProperty: this.privateProperty,
+        protectedProperty: this.protectedProperty,
+        publicProperty: this.publicProperty,
+        type: this.type,
+      }),
+    );
   }
 
   toRdf({
@@ -1036,6 +1124,26 @@ export class NodeShapeWithPropertyCardinalities {
     }
 
     return _hasher;
+  }
+
+  toJson(): {
+    readonly identifier: string;
+    readonly optionalStringProperty: string | undefined;
+    readonly requiredStringProperty: string;
+    readonly setStringProperty: readonly string[];
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        identifier: this.identifier.value,
+        optionalStringProperty: this.optionalStringProperty
+          .map((_item) => _item)
+          .extract(),
+        requiredStringProperty: this.requiredStringProperty,
+        setStringProperty: this.setStringProperty.map((_item) => _item),
+        type: this.type,
+      }),
+    );
   }
 
   toRdf({
@@ -1444,6 +1552,85 @@ export class NodeShapeWithOrProperties {
     return _hasher;
   }
 
+  toJson(): {
+    readonly identifier: string;
+    readonly orLiteralsProperty:
+      | (
+          | string
+          | {
+              "@language": string | undefined;
+              "@type": string | undefined;
+              "@value": string;
+            }
+        )
+      | undefined;
+    readonly orTermsProperty:
+      | (
+          | string
+          | {
+              "@language": string | undefined;
+              "@type": string | undefined;
+              "@value": string;
+            }
+          | string
+        )
+      | undefined;
+    readonly orUnrelatedProperty: (number | string) | undefined;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        identifier: this.identifier.value,
+        orLiteralsProperty: this.orLiteralsProperty
+          .map((_item) =>
+            _item.datatype.value ===
+              "http://www.w3.org/2001/XMLSchema#string" &&
+            _item.language.length === 0
+              ? _item.value
+              : {
+                  "@language":
+                    _item.language.length > 0 ? _item.language : undefined,
+                  "@type":
+                    _item.datatype.value !==
+                    "http://www.w3.org/2001/XMLSchema#string"
+                      ? _item.datatype.value
+                      : undefined,
+                  "@value": _item.value,
+                },
+          )
+          .extract(),
+        orTermsProperty: this.orTermsProperty
+          .map((_item) =>
+            _item.termType === "NamedNode"
+              ? _item.value
+              : _item.datatype.value ===
+                    "http://www.w3.org/2001/XMLSchema#string" &&
+                  _item.language.length === 0
+                ? _item.value
+                : {
+                    "@language":
+                      _item.language.length > 0 ? _item.language : undefined,
+                    "@type":
+                      _item.datatype.value !==
+                      "http://www.w3.org/2001/XMLSchema#string"
+                        ? _item.datatype.value
+                        : undefined,
+                    "@value": _item.value,
+                  },
+          )
+          .extract(),
+        orUnrelatedProperty: this.orUnrelatedProperty
+          .map((_item) =>
+            _item.type === "1-rdfjs.NamedNode"
+              ? _item.value.value
+              : _item.value,
+          )
+          .extract(),
+        type: this.type,
+      }),
+    );
+  }
+
   toRdf({
     mutateGraph,
     resourceSet,
@@ -1734,6 +1921,20 @@ export class NodeShapeWithListProperty {
     return _hasher;
   }
 
+  toJson(): {
+    readonly identifier: string;
+    readonly listProperty: readonly string[];
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        identifier: this.identifier.value,
+        listProperty: this.listProperty.map((_item) => _item),
+        type: this.type,
+      }),
+    );
+  }
+
   toRdf({
     mutateGraph,
     resourceSet,
@@ -1749,7 +1950,7 @@ export class NodeShapeWithListProperty {
     _resource.add(
       dataFactory.namedNode("http://example.com/listProperty"),
       this.listProperty.reduce(
-        ({ currentSubListResource, listResource }, item, itemIndex) => {
+        ({ currentSubListResource, listResource }, item, itemIndex, list) => {
           if (itemIndex === 0) {
             currentSubListResource = listResource;
           } else {
@@ -1780,7 +1981,7 @@ export class NodeShapeWithListProperty {
             item,
           );
 
-          if (itemIndex + 1 === this.listProperty.length) {
+          if (itemIndex + 1 === list.length) {
             currentSubListResource.add(
               dataFactory.namedNode(
                 "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",
@@ -1832,6 +2033,32 @@ export namespace NodeShapeWithListProperty {
         unique: true,
       })
       .head()
+      .chain((value) =>
+        value
+          .toResource()
+          .map((resource) =>
+            resource.isInstanceOf(
+              dataFactory.namedNode("http://example.com/ListShape"),
+            ),
+          )
+          .orDefault(false)
+          ? purify.Right<
+              rdfjsResource.Resource.Value,
+              rdfjsResource.Resource.ValueError
+            >(value)
+          : purify.Left<
+              rdfjsResource.Resource.ValueError,
+              rdfjsResource.Resource.Value
+            >(
+              new rdfjsResource.Resource.ValueError({
+                focusResource: _resource,
+                message: "unexpected RDF type",
+                predicate: dataFactory.namedNode(
+                  "http://example.com/ListShape",
+                ),
+              }),
+            ),
+      )
       .chain((value) => value.toList())
       .map((values) =>
         values.flatMap((_value) =>
@@ -1867,7 +2094,12 @@ export namespace NodeShapeWithListProperty {
             this.variable("ListProperty"),
           ).chainObject(
             (_object) =>
-              new sparqlBuilder.RdfListGraphPatterns({ rdfList: _object }),
+              new sparqlBuilder.RdfListGraphPatterns({
+                rdfListType: dataFactory.namedNode(
+                  "http://example.com/ListShape",
+                ),
+                rdfList: _object,
+              }),
           ),
         ),
       );
@@ -2093,6 +2325,38 @@ export class NodeShapeWithInProperties {
       _hasher.update(_value0);
     });
     return _hasher;
+  }
+
+  toJson(): {
+    readonly identifier: string;
+    readonly inBooleansProperty: boolean | undefined;
+    readonly inDateTimesProperty: string | undefined;
+    readonly inIrisProperty: string | undefined;
+    readonly inNumbersProperty: number | undefined;
+    readonly inStringsProperty: string | undefined;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        identifier: this.identifier.value,
+        inBooleansProperty: this.inBooleansProperty
+          .map((_item) => _item)
+          .extract(),
+        inDateTimesProperty: this.inDateTimesProperty
+          .map((_item) => _item.toISOString())
+          .extract(),
+        inIrisProperty: this.inIrisProperty
+          .map((_item) => _item.value)
+          .extract(),
+        inNumbersProperty: this.inNumbersProperty
+          .map((_item) => _item)
+          .extract(),
+        inStringsProperty: this.inStringsProperty
+          .map((_item) => _item)
+          .extract(),
+        type: this.type,
+      }),
+    );
   }
 
   toRdf({
@@ -2520,6 +2784,26 @@ export class NodeShapeWithHasValueProperties {
     return _hasher;
   }
 
+  toJson(): {
+    readonly hasIriProperty: string | undefined;
+    readonly hasLiteralProperty: string | undefined;
+    readonly identifier: string;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        hasIriProperty: this.hasIriProperty
+          .map((_item) => _item.value)
+          .extract(),
+        hasLiteralProperty: this.hasLiteralProperty
+          .map((_item) => _item)
+          .extract(),
+        identifier: this.identifier.value,
+        type: this.type,
+      }),
+    );
+  }
+
   toRdf({
     mutateGraph,
     resourceSet,
@@ -2708,6 +2992,20 @@ export class InlineNodeShape {
     return _hasher;
   }
 
+  toJson(): {
+    readonly identifier: string;
+    readonly stringProperty: string;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        identifier: this.identifier.value,
+        stringProperty: this.stringProperty,
+        type: this.type,
+      }),
+    );
+  }
+
   toRdf({
     mutateGraph,
     resourceSet,
@@ -2841,6 +3139,20 @@ export class ExternNodeShape {
   >(_hasher: HasherT): HasherT {
     _hasher.update(this.stringProperty);
     return _hasher;
+  }
+
+  toJson(): {
+    readonly identifier: string;
+    readonly stringProperty: string;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        identifier: this.identifier.value,
+        stringProperty: this.stringProperty,
+        type: this.type,
+      }),
+    );
   }
 
   toRdf({
@@ -3059,6 +3371,32 @@ export class NodeShapeWithExternProperties {
       _value0.hash(_hasher);
     });
     return _hasher;
+  }
+
+  toJson(): {
+    readonly externObjectTypeProperty:
+      | ReturnType<ExternObjectType["toJson"]>
+      | undefined;
+    readonly externProperty: string | undefined;
+    readonly identifier: string;
+    readonly inlineProperty: ReturnType<InlineNodeShape["toJson"]> | undefined;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        externObjectTypeProperty: this.externObjectTypeProperty
+          .map((_item) => _item.toJson())
+          .extract(),
+        externProperty: this.externProperty
+          .map((_item) => _item.value)
+          .extract(),
+        identifier: this.identifier.value,
+        inlineProperty: this.inlineProperty
+          .map((_item) => _item.toJson())
+          .extract(),
+        type: this.type,
+      }),
+    );
   }
 
   toRdf({
@@ -3396,6 +3734,28 @@ export class NodeShapeWithDefaultValueProperties {
     return _hasher;
   }
 
+  toJson(): {
+    readonly dateTimeProperty: string;
+    readonly falseBooleanProperty: boolean;
+    readonly identifier: string;
+    readonly numberProperty: number;
+    readonly stringProperty: string;
+    readonly trueBooleanProperty: boolean;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        dateTimeProperty: this.dateTimeProperty.toISOString(),
+        falseBooleanProperty: this.falseBooleanProperty,
+        identifier: this.identifier.value,
+        numberProperty: this.numberProperty,
+        stringProperty: this.stringProperty,
+        trueBooleanProperty: this.trueBooleanProperty,
+        type: this.type,
+      }),
+    );
+  }
+
   toRdf({
     mutateGraph,
     resourceSet,
@@ -3725,6 +4085,24 @@ export class NodeShapeWithExplicitRdfTypes {
     return _hasher;
   }
 
+  toJson(): {
+    readonly identifier: string;
+    readonly stringProperty: string;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        "@type": [
+          "http://example.com/ToRdfType",
+          "http://example.com/FromRdfType",
+        ],
+        identifier: this.identifier.value,
+        stringProperty: this.stringProperty,
+        type: this.type,
+      }),
+    );
+  }
+
   toRdf({
     ignoreRdfType,
     mutateGraph,
@@ -3903,6 +4281,20 @@ export class IriNodeShape {
     return _hasher;
   }
 
+  toJson(): {
+    readonly identifier: string;
+    readonly stringProperty: string;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        identifier: this.identifier.value,
+        stringProperty: this.stringProperty,
+        type: this.type,
+      }),
+    );
+  }
+
   toRdf({
     mutateGraph,
     resourceSet,
@@ -4076,6 +4468,20 @@ export namespace InterfaceNodeShape {
     }
   }
 
+  export function toJson(interfaceNodeShape: InterfaceNodeShape): {
+    readonly identifier: string;
+    readonly stringProperty: string;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        identifier: interfaceNodeShape.identifier.value,
+        stringProperty: interfaceNodeShape.stringProperty,
+        type: interfaceNodeShape.type,
+      }),
+    );
+  }
+
   export function toRdf(
     interfaceNodeShape: InterfaceNodeShape,
     {
@@ -4155,6 +4561,20 @@ abstract class AbstractBaseClassWithPropertiesNodeShape {
   >(_hasher: HasherT): HasherT {
     _hasher.update(this.abcStringProperty);
     return _hasher;
+  }
+
+  toJson(): {
+    readonly abcStringProperty: string;
+    readonly identifier: string;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        abcStringProperty: this.abcStringProperty,
+        identifier: this.identifier.value,
+        type: this.type,
+      }),
+    );
   }
 
   toRdf({
@@ -4349,6 +4769,18 @@ export class ConcreteParentClassNodeShape extends AbstractBaseClassWithoutProper
     return _hasher;
   }
 
+  override toJson(): { readonly parentStringProperty: string } & ReturnType<
+    AbstractBaseClassWithoutPropertiesNodeShape["toJson"]
+  > {
+    return JSON.parse(
+      JSON.stringify({
+        ...super.toJson(),
+        "@type": "http://example.com/ConcreteParentClassNodeShape",
+        parentStringProperty: this.parentStringProperty,
+      }),
+    );
+  }
+
   override toRdf({
     ignoreRdfType,
     mutateGraph,
@@ -4519,6 +4951,18 @@ export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
     super.hash(_hasher);
     _hasher.update(this.childStringProperty);
     return _hasher;
+  }
+
+  override toJson(): { readonly childStringProperty: string } & ReturnType<
+    ConcreteParentClassNodeShape["toJson"]
+  > {
+    return JSON.parse(
+      JSON.stringify({
+        ...super.toJson(),
+        "@type": "http://example.com/ConcreteChildClassNodeShape",
+        childStringProperty: this.childStringProperty,
+      }),
+    );
   }
 
   override toRdf({
@@ -4699,6 +5143,20 @@ export abstract class AbstractBaseClassForExternObjectType {
   >(_hasher: HasherT): HasherT {
     _hasher.update(this.abcStringProperty);
     return _hasher;
+  }
+
+  toJson(): {
+    readonly abcStringProperty: string;
+    readonly identifier: string;
+    readonly type: string;
+  } {
+    return JSON.parse(
+      JSON.stringify({
+        abcStringProperty: this.abcStringProperty,
+        identifier: this.identifier.value,
+        type: this.type,
+      }),
+    );
   }
 
   toRdf({

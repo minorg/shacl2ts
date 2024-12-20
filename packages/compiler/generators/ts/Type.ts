@@ -15,6 +15,11 @@ export abstract class Type {
    */
   abstract readonly conversions: readonly Type.Conversion[];
 
+  /**
+   * JSON-compatible returned by propertyToJsonExpression.
+   */
+  abstract readonly jsonDeclaration: string;
+
   abstract readonly kind:
     | ast.Type["kind"]
     | "BooleanType"
@@ -116,6 +121,16 @@ export abstract class Type {
     });
     return new Type.SparqlGraphPatternExpression(expression);
   }
+
+  /**
+   * An expression that converts a property value of this type to a JSON-LD compatible value. It can assume the presence
+   * of the correct JSON-LD context.
+   */
+  abstract propertyToJsonExpression(parameters: {
+    variables: {
+      value: string;
+    };
+  }): string;
 
   /**
    * An expression that converts a property value of this type to one that that can be .add'd to
