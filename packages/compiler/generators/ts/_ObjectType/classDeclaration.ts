@@ -115,6 +115,7 @@ export function classDeclaration(
       ...hashMethodDeclaration.bind(this)().toList(),
       ...toJsonMethodDeclaration.bind(this)().toList(),
       ...toRdfMethodDeclaration.bind(this)().toList(),
+      ...toStringMethodDeclaration.bind(this)().toList(),
     ],
     name: this.name,
     properties,
@@ -158,4 +159,19 @@ function toRdfMethodDeclaration(
       ...toRdfFunctionOrMethodDeclaration,
       hasOverrideKeyword: this.parentObjectTypes.length > 0,
     }));
+}
+
+function toStringMethodDeclaration(
+  this: ObjectType,
+): Maybe<OptionalKind<MethodDeclarationStructure>> {
+  if (!this.features.has("toJson")) {
+    return Maybe.empty();
+  }
+
+  return Maybe.of({
+    hasOverrideKeyword: this.parentObjectTypes.length > 0,
+    name: "toString",
+    returnType: "string",
+    statements: ["return JSON.stringify(this.toJson());"],
+  });
 }
