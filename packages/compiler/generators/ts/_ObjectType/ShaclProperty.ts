@@ -80,6 +80,14 @@ export class ShaclProperty extends Property<Type> {
     };
   }
 
+  override get jsonPropertySignature(): OptionalKind<PropertySignatureStructure> {
+    return {
+      isReadonly: true,
+      name: this.name,
+      type: this.type.jsonDeclaration,
+    };
+  }
+
   @Memoize()
   private get pathExpression(): string {
     return `${this.dataFactoryVariable}.namedNode("${this.path.value}")`;
@@ -157,10 +165,10 @@ export class ShaclProperty extends Property<Type> {
     );
   }
 
-  override toJsonExpression(
-    parameters: Parameters<Type["propertyToJsonExpression"]>[0],
+  override toJsonObjectMember(
+    parameters: Parameters<Property<Type>["toJsonObjectMember"]>[0],
   ): string {
-    return this.type.propertyToJsonExpression(parameters);
+    return `${this.name}: ${this.type.propertyToJsonExpression(parameters)}`;
   }
 
   override toRdfStatements({

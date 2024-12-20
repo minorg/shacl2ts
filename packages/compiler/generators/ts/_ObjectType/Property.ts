@@ -10,9 +10,7 @@ import type { PropertyVisibility } from "../../../enums/index.js";
 import type { Import } from "../Import.js";
 import type { Type } from "../Type.js";
 
-export abstract class Property<
-  TypeT extends { readonly jsonDeclaration: string; readonly name: string },
-> {
+export abstract class Property<TypeT extends { readonly name: string }> {
   abstract readonly classConstructorParametersPropertySignature: Maybe<
     OptionalKind<PropertySignatureStructure>
   >;
@@ -24,6 +22,7 @@ export abstract class Property<
   >;
   abstract readonly equalsFunction: string;
   abstract readonly interfacePropertySignature: OptionalKind<PropertySignatureStructure>;
+  abstract readonly jsonPropertySignature: OptionalKind<PropertySignatureStructure>;
   readonly name: string;
   readonly type: TypeT;
   readonly visibility: PropertyVisibility;
@@ -48,10 +47,6 @@ export abstract class Property<
 
   get declarationImports(): readonly Import[] {
     return [];
-  }
-
-  get jsonDeclaration(): string {
-    return `readonly ${this.name}: ${this.type.jsonDeclaration}`;
   }
 
   protected static visibilityToScope(
@@ -86,9 +81,9 @@ export abstract class Property<
 
   abstract sparqlGraphPatternExpression(): Maybe<string>;
 
-  abstract toJsonExpression(
-    parameters: Parameters<Type["propertyToJsonExpression"]>[0],
-  ): string;
+  abstract toJsonObjectMember(parameters: {
+    variables: { value: string };
+  }): string;
 
   abstract toRdfStatements(parameters: {
     variables: Omit<

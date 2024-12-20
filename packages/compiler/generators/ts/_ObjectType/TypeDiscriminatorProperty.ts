@@ -76,6 +76,14 @@ export class TypeDiscriminatorProperty extends Property<TypeDiscriminatorPropert
     };
   }
 
+  override get jsonPropertySignature(): OptionalKind<PropertySignatureStructure> {
+    return {
+      isReadonly: true,
+      name: this.name,
+      type: "string",
+    };
+  }
+
   override classConstructorStatements(): readonly string[] {
     return [];
   }
@@ -94,12 +102,12 @@ export class TypeDiscriminatorProperty extends Property<TypeDiscriminatorPropert
     return Maybe.empty();
   }
 
-  override toJsonExpression({
+  override toJsonObjectMember({
     variables,
   }: Parameters<
-    Property<TypeDiscriminatorProperty.Type>["toJsonExpression"]
+    Property<TypeDiscriminatorProperty.Type>["toJsonObjectMember"]
   >[0]): string {
-    return variables.value;
+    return `${this.name}: ${variables.value}`;
   }
 
   override toRdfStatements(): readonly string[] {
@@ -109,7 +117,6 @@ export class TypeDiscriminatorProperty extends Property<TypeDiscriminatorPropert
 
 export namespace TypeDiscriminatorProperty {
   export interface Type {
-    readonly jsonDeclaration: string;
     readonly name: string;
   }
 }

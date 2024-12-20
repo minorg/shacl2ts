@@ -1,4 +1,3 @@
-import { camelCase } from "change-case";
 import { Maybe } from "purify-ts";
 import type { OptionalKind, ParameterDeclarationStructure } from "ts-morph";
 import type { ObjectType } from "../ObjectType.js";
@@ -24,12 +23,6 @@ export function toJsonFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   const jsonObjectMembers: string[] = [];
   const returnType: string[] = [];
 
-  if (this.ownProperties.length > 0) {
-    returnType.push(
-      `{ ${this.ownProperties.map((property) => property.jsonDeclaration)} }`,
-    );
-  }
-
   if (this.parentObjectTypes.length > 0) {
     switch (this.declarationType) {
       case "class":
@@ -49,6 +42,25 @@ export function toJsonFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     }
   }
 
+  if (this.ownProperties.length > 0) {
+    for (const property of this.ownProperties) {
+      jsonObjectMembers.push(
+        property.toJsonObjectMember({
+          variables: { value: `${this.thisVariable}.${property.name}` },
+        }),
+      );
+    }
+
+    returnType.splice(
+      0,
+      0,
+      `{ ${this.ownProperties.map((property) => {
+        const propertySignature = property.jsonPropertySignature;
+        return `readonly ${propertySignature.name}: ${propertySignature.type}`;
+      })} }`,
+    );
+  }
+
   switch (this.toRdfTypes.length) {
     case 0:
       break;
@@ -60,12 +72,6 @@ export function toJsonFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
         `"@type": ${JSON.stringify(this.toRdfTypes.map((rdfType) => rdfType.value))}`,
       );
       break;
-  }
-
-  for (const property of this.ownProperties) {
-    jsonObjectMembers.push(
-      `${property.name}: ${property.toJsonExpression({ variables: { value: `${this.thisVariable}.${property.name}` } })}`,
-    );
   }
 
   const parameters: OptionalKind<ParameterDeclarationStructure>[] = [];

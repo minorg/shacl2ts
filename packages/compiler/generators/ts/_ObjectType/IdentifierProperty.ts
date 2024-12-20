@@ -156,6 +156,21 @@ export class IdentifierProperty extends Property<IdentifierType> {
     };
   }
 
+  override get jsonPropertySignature(): OptionalKind<PropertySignatureStructure> {
+    const type: string[] = [];
+    if (this.type.nodeKinds.has(NodeKind.IRI)) {
+      type.push("string");
+    }
+    if (this.type.nodeKinds.has(NodeKind.BLANK_NODE)) {
+      type.push("undefined");
+    }
+    return {
+      isReadonly: true,
+      name: "@id",
+      type: type.join(" | "),
+    };
+  }
+
   override classConstructorStatements({
     variables,
   }: Parameters<
@@ -183,10 +198,19 @@ export class IdentifierProperty extends Property<IdentifierType> {
     return Maybe.empty();
   }
 
-  override toJsonExpression(
-    parameters: Parameters<Property<IdentifierType>["toJsonExpression"]>[0],
-  ): string {
-    return this.type.propertyToJsonExpression(parameters);
+  override toJsonObjectMember({
+    variables,
+  }: Parameters<Property<IdentifierType>["toJsonObjectMember"]>[0]): string {
+    if (
+      this.type.nodeKinds.has(NodeKind.BLANK_NODE) &&
+      this.type.nodeKinds.has(NodeKind.IRI)
+    ) {
+      return `${variables.value}.termType === "NamedNode" ? ${variables.value} : undefined`;
+    }
+    if (this.type.nodeKinds.has(NodeKind.BLANK_NODE)) {
+      return `"@id": undefined`;
+    }
+    return `"@id": ${variables.value}`;
   }
 
   override toRdfStatements(): readonly string[] {
