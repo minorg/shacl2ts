@@ -101,7 +101,7 @@ export class SetType extends Type {
   override propertyToJsonExpression({
     variables,
   }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
-    return `${variables.value}.map(_item => ${this.itemType.propertyToJsonExpression({ variables: { value: "_item" } })})`;
+    return `${variables.value}.map(_item => (${this.itemType.propertyToJsonExpression({ variables: { value: "_item" } })}))`;
   }
 
   override propertyToRdfExpression({

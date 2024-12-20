@@ -108,7 +108,7 @@ export class OptionType extends Type {
   override propertyToJsonExpression({
     variables,
   }: Parameters<Type["propertyToJsonExpression"]>[0]): string {
-    return `${variables.value}.map(_item => ${this.itemType.propertyToJsonExpression({ variables: { value: "_item" } })}).extract()`;
+    return `${variables.value}.map(_item => (${this.itemType.propertyToJsonExpression({ variables: { value: "_item" } })})).extract()`;
   }
 
   override propertyToRdfExpression({

@@ -15,7 +15,7 @@ export function toJsonFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
 
   if (
     this.declarationType === "class" &&
-    this.properties.length === 0 &&
+    this.ownProperties.length === 0 &&
     this.parentObjectTypes.length > 0
   ) {
     return Maybe.empty();
@@ -34,9 +34,9 @@ export function toJsonFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   const jsonObjectMembers: string[] = [];
   const returnType: string[] = [];
 
-  if (this.properties.length > 0) {
+  if (this.ownProperties.length > 0) {
     returnType.push(
-      `{ ${this.properties.map((property) => property.jsonDeclaration)} }`,
+      `{ ${this.ownProperties.map((property) => property.jsonDeclaration)} }`,
     );
   }
 
@@ -72,7 +72,7 @@ export function toJsonFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
       break;
   }
 
-  for (const property of this.properties) {
+  for (const property of this.ownProperties) {
     jsonObjectMembers.push(
       `${property.name}: ${property.toJsonExpression({ variables: { value: `${thisVariable}.${property.name}` } })}`,
     );

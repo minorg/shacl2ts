@@ -51,7 +51,7 @@ export abstract class Property<
   }
 
   get jsonDeclaration(): string {
-    return `${this.name}: ${this.type.jsonDeclaration}`;
+    return `readonly ${this.name}: ${this.type.jsonDeclaration}`;
   }
 
   protected static visibilityToScope(
