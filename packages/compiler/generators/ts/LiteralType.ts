@@ -6,7 +6,7 @@ import { RdfjsTermType } from "./RdfjsTermType.js";
 import type { Type } from "./Type.js";
 
 export class LiteralType extends RdfjsTermType<Literal, Literal> {
-  readonly jsonDeclaration =
+  readonly jsonDeclaration: string =
     'string | { "@language": string | undefined, "@type": string | undefined, "@value": string }';
 
   readonly kind:
