@@ -83,10 +83,10 @@ export class UuidV4IriNodeShape {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         stringProperty: this.stringProperty,
         type: this.type,
-      }),
+      } satisfies ReturnType<UuidV4IriNodeShape["toJson"]>),
     );
   }
 
@@ -236,10 +236,10 @@ export class Sha256IriNodeShape {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         stringProperty: this.stringProperty,
         type: this.type,
-      }),
+      } satisfies ReturnType<Sha256IriNodeShape["toJson"]>),
     );
   }
 
@@ -389,10 +389,10 @@ export class OrNodeShapeMember2 {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         stringProperty2: this.stringProperty2,
         type: this.type,
-      }),
+      } satisfies ReturnType<OrNodeShapeMember2["toJson"]>),
     );
   }
 
@@ -542,10 +542,10 @@ export class OrNodeShapeMember1 {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         stringProperty1: this.stringProperty1,
         type: this.type,
-      }),
+      } satisfies ReturnType<OrNodeShapeMember1["toJson"]>),
     );
   }
 
@@ -695,10 +695,10 @@ export class NonClassNodeShape {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         stringProperty: this.stringProperty,
         type: this.type,
-      }),
+      } satisfies ReturnType<NonClassNodeShape["toJson"]>),
     );
   }
 
@@ -884,12 +884,12 @@ export class NodeShapeWithPropertyVisibilities {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         privateProperty: this.privateProperty,
         protectedProperty: this.protectedProperty,
         publicProperty: this.publicProperty,
         type: this.type,
-      }),
+      } satisfies ReturnType<NodeShapeWithPropertyVisibilities["toJson"]>),
     );
   }
 
@@ -1159,14 +1159,14 @@ export class NodeShapeWithPropertyCardinalities {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         optionalStringProperty: this.optionalStringProperty
           .map((_item) => _item)
           .extract(),
         requiredStringProperty: this.requiredStringProperty,
         setStringProperty: this.setStringProperty.map((_item) => _item),
         type: this.type,
-      }),
+      } satisfies ReturnType<NodeShapeWithPropertyCardinalities["toJson"]>),
     );
   }
 
@@ -1613,7 +1613,7 @@ export class NodeShapeWithOrProperties {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         orLiteralsProperty: this.orLiteralsProperty
           .map((_item) =>
             _item.datatype.value ===
@@ -1656,14 +1656,14 @@ export class NodeShapeWithOrProperties {
           .map((_item) =>
             _item.type === "1-rdfjs.NamedNode"
               ? {
-                  type: "1-rdfjs.NamedNode",
+                  type: "1-rdfjs.NamedNode" as const,
                   value: { "@id": _item.value.value },
                 }
-              : { type: "0-number", value: _item.value },
+              : { type: "0-number" as const, value: _item.value },
           )
           .extract(),
         type: this.type,
-      }),
+      } satisfies ReturnType<NodeShapeWithOrProperties["toJson"]>),
     );
   }
 
@@ -1968,10 +1968,10 @@ export class NodeShapeWithListProperty {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         listProperty: this.listProperty.map((_item) => _item),
         type: this.type,
-      }),
+      } satisfies ReturnType<NodeShapeWithListProperty["toJson"]>),
     );
   }
 
@@ -2382,7 +2382,7 @@ export class NodeShapeWithInProperties {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         inBooleansProperty: this.inBooleansProperty
           .map((_item) => _item)
           .extract(),
@@ -2399,7 +2399,7 @@ export class NodeShapeWithInProperties {
           .map((_item) => _item)
           .extract(),
         type: this.type,
-      }),
+      } satisfies ReturnType<NodeShapeWithInProperties["toJson"]>),
     );
   }
 
@@ -2846,9 +2846,9 @@ export class NodeShapeWithHasValueProperties {
         hasLiteralProperty: this.hasLiteralProperty
           .map((_item) => _item)
           .extract(),
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         type: this.type,
-      }),
+      } satisfies ReturnType<NodeShapeWithHasValueProperties["toJson"]>),
     );
   }
 
@@ -3051,10 +3051,10 @@ export class InlineNodeShape {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         stringProperty: this.stringProperty,
         type: this.type,
-      }),
+      } satisfies ReturnType<InlineNodeShape["toJson"]>),
     );
   }
 
@@ -3204,10 +3204,10 @@ export class ExternNodeShape {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         stringProperty: this.stringProperty,
         type: this.type,
-      }),
+      } satisfies ReturnType<ExternNodeShape["toJson"]>),
     );
   }
 
@@ -3450,12 +3450,12 @@ export class NodeShapeWithExternProperties {
         externProperty: this.externProperty
           .map((_item) => ({ "@id": _item.value }))
           .extract(),
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         inlineProperty: this.inlineProperty
           .map((_item) => _item.toJson())
           .extract(),
         type: this.type,
-      }),
+      } satisfies ReturnType<NodeShapeWithExternProperties["toJson"]>),
     );
   }
 
@@ -3811,12 +3811,12 @@ export class NodeShapeWithDefaultValueProperties {
       JSON.stringify({
         dateTimeProperty: this.dateTimeProperty.toISOString(),
         falseBooleanProperty: this.falseBooleanProperty,
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         numberProperty: this.numberProperty,
         stringProperty: this.stringProperty,
         trueBooleanProperty: this.trueBooleanProperty,
         type: this.type,
-      }),
+      } satisfies ReturnType<NodeShapeWithDefaultValueProperties["toJson"]>),
     );
   }
 
@@ -4160,14 +4160,10 @@ export class NodeShapeWithExplicitRdfTypes {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         stringProperty: this.stringProperty,
         type: this.type,
-        "@type": [
-          "http://example.com/ToRdfType",
-          "http://example.com/FromRdfType",
-        ],
-      }),
+      } satisfies ReturnType<NodeShapeWithExplicitRdfTypes["toJson"]>),
     );
   }
 
@@ -4360,10 +4356,10 @@ export class IriNodeShape {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         stringProperty: this.stringProperty,
         type: this.type,
-      }),
+      } satisfies ReturnType<IriNodeShape["toJson"]>),
     );
   }
 
@@ -4551,10 +4547,10 @@ export namespace InterfaceNodeShape {
   } {
     return JSON.parse(
       JSON.stringify({
-        "@id": _interfaceNodeShape.identifier,
+        "@id": _interfaceNodeShape.identifier.value,
         stringProperty: _interfaceNodeShape.stringProperty,
         type: _interfaceNodeShape.type,
-      }),
+      } satisfies ReturnType<typeof InterfaceNodeShape.toJson>),
     );
   }
 
@@ -4647,9 +4643,11 @@ abstract class AbstractBaseClassWithPropertiesNodeShape {
     return JSON.parse(
       JSON.stringify({
         abcStringProperty: this.abcStringProperty,
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         type: this.type,
-      }),
+      } satisfies ReturnType<
+        AbstractBaseClassWithPropertiesNodeShape["toJson"]
+      >),
     );
   }
 
@@ -4860,8 +4858,7 @@ export class ConcreteParentClassNodeShape extends AbstractBaseClassWithoutProper
       JSON.stringify({
         ...super.toJson(),
         parentStringProperty: this.parentStringProperty,
-        "@type": "http://example.com/ConcreteParentClassNodeShape",
-      }),
+      } satisfies ReturnType<ConcreteParentClassNodeShape["toJson"]>),
     );
   }
 
@@ -5048,8 +5045,7 @@ export class ConcreteChildClassNodeShape extends ConcreteParentClassNodeShape {
       JSON.stringify({
         ...super.toJson(),
         childStringProperty: this.childStringProperty,
-        "@type": "http://example.com/ConcreteChildClassNodeShape",
-      }),
+      } satisfies ReturnType<ConcreteChildClassNodeShape["toJson"]>),
     );
   }
 
@@ -5245,9 +5241,9 @@ export abstract class AbstractBaseClassForExternObjectType {
     return JSON.parse(
       JSON.stringify({
         abcStringProperty: this.abcStringProperty,
-        "@id": this.identifier,
+        "@id": this.identifier.value,
         type: this.type,
-      }),
+      } satisfies ReturnType<AbstractBaseClassForExternObjectType["toJson"]>),
     );
   }
 

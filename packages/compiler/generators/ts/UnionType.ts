@@ -217,7 +217,7 @@ ${this.memberTypeTraits
     if (this._discriminatorProperty.synthetic) {
       return this.ternaryExpression({
         memberTypeExpression: (memberTypeTraits) =>
-          `{ type: "${memberTypeTraits.discriminatorPropertyValues[0]}", value: ${memberTypeTraits.memberType.propertyToJsonExpression(
+          `{ type: "${memberTypeTraits.discriminatorPropertyValues[0]}" as const, value: ${memberTypeTraits.memberType.propertyToJsonExpression(
             {
               variables: {
                 ...variables,

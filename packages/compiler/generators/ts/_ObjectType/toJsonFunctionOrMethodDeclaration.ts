@@ -21,25 +21,33 @@ export function toJsonFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
   }
 
   const jsonObjectMembers: string[] = [];
+  const parameters: OptionalKind<ParameterDeclarationStructure>[] = [];
   const returnType: string[] = [];
+  let satisfies: string;
 
-  if (this.parentObjectTypes.length > 0) {
-    switch (this.declarationType) {
-      case "class":
+  switch (this.declarationType) {
+    case "class":
+      if (this.parentObjectTypes.length > 0) {
         jsonObjectMembers.push("...super.toJson()");
-        break;
-      case "interface":
-        for (const parentObjectType of this.parentObjectTypes) {
-          jsonObjectMembers.push(
-            `...${parentObjectType.name}.toJson(${this.thisVariable});`,
-          );
-        }
-        break;
-    }
+      }
+      satisfies = `ReturnType<${this.name}["toJson"]>`;
+      break;
+    case "interface":
+      for (const parentObjectType of this.parentObjectTypes) {
+        jsonObjectMembers.push(
+          `...${parentObjectType.name}.toJson(${this.thisVariable});`,
+        );
+      }
+      parameters.push({
+        name: this.thisVariable,
+        type: this.name,
+      });
+      satisfies = `ReturnType<typeof ${this.name}.toJson>`;
+      break;
+  }
 
-    for (const parentObjectType of this.parentObjectTypes) {
-      returnType.push(parentObjectType.jsonName);
-    }
+  for (const parentObjectType of this.parentObjectTypes) {
+    returnType.push(parentObjectType.jsonName);
   }
 
   if (this.ownProperties.length > 0) {
@@ -63,33 +71,26 @@ export function toJsonFunctionOrMethodDeclaration(this: ObjectType): Maybe<{
     );
   }
 
-  switch (this.toRdfTypes.length) {
-    case 0:
-      break;
-    case 1:
-      jsonObjectMembers.push(`"@type": "${this.toRdfTypes[0].value}"`);
-      break;
-    default:
-      jsonObjectMembers.push(
-        `"@type": ${JSON.stringify(this.toRdfTypes.map((rdfType) => rdfType.value))}`,
-      );
-      break;
-  }
-
-  const parameters: OptionalKind<ParameterDeclarationStructure>[] = [];
-  if (this.declarationType === "interface") {
-    parameters.push({
-      name: this.thisVariable,
-      type: this.name,
-    });
-  }
+  // 20241220: don't add @type until we're doing JSON-LD
+  // switch (this.toRdfTypes.length) {
+  //   case 0:
+  //     break;
+  //   case 1:
+  //     jsonObjectMembers.push(`"@type": "${this.toRdfTypes[0].value}"`);
+  //     break;
+  //   default:
+  //     jsonObjectMembers.push(
+  //       `"@type": ${JSON.stringify(this.toRdfTypes.map((rdfType) => rdfType.value))}`,
+  //     );
+  //     break;
+  // }
 
   return Maybe.of({
     name: "toJson",
     parameters,
     returnType: returnType.length > 0 ? returnType.join(" & ") : "object",
     statements: [
-      `return JSON.parse(JSON.stringify({ ${jsonObjectMembers.join(",")} }));`,
+      `return JSON.parse(JSON.stringify({ ${jsonObjectMembers.join(",")} } satisfies ${satisfies}));`,
     ],
   });
 }

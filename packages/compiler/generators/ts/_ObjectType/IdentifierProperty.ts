@@ -194,7 +194,7 @@ export class IdentifierProperty extends Property<IdentifierType> {
   override toJsonObjectMember({
     variables,
   }: Parameters<Property<IdentifierType>["toJsonObjectMember"]>[0]): string {
-    return `"@id": ${variables.value}`;
+    return `"@id": ${variables.value}.value`;
   }
 
   override toRdfStatements(): readonly string[] {
