@@ -509,7 +509,7 @@ describe("TsGenerator", () => {
       orTermsProperty: dataFactory.literal("test"),
     });
     const jsonObject = instance.toJson();
-    expect(jsonObject.identifier).toStrictEqual("http://example.com/instance");
+    expect(jsonObject["@id"]).toStrictEqual("http://example.com/instance");
     expect(jsonObject.type).toStrictEqual("NodeShapeWithOrProperties");
     expect(jsonObject.orLiteralsProperty).toStrictEqual({
       "@type": "http://www.w3.org/2001/XMLSchema#integer",
@@ -679,7 +679,7 @@ describe("TsGenerator", () => {
       parentStringProperty: "parent",
     });
     expect(instance.toString()).toStrictEqual(
-      '{"abcStringProperty":"abc","identifier":"http://example.com/test","type":"ConcreteChildClassNodeShape","@type":"http://example.com/ConcreteChildClassNodeShape","parentStringProperty":"parent","childStringProperty":"child"}',
+      '{"abcStringProperty":"abc","@id":"http://example.com/test","type":"ConcreteChildClassNodeShape","parentStringProperty":"parent","childStringProperty":"child"}',
     );
   });
 });
