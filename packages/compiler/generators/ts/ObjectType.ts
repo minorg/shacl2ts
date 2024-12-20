@@ -18,6 +18,10 @@ import type { IdentifierType } from "./IdentifierType.js";
 import { Import } from "./Import.js";
 import { Type } from "./Type.js";
 import * as _ObjectType from "./_ObjectType/index.js";
+import {
+  IdentifierProperty,
+  TypeDiscriminatorProperty,
+} from "./_ObjectType/index.js";
 
 export class ObjectType extends DeclaredType {
   readonly abstract: boolean;
@@ -200,6 +204,21 @@ export class ObjectType extends DeclaredType {
 
   get jsonDeclaration(): string {
     return `ReturnType<${this.name}["toJson"]>`;
+  }
+
+  @Memoize()
+  get ownProperties(): readonly ObjectType.Property[] {
+    if (this.parentObjectTypes.length === 0) {
+      // Consider that a root of the object type hierarchy "owns" the identifier and type discriminator properties
+      // for all of its subtypes in the hierarchy.
+      invariant(this.properties.length >= 2, this.name);
+      return this.properties;
+    }
+    return this.properties.filter(
+      (property) =>
+        !(property instanceof IdentifierProperty) &&
+        !(property instanceof TypeDiscriminatorProperty),
+    );
   }
 
   @Memoize()
